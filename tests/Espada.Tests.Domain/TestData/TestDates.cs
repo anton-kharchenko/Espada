@@ -23,5 +23,7 @@ namespace Espada.Tests.Domain.TestData
         public static readonly DateTimeOffset ImportCompletedAtUtc = new(2026, 7, 26, 10, 10, 0, TimeSpan.Zero);
         
         public static readonly DateTimeOffset ChunkCreatedAtUtc = new(2026, 7, 24, 18, 0, 0, TimeSpan.Zero);
+        
+        public static readonly DateTimeOffset ChunkEmbeddingCreatedAtUtc = new(2026, 7, 24, 19, 0, 0, TimeSpan.Zero);
     }
 }

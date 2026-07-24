@@ -17,6 +17,10 @@ namespace Espada.Tests.Domain.TestData
         
         public static readonly ChunkId DefaultChunkId = ChunkId.Create(Guid.Parse("99999999-9999-9999-9999-999999999999"));
         public static readonly ChunkId SecondChunkId = ChunkId.Create(Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"));
+        
         public static readonly ChunkBatchId DefaultChunkBatchId = ChunkBatchId.Create(Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"));
+        
+        public static readonly ChunkEmbeddingId DefaultChunkEmbeddingId = ChunkEmbeddingId.Create(Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"));
+        public static readonly ChunkEmbeddingId SecondChunkEmbeddingId = ChunkEmbeddingId.Create(Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"));
     }
 }
