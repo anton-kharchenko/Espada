@@ -2,7 +2,7 @@ namespace Espada.Tests.Domain.TestData.Builders;
 
 internal sealed class WorkspaceBuilder
 {
-    private WorkspaceId _id = TestIds.WorkspaceId;
+    private WorkspaceId _id = TestIds.DefaultWorkspaceId;
 
     private WorkspaceName _name = CreateName("Espada Workspace");
 

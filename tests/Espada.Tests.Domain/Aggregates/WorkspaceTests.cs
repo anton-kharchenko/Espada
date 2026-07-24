@@ -1,5 +1,4 @@
 using Espada.Tests.Domain.TestData.Builders;
-using Espada.Tests.Domain.TestData.Constants;
 
 namespace Espada.Tests.Domain.Aggregates;
 
@@ -9,7 +8,7 @@ public sealed class WorkspaceTests
     public void Create_WithValidArguments_ShouldCreateActiveWorkspace()
     {
         // Arrange
-        WorkspaceId id = TestIds.WorkspaceId;
+        WorkspaceId id = TestIds.DefaultWorkspaceId;
         WorkspaceName? name = WorkspaceName.Create("Espada Team").Value;
         DateTimeOffset createdAtUtc = new(2026, 7, 24, 10, 30, 0, TimeSpan.Zero);
 
@@ -33,11 +32,11 @@ public sealed class WorkspaceTests
     public void Create_WithValidArguments_ShouldRaiseCreatedEvent()
     {
         // Arrange
-        DateTimeOffset createdAtUtc = TestValues.CreatedAtUtc;
+        DateTimeOffset createdAtUtc = TestDates.CreatedAtUtc;
 
         // Act
         Workspace workspace = new WorkspaceBuilder()
-            .WithId(TestIds.WorkspaceId)
+            .WithId(TestIds.DefaultWorkspaceId)
             .WithName("Espada Team")
             .WithType(WorkspaceType.Team)
             .CreatedAt(createdAtUtc)
@@ -46,7 +45,7 @@ public sealed class WorkspaceTests
         // Assert
         WorkspaceCreatedDomainEvent domainEvent = workspace.ShouldHaveSingleDomainEvent<WorkspaceCreatedDomainEvent>();
 
-        domainEvent.WorkspaceId.Should().Be(TestIds.WorkspaceId);
+        domainEvent.WorkspaceId.Should().Be(TestIds.DefaultWorkspaceId);
         domainEvent.Name.Should().Be("Espada Team");
         domainEvent.CreatedAtUtc.Should().Be(createdAtUtc);
     }
@@ -87,12 +86,12 @@ public sealed class WorkspaceTests
     {
         // Arrange
         Workspace first = new WorkspaceBuilder()
-            .WithId(TestIds.WorkspaceId)
+            .WithId(TestIds.DefaultWorkspaceId)
             .WithName("First name")
             .Build();
 
         Workspace second = new WorkspaceBuilder()
-            .WithId(TestIds.WorkspaceId)
+            .WithId(TestIds.DefaultWorkspaceId)
             .WithName("Second name")
             .Build();
 
@@ -109,7 +108,7 @@ public sealed class WorkspaceTests
     {
         // Arrange
         Workspace first = new WorkspaceBuilder()
-            .WithId(TestIds.WorkspaceId)
+            .WithId(TestIds.DefaultWorkspaceId)
             .Build();
 
         Workspace second = new WorkspaceBuilder()

@@ -6,9 +6,13 @@ internal static class DomainEventAssertions
     {
         ArgumentNullException.ThrowIfNull(source);
 
-        source.DomainEvents.Should().ContainSingle(domainEvent => domainEvent is TEvent);
+        source.DomainEvents.Should().ContainSingle();
 
-        return source.DomainEvents.OfType<TEvent>().Single();
+        IDomainEvent domainEvent = source.DomainEvents.Single();
+
+        domainEvent.Should().BeOfType<TEvent>();
+
+        return (TEvent)domainEvent;
     }
 
     public static void ShouldHaveNoDomainEvents(this IHasDomainEvents source)
