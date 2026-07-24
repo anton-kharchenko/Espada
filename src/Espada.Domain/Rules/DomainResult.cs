@@ -1,19 +1,22 @@
-using System;
-using System.Diagnostics.CodeAnalysis;
-
 namespace Espada.Domain.Rules;
 
 public class DomainResult
 {
-    internal DomainResult(bool isSuccess, DomainError error)
+    protected DomainResult(bool isSuccess, DomainError error)
     {
-        if (isSuccess == (error != DomainError.None))
-        {
-            throw new InvalidOperationException();
-        }
+        ArgumentNullException.ThrowIfNull(error);
 
-        IsSuccess = isSuccess;
-        Error = error;
+        switch (isSuccess)
+        {
+            case true when error != DomainError.None:
+                throw new InvalidOperationException("A successful result cannot contain an error.");
+            case false when error == DomainError.None:
+                throw new InvalidOperationException("A failed result must contain an error.");
+            default:
+                IsSuccess = isSuccess;
+                Error = error;
+                break;
+        }
     }
 
     public bool IsSuccess { get; }
@@ -26,38 +29,26 @@ public class DomainResult
 
     public static DomainResult Failure(DomainError error) => new(false, error);
 
-    public static DomainResult<TValue> Success<TValue>(TValue value) => new(value, true, DomainError.None);
+    public static DomainResult<TValue> Success<TValue>(TValue value)
+    {
+        ArgumentNullException.ThrowIfNull(value);
 
-    public static DomainResult<TValue> Failure<TValue>(DomainError error) => new(false, error);
+        return new DomainResult<TValue>(value, true, DomainError.None);
+    }
+
+    public static DomainResult<TValue> Failure<TValue>(DomainError error) => new(default, false, error);
 }
 
 public sealed class DomainResult<TValue> : DomainResult
 {
-    internal DomainResult(TValue value, bool isSuccess, DomainError error) : base(isSuccess, error)
+    internal DomainResult(TValue? value, bool isSuccess, DomainError error) : base(isSuccess, error)
     {
         Value = value;
     }
 
-    internal DomainResult(bool isSuccess, DomainError error) : base(isSuccess, error)
-    {
-    }
+    public TValue Value => IsFailure ? throw new InvalidOperationException("The value of a failed result cannot be accessed.") : field!;
 
-    [MemberNotNullWhen(true, nameof(Value))]
-    public new bool IsSuccess => base.IsSuccess;
+    public static DomainResult<TValue> Success(TValue value) => new(value, true, DomainError.None);
 
-    [MemberNotNullWhen(false, nameof(Value))]
-    public new bool IsFailure => base.IsFailure;
-
-    public TValue? Value
-    {
-        get
-        {
-            if (!IsSuccess)
-            {
-                throw new InvalidOperationException("The value of a failure result can not be accessed.");
-            }
-
-            return field;
-        }
-    }
+    public static DomainResult<TValue> Failure(DomainError error) => new(default, false, error);
 }

@@ -1,6 +1,6 @@
 namespace Espada.Domain.Rules;
 
-public sealed record DomainError(string Code, string Reason)
+public sealed record DomainError(string Code, string Description)
 {
-    public static readonly DomainError None = new(string.Empty, string.Empty);
+    public static DomainError None { get; } = new(string.Empty, string.Empty);
 }
