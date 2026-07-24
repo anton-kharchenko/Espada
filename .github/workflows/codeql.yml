@@ -38,7 +38,9 @@ jobs:
         with:
           global-json-file: global.json
           cache: true
-          cache-dependency-path: Directory.Packages.props
+          cache-dependency-path: |
+            Directory.Packages.props
+            **/packages.lock.json
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
@@ -47,11 +49,11 @@ jobs:
           queries: security-and-quality
 
       - name: Restore
-        run: dotnet restore Espada.slnx
+        run: dotnet restore Espada.sln --locked-mode
 
       - name: Build
         run: >
-          dotnet build Espada.slnx
+          dotnet build Espada.sln
           --configuration Release
           --no-restore
           -p:ContinuousIntegrationBuild=true
