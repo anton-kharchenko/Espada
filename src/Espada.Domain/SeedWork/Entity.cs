@@ -1,14 +1,26 @@
-using System.Collections.Generic;
-
 namespace Espada.Domain.SeedWork;
 
-public abstract class Entity<TId>()
+public abstract class Entity<TId>
+    where TId : notnull
 {
     private int? _requestedHashCode;
 
+    protected Entity()
+    {
+    }
+
+    protected Entity(TId id)
+    {
+        ArgumentNullException.ThrowIfNull(id);
+        Id = id;
+    }
+
     public TId Id { get; protected set; } = default!;
 
-    private bool IsTransient() => EqualityComparer<TId>.Default.Equals(Id, default!);
+    private bool IsTransient()
+    {
+        return EqualityComparer<TId>.Default.Equals(Id, default!);
+    }
 
     public override bool Equals(object? obj)
     {
@@ -42,11 +54,15 @@ public abstract class Entity<TId>()
             return base.GetHashCode();
         }
 
-        _requestedHashCode ??= Id?.GetHashCode() is int idHash ? (idHash ^ 31) : base.GetHashCode();
+        _requestedHashCode ??=
+            Id.GetHashCode() ^ 31;
+
         return _requestedHashCode.Value;
     }
 
-    public static bool operator ==(Entity<TId>? left, Entity<TId>? right)
+    public static bool operator ==(
+        Entity<TId>? left,
+        Entity<TId>? right)
     {
         if (left is null && right is null)
         {
@@ -61,5 +77,10 @@ public abstract class Entity<TId>()
         return left.Equals(right);
     }
 
-    public static bool operator !=(Entity<TId>? left, Entity<TId>? right) => !(left == right);
+    public static bool operator !=(
+        Entity<TId>? left,
+        Entity<TId>? right)
+    {
+        return !(left == right);
+    }
 }

@@ -33,8 +33,8 @@ public abstract class Enumeration(int id, string name) : IComparable
             return false;
         }
 
-        var typeMatches = GetType() == obj.GetType();
-        var valueMatches = Id.Equals(otherValue.Id);
+        bool typeMatches = GetType() == obj.GetType();
+        bool valueMatches = Id.Equals(otherValue.Id);
 
         return typeMatches && valueMatches;
     }
