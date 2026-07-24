@@ -10,5 +10,9 @@ namespace Espada.Tests.Domain.TestData
         
         public static readonly ArtifactRevisionId FirstRevisionId = ArtifactRevisionId.Create(Guid.Parse("55555555-5555-5555-5555-555555555555"));
         public static readonly ArtifactRevisionId SecondRevisionId = ArtifactRevisionId.Create(Guid.Parse("66666666-6666-6666-6666-666666666666"));
+        
+        public static readonly SourceId DefaultSourceId = SourceId.Create(Guid.Parse("77777777-7777-7777-7777-777777777777"));
+        
+        public static readonly ImportJobId DefaultImportJobId = ImportJobId.Create(Guid.Parse("88888888-8888-8888-8888-888888888888"));
     }
 }

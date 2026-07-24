@@ -14,5 +14,12 @@ namespace Espada.Tests.Domain.TestData
         
         public static readonly DateTimeOffset FirstRevisionCreatedAtUtc = new(2026, 7, 27, 15, 0, 0, TimeSpan.Zero);
         public static readonly DateTimeOffset SecondRevisionCreatedAtUtc = new(2026, 7, 28, 16, 0, 0, TimeSpan.Zero);
+        
+        public static readonly DateTimeOffset SourceCreatedAtUtc = new(2026, 7, 24, 10, 0, 0, TimeSpan.Zero);
+        public static readonly DateTimeOffset SourceArchivedAtUtc = new(2026, 7, 25, 10, 0, 0, TimeSpan.Zero);
+
+        public static readonly DateTimeOffset ImportRequestedAtUtc = new(2026, 7, 26, 10, 0, 0, TimeSpan.Zero);
+        public static readonly DateTimeOffset ImportStartedAtUtc = new(2026, 7, 26, 10, 5, 0, TimeSpan.Zero);
+        public static readonly DateTimeOffset ImportCompletedAtUtc = new(2026, 7, 26, 10, 10, 0, TimeSpan.Zero);
     }
 }
