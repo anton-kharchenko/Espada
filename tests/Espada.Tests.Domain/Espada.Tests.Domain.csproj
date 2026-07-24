@@ -13,7 +13,20 @@
         <PackageReference Include="FluentAssertions" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" />
         <PackageReference Include="xunit.v3" />
+
         <PackageReference Include="xunit.runner.visualstudio">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>
+                runtime;
+                build;
+                native;
+                contentfiles;
+                analyzers;
+                buildtransitive
+            </IncludeAssets>
+        </PackageReference>
+
+        <PackageReference Include="coverlet.collector">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>
                 runtime;
@@ -27,7 +40,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\Espada.Domain\Espada.Domain.csproj" />
+        <ProjectReference Include="..\..\src\Espada.Domain\Espada.Domain.csproj" />
     </ItemGroup>
 
 </Project>
