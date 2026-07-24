@@ -6,9 +6,9 @@
 
     <ItemGroup>
         <!-- .NET Aspire -->
-        <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.2.3" />
-        <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.2.3" />
-        <PackageVersion Include="Aspire.Hosting.Redis" Version="13.2.3" />
+        <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.4.6" />
+        <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.4.6" />
+        <PackageVersion Include="Aspire.Hosting.Redis" Version="13.4.6" />
         <PackageVersion Include="Aspire.Hosting.Testing" Version="13.2.3" />
         <PackageVersion Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.2.3" />
 
@@ -112,8 +112,8 @@
         <PackageVersion Include="xunit.v3" Version="3.2.2" />
 
 
-        <PackageVersion Include="CommunityToolkit.Aspire.Hosting.McpInspector" Version="13.1.2-beta.518" />
-        <PackageVersion Include="CommunityToolkit.Aspire.Hosting.Stripe" Version="13.1.2-beta.518" />
+        <PackageVersion Include="CommunityToolkit.Aspire.Hosting.McpInspector" Version="13.4.0" />
+        <PackageVersion Include="CommunityToolkit.Aspire.Hosting.Stripe" Version="13.4.0" />
         
     </ItemGroup>
 </Project>
