@@ -2,23 +2,26 @@ namespace Espada.Tests.Domain.Assertions;
 
 internal static class DomainEventAssertions
 {
-    public static TEvent ShouldHaveSingleDomainEvent<TEvent>(this IHasDomainEvents source) where TEvent : IDomainEvent
+    extension(IHasDomainEvents source)
     {
-        ArgumentNullException.ThrowIfNull(source);
+        public TEvent ShouldHaveSingleDomainEvent<TEvent>() where TEvent : IDomainEvent
+        {
+            ArgumentNullException.ThrowIfNull(source);
 
-        source.DomainEvents.Should().ContainSingle();
+            source.DomainEvents.Should().ContainSingle();
 
-        IDomainEvent domainEvent = source.DomainEvents.Single();
+            IDomainEvent domainEvent = source.DomainEvents.Single();
 
-        domainEvent.Should().BeOfType<TEvent>();
+            domainEvent.Should().BeOfType<TEvent>();
 
-        return (TEvent)domainEvent;
-    }
+            return (TEvent)domainEvent;
+        }
 
-    public static void ShouldHaveNoDomainEvents(this IHasDomainEvents source)
-    {
-        ArgumentNullException.ThrowIfNull(source);
+        public void ShouldHaveNoDomainEvents()
+        {
+            ArgumentNullException.ThrowIfNull(source);
 
-        source.DomainEvents.Should().BeEmpty();
+            source.DomainEvents.Should().BeEmpty();
+        }
     }
 }

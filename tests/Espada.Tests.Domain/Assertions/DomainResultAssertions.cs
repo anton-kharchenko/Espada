@@ -12,19 +12,15 @@ internal static class DomainResultAssertions
         return result.Value;
     }
 
-    public static DomainError ShouldFailWith(this DomainResult result, DomainError expectedError)
+    public static void ShouldFailWith(this DomainResult result, DomainError expectedError)
     {
         result.IsFailure.Should().BeTrue();
         result.Error.Should().Be(expectedError);
-
-        return result.Error;
     }
 
-    public static DomainError ShouldFailWith<TValue>(this DomainResult<TValue> result, DomainError expectedError)
+    public static void ShouldFailWith<TValue>(this DomainResult<TValue> result, DomainError expectedError)
     {
         result.IsFailure.Should().BeTrue();
         result.Error.Should().Be(expectedError);
-
-        return result.Error;
     }
 }

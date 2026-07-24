@@ -9,6 +9,8 @@ namespace Espada.Domain.Aggregates;
 
 public sealed class Artifact : AggregateRoot<ArtifactId>
 {
+    public int RevisionCount => CurrentRevisionNumber?.Value ?? 0;
+    
     private Artifact()
     {
     }
@@ -38,6 +40,10 @@ public sealed class Artifact : AggregateRoot<ArtifactId>
     public ArtifactStatusType Status { get; private set; }
 
     public DateTimeOffset CreatedAtUtc { get; private set; }
+    
+    public ArtifactRevisionId? CurrentRevisionId { get; private set; }
+
+    public RevisionNumber? CurrentRevisionNumber { get; private set; }
 
     public DateTimeOffset UpdatedAtUtc { get; private set; }
 
@@ -99,5 +105,28 @@ public sealed class Artifact : AggregateRoot<ArtifactId>
         RaiseDomainEvent(new ArtifactArchivedDomainEvent(Id, archivedAtUtc));
         
         return DomainResult.Success();
+    }
+    
+    public DomainResult<ArtifactRevision> CreateRevision(ArtifactRevisionId revisionId, ArtifactContent content, DateTimeOffset createdAtUtc)
+    {
+        ArgumentNullException.ThrowIfNull(revisionId);
+        ArgumentNullException.ThrowIfNull(content);
+
+        if (Status.Equals(ArtifactStatusType.Archived))
+        {
+            return DomainResult<ArtifactRevision>.Failure(ArtifactRevisionErrors.ArtifactArchived);
+        }
+
+        RevisionNumber nextNumber = CurrentRevisionNumber?.Next() ?? RevisionNumber.First();
+
+        ArtifactRevision revision = ArtifactRevision.Create(revisionId, Id, nextNumber, content, createdAtUtc);
+
+        CurrentRevisionId = revision.Id;
+        CurrentRevisionNumber = revision.Number;
+        UpdatedAtUtc = createdAtUtc;
+
+        RaiseDomainEvent(new ArtifactRevisionCreatedDomainEvent(Id, revision.Id, revision.Number.Value, revision.ContentHash.Value, revision.SizeInBytes, createdAtUtc));
+
+        return DomainResult<ArtifactRevision>.Success(revision);
     }
 }
