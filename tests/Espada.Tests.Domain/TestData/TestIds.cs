@@ -14,5 +14,9 @@ namespace Espada.Tests.Domain.TestData
         public static readonly SourceId DefaultSourceId = SourceId.Create(Guid.Parse("77777777-7777-7777-7777-777777777777"));
         
         public static readonly ImportJobId DefaultImportJobId = ImportJobId.Create(Guid.Parse("88888888-8888-8888-8888-888888888888"));
+        
+        public static readonly ChunkId DefaultChunkId = ChunkId.Create(Guid.Parse("99999999-9999-9999-9999-999999999999"));
+        public static readonly ChunkId SecondChunkId = ChunkId.Create(Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"));
+        public static readonly ChunkBatchId DefaultChunkBatchId = ChunkBatchId.Create(Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"));
     }
 }

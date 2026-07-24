@@ -6,7 +6,7 @@ namespace Espada.Tests.Domain.ValueObjects;
 public sealed class ArtifactContentTests
 {
     [Theory]
-    [MemberData(nameof(EmptyContentValues))]
+    [MemberData(nameof(StringTheoryData.NullOrWhiteSpaceValues), MemberType = typeof(StringTheoryData))]
     public void Create_WithEmptyContent_ShouldReturnExpectedError(string? value)
     {
         // Act
@@ -102,14 +102,4 @@ public sealed class ArtifactContentTests
         first.Should().Be(second);
         first.GetHashCode().Should().Be(second.GetHashCode());
     }
-
-    public static TheoryData<string?> EmptyContentValues =>
-    [
-        null!,
-        string.Empty,
-        " ",
-        "    ",
-        "\t",
-        "\r\n"
-    ];
 }

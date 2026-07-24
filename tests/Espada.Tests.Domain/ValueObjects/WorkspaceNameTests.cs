@@ -27,7 +27,7 @@ public sealed class WorkspaceNameTests
     }
 
     [Theory]
-    [MemberData(nameof(InvalidEmptyNames))]
+    [MemberData(nameof(StringTheoryData.NullOrWhiteSpaceValues), MemberType = typeof(StringTheoryData))]
     public void Create_WithEmptyValue_ShouldReturnExpectedError(string? value)
     {
         // Act
@@ -77,14 +77,4 @@ public sealed class WorkspaceNameTests
         first.Should().Be(second);
         first.GetHashCode().Should().Be(second.GetHashCode());
     }
-
-    public static TheoryData<string?> InvalidEmptyNames =>
-    [
-        null!,
-        string.Empty,
-        " ",
-        "     ",
-        "\t",
-        "\r\n"
-    ];
 }
