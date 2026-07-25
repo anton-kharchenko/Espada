@@ -76,18 +76,34 @@ namespace Espada.Tests.Application.TestData.Builder
         {
             ImportJob importJob = BuildRunningWithoutPendingEvents();
 
-            DomainResult completeResult =
-                importJob.Complete(
-                    artifactId ??
-                    TestIds.DefaultArtifactId,
-                    artifactRevisionId ??
-                    TestIds.DefaultArtifactRevisionId,
-                    completedAtUtc ??
-                    TestDates.ImportCompletedAtUtc);
+            DomainResult completeResult = importJob.Complete(artifactId ?? TestIds.DefaultArtifactId, artifactRevisionId ?? TestIds.DefaultArtifactRevisionId, completedAtUtc ?? TestDates.ImportCompletedAtUtc);
 
             if (completeResult.IsFailure)
             {
                 throw new InvalidOperationException($"ImportJobBuilder could not complete import job: {completeResult.Error.Code} — {completeResult.Error.Description}");
+            }
+
+            importJob.DequeueDomainEvents();
+
+            return importJob;
+        }
+        
+        public ImportJob BuildFailedWithoutPendingEvents(string failureCode = TestValues.ImportFailureCode, string failureReason = TestValues.ImportFailureReason, DateTimeOffset? failedAtUtc = null)
+        {
+            ImportJob importJob = BuildRunningWithoutPendingEvents();
+
+            DomainResult<ImportFailure> failureResult = ImportFailure.Create(failureCode, failureReason);
+
+            if (failureResult.IsFailure)
+            {
+                throw new InvalidOperationException($"ImportJobBuilder received an invalid failure: {failureResult.Error.Code} — {failureResult.Error.Description}");
+            }
+
+            DomainResult failResult = importJob.Fail(failureResult.Value, failedAtUtc ?? TestDates.ImportFailedAtUtc);
+
+            if (failResult.IsFailure)
+            {
+                throw new InvalidOperationException($"ImportJobBuilder could not fail import job: {failResult.Error.Code} — {failResult.Error.Description}");
             }
 
             importJob.DequeueDomainEvents();
