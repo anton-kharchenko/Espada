@@ -1,3 +1,4 @@
+using Espada.Tests.Api.TestData;
 using System.Net;
 using System.Text.Json;
 using Espada.Tests.Api.Fixtures;
@@ -11,7 +12,7 @@ public sealed class SystemControllerTests(EspadaApiFactory factory) : IClassFixt
     {
         using HttpClient client = factory.CreateHttpsClient();
 
-        HttpResponseMessage response = await client.GetAsync("/api/v1/system", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync(ApiRoutes.System.Get, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 

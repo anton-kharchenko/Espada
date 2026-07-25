@@ -24,7 +24,7 @@ public sealed class SourcesControllerValidationTests(EspadaApiFactory factory) :
             typeId = int.MaxValue
         };
 
-        HttpResponseMessage response = await client.PostAsJsonAsync($"/api/v1/workspaces/{workspaceId}/sources", request, cancellationToken: TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.Sources.Register(workspaceId), request, cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
@@ -50,7 +50,7 @@ public sealed class SourcesControllerValidationTests(EspadaApiFactory factory) :
             typeId = sourceType.Id
         };
 
-        HttpResponseMessage response = await client.PostAsJsonAsync($"/api/v1/workspaces/{workspaceId}/sources", request, cancellationToken: TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.Sources.Register(workspaceId), request, cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
@@ -76,7 +76,7 @@ public sealed class SourcesControllerValidationTests(EspadaApiFactory factory) :
             typeId = sourceType.Id
         };
 
-        HttpResponseMessage response = await client.PostAsJsonAsync($"/api/v1/workspaces/{workspaceId}/sources", request, cancellationToken: TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.Sources.Register(workspaceId), request, cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
