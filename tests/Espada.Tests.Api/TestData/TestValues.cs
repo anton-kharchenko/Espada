@@ -10,4 +10,10 @@ internal static class TestValues
     public const string RenamedArtifactTitle = "Updated architecture overview";
     public const string ArtifactContent = "# Architecture";
     public const string ArtifactRevisionContent = "# Updated architecture";
+    public const string ChunkingStrategyVersion = "fixed-size-v1";
+    public const string ChunkContent = "Espada is a local-first context runtime.";
+    public const string EmbeddingModelIdentifier = "test-embedding-model";
+    public const string EmbeddingModelVersion = "1";
+    public const string ApiKey = "espada-api-tests-key";
+    public const string ApiKeyHeader = "X-Espada-Api-Key";
 }

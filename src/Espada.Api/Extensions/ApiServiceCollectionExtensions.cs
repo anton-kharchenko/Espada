@@ -1,7 +1,7 @@
 using Asp.Versioning;
 using Espada.Api.Filters;
 using Espada.Api.Middlewares;
-using Microsoft.AspNetCore.Mvc;
+using Espada.Api.Security;
 
 namespace Espada.Api.Extensions;
 
@@ -16,10 +16,7 @@ internal static class ApiServiceCollectionExtensions
         services.AddProblemDetails();
         services.AddExceptionHandler<ApiExceptionHandler>();
         services.AddScoped<ValidationFilter>();
-
         services.AddControllers(options => options.Filters.AddService<ValidationFilter>());
-
-        services.Configure<ApiBehaviorOptions>(options => options.SuppressModelStateInvalidFilter = true);
 
         services
             .AddApiVersioning(options =>
@@ -29,7 +26,25 @@ internal static class ApiServiceCollectionExtensions
                 options.ReportApiVersions = true;
                 options.ApiVersionReader = new UrlSegmentApiVersionReader();
             })
-            .AddMvc();
+            .AddMvc()
+            .AddApiExplorer(options =>
+            {
+                options.GroupNameFormat = "'v'VVV";
+                options.SubstituteApiVersionInUrl = true;
+            });
+
+        services.AddOpenApi("v1");
+
+        services
+            .AddAuthentication(ApiKeyAuthenticationDefaults.AuthenticationScheme)
+            .AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(
+                ApiKeyAuthenticationDefaults.AuthenticationScheme,
+                options =>
+                {
+                    IConfigurationSection section = configuration.GetSection(ApiKeyAuthenticationDefaults.ConfigurationSection);
+                    options.HeaderName = section["HeaderName"] ?? ApiKeyAuthenticationDefaults.DefaultHeaderName;
+                    options.ApiKey = section["Value"] ?? string.Empty;
+                });
 
         services.AddAuthorization();
         services.AddHealthChecks();

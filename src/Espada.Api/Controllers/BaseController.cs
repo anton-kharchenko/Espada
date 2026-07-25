@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authorization;
+using Espada.Api.Security;
 using Asp.Versioning;
 using Espada.Api.Contracts.Responses;
 using Espada.Domain.Rules;
@@ -5,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Espada.Api.Controllers;
 
+[Authorize(AuthenticationSchemes = ApiKeyAuthenticationDefaults.AuthenticationScheme)]
 [ApiController]
 [ApiVersion("1.0")]
 [ApiConventionType(typeof(DefaultApiConventions))]
