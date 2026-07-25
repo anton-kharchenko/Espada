@@ -19,5 +19,19 @@ namespace Espada.Tests.Application.TestData
         public const string AnotherImportFailureCode = "PARSER_FAILED";
 
         public const string AnotherImportFailureReason = "The source content could not be parsed.";
+        
+        public const string ArtifactTitle = "Project README";
+
+        public const string ArtifactContent = """
+                                              # Espada
+
+                                              Local-first context runtime.
+                                              """;
+
+        public const string AnotherArtifactContent = """
+                                                     # Espada
+
+                                                     Updated artifact content.
+                                                     """;
     }
 }

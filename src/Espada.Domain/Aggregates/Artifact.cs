@@ -59,10 +59,17 @@ public sealed class Artifact : AggregateRoot<ArtifactId>
         ArgumentNullException.ThrowIfNull(id);
         ArgumentNullException.ThrowIfNull(workspaceId);
         ArgumentNullException.ThrowIfNull(title);
+        ArgumentNullException.ThrowIfNull(type);
 
         Artifact artifact = new(id, workspaceId, title, type, createdAtUtc);
 
-        artifact.RaiseDomainEvent(new ArtifactCreatedDomainEvent(artifact.Id, artifact.WorkspaceId, artifact.Title.Value, artifact.Type, createdAtUtc));
+        artifact.RaiseDomainEvent(
+            new ArtifactCreatedDomainEvent(
+                artifact.Id,
+                artifact.WorkspaceId,
+                artifact.Title.Value,
+                artifact.Type,
+                createdAtUtc));
 
         return DomainResult<Artifact>.Success(artifact);
     }

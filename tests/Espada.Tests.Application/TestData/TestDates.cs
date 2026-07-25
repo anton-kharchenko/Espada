@@ -19,4 +19,6 @@ internal static class TestDates
     public static readonly DateTimeOffset ImportFailedAtUtc = new(2026, 7, 28, 9, 20, 0, TimeSpan.Zero);
     
     public static readonly DateTimeOffset ImportCancelledAtUtc = new(2026, 7, 28, 9, 25, 0, TimeSpan.Zero);
+    
+    public static readonly DateTimeOffset ArtifactCreatedAtUtc = new(2026, 7, 28, 10, 0, 0, TimeSpan.Zero);
 }
