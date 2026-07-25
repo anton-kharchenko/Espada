@@ -1,0 +1,84 @@
+namespace Espada.Infrastructure.Database.Constants;
+
+public static class DbConstants
+{
+    public const string SchemaName = "Espada";
+
+    public static class Tables
+    {
+        public const string Workspaces = "Workspaces";
+        public const string Sources = "Sources";
+        public const string ImportJobs = "ImportJobs";
+        public const string Artifacts = "Artifacts";
+        public const string ArtifactRevisions = "ArtifactRevisions";
+        public const string ChunkBatches = "ChunkBatches";
+        public const string Chunks = "Chunks";
+        public const string ChunkEmbeddings = "ChunkEmbeddings";
+    }
+
+    public static class Validations
+    {
+        public static class MaxLengths
+        {
+            public const int L32 = 32;
+            public const int L50 = 50;
+            public const int L64 = 64;
+            public const int L100 = 100;
+            public const int L200 = 200;
+            public const int L255 = 255;
+            public const int L500 = 500;
+            public const int L2000 = 2000;
+            public const int L2048 = 2048;
+            public const int L4000 = 4000;
+        }
+    }
+
+    public static class ColumnTypes
+    {
+        public static class Text
+        {
+            public const string Varchar32 = "varchar(32)";
+            public const string Varchar50 = "varchar(50)";
+            public const string Varchar64 = "varchar(64)";
+            public const string Varchar100 = "varchar(100)";
+            public const string Varchar200 = "varchar(200)";
+            public const string Varchar255 = "varchar(255)";
+            public const string Varchar500 = "varchar(500)";
+            public const string Varchar2000 = "varchar(2000)";
+            public const string Varchar2048 = "varchar(2048)";
+            public const string Varchar4000 = "varchar(4000)";
+            public const string TextType = "text";
+        }
+
+        public static class Numeric
+        {
+            public const string Integer = "integer";
+            public const string BigInt = "bigint";
+        }
+
+        public static class DateTime
+        {
+            public const string TimestampTz = "timestamptz";
+        }
+
+        public static class Boolean
+        {
+            public const string BooleanType = "boolean";
+        }
+
+        public static class Json
+        {
+            public const string Jsonb = "jsonb";
+        }
+
+        public static class Identifier
+        {
+            public const string Uuid = "uuid";
+        }
+
+        public static class DefaultValueSql
+        {
+            public const string Now = "NOW()";
+        }
+    }
+}
