@@ -4,7 +4,7 @@ namespace Espada.Tests.Application.TestData.Builder
 {
     internal sealed class RequestImportCommandBuilder
     {
-        private Guid _workspaceId = TestIds.WorkspaceId.Value;
+        private Guid _workspaceId = TestIds.DefaultWorkspaceId.Value;
 
         private Guid _sourceId = TestIds.SourceId.Value;
 

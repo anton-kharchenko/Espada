@@ -8,7 +8,7 @@ namespace Espada.Tests.Application.TestData.Builder
     {
         private ImportJobId _id = TestIds.DefaultImportJobId;
 
-        private WorkspaceId _workspaceId = TestIds.WorkspaceId;
+        private WorkspaceId _workspaceId = TestIds.DefaultWorkspaceId;
 
         private SourceId _sourceId = TestIds.SourceId;
 
@@ -65,6 +65,29 @@ namespace Espada.Tests.Application.TestData.Builder
             if (startResult.IsFailure)
             {
                 throw new InvalidOperationException("ImportJobBuilder could not start import job: " + startResult.Error.Code);
+            }
+
+            importJob.DequeueDomainEvents();
+
+            return importJob;
+        }
+        
+        public ImportJob BuildSucceededWithoutPendingEvents(DateTimeOffset? completedAtUtc = null, ArtifactId? artifactId = null, ArtifactRevisionId? artifactRevisionId = null)
+        {
+            ImportJob importJob = BuildRunningWithoutPendingEvents();
+
+            DomainResult completeResult =
+                importJob.Complete(
+                    artifactId ??
+                    TestIds.DefaultArtifactId,
+                    artifactRevisionId ??
+                    TestIds.DefaultArtifactRevisionId,
+                    completedAtUtc ??
+                    TestDates.ImportCompletedAtUtc);
+
+            if (completeResult.IsFailure)
+            {
+                throw new InvalidOperationException($"ImportJobBuilder could not complete import job: {completeResult.Error.Code} — {completeResult.Error.Description}");
             }
 
             importJob.DequeueDomainEvents();

@@ -20,7 +20,7 @@ internal sealed class StartImportHandlerFixture
     public ImportJob GivenRequestedImportExists(WorkspaceId? workspaceId = null)
     {
         ImportJob importJob = new ImportJobBuilder()
-                .InWorkspace(workspaceId ?? TestIds.WorkspaceId)
+                .InWorkspace(workspaceId ?? TestIds.DefaultWorkspaceId)
                 .BuildWithoutPendingEvents();
 
         ImportJobRepository.ImportJobToReturn = importJob;
@@ -31,7 +31,7 @@ internal sealed class StartImportHandlerFixture
     public ImportJob GivenRunningImportExists(WorkspaceId? workspaceId = null)
     {
         ImportJob importJob = new ImportJobBuilder()
-                .InWorkspace(workspaceId ?? TestIds.WorkspaceId)
+                .InWorkspace(workspaceId ?? TestIds.DefaultWorkspaceId)
                 .BuildRunningWithoutPendingEvents();
 
         ImportJobRepository.ImportJobToReturn = importJob;

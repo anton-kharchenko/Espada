@@ -12,7 +12,7 @@ namespace Espada.Tests.Application.UseCases.Workspaces.Commands.ArchiveWorkspace
         public async Task Validate_WithValidWorkspaceId_ShouldNotHaveErrors()
         {
             // Arrange
-            ArchiveWorkspaceCommand command = new(TestIds.WorkspaceId.Value);
+            ArchiveWorkspaceCommand command = new(TestIds.DefaultWorkspaceId.Value);
 
             // Act
             TestValidationResult<ArchiveWorkspaceCommand> result = await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);

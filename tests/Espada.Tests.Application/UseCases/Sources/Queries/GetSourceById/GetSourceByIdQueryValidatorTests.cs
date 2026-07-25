@@ -12,7 +12,7 @@ namespace Espada.Tests.Application.UseCases.Sources.Queries.GetSourceById
         public async Task Validate_WithValidQuery_ShouldNotHaveErrors()
         {
             // Arrange
-            GetSourceByIdQuery query = new(TestIds.WorkspaceId.Value, TestIds.SourceId.Value);
+            GetSourceByIdQuery query = new(TestIds.DefaultWorkspaceId.Value, TestIds.SourceId.Value);
 
             // Act
             TestValidationResult<GetSourceByIdQuery> result = await _validator.TestValidateAsync(query, cancellationToken: TestContext.Current.CancellationToken);
@@ -39,7 +39,7 @@ namespace Espada.Tests.Application.UseCases.Sources.Queries.GetSourceById
         public async Task Validate_WithEmptySourceId_ShouldHaveError()
         {
             // Arrange
-            GetSourceByIdQuery query = new(TestIds.WorkspaceId.Value, Guid.Empty);
+            GetSourceByIdQuery query = new(TestIds.DefaultWorkspaceId.Value, Guid.Empty);
 
             // Act
             TestValidationResult<GetSourceByIdQuery> result = await _validator.TestValidateAsync(query, cancellationToken: TestContext.Current.CancellationToken);

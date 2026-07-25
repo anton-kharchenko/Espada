@@ -12,7 +12,7 @@ public sealed class StartImportCommandValidatorTests
     public async Task Validate_WithValidCommand_ShouldNotHaveErrors()
     {
         // Arrange
-        StartImportCommand command = new(TestIds.WorkspaceId.Value, TestIds.DefaultImportJobId.Value);
+        StartImportCommand command = new(TestIds.DefaultWorkspaceId.Value, TestIds.DefaultImportJobId.Value);
 
         // Act
         TestValidationResult<StartImportCommand> result = await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
@@ -38,7 +38,7 @@ public sealed class StartImportCommandValidatorTests
     public async Task Validate_WithEmptyImportJobId_ShouldHaveError()
     {
         // Arrange
-        StartImportCommand command = new(TestIds.WorkspaceId.Value, Guid.Empty);
+        StartImportCommand command = new(TestIds.DefaultWorkspaceId.Value, Guid.Empty);
 
         // Act
         TestValidationResult<StartImportCommand> result = await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);

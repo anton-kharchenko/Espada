@@ -154,7 +154,7 @@ public sealed class RegisterSourceCommandHandlerTests
 
         RegisterSourceCommandHandler handler = fixture.CreateHandler();
 
-        Guid workspaceId = TestIds.WorkspaceId.Value;
+        Guid workspaceId = TestIds.DefaultWorkspaceId.Value;
 
         RegisterSourceCommand command = new RegisterSourceCommandBuilder().InWorkspace(workspaceId).Build();
 

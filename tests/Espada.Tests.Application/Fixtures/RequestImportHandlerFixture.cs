@@ -21,7 +21,7 @@ namespace Espada.Tests.Application.Fixtures
 
         public Source GivenSourceExists(WorkspaceId? workspaceId = null)
         {
-            Source source = new SourceBuilder().InWorkspace(workspaceId ?? TestIds.WorkspaceId).BuildWithoutPendingEvents();
+            Source source = new SourceBuilder().InWorkspace(workspaceId ?? TestIds.DefaultWorkspaceId).BuildWithoutPendingEvents();
 
             SourceRepository.SourceToReturn = source;
 

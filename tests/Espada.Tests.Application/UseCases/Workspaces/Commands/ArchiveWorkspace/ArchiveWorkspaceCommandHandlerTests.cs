@@ -152,7 +152,7 @@ namespace Espada.Tests.Application.UseCases.Workspaces.Commands.ArchiveWorkspace
 
             ArchiveWorkspaceCommandHandler handler = fixture.CreateHandler();
 
-            Guid workspaceId = TestIds.WorkspaceId.Value;
+            Guid workspaceId = TestIds.DefaultWorkspaceId.Value;
 
             ArchiveWorkspaceCommand command = new(workspaceId);
 

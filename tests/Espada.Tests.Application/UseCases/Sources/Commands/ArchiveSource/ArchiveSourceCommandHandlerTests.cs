@@ -132,7 +132,7 @@ namespace Espada.Tests.Application.UseCases.Sources.Commands.ArchiveSource
 
             Guid sourceId = TestIds.SourceId.Value;
 
-            ArchiveSourceCommand command = new(TestIds.WorkspaceId.Value, sourceId);
+            ArchiveSourceCommand command = new(TestIds.DefaultWorkspaceId.Value, sourceId);
 
             // Act
             DomainResult result = await handler.Handle(command, TestContext.Current.CancellationToken);
@@ -157,7 +157,7 @@ namespace Espada.Tests.Application.UseCases.Sources.Commands.ArchiveSource
 
             ArchiveSourceCommandHandler handler = fixture.CreateHandler();
 
-            Guid requestedWorkspaceId = TestIds.WorkspaceId.Value;
+            Guid requestedWorkspaceId = TestIds.DefaultWorkspaceId.Value;
 
             ArchiveSourceCommand command = new(requestedWorkspaceId, source.Id.Value);
 
@@ -235,7 +235,7 @@ namespace Espada.Tests.Application.UseCases.Sources.Commands.ArchiveSource
 
             ArchiveSourceCommandHandler handler = fixture.CreateHandler();
 
-            ArchiveSourceCommand command = new(TestIds.WorkspaceId.Value, Guid.Empty);
+            ArchiveSourceCommand command = new(TestIds.DefaultWorkspaceId.Value, Guid.Empty);
 
             // Act
             DomainResult result = await handler.Handle(command, TestContext.Current.CancellationToken);

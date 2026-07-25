@@ -9,7 +9,7 @@ namespace Espada.Tests.Application.TestData.Builder
     {
         private SourceId _id = TestIds.SourceId;
 
-        private WorkspaceId _workspaceId = TestIds.WorkspaceId;
+        private WorkspaceId _workspaceId = TestIds.DefaultWorkspaceId;
 
         private SourceName _name = CreateName(TestValues.SourceName);
 

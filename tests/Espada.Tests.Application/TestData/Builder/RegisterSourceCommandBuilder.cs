@@ -5,7 +5,7 @@ namespace Espada.Tests.Application.TestData.Builder;
 
 internal sealed class RegisterSourceCommandBuilder
 {
-    private Guid _workspaceId = TestIds.WorkspaceId.Value;
+    private Guid _workspaceId = TestIds.DefaultWorkspaceId.Value;
 
     private string _name = TestValues.SourceName;
 

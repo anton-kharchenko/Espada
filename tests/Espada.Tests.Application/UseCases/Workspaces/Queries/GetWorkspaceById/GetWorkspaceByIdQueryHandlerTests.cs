@@ -105,7 +105,7 @@ namespace Espada.Tests.Application.UseCases.Workspaces.Queries.GetWorkspaceById
 
             GetWorkspaceByIdQueryHandler handler = fixture.CreateHandler();
 
-            Guid workspaceId = TestIds.WorkspaceId.Value;
+            Guid workspaceId = TestIds.DefaultWorkspaceId.Value;
 
             GetWorkspaceByIdQuery query = new(workspaceId);
 
@@ -126,7 +126,7 @@ namespace Espada.Tests.Application.UseCases.Workspaces.Queries.GetWorkspaceById
 
             GetWorkspaceByIdQueryHandler handler = fixture.CreateHandler();
 
-            GetWorkspaceByIdQuery query = new(TestIds.WorkspaceId.Value);
+            GetWorkspaceByIdQuery query = new(TestIds.DefaultWorkspaceId.Value);
 
             // Act
             DomainResult<WorkspaceResponse> result = await handler.Handle(query, CancellationToken.None);

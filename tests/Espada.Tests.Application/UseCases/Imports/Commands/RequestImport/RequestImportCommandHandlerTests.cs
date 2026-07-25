@@ -185,7 +185,7 @@ namespace Espada.Tests.Application.UseCases.Imports.Commands.RequestImport
             RequestImportCommandHandler handler = fixture.CreateHandler();
 
             Guid requestedWorkspaceId =
-                TestIds.WorkspaceId.Value;
+                TestIds.DefaultWorkspaceId.Value;
 
             RequestImportCommand command = new RequestImportCommandBuilder()
                     .InWorkspace(requestedWorkspaceId)

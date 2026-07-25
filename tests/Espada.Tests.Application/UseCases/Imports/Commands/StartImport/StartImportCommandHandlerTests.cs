@@ -157,7 +157,7 @@ public sealed class StartImportCommandHandlerTests
 
         Guid importJobId = TestIds.DefaultImportJobId.Value;
 
-        StartImportCommand command = new(TestIds.WorkspaceId.Value, importJobId);
+        StartImportCommand command = new(TestIds.DefaultWorkspaceId.Value, importJobId);
 
         // Act
         DomainResult result = await handler.Handle(command, TestContext.Current.CancellationToken);
@@ -181,7 +181,7 @@ public sealed class StartImportCommandHandlerTests
 
         StartImportCommandHandler handler = fixture.CreateHandler();
 
-        Guid requestedWorkspaceId = TestIds.WorkspaceId.Value;
+        Guid requestedWorkspaceId = TestIds.DefaultWorkspaceId.Value;
 
         StartImportCommand command = new(requestedWorkspaceId, importJob.Id.Value);
 
@@ -258,7 +258,7 @@ public sealed class StartImportCommandHandlerTests
 
         StartImportCommandHandler handler = fixture.CreateHandler();
 
-        StartImportCommand command = new(TestIds.WorkspaceId.Value, Guid.Empty);
+        StartImportCommand command = new(TestIds.DefaultWorkspaceId.Value, Guid.Empty);
 
         // Act
         DomainResult result = await handler.Handle(command, TestContext.Current.CancellationToken);

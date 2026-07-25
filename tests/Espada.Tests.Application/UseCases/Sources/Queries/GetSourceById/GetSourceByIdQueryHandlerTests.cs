@@ -109,7 +109,7 @@ namespace Espada.Tests.Application.UseCases.Sources.Queries.GetSourceById
 
             Guid sourceId = TestIds.SourceId.Value;
 
-            GetSourceByIdQuery query = new(TestIds.WorkspaceId.Value, sourceId);
+            GetSourceByIdQuery query = new(TestIds.DefaultWorkspaceId.Value, sourceId);
 
             // Act
             DomainResult<SourceResponse> result = await handler.Handle(query, CancellationToken.None);
@@ -128,7 +128,7 @@ namespace Espada.Tests.Application.UseCases.Sources.Queries.GetSourceById
 
             GetSourceByIdQueryHandler handler = fixture.CreateHandler();
 
-            Guid requestedWorkspaceId = TestIds.WorkspaceId.Value;
+            Guid requestedWorkspaceId = TestIds.DefaultWorkspaceId.Value;
 
             GetSourceByIdQuery query = new(requestedWorkspaceId, source.Id.Value);
 
@@ -169,7 +169,7 @@ namespace Espada.Tests.Application.UseCases.Sources.Queries.GetSourceById
 
             GetSourceByIdQueryHandler handler = fixture.CreateHandler();
 
-            GetSourceByIdQuery query = new(TestIds.WorkspaceId.Value, Guid.Empty);
+            GetSourceByIdQuery query = new(TestIds.DefaultWorkspaceId.Value, Guid.Empty);
 
             // Act
             DomainResult<SourceResponse> result = await handler.Handle(query, CancellationToken.None);

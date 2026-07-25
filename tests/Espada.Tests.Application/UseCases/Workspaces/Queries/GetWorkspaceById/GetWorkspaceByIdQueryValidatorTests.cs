@@ -12,7 +12,7 @@ namespace Espada.Tests.Application.UseCases.Workspaces.Queries.GetWorkspaceById
         public async Task Validate_WithValidWorkspaceId_ShouldNotHaveErrors()
         {
             // Arrange
-            GetWorkspaceByIdQuery query = new(TestIds.WorkspaceId.Value);
+            GetWorkspaceByIdQuery query = new(TestIds.DefaultWorkspaceId.Value);
 
             // Act
             TestValidationResult<GetWorkspaceByIdQuery> result = await _validator.TestValidateAsync(query, cancellationToken: TestContext.Current.CancellationToken);

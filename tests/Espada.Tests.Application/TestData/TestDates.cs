@@ -13,4 +13,6 @@ internal static class TestDates
     public static readonly DateTimeOffset ImportRequestedAtUtc = new(2026, 7, 28, 9, 0, 0, TimeSpan.Zero);
     
     public static readonly DateTimeOffset ImportStartedAtUtc = new(2026, 7, 28, 9, 5, 0, TimeSpan.Zero);
+    
+    public static readonly DateTimeOffset ImportCompletedAtUtc = new(2026, 7, 28, 9, 5, 0, TimeSpan.Zero);
 }
