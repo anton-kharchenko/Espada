@@ -55,5 +55,21 @@ namespace Espada.Tests.Application.TestData.Builder
 
             return importJob;
         }
+        
+        public ImportJob BuildRunningWithoutPendingEvents(DateTimeOffset? startedAtUtc = null)
+        {
+            ImportJob importJob = BuildWithoutPendingEvents();
+
+            DomainResult startResult = importJob.Start(startedAtUtc ?? TestDates.ImportStartedAtUtc);
+
+            if (startResult.IsFailure)
+            {
+                throw new InvalidOperationException("ImportJobBuilder could not start import job: " + startResult.Error.Code);
+            }
+
+            importJob.DequeueDomainEvents();
+
+            return importJob;
+        }
     }
 }

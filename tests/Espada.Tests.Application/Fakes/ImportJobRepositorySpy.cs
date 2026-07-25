@@ -1,5 +1,6 @@
 using Espada.Application.Contracts.Persistence;
 using Espada.Domain.Aggregates;
+using Espada.Domain.ValueObjects;
 
 namespace Espada.Tests.Application.Fakes
 {
@@ -7,9 +8,17 @@ namespace Espada.Tests.Application.Fakes
     {
         public ImportJob? AddedImportJob { get; private set; }
 
+        public ImportJob? ImportJobToReturn { get; set; }
+
         public int AddCallCount { get; private set; }
 
+        public int GetByIdCallCount { get; private set; }
+
+        public ImportJobId? ReceivedImportJobId { get; private set; }
+
         public CancellationToken AddCancellationToken { get; private set; }
+
+        public CancellationToken GetByIdCancellationToken { get; private set; }
 
         public Task AddAsync(ImportJob importJob, CancellationToken cancellationToken = default)
         {
@@ -20,6 +29,17 @@ namespace Espada.Tests.Application.Fakes
             AddCancellationToken = cancellationToken;
 
             return Task.CompletedTask;
+        }
+
+        public Task<ImportJob?> GetByIdAsync(ImportJobId importJobId, CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(importJobId);
+
+            ReceivedImportJobId = importJobId;
+            GetByIdCallCount++;
+            GetByIdCancellationToken = cancellationToken;
+
+            return Task.FromResult(ImportJobToReturn);
         }
     }
 }
