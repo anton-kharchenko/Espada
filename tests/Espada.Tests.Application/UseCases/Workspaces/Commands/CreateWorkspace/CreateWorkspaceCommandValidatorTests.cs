@@ -1,5 +1,6 @@
 using Espada.Application.UseCases.Workspaces.Commands.CreateWorkspace;
 using Espada.Domain.ValueObjects;
+using Espada.Tests.Application.TestData;
 using Espada.Tests.Application.TestData.Builder;
 using FluentValidation.TestHelper;
 
@@ -23,11 +24,7 @@ public sealed class CreateWorkspaceCommandValidatorTests
     }
 
     [Theory]
-    [InlineData("")]
-    [InlineData(" ")]
-    [InlineData("    ")]
-    [InlineData("\t")]
-    [InlineData("\r\n")]
+    [MemberData(nameof(StringTheoryData.NullOrWhiteSpaceValues), MemberType = typeof(StringTheoryData))]
     public async Task Validate_WithEmptyName_ShouldHaveNameError(string name)
     {
         // Arrange
