@@ -38,12 +38,12 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Queries.GetArtifactById
 
             response.Id.Should().Be(artifact.Id.Value);
             response.WorkspaceId.Should().Be(artifact.WorkspaceId.Value);
-            response.Title.Should().Be(ArtifactTestValues.Title);
+            response.Title.Should().Be(TestValues.ArtifactTitle);
             response.TypeId.Should().Be(ArtifactType.Markdown.Id);
             response.TypeName.Should().Be(ArtifactType.Markdown.Name);
             response.StatusId.Should().Be(ArtifactStatusType.Active.Id);
             response.CurrentRevisionId.Should().Be(
-                ArtifactTestIds.FirstRevisionId.Value);
+                TestIds.DefaultArtifactRevisionId.Value);
             response.CurrentRevisionNumber.Should().Be(1);
             response.RevisionCount.Should().Be(1);
             response.ArchivedAtUtc.Should().BeNull();
@@ -60,7 +60,7 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Queries.GetArtifactById
                 fixture.CreateHandler();
 
             Guid artifactId =
-                ArtifactTestIds.DefaultArtifactId.Value;
+                TestIds.DefaultArtifactId.Value;
 
             GetArtifactByIdQuery query =
                 new GetArtifactByIdQueryBuilder()

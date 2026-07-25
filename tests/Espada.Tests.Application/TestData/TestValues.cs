@@ -21,6 +21,8 @@ namespace Espada.Tests.Application.TestData
         public const string AnotherImportFailureReason = "The source content could not be parsed.";
         
         public const string ArtifactTitle = "Project README";
+        public const string RenamedArtifactTitle = "Renamed Artifact Title";
+        public const string AnotherArtifactTitle = "Another project README";
 
         public const string ArtifactContent = """
                                               # Espada
@@ -33,5 +35,7 @@ namespace Espada.Tests.Application.TestData
 
                                                      Updated artifact content.
                                                      """;
+
+        public const string ChunkingStrategyVersion = "ChunkingStrategyVersion";
     }
 }

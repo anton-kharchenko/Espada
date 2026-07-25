@@ -8,19 +8,19 @@ namespace Espada.Tests.Application.TestData.Builder
     internal sealed class ArtifactBuilder
     {
         private ArtifactId _id =
-            ArtifactTestIds.DefaultArtifactId;
+            TestIds.DefaultArtifactId;
 
         private WorkspaceId _workspaceId =
             TestIds.DefaultWorkspaceId;
 
         private string? _title =
-            ArtifactTestValues.Title;
+            TestValues.ArtifactTitle;
 
         private ArtifactType _type =
             ArtifactType.Markdown;
 
         private DateTimeOffset _createdAtUtc =
-            ArtifactTestDates.CreatedAtUtc;
+            TestDates.ArtifactCreatedAtUtc;
 
         public ArtifactBuilder WithId(ArtifactId id)
         {
@@ -66,7 +66,7 @@ namespace Espada.Tests.Application.TestData.Builder
             return Artifact.Create(
                 _id,
                 _workspaceId,
-                titleResult.Value,
+                titleResult.Value!,
                 _type,
                 _createdAtUtc);
         }
@@ -79,7 +79,7 @@ namespace Espada.Tests.Application.TestData.Builder
             {
                 throw new InvalidOperationException(
                     "ArtifactBuilder produced an invalid artifact: " +
-                    $"{result.Error.Code} вЂ” {result.Error.Description}");
+                    $"{result.Error.Code} Р Р†Р вЂљРІР‚Сњ {result.Error.Description}");
             }
 
             return result.Value;
@@ -101,7 +101,7 @@ namespace Espada.Tests.Application.TestData.Builder
 
             DomainResult<ArtifactContent> contentResult =
                 ArtifactContent.Create(
-                    ArtifactTestValues.FirstContent);
+                    TestValues.ArtifactContent);
 
             if (contentResult.IsFailure)
             {
@@ -111,16 +111,16 @@ namespace Espada.Tests.Application.TestData.Builder
 
             DomainResult<ArtifactRevision> revisionResult =
                 artifact.CreateRevision(
-                    ArtifactTestIds.FirstRevisionId,
+                    TestIds.DefaultArtifactRevisionId,
                     contentResult.Value,
                     revisionCreatedAtUtc ??
-                    ArtifactTestDates.FirstRevisionCreatedAtUtc);
+                    TestDates.ArtifactFirstRevisionCreatedAtUtc);
 
             if (revisionResult.IsFailure)
             {
                 throw new InvalidOperationException(
                     "ArtifactBuilder could not create revision: " +
-                    $"{revisionResult.Error.Code} вЂ” " +
+                    $"{revisionResult.Error.Code} Р Р†Р вЂљРІР‚Сњ " +
                     $"{revisionResult.Error.Description}");
             }
 
@@ -136,13 +136,13 @@ namespace Espada.Tests.Application.TestData.Builder
 
             DomainResult archiveResult =
                 artifact.Archive(
-                    ArtifactTestDates.ArchivedAtUtc);
+                    TestDates.ArtifactArchivedAtUtc);
 
             if (archiveResult.IsFailure)
             {
                 throw new InvalidOperationException(
                     "ArtifactBuilder could not archive artifact: " +
-                    $"{archiveResult.Error.Code} вЂ” " +
+                    $"{archiveResult.Error.Code} Р Р†Р вЂљРІР‚Сњ " +
                     $"{archiveResult.Error.Description}");
             }
 

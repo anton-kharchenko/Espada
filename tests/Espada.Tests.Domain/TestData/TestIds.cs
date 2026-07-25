@@ -1,6 +1,6 @@
 namespace Espada.Tests.Domain.TestData
 {
-    internal static class TestIds
+    internal static partial class TestIds
     {
         public static readonly WorkspaceId DefaultWorkspaceId = WorkspaceId.Create(Guid.Parse("11111111-1111-1111-1111-111111111111"));
         public static readonly WorkspaceId AnotherWorkspaceId = WorkspaceId.Create(Guid.Parse("22222222-2222-2222-2222-222222222222"));
@@ -22,5 +22,7 @@ namespace Espada.Tests.Domain.TestData
         
         public static readonly ChunkEmbeddingId DefaultChunkEmbeddingId = ChunkEmbeddingId.Create(Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"));
         public static readonly ChunkEmbeddingId SecondChunkEmbeddingId = ChunkEmbeddingId.Create(Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"));
-    }
+    
+
+}
 }

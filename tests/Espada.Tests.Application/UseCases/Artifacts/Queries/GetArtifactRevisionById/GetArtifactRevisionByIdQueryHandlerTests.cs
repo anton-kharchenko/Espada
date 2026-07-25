@@ -41,13 +41,13 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Queries.GetArtifactRevisio
             response.ArtifactId.Should().Be(artifact.Id.Value);
             response.Number.Should().Be(1);
             response.Content.Should().Be(
-                ArtifactTestValues.FirstContent);
+                TestValues.ArtifactContent);
             response.ContentHash.Should().Be(
                 revision.ContentHash.Value);
             response.SizeInBytes.Should().Be(
                 revision.SizeInBytes);
             response.CreatedAtUtc.Should().Be(
-                ArtifactTestDates.FirstRevisionCreatedAtUtc);
+                TestDates.ArtifactFirstRevisionCreatedAtUtc);
         }
 
         [Fact]
@@ -62,7 +62,7 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Queries.GetArtifactRevisio
                 fixture.CreateHandler();
 
             Guid revisionId =
-                ArtifactTestIds.FirstRevisionId.Value;
+                TestIds.DefaultArtifactRevisionId.Value;
 
             GetArtifactRevisionByIdQuery query =
                 new GetArtifactRevisionByIdQueryBuilder()
@@ -123,7 +123,7 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Queries.GetArtifactRevisio
                 fixture.CreateHandler();
 
             Guid artifactId =
-                ArtifactTestIds.DefaultArtifactId.Value;
+                TestIds.DefaultArtifactId.Value;
 
             GetArtifactRevisionByIdQuery query =
                 new GetArtifactRevisionByIdQueryBuilder()

@@ -37,17 +37,17 @@ namespace Espada.Tests.Application.Fixtures
         public (Artifact First, Artifact Second) GivenArtifactsExist()
         {
             Artifact first = new ArtifactBuilder()
-                .WithId(ArtifactTestIds.DefaultArtifactId)
-                .WithTitle(ArtifactTestValues.Title)
-                .CreatedAt(ArtifactTestDates.CreatedAtUtc)
+                .WithId(TestIds.DefaultArtifactId)
+                .WithTitle(TestValues.ArtifactTitle)
+                .CreatedAt(TestDates.ArtifactCreatedAtUtc)
                 .BuildWithFirstRevisionWithoutPendingEvents();
 
             Artifact second = new ArtifactBuilder()
-                .WithId(ArtifactTestIds.AnotherArtifactId)
-                .WithTitle(ArtifactTestValues.AnotherTitle)
-                .CreatedAt(ArtifactTestDates.SecondRevisionCreatedAtUtc)
+                .WithId(TestIds.AnotherArtifactId)
+                .WithTitle(TestValues.AnotherArtifactTitle)
+                .CreatedAt(TestDates.ArtifactSecondRevisionCreatedAtUtc)
                 .BuildWithFirstRevisionWithoutPendingEvents(
-                    ArtifactTestDates.SecondRevisionCreatedAtUtc);
+                    TestDates.ArtifactSecondRevisionCreatedAtUtc);
 
             ArtifactRepository.ArtifactsToReturn = [first, second];
 

@@ -8,7 +8,7 @@ namespace Espada.Tests.Application.TestData.Builder
             TestIds.DefaultWorkspaceId.Value;
 
         private Guid _artifactId =
-            ArtifactTestIds.DefaultArtifactId.Value;
+            TestIds.DefaultArtifactId.Value;
 
         public ListArtifactRevisionsQueryBuilder InWorkspace(
             Guid workspaceId)

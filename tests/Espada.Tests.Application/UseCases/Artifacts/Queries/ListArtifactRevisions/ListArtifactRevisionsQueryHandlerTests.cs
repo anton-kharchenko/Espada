@@ -91,7 +91,7 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Queries.ListArtifactRevisi
                 fixture.CreateHandler();
 
             Guid artifactId =
-                ArtifactTestIds.DefaultArtifactId.Value;
+                TestIds.DefaultArtifactId.Value;
 
             ListArtifactRevisionsQuery query =
                 new ListArtifactRevisionsQueryBuilder()

@@ -21,4 +21,17 @@ internal static class TestDates
     public static readonly DateTimeOffset ImportCancelledAtUtc = new(2026, 7, 28, 9, 25, 0, TimeSpan.Zero);
     
     public static readonly DateTimeOffset ArtifactCreatedAtUtc = new(2026, 7, 28, 10, 0, 0, TimeSpan.Zero);
+
+
+    public static readonly DateTimeOffset ArtifactFirstRevisionCreatedAtUtc = new(2026, 7, 28, 10, 0, 0, TimeSpan.Zero);
+
+    public static readonly DateTimeOffset ArtifactSecondRevisionCreatedAtUtc = new(2026, 7, 28, 10, 10, 0, TimeSpan.Zero);
+
+    public static readonly DateTimeOffset ArtifactRenamedAtUtc = new(2026, 7, 28, 10, 15, 0, TimeSpan.Zero);
+
+    public static readonly DateTimeOffset ArtifactArchivedAtUtc = new(2026, 7, 28, 10, 20, 0, TimeSpan.Zero);
+
+    public static readonly DateTimeOffset ChunkBatchRequestedAtUtc = new(2026, 7, 29, 10, 0, 0, TimeSpan.Zero);
+
+    public static readonly DateTimeOffset ChunkProcessingAtUtc = new(2026, 7, 29, 10, 5, 0, TimeSpan.Zero);
 }

@@ -34,11 +34,10 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Commands.RenameArtifact
 
             result.ShouldSucceed();
 
-            artifact.Title.Value.Should().Be(
-                ArtifactTestValues.RenamedTitle);
+            artifact.Title.Value.Should().Be(TestValues.RenamedArtifactTitle);
 
             artifact.UpdatedAtUtc.Should().Be(
-                ArtifactTestDates.RenamedAtUtc);
+                TestDates.ArtifactRenamedAtUtc);
 
             fixture.UnitOfWork
                 .SaveChangesCallCount
@@ -71,7 +70,7 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Commands.RenameArtifact
                 ArtifactErrors.ArchivedArtifactCannotBeRenamed);
 
             artifact.Title.Value.Should().Be(
-                ArtifactTestValues.Title);
+                TestValues.ArtifactTitle);
 
             fixture.UnitOfWork
                 .SaveChangesCallCount
@@ -90,7 +89,7 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Commands.RenameArtifact
                 fixture.CreateHandler();
 
             Guid artifactId =
-                ArtifactTestIds.DefaultArtifactId.Value;
+                TestIds.DefaultArtifactId.Value;
 
             RenameArtifactCommand command =
                 new RenameArtifactCommandBuilder()

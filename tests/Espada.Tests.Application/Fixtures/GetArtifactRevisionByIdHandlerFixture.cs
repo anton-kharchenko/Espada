@@ -29,9 +29,9 @@ namespace Espada.Tests.Application.Fixtures
 
             ArtifactRevision revision = ArtifactRevisionFactory.Create(
                 artifact,
-                ArtifactTestIds.FirstRevisionId,
-                ArtifactTestValues.FirstContent,
-                ArtifactTestDates.FirstRevisionCreatedAtUtc);
+                TestIds.DefaultArtifactRevisionId,
+                TestValues.ArtifactContent,
+                TestDates.ArtifactFirstRevisionCreatedAtUtc);
 
             ArtifactRepository.ArtifactToReturn = artifact;
             ArtifactRevisionRepository.ArtifactRevisionToReturn = revision;
@@ -48,14 +48,14 @@ namespace Espada.Tests.Application.Fixtures
                 .BuildWithoutPendingEvents();
 
             Artifact anotherArtifact = new ArtifactBuilder()
-                .WithId(ArtifactTestIds.AnotherArtifactId)
+                .WithId(TestIds.AnotherArtifactId)
                 .BuildWithoutPendingEvents();
 
             ArtifactRevision foreignRevision = ArtifactRevisionFactory.Create(
                 anotherArtifact,
-                ArtifactTestIds.FirstRevisionId,
-                ArtifactTestValues.FirstContent,
-                ArtifactTestDates.FirstRevisionCreatedAtUtc);
+                TestIds.DefaultArtifactRevisionId,
+                TestValues.ArtifactContent,
+                TestDates.ArtifactFirstRevisionCreatedAtUtc);
 
             ArtifactRepository.ArtifactToReturn = requestedArtifact;
             ArtifactRevisionRepository.ArtifactRevisionToReturn =

@@ -51,18 +51,18 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Commands.AddArtifactRevisi
             response.ContentHash.Should().Be(revision.ContentHash.Value);
             response.SizeInBytes.Should().Be(revision.SizeInBytes);
             response.CreatedAtUtc.Should().Be(
-                ArtifactTestDates.SecondRevisionCreatedAtUtc);
+                TestDates.ArtifactSecondRevisionCreatedAtUtc);
 
             artifact.CurrentRevisionId.Should().Be(revision.Id);
             artifact.CurrentRevisionNumber.Should().Be(revision.Number);
             artifact.RevisionCount.Should().Be(2);
             artifact.UpdatedAtUtc.Should().Be(
-                ArtifactTestDates.SecondRevisionCreatedAtUtc);
+                TestDates.ArtifactSecondRevisionCreatedAtUtc);
 
             revision.ArtifactId.Should().Be(artifact.Id);
             revision.Number.Value.Should().Be(2);
             revision.Content.Value.Should().Be(
-                ArtifactTestValues.SecondContent);
+                TestValues.AnotherArtifactContent);
         }
 
         [Fact]
@@ -157,7 +157,7 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Commands.AddArtifactRevisi
                 fixture.CreateHandler();
 
             Guid artifactId =
-                ArtifactTestIds.DefaultArtifactId.Value;
+                TestIds.DefaultArtifactId.Value;
 
             AddArtifactRevisionCommand command =
                 new AddArtifactRevisionCommandBuilder()

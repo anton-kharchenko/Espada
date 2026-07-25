@@ -8,10 +8,10 @@ namespace Espada.Tests.Application.TestData.Builder
             TestIds.DefaultWorkspaceId.Value;
 
         private Guid _artifactId =
-            ArtifactTestIds.DefaultArtifactId.Value;
+            TestIds.DefaultArtifactId.Value;
 
         private string? _title =
-            ArtifactTestValues.RenamedTitle;
+            TestValues.RenamedArtifactTitle;
 
         public RenameArtifactCommandBuilder InWorkspace(Guid workspaceId)
         {

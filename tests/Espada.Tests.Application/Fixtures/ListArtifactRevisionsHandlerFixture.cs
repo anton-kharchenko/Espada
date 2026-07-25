@@ -33,15 +33,15 @@ namespace Espada.Tests.Application.Fixtures
 
             ArtifactRevision firstRevision = ArtifactRevisionFactory.Create(
                 artifact,
-                ArtifactTestIds.FirstRevisionId,
-                ArtifactTestValues.FirstContent,
-                ArtifactTestDates.FirstRevisionCreatedAtUtc);
+                TestIds.DefaultArtifactRevisionId,
+                TestValues.ArtifactContent,
+                TestDates.ArtifactFirstRevisionCreatedAtUtc);
 
             ArtifactRevision secondRevision = ArtifactRevisionFactory.Create(
                 artifact,
-                ArtifactTestIds.SecondRevisionId,
-                ArtifactTestValues.SecondContent,
-                ArtifactTestDates.SecondRevisionCreatedAtUtc);
+                TestIds.AnotherArtifactRevisionId,
+                TestValues.AnotherArtifactContent,
+                TestDates.ArtifactSecondRevisionCreatedAtUtc);
 
             ArtifactRepository.ArtifactToReturn = artifact;
 

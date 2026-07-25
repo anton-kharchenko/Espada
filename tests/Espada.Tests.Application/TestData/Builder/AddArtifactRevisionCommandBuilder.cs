@@ -6,9 +6,9 @@ namespace Espada.Tests.Application.TestData.Builder
     {
         private Guid _workspaceId = TestIds.DefaultWorkspaceId.Value;
 
-        private Guid _artifactId = ArtifactTestIds.DefaultArtifactId.Value;
+        private Guid _artifactId = TestIds.DefaultArtifactId.Value;
 
-        private string? _content = ArtifactTestValues.SecondContent;
+        private string? _content = TestValues.AnotherArtifactContent;
 
         public AddArtifactRevisionCommandBuilder InWorkspace(Guid workspaceId)
         {

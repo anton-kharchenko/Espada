@@ -13,7 +13,7 @@ namespace Espada.Tests.Application.Fixtures
 
         public UnitOfWorkSpy UnitOfWork { get; } = new();
 
-        public TestClock Clock { get; } = new(ArtifactTestDates.RenamedAtUtc);
+        public TestClock Clock { get; } = new(TestDates.ArtifactRenamedAtUtc);
 
         public RenameArtifactCommandHandler CreateHandler()
         {

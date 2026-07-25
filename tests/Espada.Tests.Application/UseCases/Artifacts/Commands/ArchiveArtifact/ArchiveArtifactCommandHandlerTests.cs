@@ -39,10 +39,10 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Commands.ArchiveArtifact
                 ArtifactStatusType.Archived);
 
             artifact.ArchivedAtUtc.Should().Be(
-                ArtifactTestDates.ArchivedAtUtc);
+                TestDates.ArtifactArchivedAtUtc);
 
             artifact.UpdatedAtUtc.Should().Be(
-                ArtifactTestDates.ArchivedAtUtc);
+                TestDates.ArtifactArchivedAtUtc);
 
             fixture.UnitOfWork
                 .SaveChangesCallCount
@@ -91,7 +91,7 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Commands.ArchiveArtifact
                 fixture.CreateHandler();
 
             Guid artifactId =
-                ArtifactTestIds.DefaultArtifactId.Value;
+                TestIds.DefaultArtifactId.Value;
 
             ArchiveArtifactCommand command =
                 new ArchiveArtifactCommandBuilder()
