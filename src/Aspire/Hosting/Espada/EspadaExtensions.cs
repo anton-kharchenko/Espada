@@ -4,7 +4,7 @@ internal static class EspadaExtensions
 {
     extension(IDistributedApplicationBuilder builder)
     {
-        public IResourceBuilder<ProjectResource> AddEspadaInfrastructure()
+        public void AddEspadaInfrastructure()
         {
             IResourceBuilder<ParameterResource> postgresPassword = builder
                 .AddParameter(EspadaConstants.ParameterNames.PostgresPassword, () => ResolveParameter(builder, EspadaConstants.ParameterNames.PostgresPassword, EspadaConstants.ParameterDefaults.PostgresPassword), secret: true)
@@ -23,15 +23,13 @@ internal static class EspadaExtensions
 
             IResourceBuilder<PostgresDatabaseResource> database = postgres.AddDatabase(EspadaNames.Database);
 
-            IResourceBuilder<ProjectResource> migrations = builder
+            builder
                 .AddProject<Projects.Espada_Db>(EspadaNames.Migrations)
                 .WithReference(database)
                 .WithEnvironment(EspadaConstants.ConfigurationKeys.AspNetCoreEnvironment, EspadaConstants.ConfigurationValues.Development)
                 .WithEnvironment(EspadaConstants.ConfigurationKeys.DotNetEnvironment, EspadaConstants.ConfigurationValues.Development)
                 .WithArgs("migrate")
                 .WaitFor(postgres);
-
-            return migrations;
         }
     }
 
