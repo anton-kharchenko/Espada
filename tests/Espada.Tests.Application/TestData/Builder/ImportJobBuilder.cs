@@ -110,5 +110,37 @@ namespace Espada.Tests.Application.TestData.Builder
 
             return importJob;
         }
+        
+        public ImportJob BuildCancelledFromRequestedWithoutPendingEvents(DateTimeOffset? cancelledAtUtc = null)
+        {
+            ImportJob importJob = BuildWithoutPendingEvents();
+
+            DomainResult cancelResult = importJob.Cancel(cancelledAtUtc ?? TestDates.ImportCancelledAtUtc);
+
+            if (cancelResult.IsFailure)
+            {
+                throw new InvalidOperationException($"ImportJobBuilder could not cancel requested import job: {cancelResult.Error.Code} — {cancelResult.Error.Description}");
+            }
+
+            importJob.DequeueDomainEvents();
+
+            return importJob;
+        }
+
+        public ImportJob BuildCancelledFromRunningWithoutPendingEvents(DateTimeOffset? cancelledAtUtc = null)
+        {
+            ImportJob importJob = BuildRunningWithoutPendingEvents();
+
+            DomainResult cancelResult = importJob.Cancel(cancelledAtUtc ?? TestDates.ImportCancelledAtUtc);
+
+            if (cancelResult.IsFailure)
+            {
+                throw new InvalidOperationException($"ImportJobBuilder could not cancel running import job: {cancelResult.Error.Code} — {cancelResult.Error.Description}");
+            }
+
+            importJob.DequeueDomainEvents();
+
+            return importJob;
+        }
     }
 }
