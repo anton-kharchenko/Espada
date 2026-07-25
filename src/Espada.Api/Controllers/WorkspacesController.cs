@@ -19,7 +19,10 @@ public sealed class WorkspacesController(IMediator mediator) : BaseController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create([FromBody] CreateWorkspaceRequest request, CancellationToken cancellationToken)
     {
-        DomainResult<CreateWorkspaceResponse> result = await mediator.Send(new CreateWorkspaceCommand(request.Name, request.TypeId.ToEnumeration<WorkspaceType>()), cancellationToken);
+        WorkspaceType workspaceType = request.TypeId.ToEnumeration<WorkspaceType>()
+            ?? throw new InvalidOperationException($"Workspace type ID '{request.TypeId}' passed validation but could not be resolved.");
+
+        DomainResult<CreateWorkspaceResponse> result = await mediator.Send(new CreateWorkspaceCommand(request.Name, workspaceType), cancellationToken);
 
         return result.IsFailure ? HandleError(result.Error) : StatusCode(StatusCodes.Status201Created, result.Value);
     }
