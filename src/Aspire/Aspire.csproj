@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Espada.Db\Espada.Db.csproj" />
+    <ProjectReference Include="..\Espada.Api\Espada.Api.csproj" />
   </ItemGroup>
 
 </Project>

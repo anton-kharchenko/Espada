@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>Espada.Api</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Espada.Application\Espada.Application.csproj" />
+        <ProjectReference Include="..\Espada.Domain\Espada.Domain.csproj" />
+        <ProjectReference Include="..\Espada.Infrastructure\Espada.Infrastructure.csproj" />
+        <ProjectReference Include="..\Espada.ServiceDefaults\Espada.ServiceDefaults.csproj" />
+    </ItemGroup>
+
+<ItemGroup><PackageReference Include="Asp.Versioning.Mvc" /></ItemGroup></Project>
