@@ -50,5 +50,16 @@ namespace Espada.Tests.Application.TestData.Builder
 
             return workspace;
         }
+        
+        public Workspace BuildArchivedWithoutPendingEvents(DateTimeOffset? archivedAtUtc = null)
+        {
+            Workspace workspace = BuildWithoutPendingEvents();
+
+            workspace.Archive(archivedAtUtc ?? TestDates.WorkspaceArchivedAtUtc).ShouldSucceed();
+
+            workspace.DequeueDomainEvents();
+
+            return workspace;
+        }
     }
 }

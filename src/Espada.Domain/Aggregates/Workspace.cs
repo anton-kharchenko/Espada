@@ -1,4 +1,5 @@
 using Espada.Domain.Enums;
+using Espada.Domain.Errors;
 using Espada.Domain.Events;
 using Espada.Domain.Rules;
 using Espada.Domain.SeedWork;
@@ -29,6 +30,7 @@ public sealed class Workspace : AggregateRoot<WorkspaceId>
     public DateTimeOffset CreatedAtUtc { get; private set; }
 
     public DateTimeOffset? ArchivedAtUtc { get; private set; }
+    
 
     public static DomainResult<Workspace> Create(
         WorkspaceId id,
@@ -41,5 +43,23 @@ public sealed class Workspace : AggregateRoot<WorkspaceId>
         workspace.RaiseDomainEvent(new WorkspaceCreatedDomainEvent(workspace.Id, workspace.Name.Value, createdAtUtc));
 
         return DomainResult.Success(workspace);
+    }
+    
+    public DomainResult Archive(DateTimeOffset archivedAtUtc)
+    {
+        if (Status.Equals(WorkspaceStatusType.Archived))
+        {
+            return DomainResult.Failure(WorkspaceErrors.AlreadyArchived);
+        }
+
+        Status = WorkspaceStatusType.Archived;
+        ArchivedAtUtc = archivedAtUtc;
+
+        RaiseDomainEvent(
+            new WorkspaceArchivedDomainEvent(
+                Id,
+                archivedAtUtc));
+
+        return DomainResult.Success();
     }
 }

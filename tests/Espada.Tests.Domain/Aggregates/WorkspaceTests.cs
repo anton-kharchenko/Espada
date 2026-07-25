@@ -120,4 +120,21 @@ public sealed class WorkspaceTests
         (first == second).Should().BeFalse();
         (first != second).Should().BeTrue();
     }
+    
+    [Fact]
+    public void Archive_WhenWorkspaceIsActive_ShouldRaiseArchivedEvent()
+    {
+        // Arrange
+        Workspace workspace = new WorkspaceBuilder().BuildWithoutPendingEvents();
+
+        // Act
+        workspace.Archive(TestDates.ArchivedAtUtc).ShouldSucceed();
+
+        // Assert
+        WorkspaceArchivedDomainEvent domainEvent = workspace.ShouldHaveSingleDomainEvent<WorkspaceArchivedDomainEvent>();
+
+        domainEvent.WorkspaceId.Should().Be(workspace.Id);
+
+        domainEvent.ArchivedAtUtc.Should().Be(TestDates.ArchivedAtUtc);
+    }
 }
