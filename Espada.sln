@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Espada.Infrastructure", "sr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Espada.Tests.Infrastructure", "tests\Espada.Tests.Infrastructure\Espada.Tests.Infrastructure.csproj", "{13FEA188-A0D4-46E4-958A-91265192709F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Espada.Db", "src\Espada.Db\Espada.Db.csproj", "{B53F4F46-5C8C-4882-86C6-A0C25BE04079}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -126,6 +128,18 @@ Global
 		{13FEA188-A0D4-46E4-958A-91265192709F}.Release|x64.Build.0 = Release|Any CPU
 		{13FEA188-A0D4-46E4-958A-91265192709F}.Release|x86.ActiveCfg = Release|Any CPU
 		{13FEA188-A0D4-46E4-958A-91265192709F}.Release|x86.Build.0 = Release|Any CPU
+		{B53F4F46-5C8C-4882-86C6-A0C25BE04079}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B53F4F46-5C8C-4882-86C6-A0C25BE04079}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B53F4F46-5C8C-4882-86C6-A0C25BE04079}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B53F4F46-5C8C-4882-86C6-A0C25BE04079}.Debug|x64.Build.0 = Debug|Any CPU
+		{B53F4F46-5C8C-4882-86C6-A0C25BE04079}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B53F4F46-5C8C-4882-86C6-A0C25BE04079}.Debug|x86.Build.0 = Debug|Any CPU
+		{B53F4F46-5C8C-4882-86C6-A0C25BE04079}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B53F4F46-5C8C-4882-86C6-A0C25BE04079}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B53F4F46-5C8C-4882-86C6-A0C25BE04079}.Release|x64.ActiveCfg = Release|Any CPU
+		{B53F4F46-5C8C-4882-86C6-A0C25BE04079}.Release|x64.Build.0 = Release|Any CPU
+		{B53F4F46-5C8C-4882-86C6-A0C25BE04079}.Release|x86.ActiveCfg = Release|Any CPU
+		{B53F4F46-5C8C-4882-86C6-A0C25BE04079}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -135,5 +149,6 @@ Global
 		{81C65DCA-EC0A-48D0-B087-D4047B6EEF93} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{FA5B0D8D-24C4-4721-882F-82B3C7FAD3A7} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{13FEA188-A0D4-46E4-958A-91265192709F} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{B53F4F46-5C8C-4882-86C6-A0C25BE04079} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 	EndGlobalSection
 EndGlobal
