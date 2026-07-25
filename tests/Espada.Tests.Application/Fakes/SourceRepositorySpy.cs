@@ -1,24 +1,45 @@
 using Espada.Application.Contracts.Persistence;
 using Espada.Domain.Aggregates;
+using Espada.Domain.ValueObjects;
 
-namespace Espada.Tests.Application.Fakes;
-
-internal sealed class SourceRepositorySpy : ISourceRepository
+namespace Espada.Tests.Application.Fakes
 {
-    public Source? AddedSource { get; private set; }
-
-    public int AddCallCount { get; private set; }
-
-    public CancellationToken ReceivedCancellationToken { get; private set; }
-
-    public Task AddAsync(Source source, CancellationToken cancellationToken = default)
+    internal sealed class SourceRepositorySpy : ISourceRepository
     {
-        ArgumentNullException.ThrowIfNull(source);
+        public Source? AddedSource { get; private set; }
 
-        AddedSource = source;
-        AddCallCount++;
-        ReceivedCancellationToken = cancellationToken;
+        public Source? SourceToReturn { get; set; }
 
-        return Task.CompletedTask;
+        public int AddCallCount { get; private set; }
+
+        public int GetByIdCallCount { get; private set; }
+
+        public SourceId? ReceivedSourceId { get; private set; }
+
+        public CancellationToken AddCancellationToken { get; private set; }
+
+        public CancellationToken GetByIdCancellationToken { get; private set; }
+
+        public Task AddAsync(Source source, CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(source);
+
+            AddedSource = source;
+            AddCallCount++;
+            AddCancellationToken = cancellationToken;
+
+            return Task.CompletedTask;
+        }
+
+        public Task<Source?> GetByIdAsync(SourceId sourceId, CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(sourceId);
+
+            ReceivedSourceId = sourceId;
+            GetByIdCallCount++;
+            GetByIdCancellationToken = cancellationToken;
+
+            return Task.FromResult(SourceToReturn);
+        }
     }
 }

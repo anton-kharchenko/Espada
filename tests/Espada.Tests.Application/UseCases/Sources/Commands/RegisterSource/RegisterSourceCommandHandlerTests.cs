@@ -134,7 +134,7 @@ public sealed class RegisterSourceCommandHandlerTests
             .Be(cancellationToken);
 
         fixture.SourceRepository
-            .ReceivedCancellationToken
+            .AddCancellationToken
             .Should()
             .Be(cancellationToken);
 
