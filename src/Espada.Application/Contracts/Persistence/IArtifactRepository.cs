@@ -12,5 +12,9 @@ namespace Espada.Application.Contracts.Persistence
         Task<Artifact?> GetByIdAsync(
             ArtifactId artifactId,
             CancellationToken cancellationToken = default);
+
+        Task<IReadOnlyList<Artifact>> ListByWorkspaceIdAsync(
+            WorkspaceId workspaceId,
+            CancellationToken cancellationToken = default);
     }
 }

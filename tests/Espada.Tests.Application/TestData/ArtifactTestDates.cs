@@ -11,6 +11,9 @@ namespace Espada.Tests.Application.TestData
         public static readonly DateTimeOffset SecondRevisionCreatedAtUtc =
             new(2026, 7, 28, 10, 10, 0, TimeSpan.Zero);
 
+        public static readonly DateTimeOffset RenamedAtUtc =
+            new(2026, 7, 28, 10, 15, 0, TimeSpan.Zero);
+
         public static readonly DateTimeOffset ArchivedAtUtc =
             new(2026, 7, 28, 10, 20, 0, TimeSpan.Zero);
     }

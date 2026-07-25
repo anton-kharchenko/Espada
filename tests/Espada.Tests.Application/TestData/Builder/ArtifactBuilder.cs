@@ -73,15 +73,13 @@ namespace Espada.Tests.Application.TestData.Builder
 
         public Artifact Build()
         {
-            DomainResult<Artifact> result =
-                BuildResult();
+            DomainResult<Artifact> result = BuildResult();
 
             if (result.IsFailure)
             {
                 throw new InvalidOperationException(
                     "ArtifactBuilder produced an invalid artifact: " +
-                    $"{result.Error.Code} — " +
-                    $"{result.Error.Description}");
+                    $"{result.Error.Code} вЂ” {result.Error.Description}");
             }
 
             return result.Value;
@@ -89,24 +87,44 @@ namespace Espada.Tests.Application.TestData.Builder
 
         public Artifact BuildWithoutPendingEvents()
         {
-            Artifact artifact =
-                Build();
+            Artifact artifact = Build();
 
             artifact.DequeueDomainEvents();
 
             return artifact;
         }
 
-        public Artifact BuildWithFirstRevisionWithoutPendingEvents()
+        public Artifact BuildWithFirstRevisionWithoutPendingEvents(
+            DateTimeOffset? revisionCreatedAtUtc = null)
         {
-            Artifact artifact =
-                BuildWithoutPendingEvents();
+            Artifact artifact = BuildWithoutPendingEvents();
 
-            ArtifactRevisionFactory.Create(
-                artifact,
-                ArtifactTestIds.FirstRevisionId,
-                ArtifactTestValues.FirstContent,
-                ArtifactTestDates.FirstRevisionCreatedAtUtc);
+            DomainResult<ArtifactContent> contentResult =
+                ArtifactContent.Create(
+                    ArtifactTestValues.FirstContent);
+
+            if (contentResult.IsFailure)
+            {
+                throw new InvalidOperationException(
+                    "ArtifactBuilder received invalid content.");
+            }
+
+            DomainResult<ArtifactRevision> revisionResult =
+                artifact.CreateRevision(
+                    ArtifactTestIds.FirstRevisionId,
+                    contentResult.Value,
+                    revisionCreatedAtUtc ??
+                    ArtifactTestDates.FirstRevisionCreatedAtUtc);
+
+            if (revisionResult.IsFailure)
+            {
+                throw new InvalidOperationException(
+                    "ArtifactBuilder could not create revision: " +
+                    $"{revisionResult.Error.Code} вЂ” " +
+                    $"{revisionResult.Error.Description}");
+            }
+
+            artifact.DequeueDomainEvents();
 
             return artifact;
         }
@@ -116,16 +134,16 @@ namespace Espada.Tests.Application.TestData.Builder
             Artifact artifact =
                 BuildWithFirstRevisionWithoutPendingEvents();
 
-            DomainResult result =
+            DomainResult archiveResult =
                 artifact.Archive(
                     ArtifactTestDates.ArchivedAtUtc);
 
-            if (result.IsFailure)
+            if (archiveResult.IsFailure)
             {
                 throw new InvalidOperationException(
                     "ArtifactBuilder could not archive artifact: " +
-                    $"{result.Error.Code} — " +
-                    $"{result.Error.Description}");
+                    $"{archiveResult.Error.Code} вЂ” " +
+                    $"{archiveResult.Error.Description}");
             }
 
             artifact.DequeueDomainEvents();

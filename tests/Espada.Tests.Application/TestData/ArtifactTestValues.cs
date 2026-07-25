@@ -4,6 +4,10 @@ namespace Espada.Tests.Application.TestData
     {
         public const string Title = "Project README";
 
+        public const string RenamedTitle = "Espada project documentation";
+
+        public const string AnotherTitle = "Architecture guide";
+
         public const string FirstContent =
             "# Espada\n\nFirst artifact revision.";
 

@@ -11,15 +11,24 @@ namespace Espada.Tests.Application.Fakes
 
         public Artifact? ArtifactToReturn { get; set; }
 
+        public IReadOnlyList<Artifact> ArtifactsToReturn { get; set; } =
+            Array.Empty<Artifact>();
+
         public int AddCallCount { get; private set; }
 
         public int GetByIdCallCount { get; private set; }
 
+        public int ListByWorkspaceIdCallCount { get; private set; }
+
         public ArtifactId? ReceivedArtifactId { get; private set; }
+
+        public WorkspaceId? ReceivedWorkspaceId { get; private set; }
 
         public CancellationToken AddCancellationToken { get; private set; }
 
         public CancellationToken GetByIdCancellationToken { get; private set; }
+
+        public CancellationToken ListCancellationToken { get; private set; }
 
         public Task AddAsync(
             Artifact artifact,
@@ -45,6 +54,19 @@ namespace Espada.Tests.Application.Fakes
             GetByIdCancellationToken = cancellationToken;
 
             return Task.FromResult(ArtifactToReturn);
+        }
+
+        public Task<IReadOnlyList<Artifact>> ListByWorkspaceIdAsync(
+            WorkspaceId workspaceId,
+            CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(workspaceId);
+
+            ReceivedWorkspaceId = workspaceId;
+            ListByWorkspaceIdCallCount++;
+            ListCancellationToken = cancellationToken;
+
+            return Task.FromResult(ArtifactsToReturn);
         }
     }
 }
