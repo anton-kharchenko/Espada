@@ -1,4 +1,5 @@
 using Espada.Infrastructure.Database;
+using Espada.Infrastructure.Database.Constants;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -12,11 +13,19 @@ internal static class SetupDbContext
 
         string connectionString = Environment.GetEnvironmentVariable("ESPADA_CONNECTION_STRING")
                                   ?? configuration.GetConnectionString("Espada")
-                                  ?? throw new InvalidOperationException("Database connection string was not configured. Set ConnectionStrings:Espada or ESPADA_CONNECTION_STRING.");
+                                  ?? throw new InvalidOperationException(
+                                      "Database connection string was not configured. Set ConnectionStrings:Espada or ESPADA_CONNECTION_STRING.");
 
         DbContextOptionsBuilder<EspadaDbContext> optionsBuilder = new();
 
-        optionsBuilder.UseNpgsql(connectionString, options => options.MigrationsAssembly(typeof(EspadaDbAssemblyMarker).Assembly.FullName));
+        optionsBuilder.UseNpgsql(
+            connectionString,
+            options =>
+            {
+                options.MigrationsAssembly(typeof(EspadaDbAssemblyMarker).Assembly.FullName);
+                options.MigrationsHistoryTable("__EFMigrationsHistory", DbConstants.SchemaName);
+            });
+
         return new EspadaDbContext(optionsBuilder.Options);
     }
 }

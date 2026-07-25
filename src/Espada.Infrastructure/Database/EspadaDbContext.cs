@@ -1,6 +1,8 @@
 using Espada.Application.Contracts.Persistence;
 using Espada.Domain.Aggregates;
+using Espada.Domain.SeedWork;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Espada.Infrastructure.Database
 {
@@ -27,7 +29,20 @@ namespace Espada.Infrastructure.Database
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(EspadaDbContext).Assembly);
+            IgnoreDomainEvents(modelBuilder);
         }
 
+        private static void IgnoreDomainEvents(ModelBuilder modelBuilder)
+        {
+            foreach (IMutableEntityType entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                if (!typeof(IHasDomainEvents).IsAssignableFrom(entityType.ClrType))
+                {
+                    continue;
+                }
+
+                modelBuilder.Entity(entityType.ClrType).Ignore(nameof(IHasDomainEvents.DomainEvents));
+            }
+        }
     }
 }

@@ -1,6 +1,7 @@
 using Espada.Application.Contracts.Persistence;
 using Espada.Application.Contracts.Time;
 using Espada.Infrastructure.Database;
+using Espada.Infrastructure.Database.Constants;
 using Espada.Infrastructure.Extensions;
 using Espada.Infrastructure.Repositories;
 using Espada.Infrastructure.Services;
@@ -17,7 +18,14 @@ namespace Espada.Infrastructure
             ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
 
             services.AddSingleton<IClock, SystemClock>();
-            services.AddDbContext<EspadaDbContext>(options => options.UseNpgsql(connectionString, npgsqlOptions => npgsqlOptions.MigrationsAssembly(typeof(EspadaDbContext).Assembly.FullName)));
+            services.AddDbContext<EspadaDbContext>(options =>
+                options.UseNpgsql(
+                    connectionString,
+                    npgsqlOptions =>
+                    {
+                        npgsqlOptions.MigrationsAssembly("Espada.Db");
+                        npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", DbConstants.SchemaName);
+                    }));
             services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<EspadaDbContext>());
             services.AddRepositories();
 

@@ -1,4 +1,4 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.2.3">
+<Project Sdk="Aspire.AppHost.Sdk/13.4.6">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -16,6 +16,10 @@
     <PackageReference Include="CommunityToolkit.Aspire.Hosting.McpInspector" />
     <PackageReference Include="CommunityToolkit.Aspire.Hosting.Stripe" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Espada.Db\Espada.Db.csproj" />
   </ItemGroup>
 
 </Project>
