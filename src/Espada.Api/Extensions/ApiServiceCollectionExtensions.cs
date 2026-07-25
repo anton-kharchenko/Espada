@@ -7,10 +7,7 @@ namespace Espada.Api.Extensions;
 
 internal static class ApiServiceCollectionExtensions
 {
-    public static IServiceCollection ConfigureApi(
-        this IServiceCollection services,
-        IConfiguration configuration,
-        IHostEnvironment environment)
+    public static IServiceCollection ConfigureApi(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
@@ -20,15 +17,9 @@ internal static class ApiServiceCollectionExtensions
         services.AddExceptionHandler<ApiExceptionHandler>();
         services.AddScoped<ValidationFilter>();
 
-        services.Configure<ApiBehaviorOptions>(options =>
-        {
-            options.SuppressModelStateInvalidFilter = true;
-        });
+        services.AddControllers(options => options.Filters.AddService<ValidationFilter>());
 
-        services.AddControllers(options =>
-        {
-            options.Filters.Add<ValidationFilter>();
-        });
+        services.Configure<ApiBehaviorOptions>(options => options.SuppressModelStateInvalidFilter = true);
 
         services
             .AddApiVersioning(options =>

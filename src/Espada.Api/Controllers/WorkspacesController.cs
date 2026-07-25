@@ -19,9 +19,7 @@ public sealed class WorkspacesController(IMediator mediator) : BaseController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create([FromBody] CreateWorkspaceRequest request, CancellationToken cancellationToken)
     {
-        WorkspaceType workspaceType = request.TypeId.ToEnumeration<WorkspaceType>()
-            ?? throw new InvalidOperationException($"Workspace type ID '{request.TypeId}' passed validation but could not be resolved.");
-
+        WorkspaceType workspaceType = request.TypeId.ToEnumeration<WorkspaceType>() ?? throw new InvalidOperationException($"Workspace type ID '{request.TypeId}' passed validation but could not be resolved.");
         DomainResult<CreateWorkspaceResponse> result = await mediator.Send(new CreateWorkspaceCommand(request.Name, workspaceType), cancellationToken);
 
         return result.IsFailure ? HandleError(result.Error) : StatusCode(StatusCodes.Status201Created, result.Value);
@@ -44,7 +42,7 @@ public sealed class WorkspacesController(IMediator mediator) : BaseController
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Archive(Guid workspaceId, CancellationToken cancellationToken)
     {
-        var result = await mediator.Send(new ArchiveWorkspaceCommand(workspaceId), cancellationToken);
+        DomainResult result = await mediator.Send(new ArchiveWorkspaceCommand(workspaceId), cancellationToken);
 
         return result.IsFailure ? HandleError(result.Error) : NoContent();
     }

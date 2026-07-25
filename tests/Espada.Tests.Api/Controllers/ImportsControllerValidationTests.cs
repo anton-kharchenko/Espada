@@ -1,3 +1,4 @@
+using Espada.Tests.Api.Assertions;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -22,7 +23,7 @@ public sealed class ImportsControllerValidationTests(EspadaApiFactory factory) :
 
         HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.Imports.Complete(TestIds.WorkspaceId, TestIds.ImportJobId), request, cancellationToken: TestContext.Current.CancellationToken);
 
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
         Assert.True(await HasValidationErrorAsync(response, nameof(CompleteImportRequest.ArtifactId)));
     }
 
@@ -39,7 +40,7 @@ public sealed class ImportsControllerValidationTests(EspadaApiFactory factory) :
 
         HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.Imports.Complete(TestIds.WorkspaceId, TestIds.ImportJobId), request, cancellationToken: TestContext.Current.CancellationToken);
 
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
         Assert.True(await HasValidationErrorAsync(response, nameof(CompleteImportRequest.ArtifactRevisionId)));
     }
 
@@ -56,7 +57,7 @@ public sealed class ImportsControllerValidationTests(EspadaApiFactory factory) :
 
         HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.Imports.Fail(TestIds.WorkspaceId, TestIds.ImportJobId), request, cancellationToken: TestContext.Current.CancellationToken);
 
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
         Assert.True(await HasValidationErrorAsync(response, nameof(FailImportRequest.FailureCode)));
     }
 
@@ -73,7 +74,7 @@ public sealed class ImportsControllerValidationTests(EspadaApiFactory factory) :
 
         HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.Imports.Fail(TestIds.WorkspaceId, TestIds.ImportJobId), request, cancellationToken: TestContext.Current.CancellationToken);
 
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
         Assert.True(await HasValidationErrorAsync(response, nameof(FailImportRequest.FailureReason)));
     }
 

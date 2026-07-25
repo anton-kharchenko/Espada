@@ -1,3 +1,4 @@
+using Espada.Tests.Api.Assertions;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -26,7 +27,7 @@ public sealed class SourcesControllerValidationTests(EspadaApiFactory factory) :
 
         HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.Sources.Register(workspaceId), request, cancellationToken: TestContext.Current.CancellationToken);
 
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
 
         using JsonDocument document = JsonDocument.Parse(await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
 
@@ -52,7 +53,7 @@ public sealed class SourcesControllerValidationTests(EspadaApiFactory factory) :
 
         HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.Sources.Register(workspaceId), request, cancellationToken: TestContext.Current.CancellationToken);
 
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
 
         using JsonDocument document = JsonDocument.Parse(await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
 
@@ -78,7 +79,7 @@ public sealed class SourcesControllerValidationTests(EspadaApiFactory factory) :
 
         HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.Sources.Register(workspaceId), request, cancellationToken: TestContext.Current.CancellationToken);
 
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
 
         using JsonDocument document = JsonDocument.Parse(await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
 
