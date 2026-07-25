@@ -12,6 +12,7 @@
         <ProjectReference Include="..\Espada.Domain\Espada.Domain.csproj" />
         <ProjectReference Include="..\Espada.Infrastructure\Espada.Infrastructure.csproj" />
         <ProjectReference Include="..\Espada.ServiceDefaults\Espada.ServiceDefaults.csproj" />
+        <ProjectReference Include="..\Espada.Api.Contracts\Espada.Api.Contracts.csproj" />
     </ItemGroup>
 
 <ItemGroup><PackageReference Include="Asp.Versioning.Mvc" /></ItemGroup></Project>

@@ -12,14 +12,14 @@ public abstract class BaseController : ControllerBase
 {
     internal BadRequestObjectResult BadRequest(DomainError error)
     {
-        return BadRequest(ErrorResponse.FromError(error));
+        return BadRequest(new ErrorResponse(error.Code, error.Description));
     }
 
-    internal IActionResult HandleError(DomainError error)
+    public IActionResult HandleError(DomainError error)
     {
         ArgumentNullException.ThrowIfNull(error);
 
-        ErrorResponse errorResponse = ErrorResponse.FromError(error);
+        ErrorResponse errorResponse = new(error.Code, error.Description);
 
         return error.Code switch
         {
