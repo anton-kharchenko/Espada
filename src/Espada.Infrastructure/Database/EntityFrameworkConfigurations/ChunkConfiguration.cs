@@ -1,0 +1,131 @@
+using Espada.Domain.Aggregates;
+using Espada.Domain.Enums;
+using Espada.Domain.SeedWork;
+using Espada.Domain.ValueObjects;
+using Espada.Infrastructure.Database.Constants;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace Espada.Infrastructure.Database.EntityFrameworkConfigurations;
+
+internal sealed class ChunkConfiguration : IEntityTypeConfiguration<Chunk>
+{
+    public void Configure(EntityTypeBuilder<Chunk> builder)
+    {
+        builder.ToTable(DbConstants.Tables.Chunks, DbConstants.SchemaName);
+
+        builder.HasKey(e => e.Id);
+
+        builder.Property(e => e.Id)
+            .HasColumnName("ChunkId")
+            .HasColumnType(DbConstants.ColumnTypes.Identifier.Uuid)
+            .HasConversion(id => id.Value, value => ChunkId.Create(value))
+            .IsRequired()
+            .ValueGeneratedNever()
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.Property(e => e.BatchId)
+            .HasColumnName("ChunkBatchId")
+            .HasColumnType(DbConstants.ColumnTypes.Identifier.Uuid)
+            .HasConversion(id => id.Value, value => ChunkBatchId.Create(value))
+            .IsRequired()
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.Property(e => e.WorkspaceId)
+            .HasColumnName("WorkspaceId")
+            .HasColumnType(DbConstants.ColumnTypes.Identifier.Uuid)
+            .HasConversion(id => id.Value, value => WorkspaceId.Create(value))
+            .IsRequired()
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.Property(e => e.ArtifactId)
+            .HasColumnName("ArtifactId")
+            .HasColumnType(DbConstants.ColumnTypes.Identifier.Uuid)
+            .HasConversion(id => id.Value, value => ArtifactId.Create(value))
+            .IsRequired()
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.Property(e => e.ArtifactRevisionId)
+            .HasColumnName("ArtifactRevisionId")
+            .HasColumnType(DbConstants.ColumnTypes.Identifier.Uuid)
+            .HasConversion(id => id.Value, value => ArtifactRevisionId.Create(value))
+            .IsRequired()
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.Property(e => e.Number)
+            .HasColumnName("ChunkNumber")
+            .HasColumnType(DbConstants.ColumnTypes.Numeric.Integer)
+            .HasConversion(number => number.Value, value => ChunkNumber.Create(value).Value!)
+            .IsRequired()
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.Property(e => e.Content)
+            .HasColumnName("Content")
+            .HasColumnType(DbConstants.ColumnTypes.Text.TextType)
+            .HasConversion(content => content.Value, value => ChunkContent.Create(value).Value!)
+            .IsRequired()
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.OwnsOne(e => e.SourceSpan, span =>
+        {
+            span.Property(e => e.Start)
+                .HasColumnName("SourceStart")
+                .HasColumnType(DbConstants.ColumnTypes.Numeric.Integer)
+                .IsRequired(false)
+                .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+            span.Property(e => e.Length)
+                .HasColumnName("SourceLength")
+                .HasColumnType(DbConstants.ColumnTypes.Numeric.Integer)
+                .IsRequired(false)
+                .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+            span.Ignore(e => e.EndExclusive);
+        });
+
+        builder.Navigation(e => e.SourceSpan)
+            .IsRequired(false);
+
+        builder.Property(e => e.Strategy)
+            .HasColumnName("StrategyId")
+            .HasColumnType(DbConstants.ColumnTypes.Numeric.Integer)
+            .HasConversion(strategy => strategy.Id, value => Enumeration.GetAll<ChunkingStrategyType>().Single(strategy => strategy.Id == value))
+            .IsRequired()
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.Property(e => e.StrategyVersion)
+            .HasColumnName("StrategyVersion")
+            .HasColumnType(DbConstants.ColumnTypes.Text.Varchar64)
+            .HasConversion(version => version.Value, value => ChunkingVersion.Create(value).Value!)
+            .HasMaxLength(DbConstants.Validations.MaxLengths.L64)
+            .IsRequired()
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.Property(e => e.CreatedAtUtc)
+            .HasColumnName("CreatedAtUtc")
+            .HasColumnType(DbConstants.ColumnTypes.DateTime.TimestampTz)
+            .IsRequired()
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.HasIndex(e => e.BatchId)
+            .HasDatabaseName("IX_Chunks_ChunkBatchId");
+
+        builder.HasIndex(e => e.WorkspaceId)
+            .HasDatabaseName("IX_Chunks_WorkspaceId");
+
+        builder.HasIndex(e => e.ArtifactId)
+            .HasDatabaseName("IX_Chunks_ArtifactId");
+
+        builder.HasIndex(e => e.ArtifactRevisionId)
+            .HasDatabaseName("IX_Chunks_ArtifactRevisionId");
+
+        builder.HasIndex(e => new { e.BatchId, e.Number })
+            .IsUnique()
+            .HasDatabaseName("UX_Chunks_ChunkBatchId_ChunkNumber");
+
+        builder.Ignore(e => e.ContentHash);
+        builder.Ignore(e => e.SizeInBytes);
+        builder.Ignore(e => e.CharacterCount);
+        builder.Ignore(e => e.DomainEvents);
+    }
+}
