@@ -43,8 +43,8 @@
         <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.10" />
 
         <!-- Cloud persistence -->
-        <PackageVersion Include="Npgsql" Version="10.0.2" />
-        <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" />
+        <PackageVersion Include="Npgsql" Version="10.0.3" />
+        <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
 
         <!-- Azure Blob Storage -->
         <PackageVersion Include="Azure.Core" Version="1.60.0" />
