@@ -86,5 +86,21 @@ namespace Espada.Tests.Application.TestData.Builder
 
             return result.IsFailure ? throw new InvalidOperationException($"SourceBuilder received an invalid locator: {result.Error.Code} — {result.Error.Description}") : result.Value;
         }
+        
+        public Source BuildArchivedWithoutPendingEvents(DateTimeOffset? archivedAtUtc = null)
+        {
+            Source source = BuildWithoutPendingEvents();
+
+            DomainResult archiveResult = source.Archive(archivedAtUtc ?? TestDates.SourceArchivedAtUtc);
+
+            if (archiveResult.IsFailure)
+            {
+                throw new InvalidOperationException($"SourceBuilder could not archive source: {archiveResult.Error.Code} — {archiveResult.Error.Description}");
+            }
+
+            source.DequeueDomainEvents();
+
+            return source;
+        }
     }
 }
