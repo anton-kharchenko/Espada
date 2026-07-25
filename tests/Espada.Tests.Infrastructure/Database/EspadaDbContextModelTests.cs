@@ -26,11 +26,11 @@ namespace Espada.Tests.Infrastructure.Database
         {
             using EspadaDbContext context = CreateContext();
 
-            Assert.Equal("workspaces", context.Model.FindEntityType(typeof(Workspace))?.GetTableName());
-            Assert.Equal("sources", context.Model.FindEntityType(typeof(Source))?.GetTableName());
-            Assert.Equal("import_jobs", context.Model.FindEntityType(typeof(ImportJob))?.GetTableName());
-            Assert.Equal("artifacts", context.Model.FindEntityType(typeof(Artifact))?.GetTableName());
-            Assert.Equal("artifact_revisions", context.Model.FindEntityType(typeof(ArtifactRevision))?.GetTableName());
+            Assert.Equal("Workspaces", context.Model.FindEntityType(typeof(Workspace))?.GetTableName());
+            Assert.Equal("Sources", context.Model.FindEntityType(typeof(Source))?.GetTableName());
+            Assert.Equal("ImportJobs", context.Model.FindEntityType(typeof(ImportJob))?.GetTableName());
+            Assert.Equal("Artifacts", context.Model.FindEntityType(typeof(Artifact))?.GetTableName());
+            Assert.Equal("ArtifactRevisions", context.Model.FindEntityType(typeof(ArtifactRevision))?.GetTableName());
         }
 
         [Fact]

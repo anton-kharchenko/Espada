@@ -71,13 +71,13 @@ internal sealed class ChunkConfiguration : IEntityTypeConfiguration<Chunk>
             span.Property(e => e.Start)
                 .HasColumnName("SourceStart")
                 .HasColumnType(DbConstants.ColumnTypes.Numeric.Integer)
-                .IsRequired(false)
+                .IsRequired()
                 .UsePropertyAccessMode(PropertyAccessMode.Field);
 
             span.Property(e => e.Length)
                 .HasColumnName("SourceLength")
                 .HasColumnType(DbConstants.ColumnTypes.Numeric.Integer)
-                .IsRequired(false)
+                .IsRequired()
                 .UsePropertyAccessMode(PropertyAccessMode.Field);
 
             span.Ignore(e => e.EndExclusive);
