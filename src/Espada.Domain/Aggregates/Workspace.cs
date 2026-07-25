@@ -23,14 +23,14 @@ public sealed class Workspace : AggregateRoot<WorkspaceId>
 
     public WorkspaceName Name { get; private set; } = null!;
 
-    public WorkspaceType Type { get; private set; }
+    public WorkspaceType Type { get; private set; } = null!;
 
-    public WorkspaceStatusType Status { get; private set; }
+    public WorkspaceStatusType Status { get; private set; } = null!;
 
     public DateTimeOffset CreatedAtUtc { get; private set; }
 
     public DateTimeOffset? ArchivedAtUtc { get; private set; }
-    
+
 
     public static DomainResult<Workspace> Create(
         WorkspaceId id,
@@ -44,7 +44,7 @@ public sealed class Workspace : AggregateRoot<WorkspaceId>
 
         return DomainResult.Success(workspace);
     }
-    
+
     public DomainResult Archive(DateTimeOffset archivedAtUtc)
     {
         if (Status.Equals(WorkspaceStatusType.Archived))

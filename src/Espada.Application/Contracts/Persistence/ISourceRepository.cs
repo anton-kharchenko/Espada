@@ -6,6 +6,6 @@ namespace Espada.Application.Contracts.Persistence;
 public interface ISourceRepository
 {
     Task AddAsync(Source source, CancellationToken cancellationToken = default);
-    
+
     Task<Source?> GetByIdAsync(SourceId sourceId, CancellationToken cancellationToken = default);
 }

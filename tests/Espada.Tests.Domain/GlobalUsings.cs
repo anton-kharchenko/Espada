@@ -4,9 +4,7 @@ global using Espada.Domain.Events;
 global using Espada.Domain.Rules;
 global using Espada.Domain.SeedWork;
 global using Espada.Domain.ValueObjects;
-global using Espada.Tests.Domain.TestData;
 global using Espada.Tests.Domain.Assertions;
-
+global using Espada.Tests.Domain.TestData;
 global using FluentAssertions;
-
 global using Xunit;

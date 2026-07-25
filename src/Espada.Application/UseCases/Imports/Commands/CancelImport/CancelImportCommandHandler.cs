@@ -8,7 +8,7 @@ using Espada.Domain.ValueObjects;
 
 namespace Espada.Application.UseCases.Imports.Commands.CancelImport
 {
-    internal sealed class CancelImportCommandHandler(IImportJobRepository importJobRepository, IUnitOfWork unitOfWork, IClock clock) 
+    internal sealed class CancelImportCommandHandler(IImportJobRepository importJobRepository, IUnitOfWork unitOfWork, IClock clock)
         : ICommandHandler<CancelImportCommand>
     {
         public async Task<DomainResult> Handle(CancelImportCommand request, CancellationToken cancellationToken)

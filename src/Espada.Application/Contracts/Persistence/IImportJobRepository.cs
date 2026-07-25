@@ -6,7 +6,7 @@ namespace Espada.Application.Contracts.Persistence
     public interface IImportJobRepository
     {
         Task AddAsync(ImportJob importJob, CancellationToken cancellationToken = default);
-        
+
         Task<ImportJob?> GetByIdAsync(ImportJobId importJobId, CancellationToken cancellationToken = default);
     }
 }

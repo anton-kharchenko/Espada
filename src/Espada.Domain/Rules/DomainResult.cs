@@ -50,5 +50,5 @@ public sealed class DomainResult<TValue> : DomainResult
 
     public static DomainResult<TValue> Success(TValue value) => new(value, true, DomainError.None);
 
-    public static DomainResult<TValue> Failure(DomainError error) => new(default, false, error);
+    public new static DomainResult<TValue> Failure(DomainError error) => new(default, false, error);
 }

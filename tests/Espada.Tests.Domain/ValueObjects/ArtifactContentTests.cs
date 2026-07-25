@@ -1,5 +1,5 @@
-using System.Text;
 using Espada.Domain.Errors;
+using System.Text;
 
 namespace Espada.Tests.Domain.ValueObjects;
 

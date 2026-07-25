@@ -1,5 +1,5 @@
-using System.Reflection;
 using Espada.Domain.Enums;
+using System.Reflection;
 
 namespace Espada.Tests.Application.TestData;
 

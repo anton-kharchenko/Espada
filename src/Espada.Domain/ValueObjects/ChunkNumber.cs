@@ -12,7 +12,7 @@ public sealed class ChunkNumber : ValueObject
 
     public static ChunkNumber First() => new(1);
 
-    public static DomainResult<ChunkNumber> Create(int value) => 
+    public static DomainResult<ChunkNumber> Create(int value) =>
         value < 1 ? DomainResult<ChunkNumber>.Failure(ChunkErrors.InvalidNumber) : DomainResult<ChunkNumber>.Success(new ChunkNumber(value));
 
     public ChunkNumber Next() => new(checked(Value + 1));

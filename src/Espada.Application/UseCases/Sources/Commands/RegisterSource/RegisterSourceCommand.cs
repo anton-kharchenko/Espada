@@ -7,5 +7,5 @@ public sealed record RegisterSourceCommand(
     Guid WorkspaceId,
     string Name,
     string Locator,
-    SourceType Type) 
+    SourceType Type)
     : ICommand<RegisterSourceResponse>;

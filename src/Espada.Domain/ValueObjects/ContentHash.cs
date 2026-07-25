@@ -1,6 +1,6 @@
+using Espada.Domain.SeedWork;
 using System.Security.Cryptography;
 using System.Text;
-using Espada.Domain.SeedWork;
 
 namespace Espada.Domain.ValueObjects;
 

@@ -25,7 +25,7 @@ public sealed class CreateWorkspaceCommandValidatorTests
 
     [Theory]
     [MemberData(nameof(StringTheoryData.NullOrWhiteSpaceValues), MemberType = typeof(StringTheoryData))]
-    public async Task Validate_WithEmptyName_ShouldHaveNameError(string name)
+    public async Task Validate_WithEmptyName_ShouldHaveNameError(string? name)
     {
         // Arrange
         CreateWorkspaceCommand command = new CreateWorkspaceCommandBuilder().WithName(name).Build();

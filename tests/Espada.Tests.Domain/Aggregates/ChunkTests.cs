@@ -1,5 +1,5 @@
-using System.Text;
 using Espada.Tests.Domain.TestData.Builders;
+using System.Text;
 
 namespace Espada.Tests.Domain.Aggregates;
 

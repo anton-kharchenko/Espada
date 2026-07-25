@@ -120,7 +120,7 @@ public sealed class WorkspaceTests
         (first == second).Should().BeFalse();
         (first != second).Should().BeTrue();
     }
-    
+
     [Fact]
     public void Archive_WhenWorkspaceIsActive_ShouldRaiseArchivedEvent()
     {

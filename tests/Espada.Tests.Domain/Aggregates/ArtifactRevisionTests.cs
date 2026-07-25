@@ -212,6 +212,6 @@ public sealed class ArtifactRevisionTests
         return artifact;
     }
 
-    private static ArtifactContent CreateContent(string value) => 
+    private static ArtifactContent CreateContent(string value) =>
         ArtifactContent.Create(value).ShouldSucceed();
 }

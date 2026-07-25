@@ -86,7 +86,7 @@ namespace Espada.Tests.Application.TestData.Builder
 
             return result.IsFailure ? throw new InvalidOperationException($"SourceBuilder received an invalid locator: {result.Error.Code} — {result.Error.Description}") : result.Value;
         }
-        
+
         public Source BuildArchivedWithoutPendingEvents(DateTimeOffset? archivedAtUtc = null)
         {
             Source source = BuildWithoutPendingEvents();

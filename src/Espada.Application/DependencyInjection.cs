@@ -1,8 +1,8 @@
-using System.Reflection;
 using Espada.Application.Behaviors;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace Espada.Application;
 

@@ -5,11 +5,11 @@ namespace Espada.Tests.Application.TestData.Builder;
 
 internal sealed class CreateWorkspaceCommandBuilder
 {
-    private string _name = TestValues.WorkspaceName;
+    private string? _name = TestValues.WorkspaceName;
 
     private WorkspaceType _type = WorkspaceTypeTestData.Any;
 
-    public CreateWorkspaceCommandBuilder WithName(string name)
+    public CreateWorkspaceCommandBuilder WithName(string? name)
     {
         _name = name;
         return this;
@@ -27,5 +27,5 @@ internal sealed class CreateWorkspaceCommandBuilder
         return this;
     }
 
-    public CreateWorkspaceCommand Build() => new(_name, _type);
+    public CreateWorkspaceCommand Build() => new(_name!, _type);
 }

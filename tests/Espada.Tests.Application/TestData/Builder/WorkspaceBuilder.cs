@@ -50,7 +50,7 @@ namespace Espada.Tests.Application.TestData.Builder
 
             return workspace;
         }
-        
+
         public Workspace BuildArchivedWithoutPendingEvents(DateTimeOffset? archivedAtUtc = null)
         {
             Workspace workspace = BuildWithoutPendingEvents();

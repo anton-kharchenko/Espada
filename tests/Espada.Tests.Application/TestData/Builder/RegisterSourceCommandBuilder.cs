@@ -7,9 +7,9 @@ internal sealed class RegisterSourceCommandBuilder
 {
     private Guid _workspaceId = TestIds.DefaultWorkspaceId.Value;
 
-    private string _name = TestValues.SourceName;
+    private string? _name = TestValues.SourceName;
 
-    private string _locator = TestValues.SourceLocator;
+    private string? _locator = TestValues.SourceLocator;
 
     private SourceType _type = SourceTypeTestData.Any;
 
@@ -19,13 +19,13 @@ internal sealed class RegisterSourceCommandBuilder
         return this;
     }
 
-    public RegisterSourceCommandBuilder WithName(string name)
+    public RegisterSourceCommandBuilder WithName(string? name)
     {
         _name = name;
         return this;
     }
 
-    public RegisterSourceCommandBuilder WithLocator(string locator)
+    public RegisterSourceCommandBuilder WithLocator(string? locator)
     {
         _locator = locator;
         return this;
@@ -43,5 +43,5 @@ internal sealed class RegisterSourceCommandBuilder
         return this;
     }
 
-    public RegisterSourceCommand Build() => new(_workspaceId, _name, _locator, _type);
+    public RegisterSourceCommand Build() => new(_workspaceId, _name!, _locator!, _type);
 }

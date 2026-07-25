@@ -55,7 +55,7 @@ namespace Espada.Tests.Application.TestData.Builder
 
             return importJob;
         }
-        
+
         public ImportJob BuildRunningWithoutPendingEvents(DateTimeOffset? startedAtUtc = null)
         {
             ImportJob importJob = BuildWithoutPendingEvents();
@@ -71,7 +71,7 @@ namespace Espada.Tests.Application.TestData.Builder
 
             return importJob;
         }
-        
+
         public ImportJob BuildSucceededWithoutPendingEvents(DateTimeOffset? completedAtUtc = null, ArtifactId? artifactId = null, ArtifactRevisionId? artifactRevisionId = null)
         {
             ImportJob importJob = BuildRunningWithoutPendingEvents();
@@ -87,7 +87,7 @@ namespace Espada.Tests.Application.TestData.Builder
 
             return importJob;
         }
-        
+
         public ImportJob BuildFailedWithoutPendingEvents(string failureCode = TestValues.ImportFailureCode, string failureReason = TestValues.ImportFailureReason, DateTimeOffset? failedAtUtc = null)
         {
             ImportJob importJob = BuildRunningWithoutPendingEvents();
@@ -110,7 +110,7 @@ namespace Espada.Tests.Application.TestData.Builder
 
             return importJob;
         }
-        
+
         public ImportJob BuildCancelledFromRequestedWithoutPendingEvents(DateTimeOffset? cancelledAtUtc = null)
         {
             ImportJob importJob = BuildWithoutPendingEvents();

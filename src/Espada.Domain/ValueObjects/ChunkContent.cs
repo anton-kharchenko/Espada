@@ -1,7 +1,7 @@
-using System.Text;
 using Espada.Domain.Errors;
 using Espada.Domain.Rules;
 using Espada.Domain.SeedWork;
+using System.Text;
 
 namespace Espada.Domain.ValueObjects;
 
@@ -22,7 +22,7 @@ public sealed class ChunkContent : ValueObject
 
     public int CharacterCount => Value.Length;
 
-    public static DomainResult<ChunkContent> Create(string? value) => 
+    public static DomainResult<ChunkContent> Create(string? value) =>
         string.IsNullOrWhiteSpace(value) ? DomainResult<ChunkContent>.Failure(ChunkErrors.ContentEmpty) : DomainResult<ChunkContent>.Success(new ChunkContent(value));
 
     protected override IEnumerable<object> GetEqualityComponents()

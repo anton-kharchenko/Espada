@@ -34,8 +34,8 @@ internal sealed class CreateChunkEmbeddingCommandHandler(
             return DomainResult<CreateChunkEmbeddingResponse>.Failure(modelResult.Error);
         }
 
-        int vectorCount = request.Vector?.Count ?? 0;
-        DomainResult<EmbeddingDimensions> dimensionsResult = EmbeddingDimensions.Create(vectorCount);
+        IReadOnlyList<float> vector = request.Vector ?? [];
+        DomainResult<EmbeddingDimensions> dimensionsResult = EmbeddingDimensions.Create(vector.Count);
 
         if (dimensionsResult.IsFailure)
         {
@@ -64,7 +64,7 @@ internal sealed class CreateChunkEmbeddingCommandHandler(
 
         ChunkEmbedding embedding = embeddingResult.Value;
         await chunkEmbeddingRepository.AddAsync(embedding, cancellationToken);
-        await embeddingVectorStore.AddAsync(embedding.Id, request.Vector, cancellationToken);
+        await embeddingVectorStore.AddAsync(embedding.Id, vector, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         CreateChunkEmbeddingResponse response = new(embedding.Id.Value, embedding.ChunkId.Value, embedding.ChunkContentHash.Value, embedding.Model.Identifier, embedding.Model.Version, embedding.Dimensions.Value, embedding.CreatedAtUtc);

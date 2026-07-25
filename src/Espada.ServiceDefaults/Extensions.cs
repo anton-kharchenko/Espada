@@ -28,7 +28,7 @@ public static class Extensions
 
         switch (ResolveTelemetryExporter(builder.Configuration))
         {
-            case TelemetryExporterType.AzureMonitor: 
+            case TelemetryExporterType.AzureMonitor:
                 openTelemetry.UseAzureMonitor();
                 break;
             case TelemetryExporterType.Otlp:

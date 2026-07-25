@@ -59,7 +59,7 @@ namespace Espada.Tests.Application.UseCases.Imports.Commands.FailImport
         }
 
         [Theory]
-        [MemberData( nameof(StringTheoryData.NullOrWhiteSpaceValues), MemberType = typeof(StringTheoryData))]
+        [MemberData(nameof(StringTheoryData.NullOrWhiteSpaceValues), MemberType = typeof(StringTheoryData))]
         public async Task Validate_WithEmptyFailureCode_ShouldHaveError(string? failureCode)
         {
             // Arrange

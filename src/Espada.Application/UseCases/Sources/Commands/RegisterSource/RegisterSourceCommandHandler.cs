@@ -27,7 +27,7 @@ internal sealed class RegisterSourceCommandHandler(IWorkspaceRepository workspac
         }
 
         DomainResult<SourceName> nameResult = SourceName.Create(request.Name);
-        
+
         if (nameResult.IsFailure)
         {
             return DomainResult.Failure<RegisterSourceResponse>(nameResult.Error);
@@ -40,7 +40,7 @@ internal sealed class RegisterSourceCommandHandler(IWorkspaceRepository workspac
             return DomainResult.Failure<RegisterSourceResponse>(locatorResult.Error);
         }
 
-        DomainResult<Source> sourceResult = Source.Create(SourceId.New(), workspaceId, nameResult.Value,  request.Type, locatorResult.Value, clock.UtcNow);
+        DomainResult<Source> sourceResult = Source.Create(SourceId.New(), workspaceId, nameResult.Value, request.Type, locatorResult.Value, clock.UtcNow);
 
         if (sourceResult.IsFailure)
         {

@@ -31,7 +31,7 @@ internal sealed class CreateWorkspaceCommandHandler(IWorkspaceRepository workspa
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         CreateWorkspaceResponse response = new(workspace.Id.Value);
-        
+
         return DomainResult.Success(response);
     }
 }

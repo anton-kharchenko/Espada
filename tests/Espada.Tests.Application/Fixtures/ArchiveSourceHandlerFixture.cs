@@ -10,7 +10,7 @@ namespace Espada.Tests.Application.Fixtures
     internal sealed class ArchiveSourceHandlerFixture
     {
         public SourceRepositorySpy SourceRepository { get; } = new();
-        
+
         public UnitOfWorkSpy UnitOfWork { get; } = new();
 
         public TestClock Clock { get; } = new(TestDates.SourceArchivedAtUtc);

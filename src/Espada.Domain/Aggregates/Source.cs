@@ -64,7 +64,7 @@ public sealed class Source : AggregateRoot<SourceId>
         Source source = new(id, workspaceId, name, type, locator, createdAtUtc);
 
         source.RaiseDomainEvent(new SourceCreatedDomainEvent(source.Id, source.WorkspaceId, source.Name.Value, source.Type, source.Locator.Value, createdAtUtc));
-       
+
         return DomainResult<Source>.Success(source);
     }
 

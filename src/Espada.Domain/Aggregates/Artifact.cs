@@ -10,7 +10,7 @@ namespace Espada.Domain.Aggregates;
 public sealed class Artifact : AggregateRoot<ArtifactId>
 {
     public int RevisionCount => CurrentRevisionNumber?.Value ?? 0;
-    
+
     private Artifact()
     {
     }
@@ -35,12 +35,12 @@ public sealed class Artifact : AggregateRoot<ArtifactId>
 
     public ArtifactTitle Title { get; private set; } = null!;
 
-    public ArtifactType Type { get; private set; }
+    public ArtifactType Type { get; private set; } = null!;
 
-    public ArtifactStatusType Status { get; private set; }
+    public ArtifactStatusType Status { get; private set; } = null!;
 
     public DateTimeOffset CreatedAtUtc { get; private set; }
-    
+
     public ArtifactRevisionId? CurrentRevisionId { get; private set; }
 
     public RevisionNumber? CurrentRevisionNumber { get; private set; }
@@ -110,10 +110,10 @@ public sealed class Artifact : AggregateRoot<ArtifactId>
         UpdatedAtUtc = archivedAtUtc;
 
         RaiseDomainEvent(new ArtifactArchivedDomainEvent(Id, archivedAtUtc));
-        
+
         return DomainResult.Success();
     }
-    
+
     public DomainResult<ArtifactRevision> CreateRevision(ArtifactRevisionId revisionId, ArtifactContent content, DateTimeOffset createdAtUtc)
     {
         ArgumentNullException.ThrowIfNull(revisionId);

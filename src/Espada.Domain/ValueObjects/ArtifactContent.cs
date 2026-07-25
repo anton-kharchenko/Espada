@@ -1,7 +1,7 @@
-using System.Text;
 using Espada.Domain.Errors;
 using Espada.Domain.Rules;
 using Espada.Domain.SeedWork;
+using System.Text;
 
 namespace Espada.Domain.ValueObjects;
 

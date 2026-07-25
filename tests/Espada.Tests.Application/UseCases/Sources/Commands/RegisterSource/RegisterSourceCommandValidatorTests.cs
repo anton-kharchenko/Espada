@@ -37,7 +37,7 @@ public sealed class RegisterSourceCommandValidatorTests
 
     [Theory]
     [MemberData(nameof(StringTheoryData.NullOrWhiteSpaceValues), MemberType = typeof(StringTheoryData))]
-    public async Task Validate_WithEmptyName_ShouldHaveError(string name)
+    public async Task Validate_WithEmptyName_ShouldHaveError(string? name)
     {
         // Arrange
         RegisterSourceCommand command = new RegisterSourceCommandBuilder().WithName(name).Build();
@@ -51,7 +51,7 @@ public sealed class RegisterSourceCommandValidatorTests
 
     [Theory]
     [MemberData(nameof(StringTheoryData.NullOrWhiteSpaceValues), MemberType = typeof(StringTheoryData))]
-    public async Task Validate_WithEmptyLocator_ShouldHaveError(string locator)
+    public async Task Validate_WithEmptyLocator_ShouldHaveError(string? locator)
     {
         // Arrange
         RegisterSourceCommand command = new RegisterSourceCommandBuilder().WithLocator(locator).Build();

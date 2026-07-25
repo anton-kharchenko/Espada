@@ -26,7 +26,7 @@ public sealed class StartImportCommandValidatorTests
     {
         // Arrange
         StartImportCommand command = new(Guid.Empty, TestIds.DefaultImportJobId.Value);
-        
+
         // Act
         TestValidationResult<StartImportCommand> result = await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
 

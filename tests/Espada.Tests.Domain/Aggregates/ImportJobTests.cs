@@ -282,7 +282,7 @@ public sealed class ImportJobTests
         DomainResult completeResult = importJob.Complete(TestIds.DefaultArtifactId, TestIds.FirstRevisionId, TestDates.LaterUtc);
 
         DomainResult failResult = importJob.Fail(CreateFailure(), TestDates.LaterUtc);
-        
+
         DomainResult cancelResult = importJob.Cancel(TestDates.LaterUtc);
 
         // Assert

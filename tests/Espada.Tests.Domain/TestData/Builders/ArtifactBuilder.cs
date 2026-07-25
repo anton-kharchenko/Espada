@@ -6,7 +6,7 @@ internal sealed class ArtifactBuilder
 
     private WorkspaceId _workspaceId = TestIds.DefaultWorkspaceId;
 
-    private ArtifactTitle? _title = ArtifactTitle.Create("Espada artifact").ShouldSucceed();
+    private ArtifactTitle _title = ArtifactTitle.Create("Espada artifact").ShouldSucceed();
 
     private ArtifactType _type = ArtifactType.Markdown;
 

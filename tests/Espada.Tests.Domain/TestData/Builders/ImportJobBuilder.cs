@@ -48,7 +48,7 @@ internal sealed class ImportJobBuilder
     public ImportJob BuildRunningWithoutPendingEvents()
     {
         ImportJob importJob = BuildRequestedWithoutPendingEvents();
-        
+
         importJob.Start(TestDates.ImportStartedAtUtc).ShouldSucceed();
         importJob.DequeueDomainEvents();
 
