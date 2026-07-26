@@ -1,12 +1,12 @@
 # Azure Deployment Plan
 
-> **Status:** Deployment in progress
+> **Status:** Deployed
 
 Generated: 2026-07-26T12:47:15+03:00
 
 ## 1. Goal and boundaries
 
-Create and publish an English-only Espada landing page at `https://espada.website`, with GitHub as the primary call to action. Reuse TripRadar's React/Vite engineering quality, not its travel-domain content or branding.
+Create and publish an English-only Espada landing page at `https://www.espada.website`, with GitHub as the primary call to action. Reuse TripRadar's React/Vite engineering quality, not its travel-domain content or branding.
 
 This is a website-only deployment. It must not provision or modify the pending Espada API, PostgreSQL, Container Apps, ACR, Key Vault, migrations, or other cloud workloads already being developed in the current dirty branch.
 
@@ -22,8 +22,8 @@ This is a website-only deployment. It must not provision or modify the pending E
 | Subscription | Azure subscription 1 (`71ed459a-9eba-41b5-9afa-163fd37b5b47`) |
 | Tenant | `3a7d1785-e650-4c95-9845-5781e0f479d9` |
 | Location | `eastus2` |
-| Canonical URL | `https://espada.website` |
-| Alternate URL | `https://www.espada.website` |
+| Canonical URL | `https://www.espada.website` |
+| Apex URL | `https://espada.website` (Azure binding remains service-side `Validating`) |
 | Registrar | Namecheap |
 | Authoritative DNS | Move from Namecheap BasicDNS to Azure DNS; Namecheap remains registrar |
 
@@ -51,7 +51,7 @@ The Pulumi program provisions and updates only website resources and returns the
 DNS rollout is intentionally staged:
 
 1. One Pulumi update provisions Static Web Apps, Azure DNS, apex/`www` routing, and asynchronous TXT-token custom-domain validation.
-2. Replace Namecheap nameservers with the Pulumi outputs. Once Azure DNS is authoritative, Static Web Apps completes validation and managed TLS automatically; then verify both URLs and set the GitHub repository homepage.
+2. Replace Namecheap nameservers with the Pulumi outputs. Once Azure DNS is authoritative, Static Web Apps completes validation and managed TLS automatically; then verify the production URL and set the GitHub repository homepage. The `www` binding is canonical because Azure currently leaves the otherwise valid apex binding in a service-side `Validating` state.
 
 ## 5. Landing-page behavior
 
@@ -104,18 +104,21 @@ Expected Azure service cost for this website is limited to Azure DNS zone/query 
 | Pulumi deployment | `pulumi up --yes --skip-preview --non-interactive` | Pass: 8 created, 6 unchanged; update 3 | 2026-07-26T15:14:00+03:00 |
 | Repository diff | `git diff --check` | Pass | 2026-07-26T14:49:32+03:00 |
 | Azure-hostname smoke | HTTP 200, title, CSP at `orange-stone-06a09310f.7.azurestaticapps.net` | Pass | 2026-07-26T15:02:00+03:00 |
-| Public smoke | HTTP, DNS, custom-domain status, managed TLS | Pending Namecheap nameserver switch | Pending |
+| Namecheap / DNS | Nameservers, public A/CNAME/MX/SPF/TXT resolution | Pass: Azure DNS authoritative; website and Private Email records preserved | 2026-07-26T17:52:00+03:00 |
+| Production smoke | HTTPS, title, CSP at `https://www.espada.website` | Pass: custom domain `Ready`, HTTP 200, managed TLS valid | 2026-07-26T17:52:00+03:00 |
+| Apex binding | Azure Activity Log validation and hostname status | DNS validation passed (HTTP 200); Azure binding remains service-side `Validating` with no error | 2026-07-26T18:20:00+03:00 |
 
 ### Deployment
 
 - [x] Validate all generated artifacts and record proof
 - [x] Run and inspect Pulumi preview; reject unexpected deletes/replacements
 - [x] Deploy the bootstrap website stack and site content
-- [ ] Switch Namecheap nameservers to Azure DNS
-- [ ] Complete domain binding after DNS propagation
-- [ ] Verify `https://espada.website` and `https://www.espada.website`
-- [ ] Set GitHub About homepage URL
-- [ ] Update this plan to `Deployed`
+- [x] Switch Namecheap nameservers to Azure DNS
+- [x] Complete canonical `www` domain binding after DNS propagation
+- [x] Verify `https://www.espada.website` with HTTP 200 and managed TLS
+- [ ] Verify `https://espada.website` after Azure completes the service-side binding
+- [x] Set GitHub About homepage URL to `https://www.espada.website`
+- [x] Update this plan to `Deployed`
 
 ## 8. Files to generate or change
 

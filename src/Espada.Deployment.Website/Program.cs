@@ -30,6 +30,9 @@ return await Deployment.RunAsync(() =>
         Name = staticSiteName,
         ResourceGroupName = resourceGroup.Name,
         Location = location,
+        RepositoryUrl = "https://github.com/anton-kharchenko/Espada",
+        Branch = "master",
+        Provider = "GitHub",
         PublicNetworkAccess = "Enabled",
         Sku = new AzureNative.Web.Inputs.SkuDescriptionArgs
         {
@@ -61,7 +64,7 @@ return await Deployment.RunAsync(() =>
         ZoneName = dnsZone.Name,
     });
 
-    _ = new AzureNative.Dns.RecordSet("website-www-cname", new()
+    var wwwCname = new AzureNative.Dns.RecordSet("website-www-cname", new()
     {
         CnameRecord = new AzureNative.Dns.Inputs.CnameRecordArgs
         {
@@ -139,7 +142,11 @@ return await Deployment.RunAsync(() =>
     {
         DomainName = $"www.{domainName}",
         StaticWebAppId = staticSite.Id,
-        ValidationType = "dns-txt-token",
+        ValidationType = "cname-delegation",
+    }, new CustomResourceOptions
+    {
+        DependsOn = { wwwCname },
+        IgnoreChanges = { "validationType" },
     });
 
     _ = new AzureNative.Dns.RecordSet("website-domain-validation", new()
@@ -154,10 +161,6 @@ return await Deployment.RunAsync(() =>
             {
                 Value = { apexDomain.ValidationToken },
             },
-            new AzureNative.Dns.Inputs.TxtRecordArgs
-            {
-                Value = { wwwDomain.ValidationToken },
-            },
         },
         ZoneName = dnsZone.Name,
     });
@@ -165,7 +168,7 @@ return await Deployment.RunAsync(() =>
     return new Dictionary<string, object?>
     {
         ["apexDomainValidation"] = apexDomain.ValidationType,
-        ["canonicalUrl"] = $"https://{domainName}",
+        ["canonicalUrl"] = $"https://www.{domainName}",
         ["defaultHostname"] = staticSite.DefaultHostname,
         ["nameServers"] = dnsZone.NameServers,
         ["resourceGroupName"] = resourceGroup.Name,
