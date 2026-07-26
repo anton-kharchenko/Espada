@@ -115,4 +115,8 @@ public static class DbConstants
             public const string Now = "NOW()";
         }
     }
+    
+    public const string ConnectionString = "Espada";
+    
+    public const string ConnectionStringEnvironmentVariable = "ESPADA_CONNECTION_STRING";
 }

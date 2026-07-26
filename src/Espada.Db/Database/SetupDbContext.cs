@@ -31,19 +31,15 @@ public sealed class SetupDbContext(DbContextOptions<SetupDbContext> options) : D
     public DbSet<ChunkingStrategyTypes> ChunkingStrategyTypes => Set<ChunkingStrategyTypes>();
     public DbSet<ChunkBatchStatusTypes> ChunkBatchStatusTypes => Set<ChunkBatchStatusTypes>();
 
-    public static SetupDbContext Create(IConfiguration configuration)
-    {
-        ArgumentNullException.ThrowIfNull(configuration);
-        DbContextOptionsBuilder<SetupDbContext> options = new();
-        ConfigureMigrationWarnings(options);
-        options.UseNpgsql(PostgreSqlConfiguration.GetRequiredConnectionString(configuration), ConfigureNpgsql);
-        return new SetupDbContext(options.Options);
-    }
-
     internal static DatabaseRuntime CreateRuntime(IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);
-        NpgsqlDataSource dataSource = new NpgsqlDataSourceBuilder(PostgreSqlConfiguration.GetRequiredConnectionString(configuration)).Build();
+
+        string connectionString = Environment.GetEnvironmentVariable(DbConstants.ConnectionStringEnvironmentVariable)
+                                  ?? configuration.GetConnectionString(DbConstants.ConnectionString)
+                                  ?? throw new InvalidOperationException($"Database connection string was not configured. Set ConnectionStrings:{DbConstants.ConnectionString} or {DbConstants.ConnectionStringEnvironmentVariable}.");
+        
+        NpgsqlDataSource dataSource = new NpgsqlDataSourceBuilder(connectionString).Build();
         DbContextOptionsBuilder<SetupDbContext> options = new();
         ConfigureMigrationWarnings(options);
         options.UseNpgsql(dataSource, ConfigureNpgsql);

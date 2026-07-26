@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Espada.Db.Seeding;
 
-internal static partial class DbSeeder
+internal static class DbSeeder
 {
     public static async Task SeedAsync(SetupDbContext dbContext, CancellationToken cancellationToken = default)
     {

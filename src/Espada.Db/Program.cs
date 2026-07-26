@@ -12,7 +12,12 @@ public static class Program
 {
     public static async Task<int> Main(string[] args)
     {
-        IConfiguration configuration = DbConfiguration.Create();
+        IConfiguration configuration =  new ConfigurationBuilder()
+            .SetBasePath(AppContext.BaseDirectory)
+            .AddJsonFile("appsettings.json", optional: false)
+            .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Development"}.json", optional: true)
+            .AddEnvironmentVariables()
+            .Build();
 
         await using DatabaseRuntime databaseRuntime = SetupDbContext.CreateRuntime(configuration);
         SetupDbContext dbContext = databaseRuntime.DbContext;
