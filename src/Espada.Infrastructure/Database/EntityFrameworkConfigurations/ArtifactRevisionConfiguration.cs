@@ -49,12 +49,17 @@ internal sealed class ArtifactRevisionConfiguration : IEntityTypeConfiguration<A
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
+        builder.HasOne<Artifact>()
+            .WithMany()
+            .HasForeignKey(e => e.ArtifactId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasIndex(e => e.ArtifactId)
             .HasDatabaseName("IX_ArtifactRevisions_ArtifactId");
 
         builder.HasIndex(e => new { e.ArtifactId, e.Number })
             .IsUnique()
-            .HasDatabaseName("UX_ArtifactRevisions_ArtifactId_RevisionNumber");
+            .HasDatabaseName(DbConstants.Indexes.ArtifactRevisionArtifactNumber);
 
         builder.Ignore(e => e.ContentHash);
         builder.Ignore(e => e.SizeInBytes);

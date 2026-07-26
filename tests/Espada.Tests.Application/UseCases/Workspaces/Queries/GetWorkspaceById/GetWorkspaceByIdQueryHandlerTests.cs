@@ -3,7 +3,6 @@ using Espada.Application.UseCases.Workspaces.Common;
 using Espada.Application.UseCases.Workspaces.Queries.GetWorkspaceById;
 using Espada.Domain.Aggregates;
 using Espada.Domain.Rules;
-using Espada.Tests.Application.Assertions;
 using Espada.Tests.Application.Fixtures;
 using Espada.Tests.Application.TestData;
 

@@ -1,19 +1,16 @@
 using Espada.Domain.Rules;
+using FluentAssertions;
 
-namespace Espada.Tests.Application.Assertions;
+namespace Espada.Tests.Common.Assertions;
 
-internal static class DomainResultAssertions
+public static class DomainResultAssertions
 {
-    public static void ShouldSucceed(this DomainResult result)
-    {
-        result.IsSuccess.Should().BeTrue();
-        result.IsFailure.Should().BeFalse();
-    }
+    public static void ShouldSucceed(this DomainResult result) =>
+        result.IsSuccess.Should().BeTrue($"expected success, but received {result.Error.Code}: {result.Error.Description}");
 
     public static TValue ShouldSucceed<TValue>(this DomainResult<TValue> result)
     {
-        result.IsSuccess.Should().BeTrue();
-        result.IsFailure.Should().BeFalse();
+        result.IsSuccess.Should().BeTrue($"expected success, but received {result.Error.Code}: {result.Error.Description}");
 
         return result.Value;
     }
@@ -21,14 +18,12 @@ internal static class DomainResultAssertions
     public static void ShouldFailWith(this DomainResult result, DomainError expectedError)
     {
         result.IsFailure.Should().BeTrue();
-        result.IsSuccess.Should().BeFalse();
         result.Error.Should().Be(expectedError);
     }
 
     public static void ShouldFailWith<TValue>(this DomainResult<TValue> result, DomainError expectedError)
     {
         result.IsFailure.Should().BeTrue();
-        result.IsSuccess.Should().BeFalse();
         result.Error.Should().Be(expectedError);
     }
 }

@@ -24,6 +24,27 @@ namespace Espada.Infrastructure.Database
 
         public DbSet<ChunkEmbedding> ChunkEmbeddings => Set<ChunkEmbedding>();
 
+        public override int SaveChanges(bool acceptAllChangesOnSuccess)
+        {
+            IncrementConcurrencyVersions();
+            return base.SaveChanges(acceptAllChangesOnSuccess);
+        }
+
+        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess,CancellationToken cancellationToken = default)
+        {
+            IncrementConcurrencyVersions();
+            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        }
+
+        private void IncrementConcurrencyVersions()
+        {
+            foreach (var entry in ChangeTracker.Entries<IHasConcurrencyVersion>().Where(entry => entry.State == EntityState.Modified))
+            {
+                var version = entry.Property<long>(nameof(IHasConcurrencyVersion.Version));
+                version.CurrentValue = version.OriginalValue + 1;
+            }
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

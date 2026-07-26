@@ -7,8 +7,10 @@ using Espada.Domain.ValueObjects;
 
 namespace Espada.Domain.Aggregates;
 
-public sealed class Source : AggregateRoot<SourceId>
+public sealed class Source : AggregateRoot<SourceId>, IHasConcurrencyVersion
 {
+    public long Version { get; private set; } = 1;
+
     private Source()
     {
     }

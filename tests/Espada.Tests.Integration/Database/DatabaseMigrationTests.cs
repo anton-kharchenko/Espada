@@ -28,43 +28,31 @@ public sealed class DatabaseMigrationTests(PostgreSqlDatabaseFixture fixture)
     }
 
     [Fact]
-    public async Task Database_AfterMigrations_ShouldContainExpectedTables()
+    public void Model_ShouldHaveNoPendingChanges()
+    {
+        using EspadaDbContext dbContext = fixture.CreateDbContext();
+
+        Assert.False(dbContext.Database.HasPendingModelChanges());
+    }
+
+    [Fact]
+    public async Task Database_AfterMigrations_ShouldAllowQueryingAllAggregateTables()
     {
         await using EspadaDbContext dbContext = fixture.CreateDbContext();
-        await dbContext.Database.OpenConnectionAsync(cancellationToken: TestContext.Current.CancellationToken);
+        CancellationToken cancellationToken = TestContext.Current.CancellationToken;
 
-        await using System.Data.Common.DbCommand command = dbContext.Database.GetDbConnection().CreateCommand();
-        command.CommandText = """
-            SELECT table_name
-            FROM information_schema.tables
-            WHERE table_schema = 'Espada'
-            ORDER BY table_name;
-            """;
-
-        HashSet<string> actualTables = new(StringComparer.Ordinal);
-
-        await using System.Data.Common.DbDataReader reader = await command.ExecuteReaderAsync(TestContext.Current.CancellationToken);
-
-        while (await reader.ReadAsync(TestContext.Current.CancellationToken))
-        {
-            actualTables.Add(reader.GetString(0));
-        }
-
-        string[] expectedTables =
+        int[] tableRowCounts =
         [
-            "ArtifactRevisions",
-            "Artifacts",
-            "ChunkBatches",
-            "ChunkEmbeddings",
-            "Chunks",
-            "ImportJobs",
-            "Sources",
-            "Workspaces"
+            await dbContext.Workspaces.CountAsync(cancellationToken),
+            await dbContext.Sources.CountAsync(cancellationToken),
+            await dbContext.ImportJobs.CountAsync(cancellationToken),
+            await dbContext.Artifacts.CountAsync(cancellationToken),
+            await dbContext.ArtifactRevisions.CountAsync(cancellationToken),
+            await dbContext.ChunkBatches.CountAsync(cancellationToken),
+            await dbContext.Chunks.CountAsync(cancellationToken),
+            await dbContext.ChunkEmbeddings.CountAsync(cancellationToken)
         ];
 
-        foreach (string expectedTable in expectedTables)
-        {
-            Assert.Contains(expectedTable, actualTables);
-        }
+        Assert.All(tableRowCounts, count => Assert.True(count >= 0));
     }
 }

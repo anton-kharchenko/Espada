@@ -94,6 +94,19 @@ internal sealed class ArtifactConfiguration : IEntityTypeConfiguration<Artifact>
             .IsRequired(false)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
+        builder.Property(e => e.Version)
+            .HasColumnName("Version")
+            .HasColumnType(DbConstants.ColumnTypes.Numeric.BigInt)
+            .HasDefaultValue(1L)
+            .IsConcurrencyToken()
+            .IsRequired()
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.HasOne<Workspace>()
+            .WithMany()
+            .HasForeignKey(e => e.WorkspaceId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasIndex(e => e.WorkspaceId)
             .HasDatabaseName("IX_Artifacts_WorkspaceId");
 

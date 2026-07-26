@@ -7,8 +7,10 @@ using Espada.Domain.ValueObjects;
 
 namespace Espada.Domain.Aggregates;
 
-public sealed class Artifact : AggregateRoot<ArtifactId>
+public sealed class Artifact : AggregateRoot<ArtifactId>, IHasConcurrencyVersion
 {
+    public long Version { get; private set; } = 1;
+
     public int RevisionCount => CurrentRevisionNumber?.Value ?? 0;
 
     private Artifact()

@@ -97,6 +97,19 @@ internal sealed class ChunkBatchConfiguration : IEntityTypeConfiguration<ChunkBa
             .IsRequired(false)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
+        builder.Property(e => e.Version)
+            .HasColumnName("Version")
+            .HasColumnType(DbConstants.ColumnTypes.Numeric.BigInt)
+            .HasDefaultValue(1L)
+            .IsConcurrencyToken()
+            .IsRequired()
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.HasOne<ArtifactRevision>()
+            .WithMany()
+            .HasForeignKey(e => e.ArtifactRevisionId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasIndex(e => e.WorkspaceId)
             .HasDatabaseName("IX_ChunkBatches_WorkspaceId");
 

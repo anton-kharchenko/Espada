@@ -51,19 +51,29 @@ public sealed class ChunkModelConfigurationTests
 
         Assert.NotNull(index);
         Assert.True(index.IsUnique);
-        Assert.Equal("UX_Chunks_ChunkBatchId_ChunkNumber", index.GetDatabaseName());
+        Assert.Equal(DbConstants.Indexes.ChunkBatchNumber, index.GetDatabaseName());
     }
 
     [Fact]
-    public void ChunkEmbedding_ShouldMapModelAsOwnedValueObject()
+    public void ChunkEmbedding_ShouldHaveUniqueChunkModelIndex()
     {
         using EspadaDbContext context = CreateContext();
 
-        IEntityType? modelType = context.Model.GetEntityTypes()
-            .SingleOrDefault(entityType => entityType.ClrType.Name == "EmbeddingModel");
+        IEntityType metadata = Assert.IsAssignableFrom<IEntityType>(
+            context.Model.FindEntityType(typeof(ChunkEmbedding)));
 
-        Assert.NotNull(modelType);
-        Assert.True(modelType.IsOwned());
+        IIndex? index = metadata.GetIndexes().SingleOrDefault(candidate =>
+            candidate.Properties.Select(property => property.Name)
+                .SequenceEqual(new[]
+                {
+                    nameof(ChunkEmbedding.ChunkId),
+                    DbConstants.Properties.ChunkEmbeddingModelIdentifier,
+                    DbConstants.Properties.ChunkEmbeddingModelVersion
+                }));
+
+        Assert.NotNull(index);
+        Assert.True(index.IsUnique);
+        Assert.Equal(DbConstants.Indexes.ChunkEmbeddingChunkModel, index.GetDatabaseName());
     }
 
     private static EspadaDbContext CreateContext()

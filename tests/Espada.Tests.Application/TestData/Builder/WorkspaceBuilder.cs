@@ -1,7 +1,6 @@
 using Espada.Domain.Aggregates;
 using Espada.Domain.Enums;
 using Espada.Domain.ValueObjects;
-using Espada.Tests.Application.Assertions;
 
 namespace Espada.Tests.Application.TestData.Builder
 {

@@ -16,6 +16,20 @@ public static class DbConstants
         public const string ChunkEmbeddings = "ChunkEmbeddings";
     }
 
+    public static class Properties
+    {
+        public const string ChunkEmbeddingModelIdentifier = "_modelIdentifier";
+        public const string ChunkEmbeddingModelVersion = "_modelVersion";
+    }
+
+    public static class Indexes
+    {
+        public const string ArtifactRevisionArtifactNumber = "UX_ArtifactRevisions_ArtifactId_RevisionNumber";
+        public const string SourceWorkspaceLocator = "UX_Sources_WorkspaceId_Locator";
+        public const string ChunkBatchNumber = "UX_Chunks_ChunkBatchId_ChunkNumber";
+        public const string ChunkEmbeddingChunkModel = "UX_ChunkEmbeddings_ChunkId_ModelIdentifier_ModelVersion";
+    }
+
     public static class Validations
     {
         public static class MaxLengths

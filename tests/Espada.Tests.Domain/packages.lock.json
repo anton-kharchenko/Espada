@@ -171,6 +171,13 @@
       },
       "espada.domain": {
         "type": "Project"
+      },
+      "espada.tests.common": {
+        "type": "Project",
+        "dependencies": {
+          "Espada.Domain": "[1.0.0, )",
+          "FluentAssertions": "[8.10.0, )"
+        }
       }
     }
   }

@@ -1,3 +1,4 @@
+global using Espada.Tests.Common.Assertions;
 global using Espada.Domain.Aggregates;
 global using Espada.Domain.Enums;
 global using Espada.Domain.Events;

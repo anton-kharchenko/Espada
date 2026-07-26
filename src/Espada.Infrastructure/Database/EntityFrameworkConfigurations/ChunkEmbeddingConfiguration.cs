@@ -44,26 +44,21 @@ internal sealed class ChunkEmbeddingConfiguration : IEntityTypeConfiguration<Chu
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-        builder.OwnsOne(e => e.Model, model =>
-        {
-            model.Property(e => e.Identifier)
-                .HasColumnName("ModelIdentifier")
-                .HasColumnType(DbConstants.ColumnTypes.Text.Varchar200)
-                .HasMaxLength(DbConstants.Validations.MaxLengths.L200)
-                .IsRequired()
-                .UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.Ignore(e => e.Model);
 
-            model.Property(e => e.Version)
-                .HasColumnName("ModelVersion")
-                .HasColumnType(DbConstants.ColumnTypes.Text.Varchar100)
-                .HasMaxLength(DbConstants.Validations.MaxLengths.L100)
-                .IsRequired()
-                .UsePropertyAccessMode(PropertyAccessMode.Field);
-        });
-
-        builder.Navigation(e => e.Model)
+        builder.Property<string>(DbConstants.Properties.ChunkEmbeddingModelIdentifier)
+            .HasField(DbConstants.Properties.ChunkEmbeddingModelIdentifier)
+            .HasColumnName("ModelIdentifier")
+            .HasColumnType(DbConstants.ColumnTypes.Text.Varchar200)
+            .HasMaxLength(DbConstants.Validations.MaxLengths.L200)
             .IsRequired();
 
+        builder.Property<string>(DbConstants.Properties.ChunkEmbeddingModelVersion)
+            .HasField(DbConstants.Properties.ChunkEmbeddingModelVersion)
+            .HasColumnName("ModelVersion")
+            .HasColumnType(DbConstants.ColumnTypes.Text.Varchar100)
+            .HasMaxLength(DbConstants.Validations.MaxLengths.L100)
+            .IsRequired();
         builder.Property(e => e.Dimensions)
             .HasColumnName("Dimensions")
             .HasColumnType(DbConstants.ColumnTypes.Numeric.Integer)
@@ -77,11 +72,23 @@ internal sealed class ChunkEmbeddingConfiguration : IEntityTypeConfiguration<Chu
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
+        builder.HasOne<Chunk>()
+            .WithMany()
+            .HasForeignKey(e => e.ChunkId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasIndex(e => e.WorkspaceId)
             .HasDatabaseName("IX_ChunkEmbeddings_WorkspaceId");
 
         builder.HasIndex(e => e.ChunkId)
             .HasDatabaseName("IX_ChunkEmbeddings_ChunkId");
+
+        builder.HasIndex(
+            nameof(ChunkEmbedding.ChunkId),
+            DbConstants.Properties.ChunkEmbeddingModelIdentifier,
+            DbConstants.Properties.ChunkEmbeddingModelVersion)
+            .IsUnique()
+            .HasDatabaseName(DbConstants.Indexes.ChunkEmbeddingChunkModel);
 
         builder.Ignore(e => e.DomainEvents);
     }

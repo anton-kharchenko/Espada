@@ -3,7 +3,6 @@ using Espada.Application.UseCases.Artifacts.Commands.RenameArtifact;
 using Espada.Domain.Aggregates;
 using Espada.Domain.Errors;
 using Espada.Domain.Rules;
-using Espada.Tests.Application.Assertions;
 using Espada.Tests.Application.Fixtures;
 using Espada.Tests.Application.TestData;
 using Espada.Tests.Application.TestData.Builder;

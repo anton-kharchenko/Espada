@@ -107,6 +107,21 @@ internal sealed class ChunkConfiguration : IEntityTypeConfiguration<Chunk>
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
+        builder.HasOne<ChunkBatch>()
+            .WithMany()
+            .HasForeignKey(e => e.BatchId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<Artifact>()
+            .WithMany()
+            .HasForeignKey(e => e.ArtifactId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<ArtifactRevision>()
+            .WithMany()
+            .HasForeignKey(e => e.ArtifactRevisionId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasIndex(e => e.BatchId)
             .HasDatabaseName("IX_Chunks_ChunkBatchId");
 
@@ -121,7 +136,7 @@ internal sealed class ChunkConfiguration : IEntityTypeConfiguration<Chunk>
 
         builder.HasIndex(e => new { e.BatchId, e.Number })
             .IsUnique()
-            .HasDatabaseName("UX_Chunks_ChunkBatchId_ChunkNumber");
+            .HasDatabaseName(DbConstants.Indexes.ChunkBatchNumber);
 
         builder.Ignore(e => e.ContentHash);
         builder.Ignore(e => e.SizeInBytes);

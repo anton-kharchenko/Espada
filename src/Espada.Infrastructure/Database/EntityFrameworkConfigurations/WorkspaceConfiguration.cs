@@ -59,6 +59,14 @@ internal sealed class WorkspaceConfiguration : IEntityTypeConfiguration<Workspac
             .IsRequired(false)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
+        builder.Property(e => e.Version)
+            .HasColumnName("Version")
+            .HasColumnType(DbConstants.ColumnTypes.Numeric.BigInt)
+            .HasDefaultValue(1L)
+            .IsConcurrencyToken()
+            .IsRequired()
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
         builder.HasIndex(e => e.Name)
             .HasDatabaseName("IX_Workspaces_Name");
 

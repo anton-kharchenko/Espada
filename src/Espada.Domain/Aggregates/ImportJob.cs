@@ -7,8 +7,10 @@ using Espada.Domain.ValueObjects;
 
 namespace Espada.Domain.Aggregates;
 
-public sealed class ImportJob : AggregateRoot<ImportJobId>
+public sealed class ImportJob : AggregateRoot<ImportJobId>, IHasConcurrencyVersion
 {
+    public long Version { get; private set; } = 1;
+
     private ImportJob()
     {
     }

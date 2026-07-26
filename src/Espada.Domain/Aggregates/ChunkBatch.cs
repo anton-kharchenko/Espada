@@ -7,8 +7,10 @@ using Espada.Domain.ValueObjects;
 
 namespace Espada.Domain.Aggregates;
 
-public sealed class ChunkBatch : AggregateRoot<ChunkBatchId>
+public sealed class ChunkBatch : AggregateRoot<ChunkBatchId>, IHasConcurrencyVersion
 {
+    public long Version { get; private set; } = 1;
+
     private ChunkBatch() { }
 
     private ChunkBatch(

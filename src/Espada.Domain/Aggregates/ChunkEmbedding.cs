@@ -7,6 +7,9 @@ namespace Espada.Domain.Aggregates
 {
     public sealed class ChunkEmbedding : AggregateRoot<ChunkEmbeddingId>
     {
+        private string _modelIdentifier = string.Empty;
+        private string _modelVersion = string.Empty;
+
         private ChunkEmbedding() { }
 
         private ChunkEmbedding(
@@ -22,7 +25,8 @@ namespace Espada.Domain.Aggregates
             WorkspaceId = workspaceId;
             ChunkId = chunkId;
             ChunkContentHash = chunkContentHash;
-            Model = model;
+            _modelIdentifier = model.Identifier;
+            _modelVersion = model.Version;
             Dimensions = dimensions;
             CreatedAtUtc = createdAtUtc;
         }
@@ -33,7 +37,7 @@ namespace Espada.Domain.Aggregates
 
         public ContentHash ChunkContentHash { get; private set; } = null!;
 
-        public EmbeddingModel Model { get; private set; } = null!;
+        public EmbeddingModel Model => EmbeddingModel.Create(_modelIdentifier, _modelVersion).Value!;
 
         public EmbeddingDimensions Dimensions { get; private set; } = null!;
 
