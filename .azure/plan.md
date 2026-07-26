@@ -106,6 +106,8 @@ Expected Azure service cost for this website is limited to Azure DNS zone/query 
 | Azure-hostname smoke | HTTP 200, title, CSP at `orange-stone-06a09310f.7.azurestaticapps.net` | Pass | 2026-07-26T15:02:00+03:00 |
 | Namecheap / DNS | Nameservers, public A/CNAME/MX/SPF/TXT resolution | Pass: Azure DNS authoritative; website and Private Email records preserved | 2026-07-26T17:52:00+03:00 |
 | Production smoke | HTTPS, title, CSP at `https://www.espada.website` | Pass: custom domain `Ready`, HTTP 200, managed TLS valid | 2026-07-26T17:52:00+03:00 |
+| GitHub deployment | `Deploy website` run `30208332949` | Pass: branch commit `2c85707` built and deployed to production | 2026-07-26T18:31:26+03:00 |
+| Final Pulumi preview | `pulumi preview --diff --non-interactive` | Pass: 14 unchanged, no creates, updates, replacements, or deletes; preview `86150c02-dc8e-4909-90f8-23ea18434a78` | 2026-07-26T18:32:00+03:00 |
 | Apex binding | Azure Activity Log validation and hostname status | DNS validation passed (HTTP 200); Azure binding remains service-side `Validating` with no error | 2026-07-26T18:20:00+03:00 |
 
 ### Deployment
