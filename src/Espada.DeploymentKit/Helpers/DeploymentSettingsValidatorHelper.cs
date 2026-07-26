@@ -24,7 +24,7 @@ public static class DeploymentSettingsValidatorHelper
             throw new ArgumentException("Tenant ID must be a GUID.", nameof(settings));
         }
 
-        if (!Directory.Exists(settings.RepositoryRoot) || !File.Exists(Path.Combine(settings.RepositoryRoot, "Espada.sln")))
+        if (!Directory.Exists(settings.RepositoryRoot) || !File.Exists(Path.Join(settings.RepositoryRoot, "Espada.sln")))
         {
             throw new ArgumentException("Repository root must contain Espada.sln.", nameof(settings));
         }
