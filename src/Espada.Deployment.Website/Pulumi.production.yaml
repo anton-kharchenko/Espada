@@ -1,0 +1,7 @@
+config:
+  azure-native:location: eastus2
+  azure-native:subscriptionId: 71ed459a-9eba-41b5-9afa-163fd37b5b47
+  espada-website:domainName: espada.website
+  espada-website:location: eastus2
+  espada-website:resourceGroupName: espada-website-prod
+  espada-website:staticSiteName: espada-website
