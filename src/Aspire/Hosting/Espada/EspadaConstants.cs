@@ -10,6 +10,7 @@ internal static class EspadaConstants
     public static class ParameterNames
     {
         public const string PostgresPassword = "postgres-password";
+        public const string ApiKey = "api-key";
     }
 
     public static class ParameterDefaults
@@ -22,6 +23,7 @@ internal static class EspadaConstants
         public const string AspNetCoreEnvironment = "ASPNETCORE_ENVIRONMENT";
         public const string DotNetEnvironment = "DOTNET_ENVIRONMENT";
         public const string ParametersSectionPrefix = "Parameters:";
+        public const string ApiKey = "Authentication__ApiKey__Value";
     }
 
     public static class ConfigurationValues

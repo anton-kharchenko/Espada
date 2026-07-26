@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Espada.Domain.Enums;
 using Espada.Domain.SeedWork;
+using Espada.Domain.ValueObjects;
 
 namespace Espada.Api.Contracts.Requests.ChunkBatches;
 
@@ -9,6 +10,7 @@ public sealed class CreateChunkBatchRequest : IValidatableObject
     [Range(1, int.MaxValue)]
     public int StrategyId { get; init; }
 
+    [StringLength(ChunkingVersion.MaxLength)]
     public string StrategyVersion { get; init; } = string.Empty;
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

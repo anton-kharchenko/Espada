@@ -22,7 +22,7 @@ public sealed class ChunkApiValidationTests(EspadaApiFactory factory) : IClassFi
             StrategyVersion = TestValues.ChunkingStrategyVersion
         };
 
-        HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.ChunkBatches.Create(TestIds.WorkspaceId, TestIds.ArtifactId, TestIds.ArtifactRevisionId), request);
+        HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.ChunkBatches.Create(TestIds.WorkspaceId, TestIds.ArtifactId, TestIds.ArtifactRevisionId), request, TestContext.Current.CancellationToken);
 
         await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
         await response.ShouldContainValidationErrorAsync(nameof(CreateChunkBatchRequest.StrategyId));
@@ -33,7 +33,27 @@ public sealed class ChunkApiValidationTests(EspadaApiFactory factory) : IClassFi
     {
         using HttpClient client = factory.CreateHttpsClient();
 
-        HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.Chunks.Create(TestIds.WorkspaceId, TestIds.ChunkBatchId), new CreateChunksRequest());
+        HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.Chunks.Create(TestIds.WorkspaceId, TestIds.ChunkBatchId), new CreateChunksRequest(), TestContext.Current.CancellationToken);
+
+        await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
+        await response.ShouldContainValidationErrorAsync(nameof(CreateChunksRequest.Items));
+    }
+
+    [Fact]
+    public async Task CreateChunks_WithDuplicateNumbers_ShouldReturnBadRequest()
+    {
+        using HttpClient client = factory.CreateHttpsClient();
+
+        CreateChunksRequest request = new()
+        {
+            Items =
+            [
+                new CreateChunkItemRequest { Number = 1, Content = "first" },
+                new CreateChunkItemRequest { Number = 1, Content = "second" }
+            ]
+        };
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.Chunks.Create(TestIds.WorkspaceId, TestIds.ChunkBatchId), request, TestContext.Current.CancellationToken);
 
         await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
         await response.ShouldContainValidationErrorAsync(nameof(CreateChunksRequest.Items));
@@ -50,7 +70,7 @@ public sealed class ChunkApiValidationTests(EspadaApiFactory factory) : IClassFi
             ModelVersion = TestValues.EmbeddingModelVersion
         };
 
-        HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.ChunkEmbeddings.Create(TestIds.WorkspaceId, TestIds.ChunkId), request);
+        HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.ChunkEmbeddings.Create(TestIds.WorkspaceId, TestIds.ChunkId), request, TestContext.Current.CancellationToken);
 
         await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
         await response.ShouldContainValidationErrorAsync(nameof(CreateChunkEmbeddingRequest.Vector));

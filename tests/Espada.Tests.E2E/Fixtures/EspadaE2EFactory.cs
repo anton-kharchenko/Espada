@@ -12,8 +12,7 @@ public sealed class EspadaE2EFactory : IAsyncLifetime
     private const string ApiKeyVariable = "Authentication__ApiKey__Value";
     private const string ApiKeyHeaderVariable = "Authentication__ApiKey__HeaderName";
 
-    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder()
-        .WithImage("postgres:17-alpine")
+    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:17-alpine")
         .WithDatabase("espada_e2e_tests")
         .WithUsername("postgres")
         .WithPassword("postgres")

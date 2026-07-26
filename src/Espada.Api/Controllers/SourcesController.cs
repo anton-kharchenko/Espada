@@ -15,7 +15,7 @@ namespace Espada.Api.Controllers;
 public sealed class SourcesController(IMediator mediator) : BaseController
 {
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(RegisterSourceResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Register([FromRoute] Guid workspaceId, [FromBody] RegisterSourceRequest request, CancellationToken cancellationToken)
@@ -28,7 +28,7 @@ public sealed class SourcesController(IMediator mediator) : BaseController
     }
 
     [HttpGet("{sourceId:guid}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(SourceResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById([FromRoute] Guid workspaceId, [FromRoute] Guid sourceId, CancellationToken cancellationToken)
     {

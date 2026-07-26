@@ -1,7 +1,9 @@
 using Asp.Versioning;
 using Espada.Api.Filters;
 using Espada.Api.Middlewares;
+using Espada.Api.OpenApi;
 using Espada.Api.Security;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Espada.Api.Extensions;
 
@@ -17,6 +19,7 @@ internal static class ApiServiceCollectionExtensions
         services.AddExceptionHandler<ApiExceptionHandler>();
         services.AddScoped<ValidationFilter>();
         services.AddControllers(options => options.Filters.AddService<ValidationFilter>());
+        services.Configure<ApiBehaviorOptions>(options => options.SuppressModelStateInvalidFilter = true);
 
         services
             .AddApiVersioning(options =>
@@ -33,7 +36,11 @@ internal static class ApiServiceCollectionExtensions
                 options.SubstituteApiVersionInUrl = true;
             });
 
-        services.AddOpenApi("v1");
+        services.AddOpenApi("v1", options =>
+        {
+            options.AddDocumentTransformer<ApiKeySecuritySchemeTransformer>();
+            options.AddOperationTransformer<ApiKeySecurityRequirementTransformer>();
+        });
 
         services
             .AddAuthentication(ApiKeyAuthenticationDefaults.AuthenticationScheme)

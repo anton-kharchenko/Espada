@@ -7,8 +7,7 @@ namespace Espada.Tests.Integration.Fixtures;
 
 public sealed class PostgreSqlDatabaseFixture : IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder()
-        .WithImage("postgres:17-alpine")
+    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:17-alpine")
         .WithDatabase("espada_integration_tests")
         .WithUsername("postgres")
         .WithPassword("postgres")

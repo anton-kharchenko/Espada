@@ -14,6 +14,11 @@ public sealed class CreateChunksRequest : IValidatableObject
             yield break;
         }
 
+        if (Items.GroupBy(item => item.Number).Any(group => group.Count() > 1))
+        {
+            yield return new ValidationResult("Chunk numbers must be unique within a batch.", [nameof(Items)]);
+        }
+
         for (int index = 0; index < Items.Count; index++)
         {
             CreateChunkItemRequest item = Items[index];

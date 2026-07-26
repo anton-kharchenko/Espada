@@ -1,3 +1,4 @@
+using Espada.Api.Contracts.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,14 +9,9 @@ public sealed class SystemController : BaseController
 {
     [HttpGet]
     [AllowAnonymous]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(SystemResponse), StatusCodes.Status200OK)]
     public IActionResult Get()
     {
-        return Ok(new
-        {
-            service = "Espada.Api",
-            status = "running",
-            utcNow = DateTimeOffset.UtcNow
-        });
+        return Ok(new SystemResponse(Service: "Espada.Api", Status: "running", UtcNow: DateTimeOffset.UtcNow));
     }
 }

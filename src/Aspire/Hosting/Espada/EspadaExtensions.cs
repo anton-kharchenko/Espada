@@ -6,6 +6,10 @@ internal static class EspadaExtensions
     {
         public void AddEspadaInfrastructure()
         {
+            IResourceBuilder<ParameterResource> apiKey = builder
+                .AddParameter(EspadaConstants.ParameterNames.ApiKey, secret: true)
+                .WithDescription("Espada API key. Configure it in AppHost user secrets or as an Aspire parameter.", enableMarkdown: true);
+
             IResourceBuilder<ParameterResource> postgresPassword = builder
                 .AddParameter(EspadaConstants.ParameterNames.PostgresPassword, () => ResolveParameter(builder, EspadaConstants.ParameterNames.PostgresPassword, EspadaConstants.ParameterDefaults.PostgresPassword), secret: true)
                 .WithDescription("PostgreSQL password. Set manually for stable access from external DB tools (JetBrains, pgAdmin).", enableMarkdown: true);
@@ -23,13 +27,19 @@ internal static class EspadaExtensions
 
             IResourceBuilder<PostgresDatabaseResource> database = postgres.AddDatabase(EspadaNames.Database);
 
-            builder
+            IResourceBuilder<ProjectResource> migrations = builder
                 .AddProject<Projects.Espada_Db>(EspadaNames.Migrations)
                 .WithReference(database)
                 .WithEnvironment(EspadaConstants.ConfigurationKeys.AspNetCoreEnvironment, EspadaConstants.ConfigurationValues.Development)
                 .WithEnvironment(EspadaConstants.ConfigurationKeys.DotNetEnvironment, EspadaConstants.ConfigurationValues.Development)
                 .WithArgs("migrate")
                 .WaitFor(postgres);
+
+            builder
+                .AddProject<Projects.Espada_Api>(EspadaNames.Api)
+                .WithReference(database)
+                .WithEnvironment(EspadaConstants.ConfigurationKeys.ApiKey, apiKey)
+                .WaitForCompletion(migrations);
         }
     }
 

@@ -15,4 +15,21 @@ public sealed class CreateChunksRequestTests
 
         Assert.True(results.HasErrorFor(nameof(CreateChunksRequest.Items)));
     }
+
+    [Fact]
+    public void Validate_WithDuplicateNumbers_ShouldReturnItemsError()
+    {
+        CreateChunksRequest request = new()
+        {
+            Items =
+            [
+                new CreateChunkItemRequest { Number = 1, Content = "first" },
+                new CreateChunkItemRequest { Number = 1, Content = "second" }
+            ]
+        };
+
+        IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
+
+        Assert.True(results.HasErrorFor(nameof(CreateChunksRequest.Items)));
+    }
 }

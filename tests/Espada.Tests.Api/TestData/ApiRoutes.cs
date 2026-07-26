@@ -4,6 +4,10 @@ internal static class ApiRoutes
 {
     private const string ApiV1 = "/api/v1";
 
+    public const string OpenApi = "/openapi/v1.json";
+
+    public const string Scalar = "/scalar/v1";
+
     public static class System
     {
         public const string Get = ApiV1 + "/system";

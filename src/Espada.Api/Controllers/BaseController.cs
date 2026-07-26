@@ -11,6 +11,7 @@ namespace Espada.Api.Controllers;
 [ApiController]
 [ApiVersion("1.0")]
 [ApiConventionType(typeof(DefaultApiConventions))]
+[ProducesErrorResponseType(typeof(ErrorResponse))]
 public abstract class BaseController : ControllerBase
 {
     internal BadRequestObjectResult BadRequest(DomainError error)
