@@ -1,9 +1,10 @@
-using System.Reflection;
-using System.Xml.Linq;
 using Espada.Api.Controllers;
 using Espada.Application.Contracts.Persistence;
 using Espada.Domain.Rules;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using System.Reflection;
+using System.Xml.Linq;
 
 namespace Espada.Tests.Architecture;
 
@@ -33,7 +34,7 @@ public sealed class ArchitectureTests
 
         foreach ((string projectName, string[] expected) in expectedReferences)
         {
-            string projectPath = Directory.GetFiles(Path.Combine(repositoryRoot, "src", projectName), "*.csproj", SearchOption.TopDirectoryOnly).Single();
+            string projectPath = Directory.GetFiles(Path.Join(repositoryRoot, "src", projectName), "*.csproj", SearchOption.TopDirectoryOnly).Single();
             string[] actual = XDocument.Load(projectPath)
                 .Descendants("ProjectReference")
                 .Select(reference => Path.GetFileNameWithoutExtension(reference.Attribute("Include")!.Value))
@@ -57,7 +58,7 @@ public sealed class ArchitectureTests
     public void ApplicationHandlers_ShouldUseHandlerSuffix()
     {
         Type[] handlers = ApplicationAssembly.GetTypes()
-            .Where(type => !type.IsAbstract && type.GetInterfaces().Any(contract => contract.IsGenericType && contract.GetGenericTypeDefinition().FullName == "MediatR.IRequestHandler`2"))
+            .Where(type => !type.IsAbstract && type.GetInterfaces().Any(contract => contract.IsGenericType && contract.GetGenericTypeDefinition() == typeof(IRequestHandler<,>)))
             .ToArray();
 
         Assert.NotEmpty(handlers);
@@ -107,7 +108,7 @@ public sealed class ArchitectureTests
     {
         DirectoryInfo? directory = new(AppContext.BaseDirectory);
 
-        while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "Espada.sln")))
+        while (directory is not null && !File.Exists(Path.Join(directory.FullName, "Espada.sln")))
         {
             directory = directory.Parent;
         }

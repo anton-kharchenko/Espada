@@ -1,5 +1,6 @@
 using Espada.Infrastructure.Database;
 using Espada.Tests.E2E.TestData;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.PostgreSql;
@@ -35,10 +36,7 @@ public sealed class EspadaE2EFactory : IAsyncLifetime
         Environment.SetEnvironmentVariable(ApiKeyVariable, E2ETestValues.ApiKey);
         Environment.SetEnvironmentVariable(ApiKeyHeaderVariable, E2ETestValues.ApiKeyHeader);
 
-        _factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
-        {
-            builder.UseEnvironment("Testing");
-        });
+        _factory = new TestingWebApplicationFactory();
 
         using IServiceScope scope = Services.CreateScope();
         EspadaDbContext dbContext = scope.ServiceProvider.GetRequiredService<EspadaDbContext>();
@@ -77,5 +75,13 @@ public sealed class EspadaE2EFactory : IAsyncLifetime
         Environment.SetEnvironmentVariable(ConnectionStringVariable, _originalConnectionString);
         Environment.SetEnvironmentVariable(ApiKeyVariable, _originalApiKey);
         Environment.SetEnvironmentVariable(ApiKeyHeaderVariable, _originalApiKeyHeader);
+    }
+
+    private sealed class TestingWebApplicationFactory : WebApplicationFactory<Program>
+    {
+        protected override void ConfigureWebHost(IWebHostBuilder builder)
+        {
+            builder.UseEnvironment("Testing");
+        }
     }
 }

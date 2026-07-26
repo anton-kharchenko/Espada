@@ -1,0 +1,4 @@
+name: Espada CodeQL configuration
+
+paths-ignore:
+  - '**/obj/**'

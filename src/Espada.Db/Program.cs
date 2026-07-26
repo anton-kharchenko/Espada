@@ -1,7 +1,7 @@
-using Espada.Db.Extensions;
-using Espada.Db.Enums;
 using Espada.Db.Commands;
 using Espada.Db.Database;
+using Espada.Db.Enums;
+using Espada.Db.Extensions;
 using Espada.Db.Seeding;
 using Espada.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
@@ -13,43 +13,35 @@ public static class Program
 {
     public static async Task<int> Main(string[] args)
     {
-        try
+        IConfiguration configuration = DbConfiguration.Create();
+
+        await using EspadaDbContext dbContext = SetupDbContext.Create(configuration);
+        string? commandValue = args.FirstOrDefault();
+
+        if (!DatabaseCommandParser.TryParse(commandValue, out DatabaseCommandType command))
         {
-            IConfiguration configuration = DbConfiguration.Create();
-
-            await using EspadaDbContext dbContext = SetupDbContext.Create(configuration);
-            string? commandValue = args.FirstOrDefault();
-
-            if (!DatabaseCommandParser.TryParse(commandValue, out DatabaseCommandType command))
-            {
-                return PrintUnknownCommand(commandValue ?? string.Empty);
-            }
-
-            bool forceRequested = args.Any(argument => argument.Equals("--force", StringComparison.OrdinalIgnoreCase));
-
-            if (!command.RequiresForce() || forceRequested)
-            {
-                return command switch
-                {
-                    DatabaseCommandType.Migrate => await MigrateAsync(dbContext),
-                    DatabaseCommandType.Seed => await SeedAsync(dbContext),
-                    DatabaseCommandType.Reset => await ResetAsync(dbContext),
-                    DatabaseCommandType.Status => await PrintStatusAsync(dbContext),
-                    DatabaseCommandType.Help => PrintHelp(),
-                    _ => throw new ArgumentOutOfRangeException(nameof(command), command, null)
-                };
-            }
-
-            await Console.Error.WriteLineAsync($"The '{command.ToString().ToLowerInvariant()}' command requires --force.");
-
-            return 2;
-
+            return PrintUnknownCommand(commandValue ?? string.Empty);
         }
-        catch (Exception exception)
+
+        bool forceRequested = args.Any(argument => argument.Equals("--force", StringComparison.OrdinalIgnoreCase));
+
+        if (!command.RequiresForce() || forceRequested)
         {
-            Console.Error.WriteLine(exception);
-            return 1;
+            return command switch
+            {
+                DatabaseCommandType.Migrate => await MigrateAsync(dbContext),
+                DatabaseCommandType.Seed => await SeedAsync(dbContext),
+                DatabaseCommandType.Reset => await ResetAsync(dbContext),
+                DatabaseCommandType.Status => await PrintStatusAsync(dbContext),
+                DatabaseCommandType.Help => PrintHelp(),
+                _ => throw new ArgumentOutOfRangeException(nameof(command), command, null)
+            };
         }
+
+        await Console.Error.WriteLineAsync($"The '{command.ToString().ToLowerInvariant()}' command requires --force.");
+
+        return 2;
+
     }
 
     private static async Task<int> MigrateAsync(EspadaDbContext dbContext)
@@ -96,7 +88,7 @@ public static class Program
 
         return 0;
     }
-    
+
     private static async Task<int> PrintStatusAsync(EspadaDbContext dbContext)
     {
         bool canConnect = await dbContext.Database.CanConnectAsync();

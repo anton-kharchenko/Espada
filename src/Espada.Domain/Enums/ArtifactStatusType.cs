@@ -7,4 +7,8 @@ public sealed class ArtifactStatusType(int id, string name) : Enumeration(id, na
     public static readonly ArtifactStatusType Active = new(1, nameof(Active));
 
     public static readonly ArtifactStatusType Archived = new(2, nameof(Archived));
+
+    public override bool Equals(object? obj) => base.Equals(obj);
+
+    public override int GetHashCode() => base.GetHashCode();
 }
