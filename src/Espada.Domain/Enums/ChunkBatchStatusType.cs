@@ -8,4 +8,8 @@ public sealed class ChunkBatchStatusType(int id, string name) : Enumeration(id, 
     public static readonly ChunkBatchStatusType Running = new(2, nameof(Running));
     public static readonly ChunkBatchStatusType Succeeded = new(3, nameof(Succeeded));
     public static readonly ChunkBatchStatusType Failed = new(4, nameof(Failed));
+
+    public override bool Equals(object? obj) => base.Equals(obj);
+
+    public override int GetHashCode() => base.GetHashCode();
 }

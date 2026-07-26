@@ -21,4 +21,8 @@ public sealed class ArtifactId : ValueObject
     {
         yield return Value;
     }
+
+    public override bool Equals(object? obj) => base.Equals(obj);
+
+    public override int GetHashCode() => base.GetHashCode();
 }

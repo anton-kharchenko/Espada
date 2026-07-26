@@ -7,8 +7,8 @@ namespace Espada.Domain.Aggregates
 {
     public sealed class ChunkEmbedding : AggregateRoot<ChunkEmbeddingId>
     {
-        private string _modelIdentifier = string.Empty;
-        private string _modelVersion = string.Empty;
+        private readonly string _modelIdentifier = string.Empty;
+        private readonly string _modelVersion = string.Empty;
 
         private ChunkEmbedding() { }
 
