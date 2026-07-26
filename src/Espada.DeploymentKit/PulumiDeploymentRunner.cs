@@ -10,6 +10,8 @@ namespace Espada.DeploymentKit;
 
 public static class PulumiDeploymentRunner
 {
+    private const string PulumiOrganization = "antonkharchenko";
+    private const string PulumiProjectName = "espada";
     public static async Task ExecuteAsync(DeploymentSettings settings, DeploymentOperationType operationType, CancellationToken cancellationToken = default)
     {
         DeploymentSettingsValidatorHelper.Validate(settings);
@@ -29,6 +31,13 @@ public static class PulumiDeploymentRunner
         WorkspaceStack stack = await CreateStackAsync(settings, cancellationToken);
         await stack.PreviewAsync(new PreviewOptions { OnStandardOutput = Console.WriteLine }, cancellationToken);
 
+        if (settings.TargetType == DeploymentTargetType.Website)
+        {
+            await stack.UpAsync(new UpOptions { OnStandardOutput = Console.WriteLine }, cancellationToken);
+            await DeployWebsiteAsync(settings, cancellationToken);
+            return;
+        }
+
         ResourceNames names = ResourceNames.Create(settings.EnvironmentType, settings.SubscriptionId);
         if (!await RegistryExistsAsync(settings, names, cancellationToken))
         {
@@ -45,6 +54,98 @@ public static class PulumiDeploymentRunner
 
         WorkspaceStack applicationStack = await CreateStackAsync(settings with { ApiEnabled = true }, cancellationToken);
         await applicationStack.UpAsync(new UpOptions { OnStandardOutput = Console.WriteLine }, cancellationToken);
+
+        if (settings.EnvironmentType == DeploymentEnvironmentType.Production)
+        {
+            await DeployWebsiteAsync(settings, cancellationToken);
+        }
+    }
+
+    private static async Task DeployWebsiteAsync(DeploymentSettings settings, CancellationToken cancellationToken)
+    {
+        string websiteDirectory = Path.Join(settings.RepositoryRoot, AzureDeploymentConstants.WebsiteSourceDirectory);
+        string npm = ResolveExecutable(OperatingSystem.IsWindows() ? "npm.cmd" : "npm");
+        string npx = ResolveExecutable(OperatingSystem.IsWindows() ? "npx.cmd" : "npx");
+
+        await RunProcessAsync(npm, ["ci"], websiteDirectory, cancellationToken);
+        await RunProcessAsync(npm, ["run", "lint"], websiteDirectory, cancellationToken);
+        await RunProcessAsync(npm, ["test"], websiteDirectory, cancellationToken);
+        await RunProcessAsync(npm, ["run", "build"], websiteDirectory, cancellationToken);
+
+        string deploymentToken = await GetWebsiteDeploymentTokenAsync(settings, cancellationToken);
+        await RunProcessAsync(
+            npx,
+            [
+                "--yes",
+                AzureDeploymentConstants.StaticWebAppsCliPackage,
+                "deploy",
+                AzureDeploymentConstants.WebsiteDistDirectory,
+                "--env",
+                "production"
+            ],
+            websiteDirectory,
+            cancellationToken,
+            environmentVariables: new Dictionary<string, string>
+            {
+                ["SWA_CLI_DEPLOYMENT_TOKEN"] = deploymentToken
+            });
+    }
+
+    private static string ResolveAzureCli() =>
+        ResolveExecutable(OperatingSystem.IsWindows() ? "az.cmd" : "az");
+
+    private static string ResolveExecutable(string fileName)
+    {
+        string? candidate = (Environment.GetEnvironmentVariable("PATH") ?? string.Empty)
+            .Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries)
+            .Select(directory => Path.Join(directory.Trim('"'), fileName))
+            .FirstOrDefault(File.Exists);
+
+        return candidate ?? throw new FileNotFoundException($"Could not find '{fileName}' in PATH.");
+    }
+
+    private static async Task<string> GetWebsiteDeploymentTokenAsync(
+        DeploymentSettings settings,
+        CancellationToken cancellationToken)
+    {
+        ProcessStartInfo startInfo = new()
+        {
+            FileName = ResolveAzureCli(),
+            WorkingDirectory = settings.RepositoryRoot,
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        };
+
+        foreach (string argument in new[]
+        {
+            "staticwebapp", "secrets", "list",
+            "--name", AzureDeploymentConstants.WebsiteStaticSiteName,
+            "--resource-group", AzureDeploymentConstants.WebsiteResourceGroupName,
+            "--subscription", settings.SubscriptionId,
+            "--query", "properties.apiKey",
+            "--output", "tsv",
+            "--only-show-errors"
+        })
+        {
+            startInfo.ArgumentList.Add(argument);
+        }
+
+        using Process process = Process.Start(startInfo) ?? throw new InvalidOperationException("Could not start Azure CLI.");
+        Task<string> outputTask = process.StandardOutput.ReadToEndAsync(cancellationToken);
+        Task<string> errorTask = process.StandardError.ReadToEndAsync(cancellationToken);
+        await process.WaitForExitAsync(cancellationToken);
+        string output = (await outputTask).Trim();
+        string error = (await errorTask).Trim();
+
+        if (process.ExitCode != 0)
+        {
+            throw new InvalidOperationException($"Azure CLI exited with code {process.ExitCode}: {error}");
+        }
+
+        return !string.IsNullOrWhiteSpace(output)
+            ? output
+            : throw new InvalidOperationException("Azure Static Web Apps returned an empty deployment token.");
     }
 
     private static InlineProgramArgs CreateProgram(DeploymentSettings settings)
@@ -58,7 +159,10 @@ public static class PulumiDeploymentRunner
             [DeploymentConfigurationNames.AzureTenantId] = settings.TenantId
         };
 
-        return new InlineProgramArgs("espada", settings.StackName, PulumiFn.Create(() => EspadaAzureStack.Create(settings)))
+        return new InlineProgramArgs(
+            PulumiProjectName,
+            $"{PulumiOrganization}/{PulumiProjectName}/{settings.StackName}",
+            PulumiFn.Create(() => EspadaAzureStack.Create(settings)))
         {
             WorkDir = settings.RepositoryRoot,
             EnvironmentVariables = environmentVariables
@@ -78,7 +182,7 @@ public static class PulumiDeploymentRunner
     private static async Task<bool> RegistryExistsAsync(DeploymentSettings settings, ResourceNames names, CancellationToken cancellationToken)
     {
         int exitCode = await RunProcessAsync(
-            "az",
+            ResolveAzureCli(),
             [
                 "acr", "show",
                 "--name", names.Registry,
@@ -106,7 +210,7 @@ public static class PulumiDeploymentRunner
         string dockerfile,
         CancellationToken cancellationToken) =>
         _ = await RunProcessAsync(
-            "az",
+            ResolveAzureCli(),
             [
                 "acr", "build",
                 "--registry", names.Registry,
@@ -124,7 +228,8 @@ public static class PulumiDeploymentRunner
         IReadOnlyList<string> arguments,
         string workingDirectory,
         CancellationToken cancellationToken,
-        bool ignoreFailure = false)
+        bool ignoreFailure = false,
+        IReadOnlyDictionary<string, string>? environmentVariables = null)
     {
         ProcessStartInfo startInfo = new()
         {
@@ -136,6 +241,14 @@ public static class PulumiDeploymentRunner
         foreach (string argument in arguments)
         {
             startInfo.ArgumentList.Add(argument);
+        }
+
+        if (environmentVariables is not null)
+        {
+            foreach ((string name, string value) in environmentVariables)
+            {
+                startInfo.Environment[name] = value;
+            }
         }
 
         using Process process = Process.Start(startInfo) ?? throw new InvalidOperationException($"Could not start '{fileName}'.");

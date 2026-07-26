@@ -4,10 +4,11 @@ namespace Espada.DeploymentKit.Settings;
 
 public sealed record DeploymentSettings(
     DeploymentEnvironmentType EnvironmentType,
+    DeploymentTargetType TargetType,
     string Location,
     string SubscriptionId,
     string TenantId,
-    string ApiKey,
+    string? ApiKey,
     string ImageTag,
     string RepositoryRoot,
     string? BackendUrl)
