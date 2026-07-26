@@ -152,11 +152,11 @@ return await Deployment.RunAsync(() =>
         {
             new AzureNative.Dns.Inputs.TxtRecordArgs
             {
-                Value =
-                {
-                    apexDomain.ValidationToken,
-                    wwwDomain.ValidationToken,
-                },
+                Value = { apexDomain.ValidationToken },
+            },
+            new AzureNative.Dns.Inputs.TxtRecordArgs
+            {
+                Value = { wwwDomain.ValidationToken },
             },
         },
         ZoneName = dnsZone.Name,
