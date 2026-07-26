@@ -1,0 +1,3 @@
+name: espada-website
+runtime: dotnet
+description: Espada public website on Azure Static Web Apps and Azure DNS.
