@@ -63,7 +63,7 @@ public static class PulumiDeploymentRunner
 
     private static async Task DeployWebsiteAsync(DeploymentSettings settings, CancellationToken cancellationToken)
     {
-        string websiteDirectory = Path.Combine(settings.RepositoryRoot, AzureDeploymentConstants.WebsiteSourceDirectory);
+        string websiteDirectory = Path.Join(settings.RepositoryRoot, AzureDeploymentConstants.WebsiteSourceDirectory);
         string npm = ResolveExecutable(OperatingSystem.IsWindows() ? "npm.cmd" : "npm");
         string npx = ResolveExecutable(OperatingSystem.IsWindows() ? "npx.cmd" : "npx");
 
@@ -96,17 +96,12 @@ public static class PulumiDeploymentRunner
 
     private static string ResolveExecutable(string fileName)
     {
-        foreach (string directory in (Environment.GetEnvironmentVariable("PATH") ?? string.Empty)
-                     .Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries))
-        {
-            string candidate = Path.Combine(directory.Trim('"'), fileName);
-            if (File.Exists(candidate))
-            {
-                return candidate;
-            }
-        }
+        string? candidate = (Environment.GetEnvironmentVariable("PATH") ?? string.Empty)
+            .Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries)
+            .Select(directory => Path.Join(directory.Trim('"'), fileName))
+            .FirstOrDefault(File.Exists);
 
-        throw new FileNotFoundException($"Could not find '{fileName}' in PATH.");
+        return candidate ?? throw new FileNotFoundException($"Could not find '{fileName}' in PATH.");
     }
 
     private static async Task<string> GetWebsiteDeploymentTokenAsync(
