@@ -2,13 +2,13 @@ using Espada.Domain.Aggregates;
 using Espada.Domain.Enums;
 using Espada.Domain.SeedWork;
 using Espada.Domain.ValueObjects;
-using Espada.Infrastructure.Database.Constants;
+using Espada.Db.Constants;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Espada.Infrastructure.Database.EntityFrameworkConfigurations;
 
-internal sealed class ChunkConfiguration : IEntityTypeConfiguration<Chunk>
+internal sealed class ChunkConfiguration : IEntityTypeConfiguration<Chunk>, IEntityTypeConfiguration<Espada.Db.Models.Chunks>
 {
     public void Configure(EntityTypeBuilder<Chunk> builder)
     {
@@ -142,5 +142,25 @@ internal sealed class ChunkConfiguration : IEntityTypeConfiguration<Chunk>
         builder.Ignore(e => e.SizeInBytes);
         builder.Ignore(e => e.CharacterCount);
         builder.Ignore(e => e.DomainEvents);
+    }
+
+    public void Configure(EntityTypeBuilder<Espada.Db.Models.Chunks> builder)
+    {
+        builder.Property(model => model.ChunkId).ValueGeneratedNever();
+        builder.OwnsOne(model => model.SourceSpan, span =>
+        {
+            span.Property(model => model.Start).HasColumnName("SourceStart").HasColumnType(DbConstants.ColumnTypes.Numeric.Integer);
+            span.Property(model => model.Length).HasColumnName("SourceLength").HasColumnType(DbConstants.ColumnTypes.Numeric.Integer);
+        });
+        builder.Navigation(model => model.SourceSpan).IsRequired(false);
+        builder.HasOne<Espada.Db.Models.ChunkBatches>().WithMany().HasForeignKey(model => model.ChunkBatchId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<Espada.Db.Models.Artifacts>().WithMany().HasForeignKey(model => model.ArtifactId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<Espada.Db.Models.ArtifactRevisions>().WithMany().HasForeignKey(model => model.ArtifactRevisionId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<Espada.Db.Models.ChunkingStrategyTypes>().WithMany().HasForeignKey(model => model.StrategyId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasIndex(model => model.ChunkBatchId).HasDatabaseName("IX_Chunks_ChunkBatchId");
+        builder.HasIndex(model => model.WorkspaceId).HasDatabaseName("IX_Chunks_WorkspaceId");
+        builder.HasIndex(model => model.ArtifactId).HasDatabaseName("IX_Chunks_ArtifactId");
+        builder.HasIndex(model => model.ArtifactRevisionId).HasDatabaseName("IX_Chunks_ArtifactRevisionId");
+        builder.HasIndex(model => new { model.ChunkBatchId, model.ChunkNumber }).IsUnique().HasDatabaseName(DbConstants.Indexes.ChunkBatchNumber);
     }
 }

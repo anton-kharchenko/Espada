@@ -1,16 +1,16 @@
-using System.Net;
 using Espada.Tests.E2E.Fixtures;
 using Espada.Tests.E2E.TestData;
+using System.Net;
 
 namespace Espada.Tests.E2E.Api;
 
 [Collection(E2ECollection.Name)]
-public sealed class OpenApiE2ETests(EspadaE2EFactory factory)
+public sealed class OpenApiE2ETests(EspadaE2EFactory factory) : E2ETest(factory)
 {
     [Fact]
     public async Task GetOpenApi_InTestingEnvironment_ShouldReturnDocument()
     {
-        using HttpClient client = factory.CreateClient(authenticated: false);
+        using HttpClient client = Factory.CreateClient(authenticated: false);
 
         HttpResponseMessage response = await client.GetAsync(E2ERoutes.OpenApi, TestContext.Current.CancellationToken);
 

@@ -6,4 +6,14 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+
+    <ItemGroup>
+        <PackageReference Include="Azure.Identity" />
+        <PackageReference Include="Azure.ResourceManager.AppContainers" />
+        <PackageReference Include="Pulumi" />
+        <PackageReference Include="Pulumi.AzureNative" />
+        <PackageReference Include="Pulumi.Automation" />
+        <PackageReference Include="Pulumi.Random" />
+    </ItemGroup>
+
 </Project>

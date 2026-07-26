@@ -1,8 +1,8 @@
-using Microsoft.AspNetCore.Authorization;
-using Espada.Api.Security;
 using Asp.Versioning;
 using Espada.Api.Contracts.Responses;
+using Espada.Api.Security;
 using Espada.Domain.Rules;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Espada.Api.Controllers;
@@ -42,7 +42,7 @@ public abstract class BaseController : ControllerBase
 
     private static bool IsForbidden(string code) => code.Contains("Forbidden", StringComparison.OrdinalIgnoreCase) || code.Contains("AccessDenied", StringComparison.OrdinalIgnoreCase);
 
-    private static bool IsConflict(string code) => code.Contains(".Already", StringComparison.OrdinalIgnoreCase) || code.Contains(".Conflict", StringComparison.OrdinalIgnoreCase) || code.Contains(".Cannot", StringComparison.OrdinalIgnoreCase) || code.Contains("ArchivedCannot", StringComparison.OrdinalIgnoreCase);
+    private static bool IsConflict(string code) => code.Contains(".Already", StringComparison.OrdinalIgnoreCase) || code.Contains(".Conflict", StringComparison.OrdinalIgnoreCase) || code.Contains(".Cannot", StringComparison.OrdinalIgnoreCase) || code.Contains("ArchivedCannot", StringComparison.OrdinalIgnoreCase) || code.EndsWith(".Archived", StringComparison.OrdinalIgnoreCase);
 
     private static bool IsRateLimit(string code) => code.Contains("RateLimit", StringComparison.OrdinalIgnoreCase);
 }

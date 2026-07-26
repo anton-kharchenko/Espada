@@ -8,6 +8,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Espada.Application\Espada.Application.csproj" />
+        <ProjectReference Include="..\Espada.Db\Espada.Db.csproj" />
         <ProjectReference Include="..\Espada.Domain\Espada.Domain.csproj" />
     </ItemGroup>
 
@@ -19,6 +20,7 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
 
+        <PackageReference Include="Npgsql" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     </ItemGroup>
 

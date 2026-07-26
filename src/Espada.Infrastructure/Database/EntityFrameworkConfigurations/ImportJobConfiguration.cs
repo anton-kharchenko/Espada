@@ -2,14 +2,14 @@ using Espada.Domain.Aggregates;
 using Espada.Domain.Enums;
 using Espada.Domain.SeedWork;
 using Espada.Domain.ValueObjects;
-using Espada.Infrastructure.Database.Constants;
+using Espada.Db.Constants;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Espada.Infrastructure.Database.EntityFrameworkConfigurations;
 
-internal sealed class ImportJobConfiguration : IEntityTypeConfiguration<ImportJob>
+internal sealed class ImportJobConfiguration : IEntityTypeConfiguration<ImportJob>, IEntityTypeConfiguration<Espada.Db.Models.ImportJobs>
 {
     public void Configure(EntityTypeBuilder<ImportJob> builder)
     {
@@ -130,5 +130,23 @@ internal sealed class ImportJobConfiguration : IEntityTypeConfiguration<ImportJo
 
         builder.HasIndex(e => e.Status)
             .HasDatabaseName("IX_ImportJobs_StatusId");
+    }
+
+    public void Configure(EntityTypeBuilder<Espada.Db.Models.ImportJobs> builder)
+    {
+        builder.Property(model => model.ImportJobId).ValueGeneratedNever();
+        builder.Property(model => model.Version).HasDefaultValue(1L).IsConcurrencyToken();
+        builder.OwnsOne(model => model.Failure, failure =>
+        {
+            failure.Property(model => model.Code).HasColumnName("FailureCode").HasColumnType(DbConstants.ColumnTypes.Text.Varchar200).HasMaxLength(DbConstants.Validations.MaxLengths.L200);
+            failure.Property(model => model.Reason).HasColumnName("FailureReason").HasColumnType(DbConstants.ColumnTypes.Text.Varchar4000).HasMaxLength(DbConstants.Validations.MaxLengths.L4000);
+        });
+        builder.Navigation(model => model.Failure).IsRequired(false);
+        builder.HasOne<Espada.Db.Models.Sources>().WithMany().HasForeignKey(model => model.SourceId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<Espada.Db.Models.Workspaces>().WithMany().HasForeignKey(model => model.WorkspaceId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<Espada.Db.Models.ImportStatusTypes>().WithMany().HasForeignKey(model => model.StatusId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasIndex(model => model.WorkspaceId).HasDatabaseName("IX_ImportJobs_WorkspaceId");
+        builder.HasIndex(model => model.SourceId).HasDatabaseName("IX_ImportJobs_SourceId");
+        builder.HasIndex(model => model.StatusId).HasDatabaseName("IX_ImportJobs_StatusId");
     }
 }

@@ -32,6 +32,7 @@ namespace Espada.Tests.Infrastructure.Repositories
             Assert.IsType<ChunkBatchRepository>(scopedServices.GetRequiredService<IChunkBatchRepository>());
             Assert.IsType<ChunkRepository>(scopedServices.GetRequiredService<IChunkRepository>());
             Assert.IsType<ChunkEmbeddingRepository>(scopedServices.GetRequiredService<IChunkEmbeddingRepository>());
+            Assert.IsType<EmbeddingVectorStore>(scopedServices.GetRequiredService<IEmbeddingVectorStore>());
         }
 
         [Fact]

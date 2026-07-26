@@ -1,12 +1,12 @@
 using Espada.Domain.Aggregates;
 using Espada.Domain.ValueObjects;
-using Espada.Infrastructure.Database.Constants;
+using Espada.Db.Constants;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Espada.Infrastructure.Database.EntityFrameworkConfigurations;
 
-internal sealed class ArtifactRevisionConfiguration : IEntityTypeConfiguration<ArtifactRevision>
+internal sealed class ArtifactRevisionConfiguration : IEntityTypeConfiguration<ArtifactRevision>, IEntityTypeConfiguration<Espada.Db.Models.ArtifactRevisions>
 {
     public void Configure(EntityTypeBuilder<ArtifactRevision> builder)
     {
@@ -63,5 +63,13 @@ internal sealed class ArtifactRevisionConfiguration : IEntityTypeConfiguration<A
 
         builder.Ignore(e => e.ContentHash);
         builder.Ignore(e => e.SizeInBytes);
+    }
+
+    public void Configure(EntityTypeBuilder<Espada.Db.Models.ArtifactRevisions> builder)
+    {
+        builder.Property(model => model.ArtifactRevisionId).ValueGeneratedNever();
+        builder.HasOne<Espada.Db.Models.Artifacts>().WithMany().HasForeignKey(model => model.ArtifactId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasIndex(model => model.ArtifactId).HasDatabaseName("IX_ArtifactRevisions_ArtifactId");
+        builder.HasIndex(model => new { model.ArtifactId, model.RevisionNumber }).IsUnique().HasDatabaseName(DbConstants.Indexes.ArtifactRevisionArtifactNumber);
     }
 }

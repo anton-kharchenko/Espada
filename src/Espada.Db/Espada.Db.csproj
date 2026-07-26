@@ -9,7 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Espada.Infrastructure\Espada.Infrastructure.csproj" />
+        <ProjectReference Include="..\Espada.Domain\Espada.Domain.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -26,6 +26,7 @@
         </PackageReference>
 
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+        <PackageReference Include="Npgsql" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     </ItemGroup>
 

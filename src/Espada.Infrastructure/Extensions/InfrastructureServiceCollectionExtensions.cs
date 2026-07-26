@@ -1,3 +1,4 @@
+using Espada.Infrastructure.Database;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,11 +11,9 @@ public static class InfrastructureServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
 
-        string connectionString =
-            configuration.GetConnectionString("espada")
-            ?? configuration.GetConnectionString("Espada")
-            ?? throw new InvalidOperationException("Connection string 'espada' or 'Espada' was not configured.");
-
-        services.AddInfrastructure(connectionString);
+        string environmentVariable = Environment.GetEnvironmentVariable(DatabaseConfigurationNames.ConnectionStringEnvironmentVariable) 
+                                     ?? configuration.GetConnectionString(DatabaseConfigurationNames.ConnectionString) 
+                                     ?? throw new InvalidOperationException($"Database connection string was not configured. Set ConnectionStrings:{DatabaseConfigurationNames.ConnectionString} or {DatabaseConfigurationNames.ConnectionStringEnvironmentVariable}.");
+        services.AddInfrastructure(environmentVariable);
     }
 }

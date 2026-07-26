@@ -1,0 +1,13 @@
+namespace Espada.Deployment;
+
+internal static class DeploymentCommandLineNames
+{
+    public const string PreviewCommand = "preview";
+    public const string DeployCommand = "deploy";
+    public const string EnvironmentOption = "environment";
+    public const string LocationOption = "location";
+    public const string ImageTagOption = "image-tag";
+    public const string RepositoryRootOption = "repository-root";
+    public const string LocalImageTag = "local";
+    public const string SolutionFile = "Espada.sln";
+}
