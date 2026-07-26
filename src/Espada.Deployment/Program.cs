@@ -53,11 +53,6 @@ internal static class Program
             await Console.Error.WriteLineAsync("Deployment cancelled.");
             return 130;
         }
-        catch (Exception exception)
-        {
-            await Console.Error.WriteLineAsync(exception.Message);
-            return 1;
-        }
     }
 
     private static Dictionary<string, string> ParseOptions(IEnumerable<string> arguments)
@@ -96,7 +91,7 @@ internal static class Program
         DirectoryInfo? directory = new(AppContext.BaseDirectory);
         while (directory is not null)
         {
-            if (File.Exists(Path.Combine(directory.FullName, DeploymentCommandLineNames.SolutionFile)))
+            if (File.Exists(Path.Join(directory.FullName, DeploymentCommandLineNames.SolutionFile)))
             {
                 return directory.FullName;
             }
