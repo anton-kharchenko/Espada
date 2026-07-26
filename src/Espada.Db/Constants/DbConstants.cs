@@ -1,4 +1,4 @@
-namespace Espada.Infrastructure.Database.Constants;
+namespace Espada.Db.Constants;
 
 public static class DbConstants
 {
@@ -7,6 +7,15 @@ public static class DbConstants
     public static class Tables
     {
         public const string Workspaces = "Workspaces";
+        public const string WorkspaceTypes = "WorkspaceTypes";
+        public const string WorkspaceStatusTypes = "WorkspaceStatusTypes";
+        public const string SourceTypes = "SourceTypes";
+        public const string SourceStatusTypes = "SourceStatusTypes";
+        public const string ImportStatusTypes = "ImportStatusTypes";
+        public const string ArtifactTypes = "ArtifactTypes";
+        public const string ArtifactStatusTypes = "ArtifactStatusTypes";
+        public const string ChunkingStrategyTypes = "ChunkingStrategyTypes";
+        public const string ChunkBatchStatusTypes = "ChunkBatchStatusTypes";
         public const string Sources = "Sources";
         public const string ImportJobs = "ImportJobs";
         public const string Artifacts = "Artifacts";
@@ -14,6 +23,7 @@ public static class DbConstants
         public const string ChunkBatches = "ChunkBatches";
         public const string Chunks = "Chunks";
         public const string ChunkEmbeddings = "ChunkEmbeddings";
+        public const string ChunkEmbeddingVectors = "ChunkEmbeddingVectors";
     }
 
     public static class Properties
@@ -28,6 +38,15 @@ public static class DbConstants
         public const string SourceWorkspaceLocator = "UX_Sources_WorkspaceId_Locator";
         public const string ChunkBatchNumber = "UX_Chunks_ChunkBatchId_ChunkNumber";
         public const string ChunkEmbeddingChunkModel = "UX_ChunkEmbeddings_ChunkId_ModelIdentifier_ModelVersion";
+        public const string WorkspaceTypeName = "UX_WorkspaceTypes_Name";
+        public const string WorkspaceStatusTypeName = "UX_WorkspaceStatusTypes_Name";
+        public const string SourceTypeName = "UX_SourceTypes_Name";
+        public const string SourceStatusTypeName = "UX_SourceStatusTypes_Name";
+        public const string ImportStatusTypeName = "UX_ImportStatusTypes_Name";
+        public const string ArtifactTypeName = "UX_ArtifactTypes_Name";
+        public const string ArtifactStatusTypeName = "UX_ArtifactStatusTypes_Name";
+        public const string ChunkingStrategyTypeName = "UX_ChunkingStrategyTypes_Name";
+        public const string ChunkBatchStatusTypeName = "UX_ChunkBatchStatusTypes_Name";
     }
 
     public static class Validations
@@ -68,6 +87,7 @@ public static class DbConstants
         {
             public const string Integer = "integer";
             public const string BigInt = "bigint";
+            public const string RealArray = "real[]";
         }
 
         public static class DateTime

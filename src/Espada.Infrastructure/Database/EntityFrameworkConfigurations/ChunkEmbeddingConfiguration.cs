@@ -1,12 +1,12 @@
 using Espada.Domain.Aggregates;
 using Espada.Domain.ValueObjects;
-using Espada.Infrastructure.Database.Constants;
+using Espada.Db.Constants;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Espada.Infrastructure.Database.EntityFrameworkConfigurations;
 
-internal sealed class ChunkEmbeddingConfiguration : IEntityTypeConfiguration<ChunkEmbedding>
+internal sealed class ChunkEmbeddingConfiguration : IEntityTypeConfiguration<ChunkEmbedding>, IEntityTypeConfiguration<Espada.Db.Models.ChunkEmbeddings>
 {
     public void Configure(EntityTypeBuilder<ChunkEmbedding> builder)
     {
@@ -91,5 +91,14 @@ internal sealed class ChunkEmbeddingConfiguration : IEntityTypeConfiguration<Chu
             .HasDatabaseName(DbConstants.Indexes.ChunkEmbeddingChunkModel);
 
         builder.Ignore(e => e.DomainEvents);
+    }
+
+    public void Configure(EntityTypeBuilder<Espada.Db.Models.ChunkEmbeddings> builder)
+    {
+        builder.Property(model => model.ChunkEmbeddingId).ValueGeneratedNever();
+        builder.HasOne<Espada.Db.Models.Chunks>().WithMany().HasForeignKey(model => model.ChunkId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasIndex(model => model.WorkspaceId).HasDatabaseName("IX_ChunkEmbeddings_WorkspaceId");
+        builder.HasIndex(model => model.ChunkId).HasDatabaseName("IX_ChunkEmbeddings_ChunkId");
+        builder.HasIndex(model => new { model.ChunkId, model.ModelIdentifier, model.ModelVersion }).IsUnique().HasDatabaseName(DbConstants.Indexes.ChunkEmbeddingChunkModel);
     }
 }

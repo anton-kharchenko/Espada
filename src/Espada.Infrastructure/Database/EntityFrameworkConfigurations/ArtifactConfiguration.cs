@@ -2,14 +2,14 @@ using Espada.Domain.Aggregates;
 using Espada.Domain.Enums;
 using Espada.Domain.SeedWork;
 using Espada.Domain.ValueObjects;
-using Espada.Infrastructure.Database.Constants;
+using Espada.Db.Constants;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Espada.Infrastructure.Database.EntityFrameworkConfigurations;
 
-internal sealed class ArtifactConfiguration : IEntityTypeConfiguration<Artifact>
+internal sealed class ArtifactConfiguration : IEntityTypeConfiguration<Artifact>, IEntityTypeConfiguration<Espada.Db.Models.Artifacts>
 {
     public void Configure(EntityTypeBuilder<Artifact> builder)
     {
@@ -117,5 +117,17 @@ internal sealed class ArtifactConfiguration : IEntityTypeConfiguration<Artifact>
             .HasDatabaseName("IX_Artifacts_WorkspaceId_Title");
 
         builder.Ignore(e => e.RevisionCount);
+    }
+
+    public void Configure(EntityTypeBuilder<Espada.Db.Models.Artifacts> builder)
+    {
+        builder.Property(model => model.ArtifactId).ValueGeneratedNever();
+        builder.Property(model => model.Version).HasDefaultValue(1L).IsConcurrencyToken();
+        builder.HasOne<Espada.Db.Models.Workspaces>().WithMany().HasForeignKey(model => model.WorkspaceId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<Espada.Db.Models.ArtifactTypes>().WithMany().HasForeignKey(model => model.TypeId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<Espada.Db.Models.ArtifactStatusTypes>().WithMany().HasForeignKey(model => model.StatusId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasIndex(model => model.WorkspaceId).HasDatabaseName("IX_Artifacts_WorkspaceId");
+        builder.HasIndex(model => model.StatusId).HasDatabaseName("IX_Artifacts_StatusId");
+        builder.HasIndex(model => new { model.WorkspaceId, model.Title }).HasDatabaseName("IX_Artifacts_WorkspaceId_Title");
     }
 }

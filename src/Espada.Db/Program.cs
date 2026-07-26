@@ -3,7 +3,6 @@ using Espada.Db.Database;
 using Espada.Db.Enums;
 using Espada.Db.Extensions;
 using Espada.Db.Seeding;
-using Espada.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -15,7 +14,8 @@ public static class Program
     {
         IConfiguration configuration = DbConfiguration.Create();
 
-        await using EspadaDbContext dbContext = SetupDbContext.Create(configuration);
+        await using DatabaseRuntime databaseRuntime = SetupDbContext.CreateRuntime(configuration);
+        SetupDbContext dbContext = databaseRuntime.DbContext;
         string? commandValue = args.FirstOrDefault();
 
         if (!DatabaseCommandParser.TryParse(commandValue, out DatabaseCommandType command))
@@ -41,21 +41,22 @@ public static class Program
         await Console.Error.WriteLineAsync($"The '{command.ToString().ToLowerInvariant()}' command requires --force.");
 
         return 2;
-
     }
 
-    private static async Task<int> MigrateAsync(EspadaDbContext dbContext)
+    private static async Task<int> MigrateAsync(SetupDbContext dbContext)
     {
         Console.WriteLine("Applying database migrations...");
 
         await dbContext.Database.MigrateAsync();
+        await DbSeeder.SeedAsync(dbContext);
 
-        Console.WriteLine("Database migrations completed.");
+        Console.WriteLine("Database migrations and reference data seeding completed.");
 
         return 0;
     }
 
-    private static async Task<int> SeedAsync(EspadaDbContext dbContext)
+
+    private static async Task<int> SeedAsync(SetupDbContext dbContext)
     {
         Console.WriteLine("Applying database migrations...");
 
@@ -70,7 +71,7 @@ public static class Program
         return 0;
     }
 
-    private static async Task<int> ResetAsync(EspadaDbContext dbContext)
+    private static async Task<int> ResetAsync(SetupDbContext dbContext)
     {
         Console.WriteLine("Deleting database...");
 
@@ -89,7 +90,7 @@ public static class Program
         return 0;
     }
 
-    private static async Task<int> PrintStatusAsync(EspadaDbContext dbContext)
+    private static async Task<int> PrintStatusAsync(SetupDbContext dbContext)
     {
         bool canConnect = await dbContext.Database.CanConnectAsync();
 
@@ -125,11 +126,11 @@ public static class Program
             Espada database utility
 
             Commands:
-              migrate        Apply pending migrations
-              seed           Apply migrations and seed data
-              status         Show database and migration status
-              reset --force  Delete, recreate and seed the database
-              help           Show this help
+              migrate          Apply pending migrations
+              seed             Apply migrations and seed data
+              status           Show database and migration status
+              reset --force    Delete, recreate and seed the database
+              help             Show this help
             """);
 
         return 0;

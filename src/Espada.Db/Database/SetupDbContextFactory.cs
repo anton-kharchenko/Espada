@@ -1,15 +1,13 @@
-using Espada.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 
 namespace Espada.Db.Database;
 
-public sealed class EspadaDbContextFactory : IDesignTimeDbContextFactory<EspadaDbContext>
+public sealed class SetupDbContextFactory : IDesignTimeDbContextFactory<SetupDbContext>
 {
-    public EspadaDbContext CreateDbContext(string[] args)
+    public SetupDbContext CreateDbContext(string[] args)
     {
         IConfiguration configuration = DbConfiguration.Create();
-
         return SetupDbContext.Create(configuration);
     }
 }

@@ -20,8 +20,9 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\Espada.Domain\Espada.Domain.csproj" />
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\Espada.Comms.Core\Espada.Comms.Core.csproj" />
+        <ProjectReference Include="..\..\src\Espada.Domain\Espada.Domain.csproj" />
     <ProjectReference Include="..\..\src\Espada.Application\Espada.Application.csproj" />
     <ProjectReference Include="..\..\src\Espada.Infrastructure\Espada.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\Espada.Api.Contracts\Espada.Api.Contracts.csproj" />

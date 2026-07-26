@@ -9,13 +9,13 @@ using Npgsql;
 namespace Espada.Tests.Integration.Database;
 
 [Collection(PostgreSqlIntegrationCollection.Name)]
-public sealed class AggregateRoundTripTests(PostgreSqlDatabaseFixture fixture)
+public sealed class AggregateRoundTripTests(PostgreSqlDatabaseFixture fixture) : PostgreSqlIntegrationTest(fixture)
 {
     [Fact]
     public async Task Workspace_ShouldRoundTripAllProperties()
     {
         PersistenceGraph graph = await PersistGraphAsync();
-        await using EspadaDbContext dbContext = fixture.CreateDbContext();
+        await using EspadaDbContext dbContext = Fixture.CreateDbContext();
 
         Workspace actual = Assert.IsType<Workspace>(await dbContext.Workspaces.FindAsync([graph.Workspace.Id], TestContext.Current.CancellationToken));
 
@@ -32,7 +32,7 @@ public sealed class AggregateRoundTripTests(PostgreSqlDatabaseFixture fixture)
     public async Task Source_ShouldRoundTripAllProperties()
     {
         PersistenceGraph graph = await PersistGraphAsync();
-        await using EspadaDbContext dbContext = fixture.CreateDbContext();
+        await using EspadaDbContext dbContext = Fixture.CreateDbContext();
 
         Source actual = Assert.IsType<Source>(await dbContext.Sources.FindAsync([graph.Source.Id], TestContext.Current.CancellationToken));
 
@@ -52,7 +52,7 @@ public sealed class AggregateRoundTripTests(PostgreSqlDatabaseFixture fixture)
     public async Task ImportJob_ShouldRoundTripAllProperties()
     {
         PersistenceGraph graph = await PersistGraphAsync();
-        await using EspadaDbContext dbContext = fixture.CreateDbContext();
+        await using EspadaDbContext dbContext = Fixture.CreateDbContext();
 
         ImportJob actual = Assert.IsType<ImportJob>(await dbContext.ImportJobs.FindAsync([graph.ImportJob.Id], TestContext.Current.CancellationToken));
 
@@ -73,7 +73,7 @@ public sealed class AggregateRoundTripTests(PostgreSqlDatabaseFixture fixture)
     public async Task Artifact_ShouldRoundTripAllProperties()
     {
         PersistenceGraph graph = await PersistGraphAsync();
-        await using EspadaDbContext dbContext = fixture.CreateDbContext();
+        await using EspadaDbContext dbContext = Fixture.CreateDbContext();
 
         Artifact actual = Assert.IsType<Artifact>(await dbContext.Artifacts.FindAsync([graph.Artifact.Id], TestContext.Current.CancellationToken));
 
@@ -95,7 +95,7 @@ public sealed class AggregateRoundTripTests(PostgreSqlDatabaseFixture fixture)
     public async Task ArtifactRevision_ShouldRoundTripAllProperties()
     {
         PersistenceGraph graph = await PersistGraphAsync();
-        await using EspadaDbContext dbContext = fixture.CreateDbContext();
+        await using EspadaDbContext dbContext = Fixture.CreateDbContext();
 
         ArtifactRevision actual = Assert.IsType<ArtifactRevision>(await dbContext.ArtifactRevisions.FindAsync([graph.ArtifactRevision.Id], TestContext.Current.CancellationToken));
 
@@ -112,7 +112,7 @@ public sealed class AggregateRoundTripTests(PostgreSqlDatabaseFixture fixture)
     public async Task ChunkBatch_ShouldRoundTripAllProperties()
     {
         PersistenceGraph graph = await PersistGraphAsync();
-        await using EspadaDbContext dbContext = fixture.CreateDbContext();
+        await using EspadaDbContext dbContext = Fixture.CreateDbContext();
 
         ChunkBatch actual = Assert.IsType<ChunkBatch>(await dbContext.ChunkBatches.FindAsync([graph.ChunkBatch.Id], TestContext.Current.CancellationToken));
 
@@ -135,7 +135,7 @@ public sealed class AggregateRoundTripTests(PostgreSqlDatabaseFixture fixture)
     public async Task Chunk_ShouldRoundTripAllProperties()
     {
         PersistenceGraph graph = await PersistGraphAsync();
-        await using EspadaDbContext dbContext = fixture.CreateDbContext();
+        await using EspadaDbContext dbContext = Fixture.CreateDbContext();
 
         Chunk actual = Assert.IsType<Chunk>(await dbContext.Chunks.FindAsync([graph.Chunk.Id], TestContext.Current.CancellationToken));
 
@@ -159,7 +159,7 @@ public sealed class AggregateRoundTripTests(PostgreSqlDatabaseFixture fixture)
     public async Task ChunkEmbedding_ShouldRoundTripAllProperties()
     {
         PersistenceGraph graph = await PersistGraphAsync();
-        await using EspadaDbContext dbContext = fixture.CreateDbContext();
+        await using EspadaDbContext dbContext = Fixture.CreateDbContext();
 
         ChunkEmbedding actual = Assert.IsType<ChunkEmbedding>(await dbContext.ChunkEmbeddings.FindAsync([graph.ChunkEmbedding.Id], TestContext.Current.CancellationToken));
 
@@ -175,7 +175,7 @@ public sealed class AggregateRoundTripTests(PostgreSqlDatabaseFixture fixture)
     [Fact]
     public async Task ForeignKeyConstraint_ShouldRejectMissingWorkspace()
     {
-        await using EspadaDbContext dbContext = fixture.CreateDbContext();
+        await using EspadaDbContext dbContext = Fixture.CreateDbContext();
 
         Source source = Source.Create(SourceId.Create(Guid.NewGuid()), WorkspaceId.Create(Guid.NewGuid()), SourceName.Create("Orphan source").ShouldSucceed(), SourceType.WebPage, SourceLocator.Create($"https://example.com/{Guid.NewGuid():N}").ShouldSucceed(), new DateTimeOffset(2026, 7, 26, 5, 0, 0, TimeSpan.Zero)).ShouldSucceed();
 
@@ -188,7 +188,7 @@ public sealed class AggregateRoundTripTests(PostgreSqlDatabaseFixture fixture)
     public async Task SourceWorkspaceLocatorUniqueConstraint_ShouldRejectDuplicate()
     {
         PersistenceGraph graph = await PersistGraphAsync();
-        await using EspadaDbContext dbContext = fixture.CreateDbContext();
+        await using EspadaDbContext dbContext = Fixture.CreateDbContext();
 
         Source duplicate = Source.Create(SourceId.Create(Guid.NewGuid()), graph.Source.WorkspaceId, SourceName.Create("Duplicate source").ShouldSucceed(), graph.Source.Type, graph.Source.Locator, graph.Source.CreatedAtUtc).ShouldSucceed();
 
@@ -201,7 +201,7 @@ public sealed class AggregateRoundTripTests(PostgreSqlDatabaseFixture fixture)
     public async Task ArtifactRevisionArtifactNumberUniqueConstraint_ShouldRejectDuplicate()
     {
         PersistenceGraph graph = await PersistGraphAsync();
-        await using EspadaDbContext dbContext = fixture.CreateDbContext();
+        await using EspadaDbContext dbContext = Fixture.CreateDbContext();
 
         Artifact revisionOwner = Artifact.Create(graph.Artifact.Id, graph.Artifact.WorkspaceId, graph.Artifact.Title, graph.Artifact.Type, graph.Artifact.CreatedAtUtc).ShouldSucceed();
 
@@ -216,7 +216,7 @@ public sealed class AggregateRoundTripTests(PostgreSqlDatabaseFixture fixture)
     public async Task ChunkBatchIdNumberUniqueConstraint_ShouldRejectDuplicate()
     {
         PersistenceGraph graph = await PersistGraphAsync();
-        await using EspadaDbContext dbContext = fixture.CreateDbContext();
+        await using EspadaDbContext dbContext = Fixture.CreateDbContext();
 
         Chunk duplicate = Chunk.Create(ChunkId.Create(Guid.NewGuid()), graph.Chunk.BatchId, graph.Chunk.WorkspaceId, graph.Chunk.ArtifactId, graph.Chunk.ArtifactRevisionId, graph.Chunk.Number, graph.Chunk.Content, graph.Chunk.SourceSpan, graph.Chunk.Strategy, graph.Chunk.StrategyVersion, graph.Chunk.CreatedAtUtc).ShouldSucceed();
 
@@ -229,7 +229,7 @@ public sealed class AggregateRoundTripTests(PostgreSqlDatabaseFixture fixture)
     public async Task ChunkEmbeddingChunkModelUniqueConstraint_ShouldRejectDuplicate()
     {
         PersistenceGraph graph = await PersistGraphAsync();
-        await using EspadaDbContext dbContext = fixture.CreateDbContext();
+        await using EspadaDbContext dbContext = Fixture.CreateDbContext();
 
         ChunkEmbedding duplicate = ChunkEmbedding.Create(ChunkEmbeddingId.Create(Guid.NewGuid()), graph.ChunkEmbedding.WorkspaceId, graph.ChunkEmbedding.ChunkId, graph.ChunkEmbedding.ChunkContentHash, graph.ChunkEmbedding.Model, graph.ChunkEmbedding.Dimensions, graph.ChunkEmbedding.CreatedAtUtc).ShouldSucceed();
 
@@ -242,8 +242,8 @@ public sealed class AggregateRoundTripTests(PostgreSqlDatabaseFixture fixture)
     public async Task ConcurrentWorkspaceUpdates_ShouldThrowConcurrencyException()
     {
         PersistenceGraph graph = await PersistGraphAsync();
-        await using EspadaDbContext firstContext = fixture.CreateDbContext();
-        await using EspadaDbContext secondContext = fixture.CreateDbContext();
+        await using EspadaDbContext firstContext = Fixture.CreateDbContext();
+        await using EspadaDbContext secondContext = Fixture.CreateDbContext();
 
         Workspace first = Assert.IsType<Workspace>(await firstContext.Workspaces.FindAsync([graph.Workspace.Id], TestContext.Current.CancellationToken));
         Workspace second = Assert.IsType<Workspace>(await secondContext.Workspaces.FindAsync([graph.Workspace.Id], TestContext.Current.CancellationToken));
@@ -258,7 +258,7 @@ public sealed class AggregateRoundTripTests(PostgreSqlDatabaseFixture fixture)
 
         Assert.Equal(2, first.Version);
 
-        await using EspadaDbContext verificationContext = fixture.CreateDbContext();
+        await using EspadaDbContext verificationContext = Fixture.CreateDbContext();
         Workspace persisted = Assert.IsType<Workspace>(await verificationContext.Workspaces.FindAsync([graph.Workspace.Id], TestContext.Current.CancellationToken));
 
         Assert.Equal(2, persisted.Version);
@@ -267,8 +267,8 @@ public sealed class AggregateRoundTripTests(PostgreSqlDatabaseFixture fixture)
 
     private async Task<PersistenceGraph> PersistGraphAsync()
     {
-        PersistenceGraph graph = CreateGraph();
-        await using EspadaDbContext dbContext = fixture.CreateDbContext();
+        PersistenceGraph graph = PersistenceGraphFactory.Create();
+        await using EspadaDbContext dbContext = Fixture.CreateDbContext();
 
         dbContext.AddRange(graph.Workspace, graph.Source, graph.ImportJob, graph.Artifact, graph.ArtifactRevision, graph.ChunkBatch, graph.Chunk, graph.ChunkEmbedding);
 
@@ -276,36 +276,6 @@ public sealed class AggregateRoundTripTests(PostgreSqlDatabaseFixture fixture)
         dbContext.ChangeTracker.Clear();
 
         return graph;
-    }
-
-    private static PersistenceGraph CreateGraph()
-    {
-        DateTimeOffset createdAtUtc = new(2026, 7, 26, 5, 0, 0, TimeSpan.Zero);
-        DateTimeOffset updatedAtUtc = createdAtUtc.AddMinutes(1);
-        DateTimeOffset completedAtUtc = createdAtUtc.AddMinutes(2);
-
-        Workspace workspace = Workspace.Create(WorkspaceId.Create(Guid.NewGuid()), WorkspaceName.Create("Round-trip workspace").ShouldSucceed(), WorkspaceType.Personal, createdAtUtc).ShouldSucceed();
-
-        Source source = Source.Create(SourceId.Create(Guid.NewGuid()), workspace.Id, SourceName.Create("Round-trip source").ShouldSucceed(), SourceType.WebPage, SourceLocator.Create($"https://example.com/{Guid.NewGuid():N}").ShouldSucceed(), createdAtUtc).ShouldSucceed();
-
-        Artifact artifact = Artifact.Create(ArtifactId.Create(Guid.NewGuid()), workspace.Id, ArtifactTitle.Create("Round-trip artifact").ShouldSucceed(), ArtifactType.Markdown, createdAtUtc).ShouldSucceed();
-
-        ArtifactRevision revision = artifact.CreateRevision(ArtifactRevisionId.Create(Guid.NewGuid()), ArtifactContent.Create("Round-trip artifact content.").ShouldSucceed(), updatedAtUtc).ShouldSucceed();
-
-        ImportJob importJob = ImportJob.Request(ImportJobId.Create(Guid.NewGuid()), source.Id, workspace.Id, createdAtUtc).ShouldSucceed();
-
-        importJob.Start(updatedAtUtc).ShouldSucceed();
-        importJob.Complete(artifact.Id, revision.Id, completedAtUtc).ShouldSucceed();
-
-        ChunkBatch chunkBatch = ChunkBatch.Request(ChunkBatchId.Create(Guid.NewGuid()), workspace.Id, artifact.Id, revision.Id, ChunkingStrategyType.Recursive, ChunkingVersion.Create("recursive-v1").ShouldSucceed(), createdAtUtc).ShouldSucceed();
-        chunkBatch.Start(updatedAtUtc).ShouldSucceed();
-        chunkBatch.Complete(1, completedAtUtc).ShouldSucceed();
-
-        Chunk chunk = Chunk.Create(ChunkId.Create(Guid.NewGuid()), chunkBatch.Id, workspace.Id, artifact.Id, revision.Id, ChunkNumber.First(), ChunkContent.Create("Round-trip chunk content.").ShouldSucceed(), SourceTextSpan.Create(0, 25).ShouldSucceed(), ChunkingStrategyType.Recursive, ChunkingVersion.Create("recursive-v1").ShouldSucceed(), completedAtUtc).ShouldSucceed();
-
-        ChunkEmbedding chunkEmbedding = ChunkEmbedding.Create(ChunkEmbeddingId.Create(Guid.NewGuid()), workspace.Id, chunk.Id, chunk.ContentHash, EmbeddingModel.Create("openai/text-embedding-3-small", "2026-01").ShouldSucceed(), EmbeddingDimensions.Create(1536).ShouldSucceed(), completedAtUtc).ShouldSucceed();
-
-        return new PersistenceGraph(workspace, source, importJob, artifact, revision, chunkBatch, chunk, chunkEmbedding);
     }
 
     private static async Task AssertDatabaseViolationAsync(EspadaDbContext dbContext, string expectedSqlState)

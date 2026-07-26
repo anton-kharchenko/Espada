@@ -1,5 +1,6 @@
 using Espada.Api.Controllers;
 using Espada.Application.Contracts.Persistence;
+using Espada.Comms.Core.Pagination;
 using Espada.Domain.Rules;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,7 @@ namespace Espada.Tests.Architecture;
 
 public sealed class ArchitectureTests
 {
+    private static readonly Assembly CommsCoreAssembly = typeof(CursorCodec).Assembly;
     private static readonly Assembly DomainAssembly = typeof(DomainError).Assembly;
     private static readonly Assembly ApplicationAssembly = typeof(IArtifactRepository).Assembly;
     private static readonly Assembly InfrastructureAssembly = typeof(Espada.Infrastructure.Extensions.InfrastructureServiceCollectionExtensions).Assembly;
@@ -21,10 +23,13 @@ public sealed class ArchitectureTests
     {
         IReadOnlyDictionary<string, string[]> expectedReferences = new Dictionary<string, string[]>
         {
+            ["Espada.Comms.Core"] = [],
             ["Espada.Domain"] = [],
             ["Espada.Application"] = ["Espada.Domain"],
-            ["Espada.Infrastructure"] = ["Espada.Application", "Espada.Domain"],
-            ["Espada.Db"] = ["Espada.Infrastructure"],
+            ["Espada.Infrastructure"] = ["Espada.Application", "Espada.Db", "Espada.Domain"],
+            ["Espada.Db"] = ["Espada.Domain"],
+            ["Espada.DeploymentKit"] = [],
+            ["Espada.Deployment"] = ["Espada.DeploymentKit"],
             ["Espada.Api.Contracts"] = ["Espada.Domain"],
             ["Espada.Api"] = ["Espada.Api.Contracts", "Espada.Application", "Espada.Domain", "Espada.Infrastructure", "Espada.ServiceDefaults"],
             ["Aspire"] = ["Espada.Api", "Espada.Db"]
@@ -93,6 +98,7 @@ public sealed class ArchitectureTests
     [Fact]
     public void LayerNamespaces_ShouldMatchOwningAssembly()
     {
+        AssertNamespaces(CommsCoreAssembly, "Espada.Comms.Core");
         AssertNamespaces(DomainAssembly, "Espada.Domain");
         AssertNamespaces(ApplicationAssembly, "Espada.Application");
         AssertNamespaces(InfrastructureAssembly, "Espada.Infrastructure");

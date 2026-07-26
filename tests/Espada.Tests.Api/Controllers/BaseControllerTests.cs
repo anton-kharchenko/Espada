@@ -13,6 +13,7 @@ public sealed class BaseControllerTests
     [InlineData("Security.Unauthorized", StatusCodes.Status401Unauthorized)]
     [InlineData("Security.Forbidden", StatusCodes.Status403Forbidden)]
     [InlineData("Artifact.AlreadyArchived", StatusCodes.Status409Conflict)]
+    [InlineData("ArtifactRevision.Artifact.Archived", StatusCodes.Status409Conflict)]
     [InlineData("Request.RateLimitExceeded", StatusCodes.Status429TooManyRequests)]
     [InlineData("Source.Invalid", StatusCodes.Status400BadRequest)]
     public void HandleError_WithKnownErrorCode_ShouldReturnExpectedStatusCode(string code, int expectedStatusCode)

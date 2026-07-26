@@ -2,13 +2,13 @@ using Espada.Domain.Aggregates;
 using Espada.Domain.Enums;
 using Espada.Domain.SeedWork;
 using Espada.Domain.ValueObjects;
-using Espada.Infrastructure.Database.Constants;
+using Espada.Db.Constants;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Espada.Infrastructure.Database.EntityFrameworkConfigurations;
 
-internal sealed class ChunkBatchConfiguration : IEntityTypeConfiguration<ChunkBatch>
+internal sealed class ChunkBatchConfiguration : IEntityTypeConfiguration<ChunkBatch>, IEntityTypeConfiguration<Espada.Db.Models.ChunkBatches>
 {
     public void Configure(EntityTypeBuilder<ChunkBatch> builder)
     {
@@ -126,5 +126,19 @@ internal sealed class ChunkBatchConfiguration : IEntityTypeConfiguration<ChunkBa
             .HasDatabaseName("IX_ChunkBatches_Revision_Strategy_Version");
 
         builder.Ignore(e => e.DomainEvents);
+    }
+
+    public void Configure(EntityTypeBuilder<Espada.Db.Models.ChunkBatches> builder)
+    {
+        builder.Property(model => model.ChunkBatchId).ValueGeneratedNever();
+        builder.Property(model => model.Version).HasDefaultValue(1L).IsConcurrencyToken();
+        builder.HasOne<Espada.Db.Models.ArtifactRevisions>().WithMany().HasForeignKey(model => model.ArtifactRevisionId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<Espada.Db.Models.ChunkingStrategyTypes>().WithMany().HasForeignKey(model => model.StrategyId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<Espada.Db.Models.ChunkBatchStatusTypes>().WithMany().HasForeignKey(model => model.StatusId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasIndex(model => model.WorkspaceId).HasDatabaseName("IX_ChunkBatches_WorkspaceId");
+        builder.HasIndex(model => model.ArtifactId).HasDatabaseName("IX_ChunkBatches_ArtifactId");
+        builder.HasIndex(model => model.ArtifactRevisionId).HasDatabaseName("IX_ChunkBatches_ArtifactRevisionId");
+        builder.HasIndex(model => model.StatusId).HasDatabaseName("IX_ChunkBatches_StatusId");
+        builder.HasIndex(model => new { model.ArtifactRevisionId, model.StrategyId, model.StrategyVersion }).HasDatabaseName("IX_ChunkBatches_Revision_Strategy_Version");
     }
 }

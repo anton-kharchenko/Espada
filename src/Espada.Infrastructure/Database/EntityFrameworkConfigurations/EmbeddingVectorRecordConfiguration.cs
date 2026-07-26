@@ -1,0 +1,42 @@
+using Espada.Domain.Aggregates;
+using Espada.Domain.ValueObjects;
+using Espada.Db.Constants;
+using Espada.Infrastructure.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace Espada.Infrastructure.Database.EntityFrameworkConfigurations
+{
+    internal sealed class EmbeddingVectorRecordConfiguration : IEntityTypeConfiguration<EmbeddingVectorRecord>, IEntityTypeConfiguration<Espada.Db.Models.ChunkEmbeddingVectors>
+    {
+        public void Configure(EntityTypeBuilder<EmbeddingVectorRecord> builder)
+        {
+            builder.ToTable(DbConstants.Tables.ChunkEmbeddingVectors, DbConstants.SchemaName);
+
+            builder.HasKey(record => record.ChunkEmbeddingId);
+
+            builder.Property(record => record.ChunkEmbeddingId)
+                .HasColumnName("ChunkEmbeddingId")
+                .HasColumnType(DbConstants.ColumnTypes.Identifier.Uuid)
+                .HasConversion(id => id.Value, value => ChunkEmbeddingId.Create(value))
+                .IsRequired()
+                .ValueGeneratedNever();
+
+            builder.Property(record => record.Vector)
+                .HasColumnName("Vector")
+                .HasColumnType(DbConstants.ColumnTypes.Numeric.RealArray)
+                .IsRequired();
+
+            builder.HasOne<ChunkEmbedding>()
+                .WithOne()
+                .HasForeignKey<EmbeddingVectorRecord>(record => record.ChunkEmbeddingId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+
+        public void Configure(EntityTypeBuilder<Espada.Db.Models.ChunkEmbeddingVectors> builder)
+        {
+            builder.Property(model => model.ChunkEmbeddingId).ValueGeneratedNever();
+            builder.HasOne<Espada.Db.Models.ChunkEmbeddings>().WithOne().HasForeignKey<Espada.Db.Models.ChunkEmbeddingVectors>(model => model.ChunkEmbeddingId).OnDelete(DeleteBehavior.Cascade);
+        }
+    }
+}

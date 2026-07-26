@@ -1,0 +1,15 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Espada.Db.Constants;
+
+namespace Espada.Db.Models;
+
+[Table(DbConstants.Tables.ArtifactStatusTypes, Schema = DbConstants.SchemaName)]
+public class ArtifactStatusTypes
+{
+    [Key, Column(TypeName = DbConstants.ColumnTypes.Numeric.Integer)]
+    public int ArtifactStatusTypeId { get; set; }
+
+    [Required, MaxLength(DbConstants.Validations.MaxLengths.L100), Column(TypeName = DbConstants.ColumnTypes.Text.Varchar100)]
+    public string Name { get; set; } = null!;
+}

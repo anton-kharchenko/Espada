@@ -1,9 +1,9 @@
-namespace Espada.DeploymentKit.Configuration;
+namespace Espada.DeploymentKit.Helpers;
 
 /// <summary>
 /// Identifies configuration keys whose values must be stored as Pulumi secrets.
 /// </summary>
-public static class SensitiveConfigurationKeyClassifier
+public static class SensitiveConfigurationKeyClassifierHelper
 {
     private static readonly string[] SensitiveMarkers =
     [

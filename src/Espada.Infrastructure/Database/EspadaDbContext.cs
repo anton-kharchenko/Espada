@@ -1,7 +1,9 @@
 using Espada.Application.Contracts.Persistence;
 using Espada.Domain.Aggregates;
 using Espada.Domain.SeedWork;
+using Espada.Infrastructure.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Espada.Infrastructure.Database
@@ -24,13 +26,15 @@ namespace Espada.Infrastructure.Database
 
         public DbSet<ChunkEmbedding> ChunkEmbeddings => Set<ChunkEmbedding>();
 
+        internal DbSet<EmbeddingVectorRecord> EmbeddingVectors => Set<EmbeddingVectorRecord>();
+
         public override int SaveChanges(bool acceptAllChangesOnSuccess)
         {
             IncrementConcurrencyVersions();
             return base.SaveChanges(acceptAllChangesOnSuccess);
         }
 
-        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess,CancellationToken cancellationToken = default)
+        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
         {
             IncrementConcurrencyVersions();
             return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
@@ -38,9 +42,9 @@ namespace Espada.Infrastructure.Database
 
         private void IncrementConcurrencyVersions()
         {
-            foreach (var entry in ChangeTracker.Entries<IHasConcurrencyVersion>().Where(entry => entry.State == EntityState.Modified))
+            foreach (EntityEntry<IHasConcurrencyVersion> entry in ChangeTracker.Entries<IHasConcurrencyVersion>().Where(entry => entry.State == EntityState.Modified))
             {
-                var version = entry.Property<long>(nameof(IHasConcurrencyVersion.Version));
+                PropertyEntry<IHasConcurrencyVersion, long> version = entry.Property<long>(nameof(IHasConcurrencyVersion.Version));
                 version.CurrentValue = version.OriginalValue + 1;
             }
         }
@@ -50,7 +54,17 @@ namespace Espada.Infrastructure.Database
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(EspadaDbContext).Assembly);
+            RemoveSetupModels(modelBuilder);
             IgnoreDomainEvents(modelBuilder);
+        }
+
+        private static void RemoveSetupModels(ModelBuilder modelBuilder)
+        {
+            foreach (IMutableEntityType entityType in modelBuilder.Model.GetEntityTypes().Where(entityType => entityType.ClrType.Assembly == typeof(Db.Models.Workspaces).Assembly).ToList())
+            {
+                modelBuilder.Ignore(entityType.ClrType);
+                modelBuilder.Model.RemoveEntityType(entityType.ClrType);
+            }
         }
 
         private static void IgnoreDomainEvents(ModelBuilder modelBuilder)

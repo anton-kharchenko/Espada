@@ -1,4 +1,7 @@
+using Espada.Db.Constants;
+using Espada.Db.Database;
 using Espada.Infrastructure.Database;
+using Espada.Tests.Common.Database;
 using Espada.Tests.E2E.TestData;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -38,9 +41,21 @@ public sealed class EspadaE2EFactory : IAsyncLifetime
 
         _factory = new TestingWebApplicationFactory();
 
-        using IServiceScope scope = Services.CreateScope();
-        EspadaDbContext dbContext = scope.ServiceProvider.GetRequiredService<EspadaDbContext>();
+        DbContextOptionsBuilder<SetupDbContext> options = new();
+        options.UseNpgsql(_container.GetConnectionString(), npgsql =>
+        {
+            npgsql.MigrationsAssembly(typeof(SetupDbContext).Assembly.FullName);
+            npgsql.MigrationsHistoryTable("__EFMigrationsHistory", DbConstants.SchemaName);
+        });
+
+        await using SetupDbContext dbContext = new(options.Options);
         await dbContext.Database.MigrateAsync();
+
+        string[] pendingMigrations = (await dbContext.Database.GetPendingMigrationsAsync()).ToArray();
+        if (pendingMigrations.Length > 0)
+        {
+            throw new InvalidOperationException($"Pending migrations remain after E2E fixture initialization: {string.Join(", ", pendingMigrations)}");
+        }
     }
 
     private IServiceProvider Services => (_factory ?? throw new InvalidOperationException("E2E factory is not initialized.")).Services;
@@ -61,6 +76,13 @@ public sealed class EspadaE2EFactory : IAsyncLifetime
         }
 
         return client;
+    }
+
+    public async Task ResetDatabaseAsync()
+    {
+        using IServiceScope scope = Services.CreateScope();
+        EspadaDbContext dbContext = scope.ServiceProvider.GetRequiredService<EspadaDbContext>();
+        await PostgreSqlDatabaseCleaner.ResetAsync(dbContext);
     }
 
     public async ValueTask DisposeAsync()
