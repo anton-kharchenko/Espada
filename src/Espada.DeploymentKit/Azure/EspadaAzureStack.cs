@@ -35,6 +35,15 @@ internal static class EspadaAzureStack
 {
     public static IDictionary<string, object?> Create(DeploymentSettings settings)
     {
+        IDictionary<string, object?> websiteOutputs = settings.EnvironmentType == DeploymentEnvironmentType.Production
+            ? WebsiteInfrastructure.Create(settings.Location)
+            : new Dictionary<string, object?>();
+
+        if (settings.TargetType == DeploymentTargetType.Website)
+        {
+            return websiteOutputs;
+        }
+
         ResourceNames names = ResourceNames.Create(settings.EnvironmentType, settings.SubscriptionId);
         Dictionary<string, string> tags = new()
         {
@@ -237,7 +246,7 @@ internal static class EspadaAzureStack
 
         Secret apiKey = CreateVaultSecret(
             AzureDeploymentConstants.ApiKeySecret,
-            Output.CreateSecret(settings.ApiKey),
+            Output.CreateSecret(settings.ApiKey!),
             vault,
             resourceGroup,
             tags,
@@ -259,7 +268,7 @@ internal static class EspadaAzureStack
 
         if (!settings.DeployWorkloads)
         {
-            return CreateOutputs(resourceGroup, registry, null, null);
+            return MergeOutputs(CreateOutputs(resourceGroup, registry, null, null), websiteOutputs);
         }
 
         Output<string> apiImage = registry.LoginServer.Apply(
@@ -399,7 +408,19 @@ internal static class EspadaAzureStack
             ]
         });
 
-        return CreateOutputs(resourceGroup, registry, migrationJob, api);
+        return MergeOutputs(CreateOutputs(resourceGroup, registry, migrationJob, api), websiteOutputs);
+    }
+
+    private static IDictionary<string, object?> MergeOutputs(
+        IDictionary<string, object?> applicationOutputs,
+        IDictionary<string, object?> websiteOutputs)
+    {
+        foreach ((string key, object? value) in websiteOutputs)
+        {
+            applicationOutputs.TryAdd(key, value);
+        }
+
+        return applicationOutputs;
     }
 
     private static RandomPassword CreatePassword(string name) =>

@@ -45,6 +45,7 @@
     <PackageVersion Include="Azure.Storage.Blobs" Version="12.29.1" />
     <!-- Infrastructure as code -->
     <PackageVersion Include="Pulumi" Version="3.107.3" />
+    <PackageVersion Include="Pulumi.Azure" Version="6.39.0" />
     <PackageVersion Include="Pulumi.AzureNative" Version="3.23.0" />
     <PackageVersion Include="Pulumi.Automation" Version="3.107.3" />
     <PackageVersion Include="Pulumi.Random" Version="4.20.0" />
@@ -92,10 +93,6 @@
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.1" />
     <PackageVersion Include="Serilog.Sinks.Debug" Version="3.0.0" />
     <PackageVersion Include="Serilog.Sinks.File" Version="7.0.0" />
-    <!-- Infrastructure as code -->
-    <PackageVersion Include="Pulumi" Version="3.108.0" />
-    <PackageVersion Include="Pulumi.Azure" Version="6.39.0" />
-    <PackageVersion Include="Pulumi.AzureNative" Version="3.23.0" />
     <!-- Testing -->
     <PackageVersion Include="coverlet.collector" Version="10.0.1" />
     <PackageVersion Include="FluentAssertions" Version="8.10.0" />

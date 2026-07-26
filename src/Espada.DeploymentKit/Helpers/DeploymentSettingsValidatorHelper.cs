@@ -1,3 +1,4 @@
+using Espada.DeploymentKit.Enums;
 using Espada.DeploymentKit.Settings;
 
 namespace Espada.DeploymentKit.Helpers;
@@ -10,8 +11,22 @@ public static class DeploymentSettingsValidatorHelper
         ArgumentException.ThrowIfNullOrWhiteSpace(settings.Location);
         ArgumentException.ThrowIfNullOrWhiteSpace(settings.SubscriptionId);
         ArgumentException.ThrowIfNullOrWhiteSpace(settings.TenantId);
-        ArgumentException.ThrowIfNullOrWhiteSpace(settings.ApiKey);
-        ArgumentException.ThrowIfNullOrWhiteSpace(settings.ImageTag);
+        if (!Enum.IsDefined(settings.TargetType))
+        {
+            throw new ArgumentOutOfRangeException(nameof(settings));
+        }
+
+        if (settings.TargetType == DeploymentTargetType.All)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(settings.ApiKey);
+            ArgumentException.ThrowIfNullOrWhiteSpace(settings.ImageTag);
+        }
+
+        if (settings.TargetType == DeploymentTargetType.Website
+            && settings.EnvironmentType != DeploymentEnvironmentType.Production)
+        {
+            throw new ArgumentException("The website target is only available for production.", nameof(settings));
+        }
         ArgumentException.ThrowIfNullOrWhiteSpace(settings.RepositoryRoot);
 
         if (!Guid.TryParse(settings.SubscriptionId, out _))

@@ -4,6 +4,12 @@ internal static class AzureDeploymentConstants
 {
     public const string ApplicationName = "espada";
     public const string ManagedBy = "pulumi";
+    public const string WebsiteDomainName = "espada.website";
+    public const string WebsiteResourceGroupName = "espada-website-prod";
+    public const string WebsiteStaticSiteName = "espada-website";
+    public const string WebsiteSourceDirectory = "src/Espada.Web";
+    public const string WebsiteDistDirectory = "./dist";
+    public const string StaticWebAppsCliPackage = "@azure/static-web-apps-cli@2.0.10";
     public const string Enabled = "Enabled";
     public const string Disabled = "Disabled";
     public const string PostgreSqlVersion = "17";

@@ -36,7 +36,6 @@ jobs:
       AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
       AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
       AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-      ESPADA_API_KEY: ${{ secrets.ESPADA_API_KEY }}
       PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
       PULUMI_BACKEND_URL: ${{ vars.PULUMI_BACKEND_URL }}
 
@@ -77,6 +76,6 @@ jobs:
           --
           deploy
           --environment production
+          --target website
           --location "${AZURE_LOCATION}"
-          --image-tag ${{ github.event.workflow_run.head_sha }}
           --repository-root .

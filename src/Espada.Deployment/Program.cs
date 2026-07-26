@@ -23,12 +23,17 @@ internal static class Program
             Dictionary<string, string> options = ParseOptions(args.Skip(1));
             string repositoryRoot = options.GetValueOrDefault(DeploymentCommandLineNames.RepositoryRootOption)
                 ?? FindRepositoryRoot();
+            DeploymentTargetType targetType = DeploymentTargetHelper.Parse(
+                RequireOption(options, DeploymentCommandLineNames.TargetOption));
             DeploymentSettings settings = new(
                 DeploymentEnvironmentHelper.Parse(RequireOption(options, DeploymentCommandLineNames.EnvironmentOption)),
+                targetType,
                 RequireOption(options, DeploymentCommandLineNames.LocationOption),
                 RequireEnvironmentVariable(DeploymentConfigurationNames.AzureSubscriptionId),
                 RequireEnvironmentVariable(DeploymentConfigurationNames.AzureTenantId),
-                RequireEnvironmentVariable(DeploymentConfigurationNames.ApiKey),
+                targetType == DeploymentTargetType.All
+                    ? RequireEnvironmentVariable(DeploymentConfigurationNames.ApiKey)
+                    : null,
                 options.GetValueOrDefault(DeploymentCommandLineNames.ImageTagOption)
                 ?? Environment.GetEnvironmentVariable(DeploymentConfigurationNames.GitCommitSha)
                 ?? DeploymentCommandLineNames.LocalImageTag,
