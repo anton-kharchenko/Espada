@@ -12,7 +12,7 @@ internal sealed class ImportStatusTypesConfiguration : IEntityTypeConfiguration<
     public void Configure(EntityTypeBuilder<ImportStatusTypes> builder)
     {
         builder.Property(model => model.ImportStatusTypeId).ValueGeneratedNever();
-        builder.HasIndex(model => model.Name).IsUnique().HasDatabaseName(DbConstants.Indexes.ImportStatusTypeName);
+        builder.HasIndex(model => model.Name).IsUnique().HasDatabaseName(DbIndexConstants.ImportStatusTypeName);
         builder.HasData(Enumeration.GetAll<ImportStatusType>().Select(value => new ImportStatusTypes { ImportStatusTypeId = value.Id, Name = value.Name }));
     }
 }

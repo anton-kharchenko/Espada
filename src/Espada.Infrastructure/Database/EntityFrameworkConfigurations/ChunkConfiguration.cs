@@ -12,13 +12,13 @@ internal sealed class ChunkConfiguration : IEntityTypeConfiguration<Chunk>, IEnt
 {
     public void Configure(EntityTypeBuilder<Chunk> builder)
     {
-        builder.ToTable(DbConstants.Tables.Chunks, DbConstants.SchemaName);
+        builder.ToTable(DbTableConstants.Chunks, DbConstants.SchemaName);
 
         builder.HasKey(e => e.Id);
 
         builder.Property(e => e.Id)
             .HasColumnName("ChunkId")
-            .HasColumnType(DbConstants.ColumnTypes.Identifier.Uuid)
+            .HasColumnType(DbIdentifierColumnTypeConstants.Uuid)
             .HasConversion(id => id.Value, value => ChunkId.Create(value))
             .IsRequired()
             .ValueGeneratedNever()
@@ -26,42 +26,42 @@ internal sealed class ChunkConfiguration : IEntityTypeConfiguration<Chunk>, IEnt
 
         builder.Property(e => e.BatchId)
             .HasColumnName("ChunkBatchId")
-            .HasColumnType(DbConstants.ColumnTypes.Identifier.Uuid)
+            .HasColumnType(DbIdentifierColumnTypeConstants.Uuid)
             .HasConversion(id => id.Value, value => ChunkBatchId.Create(value))
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.WorkspaceId)
             .HasColumnName("WorkspaceId")
-            .HasColumnType(DbConstants.ColumnTypes.Identifier.Uuid)
+            .HasColumnType(DbIdentifierColumnTypeConstants.Uuid)
             .HasConversion(id => id.Value, value => WorkspaceId.Create(value))
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.ArtifactId)
             .HasColumnName("ArtifactId")
-            .HasColumnType(DbConstants.ColumnTypes.Identifier.Uuid)
+            .HasColumnType(DbIdentifierColumnTypeConstants.Uuid)
             .HasConversion(id => id.Value, value => ArtifactId.Create(value))
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.ArtifactRevisionId)
             .HasColumnName("ArtifactRevisionId")
-            .HasColumnType(DbConstants.ColumnTypes.Identifier.Uuid)
+            .HasColumnType(DbIdentifierColumnTypeConstants.Uuid)
             .HasConversion(id => id.Value, value => ArtifactRevisionId.Create(value))
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.Number)
             .HasColumnName("ChunkNumber")
-            .HasColumnType(DbConstants.ColumnTypes.Numeric.Integer)
+            .HasColumnType(DbNumericColumnTypeConstants.Integer)
             .HasConversion(number => number.Value, value => ChunkNumber.Create(value).Value!)
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.Content)
             .HasColumnName("Content")
-            .HasColumnType(DbConstants.ColumnTypes.Text.TextType)
+            .HasColumnType(DbTextColumnTypeConstants.TextType)
             .HasConversion(content => content.Value, value => ChunkContent.Create(value).Value!)
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
@@ -70,13 +70,13 @@ internal sealed class ChunkConfiguration : IEntityTypeConfiguration<Chunk>, IEnt
         {
             span.Property(e => e.Start)
                 .HasColumnName("SourceStart")
-                .HasColumnType(DbConstants.ColumnTypes.Numeric.Integer)
+                .HasColumnType(DbNumericColumnTypeConstants.Integer)
                 .IsRequired()
                 .UsePropertyAccessMode(PropertyAccessMode.Field);
 
             span.Property(e => e.Length)
                 .HasColumnName("SourceLength")
-                .HasColumnType(DbConstants.ColumnTypes.Numeric.Integer)
+                .HasColumnType(DbNumericColumnTypeConstants.Integer)
                 .IsRequired()
                 .UsePropertyAccessMode(PropertyAccessMode.Field);
 
@@ -88,22 +88,22 @@ internal sealed class ChunkConfiguration : IEntityTypeConfiguration<Chunk>, IEnt
 
         builder.Property(e => e.Strategy)
             .HasColumnName("StrategyId")
-            .HasColumnType(DbConstants.ColumnTypes.Numeric.Integer)
+            .HasColumnType(DbNumericColumnTypeConstants.Integer)
             .HasConversion(strategy => strategy.Id, value => Enumeration.GetAll<ChunkingStrategyType>().Single(strategy => strategy.Id == value))
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.StrategyVersion)
             .HasColumnName("StrategyVersion")
-            .HasColumnType(DbConstants.ColumnTypes.Text.Varchar64)
+            .HasColumnType(DbTextColumnTypeConstants.Varchar64)
             .HasConversion(version => version.Value, value => ChunkingVersion.Create(value).Value!)
-            .HasMaxLength(DbConstants.Validations.MaxLengths.L64)
+            .HasMaxLength(DbMaxLengthConstants.L64)
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.CreatedAtUtc)
             .HasColumnName("CreatedAtUtc")
-            .HasColumnType(DbConstants.ColumnTypes.DateTime.TimestampTz)
+            .HasColumnType(DbDateTimeColumnTypeConstants.TimestampTz)
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
@@ -136,7 +136,7 @@ internal sealed class ChunkConfiguration : IEntityTypeConfiguration<Chunk>, IEnt
 
         builder.HasIndex(e => new { e.BatchId, e.Number })
             .IsUnique()
-            .HasDatabaseName(DbConstants.Indexes.ChunkBatchNumber);
+            .HasDatabaseName(DbIndexConstants.ChunkBatchNumber);
 
         builder.Ignore(e => e.ContentHash);
         builder.Ignore(e => e.SizeInBytes);
@@ -149,8 +149,8 @@ internal sealed class ChunkConfiguration : IEntityTypeConfiguration<Chunk>, IEnt
         builder.Property(model => model.ChunkId).ValueGeneratedNever();
         builder.OwnsOne(model => model.SourceSpan, span =>
         {
-            span.Property(model => model.Start).HasColumnName("SourceStart").HasColumnType(DbConstants.ColumnTypes.Numeric.Integer);
-            span.Property(model => model.Length).HasColumnName("SourceLength").HasColumnType(DbConstants.ColumnTypes.Numeric.Integer);
+            span.Property(model => model.Start).HasColumnName("SourceStart").HasColumnType(DbNumericColumnTypeConstants.Integer);
+            span.Property(model => model.Length).HasColumnName("SourceLength").HasColumnType(DbNumericColumnTypeConstants.Integer);
         });
         builder.Navigation(model => model.SourceSpan).IsRequired(false);
         builder.HasOne<Espada.Db.Models.ChunkBatches>().WithMany().HasForeignKey(model => model.ChunkBatchId).OnDelete(DeleteBehavior.Restrict);
@@ -161,6 +161,6 @@ internal sealed class ChunkConfiguration : IEntityTypeConfiguration<Chunk>, IEnt
         builder.HasIndex(model => model.WorkspaceId).HasDatabaseName("IX_Chunks_WorkspaceId");
         builder.HasIndex(model => model.ArtifactId).HasDatabaseName("IX_Chunks_ArtifactId");
         builder.HasIndex(model => model.ArtifactRevisionId).HasDatabaseName("IX_Chunks_ArtifactRevisionId");
-        builder.HasIndex(model => new { model.ChunkBatchId, model.ChunkNumber }).IsUnique().HasDatabaseName(DbConstants.Indexes.ChunkBatchNumber);
+        builder.HasIndex(model => new { model.ChunkBatchId, model.ChunkNumber }).IsUnique().HasDatabaseName(DbIndexConstants.ChunkBatchNumber);
     }
 }

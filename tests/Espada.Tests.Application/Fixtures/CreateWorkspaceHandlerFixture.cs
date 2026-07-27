@@ -9,8 +9,9 @@ internal sealed class CreateWorkspaceHandlerFixture
     public WorkspaceRepositorySpy WorkspaceRepository { get; } = new();
 
     public UnitOfWorkSpy UnitOfWork { get; } = new();
+    public WorkspaceMembershipRepositorySpy MembershipRepository { get; } = new();
 
     public TestClockService ClockService { get; } = new(TestDates.UtcNow);
 
-    public CreateWorkspaceCommandHandler CreateHandler() => new(WorkspaceRepository, UnitOfWork, ClockService);
+    public CreateWorkspaceCommandHandler CreateHandler() => new(WorkspaceRepository, MembershipRepository, UnitOfWork, ClockService);
 }

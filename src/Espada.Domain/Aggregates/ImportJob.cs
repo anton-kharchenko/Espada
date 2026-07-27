@@ -19,12 +19,19 @@ public sealed class ImportJob : AggregateRoot<ImportJobId>, IHasConcurrencyVersi
         ImportJobId id,
         SourceId sourceId,
         WorkspaceId workspaceId,
-        DateTimeOffset requestedAtUtc)
+        DateTimeOffset requestedAtUtc,
+        string idempotencyKey,
+        string requestFingerprint,
+        string optionsJson)
         : base(id)
     {
         SourceId = sourceId;
         WorkspaceId = workspaceId;
         Status = ImportStatusType.Requested;
+        Stage = ImportPipelineStageType.Start;
+        IdempotencyKey = idempotencyKey;
+        RequestFingerprint = requestFingerprint;
+        OptionsJson = optionsJson;
         RequestedAtUtc = requestedAtUtc;
     }
 
@@ -33,6 +40,14 @@ public sealed class ImportJob : AggregateRoot<ImportJobId>, IHasConcurrencyVersi
     public WorkspaceId WorkspaceId { get; private set; } = null!;
 
     public ImportStatusType Status { get; private set; } = null!;
+
+    public ImportPipelineStageType Stage { get; private set; } = null!;
+
+    public string IdempotencyKey { get; private set; } = string.Empty;
+
+    public string RequestFingerprint { get; private set; } = string.Empty;
+
+    public string OptionsJson { get; private set; } = "{}";
 
     public DateTimeOffset RequestedAtUtc { get; private set; }
 
@@ -44,23 +59,121 @@ public sealed class ImportJob : AggregateRoot<ImportJobId>, IHasConcurrencyVersi
 
     public ArtifactRevisionId? ArtifactRevisionId { get; private set; }
 
+    public ChunkBatchId? ChunkBatchId { get; private set; }
+
+    public string? RawBlobHash { get; private set; }
+
+    public string? ParsedBlobHash { get; private set; }
+
     public ImportFailure? Failure { get; private set; }
 
     public static DomainResult<ImportJob> Request(
         ImportJobId id,
         SourceId sourceId,
         WorkspaceId workspaceId,
-        DateTimeOffset requestedAtUtc)
+        DateTimeOffset requestedAtUtc,
+        string? idempotencyKey = null,
+        string? requestFingerprint = null,
+        string optionsJson = "{}")
     {
         ArgumentNullException.ThrowIfNull(id);
         ArgumentNullException.ThrowIfNull(sourceId);
         ArgumentNullException.ThrowIfNull(workspaceId);
 
-        ImportJob importJob = new(id, sourceId, workspaceId, requestedAtUtc);
+        string resolvedIdempotencyKey = idempotencyKey ?? id.Value.ToString("N");
+        string resolvedFingerprint = requestFingerprint ?? id.Value.ToString("N");
+        ArgumentException.ThrowIfNullOrWhiteSpace(resolvedIdempotencyKey);
+        ArgumentException.ThrowIfNullOrWhiteSpace(resolvedFingerprint);
+        ArgumentException.ThrowIfNullOrWhiteSpace(optionsJson);
+
+        ImportJob importJob = new(
+            id,
+            sourceId,
+            workspaceId,
+            requestedAtUtc,
+            resolvedIdempotencyKey,
+            resolvedFingerprint,
+            optionsJson);
 
         importJob.RaiseDomainEvent(new ImportJobRequestedDomainEvent(importJob.Id, importJob.SourceId, importJob.WorkspaceId, requestedAtUtc));
 
         return DomainResult<ImportJob>.Success(importJob);
+    }
+
+    public DomainResult CompleteStage(ImportPipelineStageType completedStage, DateTimeOffset completedAtUtc)
+    {
+        if (completedStage.Id < Stage.Id)
+        {
+            return DomainResult.Success();
+        }
+
+        if (!completedStage.Equals(Stage) || Status.Equals(ImportStatusType.Succeeded) || Status.Equals(ImportStatusType.Failed) || Status.Equals(ImportStatusType.Cancelled))
+        {
+            return DomainResult.Failure(ImportJobErrors.CannotAdvanceStage);
+        }
+
+        if (completedStage.Equals(ImportPipelineStageType.Complete))
+        {
+            return DomainResult.Failure(ImportJobErrors.CannotAdvanceStage);
+        }
+
+        if (completedStage.Equals(ImportPipelineStageType.Start))
+        {
+            Status = ImportStatusType.Running;
+            StartedAtUtc = completedAtUtc;
+        }
+
+        Stage = Enumeration.GetAll<ImportPipelineStageType>().Single(stage => stage.Id == completedStage.Id + 1);
+        RaiseDomainEvent(new ImportStageScheduledDomainEvent(Id, Stage, completedAtUtc));
+
+        return DomainResult.Success();
+    }
+
+    public DomainResult RecordRawSnapshot(string blobHash) => RecordReference(RawBlobHash, blobHash, value => RawBlobHash = value);
+
+    public DomainResult RecordParsedSnapshot(string blobHash) => RecordReference(ParsedBlobHash, blobHash, value => ParsedBlobHash = value);
+
+    public DomainResult RecordMaterializedArtifact(ArtifactId artifactId, ArtifactRevisionId revisionId)
+    {
+        ArgumentNullException.ThrowIfNull(artifactId);
+        ArgumentNullException.ThrowIfNull(revisionId);
+
+        if (ArtifactId is not null && ArtifactId != artifactId
+            || ArtifactRevisionId is not null && ArtifactRevisionId != revisionId)
+        {
+            return DomainResult.Failure(ImportJobErrors.PipelineReferenceConflict);
+        }
+
+        ArtifactId = artifactId;
+        ArtifactRevisionId = revisionId;
+        return DomainResult.Success();
+    }
+
+    public DomainResult RecordChunkBatch(ChunkBatchId chunkBatchId)
+    {
+        ArgumentNullException.ThrowIfNull(chunkBatchId);
+        if (ChunkBatchId is not null && ChunkBatchId != chunkBatchId)
+        {
+            return DomainResult.Failure(ImportJobErrors.PipelineReferenceConflict);
+        }
+
+        ChunkBatchId = chunkBatchId;
+        return DomainResult.Success();
+    }
+
+    private static DomainResult RecordReference(
+        string? existing,
+        string value,
+        Action<string> assign)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(value);
+        if (existing is not null && !string.Equals(existing, value, StringComparison.Ordinal))
+        {
+            return DomainResult.Failure(ImportJobErrors.PipelineReferenceConflict);
+        }
+
+        assign(value);
+        return DomainResult.Success();
     }
 
     public DomainResult Start(DateTimeOffset startedAtUtc)

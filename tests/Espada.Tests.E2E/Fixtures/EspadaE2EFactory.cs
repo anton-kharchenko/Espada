@@ -1,3 +1,4 @@
+using Espada.Api;
 using Espada.Db.Constants;
 using Espada.Db.Database;
 using Espada.Infrastructure.Database;

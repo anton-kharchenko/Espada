@@ -11,7 +11,7 @@ using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
 
-namespace Espada.ServiceDefaults;
+namespace Espada.ServiceDefaults.Extensions;
 
 public static class Extensions
 {

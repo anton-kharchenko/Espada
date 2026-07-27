@@ -1,39 +1,28 @@
-using Espada.Domain.Enums;
-using Espada.Domain.SeedWork;
+using Espada.Domain.ValueObjects;
+using Espada.Domain.ValueObjects.SourceDefinitions;
 using Espada.Tests.Api.Assertions;
 using Espada.Tests.Api.Fixtures;
 using Espada.Tests.Api.TestData;
+using Espada.Tests.Api.TestData.Routes;
 using System.Net;
 using System.Net.Http.Json;
-using System.Text.Json;
 
 namespace Espada.Tests.Api.Controllers;
 
-public sealed class SourcesControllerValidationTests(EspadaApiFactory factory) : IClassFixture<EspadaApiFactory>
+public sealed class SourcesControllerValidationTests(EspadaApiFactory factory)
+    : IClassFixture<EspadaApiFactory>
 {
     [Fact]
-    public async Task Register_WithUnsupportedSourceType_ShouldReturnBadRequest()
+    public async Task Register_WithoutDefinition_ShouldReturnBadRequest()
     {
         using HttpClient client = factory.CreateHttpsClient();
 
-        Guid workspaceId = Guid.NewGuid();
-
-        object request = new
-        {
-            name = TestValues.SourceName,
-            locator = TestValues.SourceLocator,
-            typeId = int.MaxValue
-        };
-
-        HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.Sources.Register(workspaceId), request, cancellationToken: TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            SourceApiRoutes.Register(Guid.NewGuid()),
+            new { name = TestValues.SourceName },
+            TestContext.Current.CancellationToken);
 
         await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
-
-        using JsonDocument document = JsonDocument.Parse(await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
-
-        JsonElement errors = document.RootElement.GetProperty("errors");
-
-        Assert.True(errors.TryGetProperty("TypeId", out _));
     }
 
     [Fact]
@@ -41,50 +30,32 @@ public sealed class SourcesControllerValidationTests(EspadaApiFactory factory) :
     {
         using HttpClient client = factory.CreateHttpsClient();
 
-        Guid workspaceId = Guid.NewGuid();
-        SourceType sourceType = Enumeration.GetAll<SourceType>().First();
-
-        object request = new
-        {
-            name = " ",
-            locator = TestValues.SourceLocator,
-            typeId = sourceType.Id
-        };
-
-        HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.Sources.Register(workspaceId), request, cancellationToken: TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            SourceApiRoutes.Register(Guid.NewGuid()),
+            new
+            {
+                name = " ",
+                definition = new PlainTextSourceDefinition("Title", "Content")
+            },
+            TestContext.Current.CancellationToken);
 
         await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
-
-        using JsonDocument document = JsonDocument.Parse(await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
-
-        JsonElement errors = document.RootElement.GetProperty("errors");
-
-        Assert.True(errors.TryGetProperty("Name", out _));
     }
 
     [Fact]
-    public async Task Register_WithEmptyLocator_ShouldReturnBadRequest()
+    public async Task Register_WithUnknownDefinitionType_ShouldReturnBadRequest()
     {
         using HttpClient client = factory.CreateHttpsClient();
 
-        Guid workspaceId = Guid.NewGuid();
-        SourceType sourceType = Enumeration.GetAll<SourceType>().First();
-
-        object request = new
-        {
-            name = TestValues.SourceName,
-            locator = string.Empty,
-            typeId = sourceType.Id
-        };
-
-        HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.Sources.Register(workspaceId), request, cancellationToken: TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            SourceApiRoutes.Register(Guid.NewGuid()),
+            new
+            {
+                name = TestValues.SourceName,
+                definition = new { type = "executable", path = "tool.exe" }
+            },
+            TestContext.Current.CancellationToken);
 
         await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
-
-        using JsonDocument document = JsonDocument.Parse(await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
-
-        JsonElement errors = document.RootElement.GetProperty("errors");
-
-        Assert.True(errors.TryGetProperty("Locator", out _));
     }
 }

@@ -22,6 +22,7 @@
     <ProjectReference Include="..\Espada.Db\Espada.Db.csproj" />
     <ProjectReference Include="..\Espada.Api\Espada.Api.csproj" />
     <ProjectReference Include="..\Espada.Daemon\Espada.Daemon.csproj" />
+    <ProjectReference Include="..\Espada.Worker\Espada.Worker.csproj" />
   </ItemGroup>
 
 </Project>

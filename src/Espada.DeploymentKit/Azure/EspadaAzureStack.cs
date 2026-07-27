@@ -15,6 +15,8 @@ using Pulumi.AzureNative.ManagedIdentity;
 using Pulumi.AzureNative.OperationalInsights;
 using Pulumi.AzureNative.OperationalInsights.Inputs;
 using Pulumi.AzureNative.Resources;
+using Pulumi.AzureNative.Storage;
+using Pulumi.AzureNative.Storage.Inputs;
 using System.Security.Cryptography;
 using System.Text;
 using AppManagedIdentityArgs = Pulumi.AzureNative.App.Inputs.ManagedServiceIdentityArgs;
@@ -28,6 +30,9 @@ using RegistrySkuArgs = Pulumi.AzureNative.ContainerRegistry.Inputs.SkuArgs;
 using Secret = Pulumi.AzureNative.KeyVault.Secret;
 using SecretArgs = Pulumi.AzureNative.KeyVault.SecretArgs;
 using VaultSkuArgs = Pulumi.AzureNative.KeyVault.Inputs.SkuArgs;
+using StorageAccount = Pulumi.AzureNative.Storage.StorageAccount;
+using StorageAccountArgs = Pulumi.AzureNative.Storage.StorageAccountArgs;
+using StorageSkuArgs = Pulumi.AzureNative.Storage.Inputs.SkuArgs;
 
 namespace Espada.DeploymentKit.Azure;
 
@@ -114,20 +119,28 @@ internal static class EspadaAzureStack
         });
 
         UserAssignedIdentity apiIdentity = CreateIdentity(names.ApiIdentity, settings.Location, resourceGroup, tags);
+        UserAssignedIdentity workerIdentity = CreateIdentity(names.WorkerIdentity, settings.Location, resourceGroup, tags);
         UserAssignedIdentity migrationIdentity = CreateIdentity(names.MigrationIdentity, settings.Location, resourceGroup, tags);
         RoleAssignment apiRegistryPull = CreateRoleAssignment(
             $"{names.Api}-acr-pull",
             settings.SubscriptionId,
             registry.Id,
             apiIdentity.PrincipalId,
-            AzureBuiltInRoleDefinitionIds.AcrPull,
+            AzureBuiltInRoleDefinitionIdConstants.AcrPull,
             apiIdentity);
+        RoleAssignment workerRegistryPull = CreateRoleAssignment(
+            $"{names.Worker}-acr-pull",
+            settings.SubscriptionId,
+            registry.Id,
+            workerIdentity.PrincipalId,
+            AzureBuiltInRoleDefinitionIdConstants.AcrPull,
+            workerIdentity);
         RoleAssignment migrationRegistryPull = CreateRoleAssignment(
             $"{names.MigrationJob}-acr-pull",
             settings.SubscriptionId,
             registry.Id,
             migrationIdentity.PrincipalId,
-            AzureBuiltInRoleDefinitionIds.AcrPull,
+            AzureBuiltInRoleDefinitionIdConstants.AcrPull,
             migrationIdentity);
 
         Vault vault = new(names.KeyVault, new VaultArgs
@@ -159,22 +172,65 @@ internal static class EspadaAzureStack
             settings.SubscriptionId,
             vault.Id,
             client.Apply(value => value.ObjectId),
-            AzureBuiltInRoleDefinitionIds.KeyVaultAdministrator,
+            AzureBuiltInRoleDefinitionIdConstants.KeyVaultAdministrator,
             vault);
         RoleAssignment apiVaultAccess = CreateRoleAssignment(
             $"{names.Api}-vault-secrets",
             settings.SubscriptionId,
             vault.Id,
             apiIdentity.PrincipalId,
-            AzureBuiltInRoleDefinitionIds.KeyVaultSecretsUser,
+            AzureBuiltInRoleDefinitionIdConstants.KeyVaultSecretsUser,
             apiIdentity);
+        RoleAssignment workerVaultAccess = CreateRoleAssignment(
+            $"{names.Worker}-vault-secrets",
+            settings.SubscriptionId,
+            vault.Id,
+            workerIdentity.PrincipalId,
+            AzureBuiltInRoleDefinitionIdConstants.KeyVaultSecretsUser,
+            workerIdentity);
         RoleAssignment migrationVaultAccess = CreateRoleAssignment(
             $"{names.MigrationJob}-vault-secrets",
             settings.SubscriptionId,
             vault.Id,
             migrationIdentity.PrincipalId,
-            AzureBuiltInRoleDefinitionIds.KeyVaultSecretsUser,
+            AzureBuiltInRoleDefinitionIdConstants.KeyVaultSecretsUser,
             migrationIdentity);
+
+        StorageAccount storage = new(names.StorageAccount, new StorageAccountArgs
+        {
+            AccountName = names.StorageAccount,
+            ResourceGroupName = resourceGroup.Name,
+            Location = settings.Location,
+            Kind = Pulumi.AzureNative.Storage.Kind.StorageV2,
+            Sku = new StorageSkuArgs { Name = Pulumi.AzureNative.Storage.SkuName.Standard_LRS },
+            AllowBlobPublicAccess = false,
+            AllowSharedKeyAccess = false,
+            MinimumTlsVersion = MinimumTlsVersion.TLS1_2,
+            PublicNetworkAccess = Pulumi.AzureNative.Storage.PublicNetworkAccess.Enabled,
+            Tags = tags
+        }, new CustomResourceOptions { RetainOnDelete = true });
+
+        BlobContainer ingestionBlobs = new($"{names.StorageAccount}-ingestion", new BlobContainerArgs
+        {
+            AccountName = storage.Name,
+            ResourceGroupName = resourceGroup.Name,
+            ContainerName = "ingestion",
+            PublicAccess = PublicAccess.None
+        });
+        RoleAssignment apiBlobAccess = CreateRoleAssignment(
+            $"{names.Api}-blob-data",
+            settings.SubscriptionId,
+            storage.Id,
+            apiIdentity.PrincipalId,
+            AzureBuiltInRoleDefinitionIdConstants.StorageBlobDataContributor,
+            apiIdentity);
+        RoleAssignment workerBlobAccess = CreateRoleAssignment(
+            $"{names.Worker}-blob-data",
+            settings.SubscriptionId,
+            storage.Id,
+            workerIdentity.PrincipalId,
+            AzureBuiltInRoleDefinitionIdConstants.StorageBlobDataContributor,
+            workerIdentity);
 
         RandomPassword administratorPassword = CreatePassword("postgres-administrator-password");
 
@@ -275,6 +331,10 @@ internal static class EspadaAzureStack
             loginServer => $"{loginServer}/{AzureDeploymentConstants.ApiImageRepository}:{settings.ImageTag}");
         Output<string> databaseImage = registry.LoginServer.Apply(
             loginServer => $"{loginServer}/{AzureDeploymentConstants.DatabaseImageRepository}:{settings.ImageTag}");
+        Output<string> workerImage = registry.LoginServer.Apply(
+            loginServer => $"{loginServer}/{AzureDeploymentConstants.WorkerImageRepository}:{settings.ImageTag}");
+        Output<string> blobContainerUri = Output.Tuple(storage.Name, ingestionBlobs.Name)
+            .Apply(values => $"https://{values.Item1}.blob.core.windows.net/{values.Item2}");
 
         Job migrationJob = new(names.MigrationJob, new JobArgs
         {
@@ -285,7 +345,7 @@ internal static class EspadaAzureStack
             Identity = UserAssignedIdentity(migrationIdentity.Id),
             Configuration = new JobConfigurationArgs
             {
-                TriggerType = TriggerType.Manual,
+                TriggerType = Pulumi.AzureNative.App.TriggerType.Manual,
                 ReplicaRetryLimit = 0,
                 ReplicaTimeout = 900,
                 ManualTriggerConfig = SingleReplicaManualTrigger(),
@@ -382,6 +442,16 @@ internal static class EspadaAzureStack
                             {
                                 Name = AzureDeploymentConstants.ApplicationInsightsConnectionStringEnvironmentVariable,
                                 Value = insights.ConnectionString
+                            },
+                            new EnvironmentVarArgs
+                            {
+                                Name = AzureDeploymentConstants.BlobProviderEnvironmentVariable,
+                                Value = "Azure"
+                            },
+                            new EnvironmentVarArgs
+                            {
+                                Name = AzureDeploymentConstants.BlobContainerUriEnvironmentVariable,
+                                Value = blobContainerUri
                             }
                         ],
                         Resources = new ContainerResourcesArgs
@@ -404,11 +474,87 @@ internal static class EspadaAzureStack
             [
                 apiRegistryPull,
                 apiVaultAccess,
+                administratorConnectionStringSecret,
+                apiBlobAccess,
+                ingestionBlobs
+            ]
+        });
+
+        ContainerApp worker = new(names.Worker, new ContainerAppArgs
+        {
+            ContainerAppName = names.Worker,
+            ResourceGroupName = resourceGroup.Name,
+            Location = settings.Location,
+            EnvironmentId = containerEnvironment.Id,
+            Identity = UserAssignedIdentity(workerIdentity.Id),
+            Configuration = new Pulumi.AzureNative.App.Inputs.ConfigurationArgs
+            {
+                ActiveRevisionsMode = ActiveRevisionsMode.Single,
+                Registries = [RegistryCredentials(registry, workerIdentity)],
+                Secrets =
+                [
+                    KeyVaultSecretReference(
+                        AzureDeploymentConstants.AdministratorConnectionStringSecret,
+                        administratorConnectionStringSecret,
+                        workerIdentity)
+                ]
+            },
+            Template = new TemplateArgs
+            {
+                Containers =
+                [
+                    new ContainerArgs
+                    {
+                        Name = "worker",
+                        Image = workerImage,
+                        Env =
+                        [
+                            SecretEnvironmentVariable(
+                                DatabaseConfigurationNames.ConnectionStringEnvironmentVariable,
+                                AzureDeploymentConstants.AdministratorConnectionStringSecret),
+                            new EnvironmentVarArgs
+                            {
+                                Name = AzureDeploymentConstants.ApplicationInsightsConnectionStringEnvironmentVariable,
+                                Value = insights.ConnectionString
+                            },
+                            new EnvironmentVarArgs
+                            {
+                                Name = AzureDeploymentConstants.BlobProviderEnvironmentVariable,
+                                Value = "Azure"
+                            },
+                            new EnvironmentVarArgs
+                            {
+                                Name = AzureDeploymentConstants.BlobContainerUriEnvironmentVariable,
+                                Value = blobContainerUri
+                            }
+                        ],
+                        Resources = new ContainerResourcesArgs
+                        {
+                            Cpu = 0.5,
+                            Memory = "1Gi"
+                        }
+                    }
+                ],
+                Scale = new ScaleArgs
+                {
+                    MinReplicas = 1,
+                    MaxReplicas = settings.EnvironmentType == DeploymentEnvironmentType.Production ? 3 : 1
+                }
+            },
+            Tags = tags
+        }, new CustomResourceOptions
+        {
+            DependsOn =
+            [
+                workerRegistryPull,
+                workerVaultAccess,
+                workerBlobAccess,
+                ingestionBlobs,
                 administratorConnectionStringSecret
             ]
         });
 
-        return MergeOutputs(CreateOutputs(resourceGroup, registry, migrationJob, api), websiteOutputs);
+        return MergeOutputs(CreateOutputs(resourceGroup, registry, migrationJob, api, worker), websiteOutputs);
     }
 
     private static IDictionary<string, object?> MergeOutputs(
@@ -507,7 +653,8 @@ internal static class EspadaAzureStack
         ResourceGroup resourceGroup,
         Registry registry,
         Job? migrationJob,
-        ContainerApp? api) =>
+        ContainerApp? api,
+        ContainerApp? worker = null) =>
         new Dictionary<string, object?>
         {
             [AzureDeploymentConstants.ResourceGroupOutput] = resourceGroup.Name,
@@ -517,7 +664,8 @@ internal static class EspadaAzureStack
             [AzureDeploymentConstants.ApiUrlOutput] = api is null
                 ? string.Empty
                 : api.Configuration.Apply(
-                    configuration => $"https://{configuration?.Ingress?.Fqdn ?? string.Empty}")
+                    configuration => $"https://{configuration?.Ingress?.Fqdn ?? string.Empty}"),
+            [AzureDeploymentConstants.WorkerOutput] = worker?.Name ?? Output.Create(string.Empty)
         };
 
     private static UserAssignedIdentity CreateIdentity(

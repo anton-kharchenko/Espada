@@ -12,7 +12,7 @@ internal sealed class SourceStatusTypesConfiguration : IEntityTypeConfiguration<
     public void Configure(EntityTypeBuilder<SourceStatusTypes> builder)
     {
         builder.Property(model => model.SourceStatusTypeId).ValueGeneratedNever();
-        builder.HasIndex(model => model.Name).IsUnique().HasDatabaseName(DbConstants.Indexes.SourceStatusTypeName);
+        builder.HasIndex(model => model.Name).IsUnique().HasDatabaseName(DbIndexConstants.SourceStatusTypeName);
         builder.HasData(Enumeration.GetAll<SourceStatusType>().Select(value => new SourceStatusTypes { SourceStatusTypeId = value.Id, Name = value.Name }));
     }
 }

@@ -4,25 +4,25 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Espada.Db.Models;
 
-[Table(DbConstants.Tables.Workspaces, Schema = DbConstants.SchemaName)]
+[Table(DbTableConstants.Workspaces, Schema = DbConstants.SchemaName)]
 public class Workspaces
 {
-    [Key, Column(TypeName = DbConstants.ColumnTypes.Identifier.Uuid)]
+    [Key, Column(TypeName = DbIdentifierColumnTypeConstants.Uuid)]
     public Guid WorkspaceId { get; set; }
 
-    [Required, MaxLength(DbConstants.Validations.MaxLengths.L200), Column(TypeName = DbConstants.ColumnTypes.Text.Varchar200)]
+    [Required, MaxLength(DbMaxLengthConstants.L200), Column(TypeName = DbTextColumnTypeConstants.Varchar200)]
     public string Name { get; set; } = null!;
 
-    [Column(TypeName = DbConstants.ColumnTypes.Numeric.Integer)]
+    [Column(TypeName = DbNumericColumnTypeConstants.Integer)]
     public int TypeId { get; set; }
 
-    [Column(TypeName = DbConstants.ColumnTypes.Numeric.Integer)]
+    [Column(TypeName = DbNumericColumnTypeConstants.Integer)]
     public int StatusId { get; set; }
 
-    [Column(TypeName = DbConstants.ColumnTypes.DateTime.TimestampTz)]
+    [Column(TypeName = DbDateTimeColumnTypeConstants.TimestampTz)]
     public DateTimeOffset CreatedAtUtc { get; set; }
 
-    [Column(TypeName = DbConstants.ColumnTypes.DateTime.TimestampTz)]
+    [Column(TypeName = DbDateTimeColumnTypeConstants.TimestampTz)]
     public DateTimeOffset? ArchivedAtUtc { get; set; }
 
     public uint Version { get; set; }

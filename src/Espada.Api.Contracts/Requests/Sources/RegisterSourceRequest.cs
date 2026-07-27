@@ -1,6 +1,8 @@
-using Espada.Domain.Enums;
-using Espada.Domain.SeedWork;
+using Espada.Domain.ValueObjects;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+using Espada.Api.Contracts.Serialization;
+using Espada.Domain.ValueObjects.SourceDefinitions;
 
 namespace Espada.Api.Contracts.Requests.Sources;
 
@@ -11,19 +13,14 @@ public sealed class RegisterSourceRequest : IValidatableObject
     public string Name { get; init; } = string.Empty;
 
     [Required]
-    [MaxLength(2048)]
-    public string Locator { get; init; } = string.Empty;
-
-    [Range(1, int.MaxValue)]
-    public int TypeId { get; init; }
+    [JsonConverter(typeof(SourceDefinitionJsonConverter))]
+    public SourceDefinition? Definition { get; init; }
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        bool supported = Enumeration.GetAll<SourceType>().Any(type => type.Id == TypeId);
-
-        if (!supported)
+        if (string.IsNullOrWhiteSpace(Name))
         {
-            yield return new ValidationResult($"Unsupported source type ID '{TypeId}'.", new[] { nameof(TypeId) });
+            yield return new ValidationResult("Name is required.", [nameof(Name)]);
         }
     }
 }

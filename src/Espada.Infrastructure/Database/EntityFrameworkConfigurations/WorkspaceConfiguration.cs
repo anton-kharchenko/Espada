@@ -12,13 +12,13 @@ internal sealed class WorkspaceConfiguration : IEntityTypeConfiguration<Workspac
 {
     public void Configure(EntityTypeBuilder<Workspace> builder)
     {
-        builder.ToTable(DbConstants.Tables.Workspaces, DbConstants.SchemaName);
+        builder.ToTable(DbTableConstants.Workspaces, DbConstants.SchemaName);
 
         builder.HasKey(e => e.Id);
 
         builder.Property(e => e.Id)
             .HasColumnName("WorkspaceId")
-            .HasColumnType(DbConstants.ColumnTypes.Identifier.Uuid)
+            .HasColumnType(DbIdentifierColumnTypeConstants.Uuid)
             .HasConversion(id => id.Value, value => WorkspaceId.Create(value))
             .IsRequired()
             .ValueGeneratedNever()
@@ -26,36 +26,36 @@ internal sealed class WorkspaceConfiguration : IEntityTypeConfiguration<Workspac
 
         builder.Property(e => e.Name)
             .HasColumnName("Name")
-            .HasColumnType(DbConstants.ColumnTypes.Text.Varchar200)
+            .HasColumnType(DbTextColumnTypeConstants.Varchar200)
             .HasConversion(name => name.Value, value => WorkspaceName.Create(value).Value!)
             .IsRequired()
-            .HasMaxLength(DbConstants.Validations.MaxLengths.L200)
+            .HasMaxLength(DbMaxLengthConstants.L200)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.Type)
             .HasColumnName("TypeId")
-            .HasColumnType(DbConstants.ColumnTypes.Numeric.Integer)
+            .HasColumnType(DbNumericColumnTypeConstants.Integer)
             .HasConversion(type => type.Id, value => Enumeration.GetAll<WorkspaceType>().Single(type => type.Id == value))
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.Status)
             .HasColumnName("StatusId")
-            .HasColumnType(DbConstants.ColumnTypes.Numeric.Integer)
+            .HasColumnType(DbNumericColumnTypeConstants.Integer)
             .HasConversion(status => status.Id, value => Enumeration.GetAll<WorkspaceStatusType>().Single(status => status.Id == value))
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.CreatedAtUtc)
             .HasColumnName("CreatedAtUtc")
-            .HasColumnType(DbConstants.ColumnTypes.DateTime.TimestampTz)
+            .HasColumnType(DbDateTimeColumnTypeConstants.TimestampTz)
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
 
         builder.Property(e => e.ArchivedAtUtc)
             .HasColumnName("ArchivedAtUtc")
-            .HasColumnType(DbConstants.ColumnTypes.DateTime.TimestampTz)
+            .HasColumnType(DbDateTimeColumnTypeConstants.TimestampTz)
             .IsRequired(false)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 

@@ -17,8 +17,10 @@ internal static class AzureDeploymentConstants
     public const int PostgreSqlPasswordLength = 32;
     public const string ApiImageRepository = "espada-api";
     public const string DatabaseImageRepository = "espada-db";
+    public const string WorkerImageRepository = "espada-worker";
     public const string ApiDockerfile = "src/Espada.Api/Dockerfile";
     public const string DatabaseDockerfile = "src/Espada.Db/Dockerfile";
+    public const string WorkerDockerfile = "src/Espada.Worker/Dockerfile";
     public const string ApiKeySecret = "api-key";
     public const string AdministratorPasswordSecret = "postgres-admin-password";
     public const string AdministratorConnectionStringSecret = "postgres-admin-connection-string";
@@ -29,4 +31,7 @@ internal static class AzureDeploymentConstants
     public const string RegistryLoginServerOutput = "containerRegistryLoginServer";
     public const string MigrationJobOutput = "migrationJobName";
     public const string ApiUrlOutput = "apiUrl";
+    public const string WorkerOutput = "workerName";
+    public const string BlobProviderEnvironmentVariable = "BlobStorage__Provider";
+    public const string BlobContainerUriEnvironmentVariable = "BlobStorage__AzureContainerUri";
 }

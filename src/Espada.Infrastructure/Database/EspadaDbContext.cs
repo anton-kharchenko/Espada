@@ -11,6 +11,7 @@ namespace Espada.Infrastructure.Database;
 public sealed class EspadaDbContext(DbContextOptions<EspadaDbContext> options) : DbContext(options), IUnitOfWork
 {
     public DbSet<Workspace> Workspaces => Set<Workspace>();
+    public DbSet<WorkspaceMembership> WorkspaceMemberships => Set<WorkspaceMembership>();
 
     public DbSet<Source> Sources => Set<Source>();
 
@@ -28,14 +29,62 @@ public sealed class EspadaDbContext(DbContextOptions<EspadaDbContext> options) :
 
     internal DbSet<EmbeddingVectorRecord> EmbeddingVectors => Set<EmbeddingVectorRecord>();
 
+    internal DbSet<OutboxMessageRecord> OutboxMessages => Set<OutboxMessageRecord>();
+
+    internal DbSet<Espada.Db.Models.UsageLedgerEntries> UsageLedgerEntries => Set<Espada.Db.Models.UsageLedgerEntries>();
+
+    internal DbSet<Espada.Db.Models.UsageReconciliationOutbox> UsageReconciliationOutbox => Set<Espada.Db.Models.UsageReconciliationOutbox>();
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        IHasDomainEvents[] aggregates = ChangeTracker
+            .Entries<IHasDomainEvents>()
+            .Where(entry => entry.Entity.DomainEvents.Count > 0)
+            .Select(entry => entry.Entity)
+            .ToArray();
+
+        IDomainEvent[] events = aggregates.SelectMany(aggregate => aggregate.DomainEvents).ToArray();
+        DateTimeOffset occurredAtUtc = DateTimeOffset.UtcNow;
+        OutboxMessageRecord[] messages = events
+            .Select(domainEvent =>
+            {
+                (string name, int version, string payload) = DomainEventSerializer.Serialize(domainEvent);
+                return new OutboxMessageRecord(Guid.NewGuid(), name, version, payload, occurredAtUtc);
+            })
+            .ToArray();
+
+        OutboxMessages.AddRange(messages);
+
+        try
+        {
+            int saved = await base.SaveChangesAsync(cancellationToken);
+            foreach (IHasDomainEvents aggregate in aggregates)
+            {
+                aggregate.DequeueDomainEvents();
+            }
+
+            return saved;
+        }
+        catch
+        {
+            foreach (OutboxMessageRecord message in messages)
+            {
+                Entry(message).State = EntityState.Detached;
+            }
+
+            throw;
+        }
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.HasPostgresExtension(DbConstants.Extensions.Vector);
+        modelBuilder.HasPostgresExtension(DbExtensionConstants.Vector);
         modelBuilder.Ignore<IDomainEvent>();
 
         modelBuilder.ApplyConfiguration<Workspace>(new WorkspaceConfiguration());
+        modelBuilder.ApplyConfiguration<WorkspaceMembership>(new WorkspaceMembershipConfiguration());
         modelBuilder.ApplyConfiguration<Source>(new SourceConfiguration());
         modelBuilder.ApplyConfiguration<ImportJob>(new ImportJobConfiguration());
         modelBuilder.ApplyConfiguration<Artifact>(new ArtifactConfiguration());
@@ -44,5 +93,10 @@ public sealed class EspadaDbContext(DbContextOptions<EspadaDbContext> options) :
         modelBuilder.ApplyConfiguration<Chunk>(new ChunkConfiguration());
         modelBuilder.ApplyConfiguration<ChunkEmbedding>(new ChunkEmbeddingConfiguration());
         modelBuilder.ApplyConfiguration<EmbeddingVectorRecord>(new EmbeddingVectorRecordConfiguration());
+        modelBuilder.ApplyConfiguration<OutboxMessageRecord>(new OutboxMessageConfiguration());
+        modelBuilder.ApplyConfiguration(new BillingCustomerConfiguration());
+        modelBuilder.ApplyConfiguration(new PaymentEventConfiguration());
+        modelBuilder.ApplyConfiguration(new UsageLedgerConfiguration());
+        modelBuilder.ApplyConfiguration(new UsageReconciliationConfiguration());
     }
 }

@@ -12,7 +12,7 @@ internal sealed class SourceTypesConfiguration : IEntityTypeConfiguration<Source
     public void Configure(EntityTypeBuilder<SourceTypes> builder)
     {
         builder.Property(model => model.SourceTypeId).ValueGeneratedNever();
-        builder.HasIndex(model => model.Name).IsUnique().HasDatabaseName(DbConstants.Indexes.SourceTypeName);
+        builder.HasIndex(model => model.Name).IsUnique().HasDatabaseName(DbIndexConstants.SourceTypeName);
         builder.HasData(Enumeration.GetAll<SourceType>().Select(value => new SourceTypes { SourceTypeId = value.Id, Name = value.Name }));
     }
 }

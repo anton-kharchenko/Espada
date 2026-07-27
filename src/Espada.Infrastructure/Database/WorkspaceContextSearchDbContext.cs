@@ -21,7 +21,7 @@ internal sealed class WorkspaceContextSearchDbContext(DbContextOptions<Workspace
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(DbConstants.SchemaName);
-        modelBuilder.HasPostgresExtension(DbConstants.Extensions.Vector);
+        modelBuilder.HasPostgresExtension(DbExtensionConstants.Vector);
 
         modelBuilder.Entity<Chunks>().OwnsOne(chunk => chunk.SourceSpan, span =>
         {

@@ -20,9 +20,9 @@ public sealed class ChunkModelConfigurationTests
     }
 
     [Theory]
-    [InlineData(typeof(ChunkBatch), DbConstants.Tables.ChunkBatches)]
-    [InlineData(typeof(Chunk), DbConstants.Tables.Chunks)]
-    [InlineData(typeof(ChunkEmbedding), DbConstants.Tables.ChunkEmbeddings)]
+    [InlineData(typeof(ChunkBatch), DbTableConstants.ChunkBatches)]
+    [InlineData(typeof(Chunk), DbTableConstants.Chunks)]
+    [InlineData(typeof(ChunkEmbedding), DbTableConstants.ChunkEmbeddings)]
     public void Model_ShouldUseExpectedTableAndSchema(Type entityType, string tableName)
     {
         using EspadaDbContext context = CreateContext();
@@ -52,7 +52,7 @@ public sealed class ChunkModelConfigurationTests
 
         Assert.NotNull(index);
         Assert.True(index.IsUnique);
-        Assert.Equal(DbConstants.Indexes.ChunkBatchNumber, index.GetDatabaseName());
+        Assert.Equal(DbIndexConstants.ChunkBatchNumber, index.GetDatabaseName());
     }
 
     [Fact]
@@ -68,13 +68,13 @@ public sealed class ChunkModelConfigurationTests
                 .SequenceEqual(new[]
                 {
                     nameof(ChunkEmbedding.ChunkId),
-                    DbConstants.Properties.ChunkEmbeddingModelIdentifier,
-                    DbConstants.Properties.ChunkEmbeddingModelVersion
+                    DbPropertyConstants.ChunkEmbeddingModelIdentifier,
+                    DbPropertyConstants.ChunkEmbeddingModelVersion
                 }));
 
         Assert.NotNull(index);
         Assert.True(index.IsUnique);
-        Assert.Equal(DbConstants.Indexes.ChunkEmbeddingChunkModel, index.GetDatabaseName());
+        Assert.Equal(DbIndexConstants.ChunkEmbeddingChunkModel, index.GetDatabaseName());
     }
 
     private static EspadaDbContext CreateContext()

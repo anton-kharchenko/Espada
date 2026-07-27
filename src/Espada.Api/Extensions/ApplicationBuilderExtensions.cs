@@ -1,4 +1,5 @@
 using Espada.ServiceDefaults;
+using Espada.ServiceDefaults.Extensions;
 using Scalar.AspNetCore;
 
 namespace Espada.Api.Extensions;

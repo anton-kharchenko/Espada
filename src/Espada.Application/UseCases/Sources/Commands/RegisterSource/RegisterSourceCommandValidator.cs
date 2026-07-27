@@ -12,10 +12,7 @@ internal sealed class RegisterSourceCommandValidator : AbstractValidator<Registe
         RuleFor(command => command.Name)
             .NotEmpty();
 
-        RuleFor(command => command.Locator)
-            .NotEmpty();
-
-        RuleFor(command => command.Type)
+        RuleFor(command => command.Definition)
             .NotNull();
     }
 }

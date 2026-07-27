@@ -12,13 +12,13 @@ internal sealed class ChunkBatchConfiguration : IEntityTypeConfiguration<ChunkBa
 {
     public void Configure(EntityTypeBuilder<ChunkBatch> builder)
     {
-        builder.ToTable(DbConstants.Tables.ChunkBatches, DbConstants.SchemaName);
+        builder.ToTable(DbTableConstants.ChunkBatches, DbConstants.SchemaName);
 
         builder.HasKey(e => e.Id);
 
         builder.Property(e => e.Id)
             .HasColumnName("ChunkBatchId")
-            .HasColumnType(DbConstants.ColumnTypes.Identifier.Uuid)
+            .HasColumnType(DbIdentifierColumnTypeConstants.Uuid)
             .HasConversion(id => id.Value, value => ChunkBatchId.Create(value))
             .IsRequired()
             .ValueGeneratedNever()
@@ -26,74 +26,74 @@ internal sealed class ChunkBatchConfiguration : IEntityTypeConfiguration<ChunkBa
 
         builder.Property(e => e.WorkspaceId)
             .HasColumnName("WorkspaceId")
-            .HasColumnType(DbConstants.ColumnTypes.Identifier.Uuid)
+            .HasColumnType(DbIdentifierColumnTypeConstants.Uuid)
             .HasConversion(id => id.Value, value => WorkspaceId.Create(value))
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.ArtifactId)
             .HasColumnName("ArtifactId")
-            .HasColumnType(DbConstants.ColumnTypes.Identifier.Uuid)
+            .HasColumnType(DbIdentifierColumnTypeConstants.Uuid)
             .HasConversion(id => id.Value, value => ArtifactId.Create(value))
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.ArtifactRevisionId)
             .HasColumnName("ArtifactRevisionId")
-            .HasColumnType(DbConstants.ColumnTypes.Identifier.Uuid)
+            .HasColumnType(DbIdentifierColumnTypeConstants.Uuid)
             .HasConversion(id => id.Value, value => ArtifactRevisionId.Create(value))
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.Strategy)
             .HasColumnName("StrategyId")
-            .HasColumnType(DbConstants.ColumnTypes.Numeric.Integer)
+            .HasColumnType(DbNumericColumnTypeConstants.Integer)
             .HasConversion(strategy => strategy.Id, value => Enumeration.GetAll<ChunkingStrategyType>().Single(strategy => strategy.Id == value))
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.StrategyVersion)
             .HasColumnName("StrategyVersion")
-            .HasColumnType(DbConstants.ColumnTypes.Text.Varchar64)
+            .HasColumnType(DbTextColumnTypeConstants.Varchar64)
             .HasConversion(version => version.Value, value => ChunkingVersion.Create(value).Value!)
-            .HasMaxLength(DbConstants.Validations.MaxLengths.L64)
+            .HasMaxLength(DbMaxLengthConstants.L64)
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.Status)
             .HasColumnName("StatusId")
-            .HasColumnType(DbConstants.ColumnTypes.Numeric.Integer)
+            .HasColumnType(DbNumericColumnTypeConstants.Integer)
             .HasConversion(status => status.Id, value => Enumeration.GetAll<ChunkBatchStatusType>().Single(status => status.Id == value))
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.RequestedAtUtc)
             .HasColumnName("RequestedAtUtc")
-            .HasColumnType(DbConstants.ColumnTypes.DateTime.TimestampTz)
+            .HasColumnType(DbDateTimeColumnTypeConstants.TimestampTz)
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.StartedAtUtc)
             .HasColumnName("StartedAtUtc")
-            .HasColumnType(DbConstants.ColumnTypes.DateTime.TimestampTz)
+            .HasColumnType(DbDateTimeColumnTypeConstants.TimestampTz)
             .IsRequired(false)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.CompletedAtUtc)
             .HasColumnName("CompletedAtUtc")
-            .HasColumnType(DbConstants.ColumnTypes.DateTime.TimestampTz)
+            .HasColumnType(DbDateTimeColumnTypeConstants.TimestampTz)
             .IsRequired(false)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.ChunkCount)
             .HasColumnName("ChunkCount")
-            .HasColumnType(DbConstants.ColumnTypes.Numeric.Integer)
+            .HasColumnType(DbNumericColumnTypeConstants.Integer)
             .IsRequired(false)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.FailureReason)
             .HasColumnName("FailureReason")
-            .HasColumnType(DbConstants.ColumnTypes.Text.TextType)
+            .HasColumnType(DbTextColumnTypeConstants.TextType)
             .IsRequired(false)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
@@ -135,6 +135,15 @@ internal sealed class ChunkBatchConfiguration : IEntityTypeConfiguration<ChunkBa
         builder.HasIndex(model => model.ArtifactId).HasDatabaseName("IX_ChunkBatches_ArtifactId");
         builder.HasIndex(model => model.ArtifactRevisionId).HasDatabaseName("IX_ChunkBatches_ArtifactRevisionId");
         builder.HasIndex(model => model.StatusId).HasDatabaseName("IX_ChunkBatches_StatusId");
-        builder.HasIndex(model => new { model.ArtifactRevisionId, model.StrategyId, model.StrategyVersion }).HasDatabaseName("IX_ChunkBatches_Revision_Strategy_Version");
+        builder
+            .HasIndex(
+                model => new
+                {
+                    model.ArtifactRevisionId,
+                    model.StrategyId,
+                    model.StrategyVersion
+                })
+            .HasDatabaseName(
+                "IX_ChunkBatches_Revision_Strategy_Version");
     }
 }

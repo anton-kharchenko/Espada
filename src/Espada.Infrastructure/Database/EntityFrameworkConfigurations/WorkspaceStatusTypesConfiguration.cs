@@ -12,7 +12,14 @@ internal sealed class WorkspaceStatusTypesConfiguration : IEntityTypeConfigurati
     public void Configure(EntityTypeBuilder<WorkspaceStatusTypes> builder)
     {
         builder.Property(model => model.WorkspaceStatusTypeId).ValueGeneratedNever();
-        builder.HasIndex(model => model.Name).IsUnique().HasDatabaseName(DbConstants.Indexes.WorkspaceStatusTypeName);
-        builder.HasData(Enumeration.GetAll<WorkspaceStatusType>().Select(value => new WorkspaceStatusTypes { WorkspaceStatusTypeId = value.Id, Name = value.Name }));
+        builder.HasIndex(model => model.Name).IsUnique().HasDatabaseName(DbIndexConstants.WorkspaceStatusTypeName);
+        builder.HasData(
+            Enumeration.GetAll<WorkspaceStatusType>()
+                .Select(
+                    value => new WorkspaceStatusTypes
+                    {
+                        WorkspaceStatusTypeId = value.Id,
+                        Name = value.Name
+                    }));
     }
 }

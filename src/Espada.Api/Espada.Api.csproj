@@ -6,6 +6,7 @@
     <RootNamespace>Espada.Api</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Espada.Billing\Espada.Billing.csproj" />
     <ProjectReference Include="..\Espada.Application\Espada.Application.csproj" />
     <ProjectReference Include="..\Espada.Comms.Core\Espada.Comms.Core.csproj" />
     <ProjectReference Include="..\Espada.Domain\Espada.Domain.csproj" />
@@ -22,6 +23,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Scalar.AspNetCore" />
     <PackageReference Include="Microsoft.OpenApi" />
   </ItemGroup>

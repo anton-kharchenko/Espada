@@ -8,7 +8,11 @@ using Espada.Domain.ValueObjects;
 
 namespace Espada.Application.UseCases.Sources.Commands.RegisterSource;
 
-internal sealed class RegisterSourceCommandHandler(IWorkspaceRepository workspaceRepository, ISourceRepository sourceRepository, IUnitOfWork unitOfWork, IClockService clockService)
+internal sealed class RegisterSourceCommandHandler(
+    IWorkspaceRepository workspaceRepository,
+    ISourceRepository sourceRepository,
+    IUnitOfWork unitOfWork,
+    IClockService clockService)
     : ICommandHandler<RegisterSourceCommand, RegisterSourceResponse>
 {
     public async Task<DomainResult<RegisterSourceResponse>> Handle(RegisterSourceCommand request, CancellationToken cancellationToken)
@@ -16,6 +20,11 @@ internal sealed class RegisterSourceCommandHandler(IWorkspaceRepository workspac
         if (request.WorkspaceId == Guid.Empty)
         {
             return DomainResult.Failure<RegisterSourceResponse>(WorkspaceApplicationErrors.InvalidId);
+        }
+
+        if (request.Definition is null)
+        {
+            return DomainResult.Failure<RegisterSourceResponse>(SourceApplicationErrors.InvalidDefinition);
         }
 
         WorkspaceId workspaceId = WorkspaceId.Create(request.WorkspaceId);
@@ -33,14 +42,7 @@ internal sealed class RegisterSourceCommandHandler(IWorkspaceRepository workspac
             return DomainResult.Failure<RegisterSourceResponse>(nameResult.Error);
         }
 
-        DomainResult<SourceLocator> locatorResult = SourceLocator.Create(request.Locator);
-
-        if (locatorResult.IsFailure)
-        {
-            return DomainResult.Failure<RegisterSourceResponse>(locatorResult.Error);
-        }
-
-        DomainResult<Source> sourceResult = Source.Create(SourceId.New(), workspaceId, nameResult.Value, request.Type, locatorResult.Value, clockService.UtcNow);
+        DomainResult<Source> sourceResult = Source.Create(SourceId.New(), workspaceId, nameResult.Value, request.Definition, clockService.UtcNow);
 
         if (sourceResult.IsFailure)
         {

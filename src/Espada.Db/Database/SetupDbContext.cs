@@ -23,6 +23,13 @@ public sealed class SetupDbContext(DbContextOptions<SetupDbContext> options) : D
     public DbSet<Chunks> Chunks => Set<Chunks>();
     public DbSet<ChunkEmbeddings> ChunkEmbeddings => Set<ChunkEmbeddings>();
     public DbSet<ChunkEmbeddingVectors> EmbeddingVectors => Set<ChunkEmbeddingVectors>();
+    public DbSet<IngestionJobs> IngestionJobs => Set<IngestionJobs>();
+    public DbSet<OutboxMessages> OutboxMessages => Set<OutboxMessages>();
+    public DbSet<WorkspaceMemberships> WorkspaceMemberships => Set<WorkspaceMemberships>();
+    public DbSet<BillingCustomers> BillingCustomers => Set<BillingCustomers>();
+    public DbSet<PaymentEvents> PaymentEvents => Set<PaymentEvents>();
+    public DbSet<UsageLedgerEntries> UsageLedgerEntries => Set<UsageLedgerEntries>();
+    public DbSet<UsageReconciliationOutbox> UsageReconciliationOutbox => Set<UsageReconciliationOutbox>();
     public DbSet<WorkspaceTypes> WorkspaceTypes => Set<WorkspaceTypes>();
     public DbSet<WorkspaceStatusTypes> WorkspaceStatusTypes => Set<WorkspaceStatusTypes>();
     public DbSet<SourceTypes> SourceTypes => Set<SourceTypes>();
@@ -37,9 +44,14 @@ public sealed class SetupDbContext(DbContextOptions<SetupDbContext> options) : D
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
-        string connectionString = Environment.GetEnvironmentVariable(DbConstants.ConnectionStringEnvironmentVariable)
-                                  ?? configuration.GetConnectionString(DbConstants.ConnectionString)
-                                  ?? throw new InvalidOperationException($"Database connection string was not configured. Set ConnectionStrings:{DbConstants.ConnectionString} or {DbConstants.ConnectionStringEnvironmentVariable}.");
+        string connectionString =
+            Environment.GetEnvironmentVariable(
+                DbConstants.ConnectionStringEnvironmentVariable)
+            ?? configuration.GetConnectionString(DbConstants.ConnectionString)
+            ?? throw new InvalidOperationException(
+                "Database connection string was not configured. Set "
+                + $"ConnectionStrings:{DbConstants.ConnectionString} or "
+                + $"{DbConstants.ConnectionStringEnvironmentVariable}.");
 
         NpgsqlDataSourceBuilder dataSourceBuilder = new(connectionString);
         dataSourceBuilder.UseVector();
@@ -53,12 +65,13 @@ public sealed class SetupDbContext(DbContextOptions<SetupDbContext> options) : D
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(DbConstants.SchemaName);
-        modelBuilder.HasPostgresExtension(DbConstants.Extensions.Vector);
+        modelBuilder.HasPostgresExtension(DbExtensionConstants.Vector);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(SetupDbContext).Assembly);
 
         try
         {
-            System.Reflection.Assembly infrastructureAssembly = AppDomain.CurrentDomain.GetAssemblies()
+            System.Reflection.Assembly infrastructureAssembly =
+                AppDomain.CurrentDomain.GetAssemblies()
                 .FirstOrDefault(assembly => assembly.GetName().Name == InfrastructureAssemblyName)
                 ?? System.Reflection.Assembly.Load(InfrastructureAssemblyName);
 
@@ -69,9 +82,15 @@ public sealed class SetupDbContext(DbContextOptions<SetupDbContext> options) : D
             // Espada.Db can apply compiled migrations without loading the application infrastructure.
         }
 
-        foreach (Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType in modelBuilder.Model.GetEntityTypes()
-                     .Where(entityType => entityType.ClrType.Assembly != typeof(Workspaces).Assembly)
-                     .ToList())
+        foreach (
+            Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType
+            in modelBuilder.Model
+                .GetEntityTypes()
+                .Where(
+                    entityType =>
+                        entityType.ClrType.Assembly
+                        != typeof(Workspaces).Assembly)
+                .ToList())
         {
             modelBuilder.Ignore(entityType.ClrType);
             modelBuilder.Model.RemoveEntityType(entityType.ClrType);
@@ -81,7 +100,10 @@ public sealed class SetupDbContext(DbContextOptions<SetupDbContext> options) : D
     }
 
     private static void ConfigureMigrationWarnings(DbContextOptionsBuilder options) =>
-        options.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
+        options.ConfigureWarnings(
+            warnings =>
+                warnings.Ignore(
+                    RelationalEventId.PendingModelChangesWarning));
 
     private static void ConfigureNpgsql(NpgsqlDbContextOptionsBuilder options)
     {

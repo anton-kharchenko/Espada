@@ -26,7 +26,8 @@ public sealed class ArchitectureTests
             ["Espada.Comms.Core"] = [],
             ["Espada.Domain"] = [],
             ["Espada.Application"] = ["Espada.Domain"],
-            ["Espada.Infrastructure"] = ["Espada.Application", "Espada.Db", "Espada.Domain"],
+            ["Espada.Billing"] = ["Espada.Application", "Espada.Domain"],
+            ["Espada.Infrastructure"] = ["Espada.Application", "Espada.Billing", "Espada.Db", "Espada.Domain"],
             ["Espada.Db"] = ["Espada.Domain"],
             ["Espada.DeploymentKit"] = [],
             ["Espada.Deployment"] = ["Espada.DeploymentKit"],
@@ -34,8 +35,18 @@ public sealed class ArchitectureTests
             ["Espada.Protocol.Mcp"] = [],
             ["Espada.Cli"] = ["Espada.Comms.Core", "Espada.Protocol.Mcp"],
             ["Espada.Daemon"] = ["Espada.Application", "Espada.Comms.Core", "Espada.Infrastructure", "Espada.Protocol.Mcp", "Espada.ServiceDefaults"],
-            ["Espada.Api"] = ["Espada.Api.Contracts", "Espada.Application", "Espada.Comms.Core", "Espada.Domain", "Espada.Infrastructure", "Espada.ServiceDefaults"],
-            ["Aspire"] = ["Espada.Api", "Espada.Daemon", "Espada.Db"]
+            ["Espada.Api"] =
+            [
+                "Espada.Api.Contracts",
+                "Espada.Application",
+                "Espada.Billing",
+                "Espada.Comms.Core",
+                "Espada.Domain",
+                "Espada.Infrastructure",
+                "Espada.ServiceDefaults"
+            ],
+            ["Espada.Worker"] = ["Espada.Application", "Espada.Billing", "Espada.Domain", "Espada.Infrastructure", "Espada.ServiceDefaults"],
+            ["Aspire"] = ["Espada.Api", "Espada.Daemon", "Espada.Db", "Espada.Worker"]
         };
 
         string repositoryRoot = FindRepositoryRoot();
@@ -66,7 +77,11 @@ public sealed class ArchitectureTests
     public void ApplicationHandlers_ShouldUseHandlerSuffix()
     {
         Type[] handlers = ApplicationAssembly.GetTypes()
-            .Where(type => !type.IsAbstract && type.GetInterfaces().Any(contract => contract.IsGenericType && contract.GetGenericTypeDefinition() == typeof(IRequestHandler<,>)))
+            .Where(type =>
+                !type.IsAbstract &&
+                type.GetInterfaces().Any(contract =>
+                    contract.IsGenericType &&
+                    contract.GetGenericTypeDefinition() == typeof(IRequestHandler<,>)))
             .ToArray();
 
         Assert.NotEmpty(handlers);
