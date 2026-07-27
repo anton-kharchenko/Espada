@@ -23,7 +23,7 @@
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.10" />
     <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="10.0.10" />
     <PackageVersion Include="Microsoft.AspNetCore.WebUtilities" Version="10.0.10" />
-    <PackageVersion Include="Microsoft.OpenApi" Version="2.7.5" />
+    <PackageVersion Include="Microsoft.OpenApi" Version="3.9.0" />
     <PackageVersion Include="Scalar.AspNetCore" Version="2.12.0" />
     <!-- CLI -->
     <PackageVersion Include="System.CommandLine" Version="2.0.10" />
