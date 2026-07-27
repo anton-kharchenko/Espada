@@ -31,7 +31,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<IDomainEventHandler<ImportStageScheduledDomainEvent>, ImportStageScheduledDomainEventHandler>();
         services.AddScoped<IImportPipelineStageExecutor, ImportPipelineStageExecutor>();
         services.AddScoped<IImportAdmissionPolicy, AllowImportAdmissionPolicy>();
-        services.AddScoped<IUsageMeter, NoOpUsageMeter>();
+        services.AddScoped<IUsageMeterService, NoOpUsageMeterService>();
 
         return services;
     }
