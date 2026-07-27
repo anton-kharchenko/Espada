@@ -1,14 +1,14 @@
 using Asp.Versioning;
+using Espada.Api.Authentication;
+using Espada.Api.Authentication.Constants;
 using Espada.Api.Filters;
 using Espada.Api.Mappings;
 using Espada.Api.Middlewares;
 using Espada.Api.OpenApi;
 using Espada.Comms.Core.Security;
-using Microsoft.AspNetCore.Mvc;
-using Espada.Api.Authentication;
-using Espada.Api.Authentication.Constants;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Espada.Api.Extensions;

@@ -163,14 +163,14 @@ internal sealed class PostgreSqlBillingStoreService(EspadaDbContext dbContext, I
                 .ThenBy(message => message.EventId)
                 .Select(message => (Guid?)message.EventId)
                 .FirstOrDefaultAsync(cancellationToken);
-            if (candidateId is null)
+            if (candidateId is not Guid eventId)
             {
                 return null;
             }
 
             DateTimeOffset leaseExpiresAtUtc = now + leaseDuration;
             int updated = await EligibleUsageReconciliations(now, availableBefore)
-                .Where(message => message.EventId == candidateId.Value)
+                .Where(message => message.EventId == eventId)
                 .ExecuteUpdateAsync(
                     setters => setters
                         .SetProperty(message => message.Status, (int)UsageReconciliationStatusType.Processing)
@@ -190,7 +190,7 @@ internal sealed class PostgreSqlBillingStoreService(EspadaDbContext dbContext, I
                         on message.LedgerEntryId equals ledger.EntryId
                     join customer in dbContext.BillingCustomers.AsNoTracking()
                         on ledger.WorkspaceId equals customer.WorkspaceId
-                    where message.EventId == candidateId.Value
+                    where message.EventId == eventId
                     select new ClaimedUsageReconciliation(
                         message.EventId,
                         customer.ProviderCustomerId,
@@ -204,7 +204,7 @@ internal sealed class PostgreSqlBillingStoreService(EspadaDbContext dbContext, I
                 return claimed;
             }
 
-            await MarkUsageReconciliationFailedAsync(candidateId.Value, workerId, retryable: false, now, "Usage reconciliation references missing billing data.", cancellationToken);
+            await MarkUsageReconciliationFailedAsync(eventId, workerId, retryable: false, now, "Usage reconciliation references missing billing data.", cancellationToken);
         }
     }
 
@@ -252,7 +252,7 @@ internal sealed class PostgreSqlBillingStoreService(EspadaDbContext dbContext, I
             .Where(message => dbContext.UsageLedgerEntries.Any(ledger => ledger.EntryId == message.LedgerEntryId && dbContext.BillingCustomers.Any(customer => customer.WorkspaceId == ledger.WorkspaceId)));
 
     private IQueryable<PaymentEvents> ProcessingPaymentEvent(string providerEventId, string workerId) =>
-        dbContext.PaymentEvents.Where(paymentEvent => 
+        dbContext.PaymentEvents.Where(paymentEvent =>
             paymentEvent.ProviderEventId == providerEventId && paymentEvent.Status == (int)PaymentEventStatusType.Processing && paymentEvent.LeaseOwner == workerId);
 
     private IQueryable<UsageReconciliationOutbox> ProcessingUsageReconciliation(Guid eventId, string workerId) =>

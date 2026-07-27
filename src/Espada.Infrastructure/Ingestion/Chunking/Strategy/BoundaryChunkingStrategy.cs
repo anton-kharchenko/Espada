@@ -14,7 +14,7 @@ internal class BoundaryChunkingStrategy(string name, IReadOnlyList<string> separ
     {
         cancellationToken.ThrowIfCancellationRequested();
         FixedSizeChunkingStrategy.Validate(content, options);
-        
+
         IReadOnlyList<string> boundaries = ResolveSeparators(options);
         List<ChunkSegment> chunks = [];
         int start = 0;

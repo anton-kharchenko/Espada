@@ -1,8 +1,8 @@
 using Espada.Application.Extensions;
-using Espada.Infrastructure.Extensions;
-using Espada.Worker;
 using Espada.Billing;
+using Espada.Infrastructure.Extensions;
 using Espada.ServiceDefaults.Extensions;
+using Espada.Worker;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 builder.AddServiceDefaults();

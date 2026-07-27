@@ -15,4 +15,8 @@ public sealed class ChunkingStrategyType(int id, string name) : Enumeration(id, 
     public static readonly ChunkingStrategyType Code = new(5, nameof(Code));
 
     public static readonly ChunkingStrategyType Custom = new(6, nameof(Custom));
+
+    public override bool Equals(object? obj) => base.Equals(obj);
+
+    public override int GetHashCode() => base.GetHashCode();
 }

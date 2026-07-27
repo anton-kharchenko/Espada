@@ -10,7 +10,7 @@ namespace Espada.Domain.Aggregates;
 
 public sealed class Source : AggregateRoot<SourceId>, IHasConcurrencyVersion
 {
-    private SourceDefinition? _definition;
+    private readonly SourceDefinition? _definition;
 
     public uint Version { get; private set; }
 

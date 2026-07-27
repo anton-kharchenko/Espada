@@ -159,8 +159,8 @@ internal sealed class ImportPipelineStageExecutorService(
                 ? ArtifactType.Conversation
                 : source.Definition is FileSourceDefinition file && (file.MediaType.Equals(IngestionMediaTypes.Markdown, StringComparison.OrdinalIgnoreCase) || Path.GetExtension(file.FileName).Equals(IngestionFileExtensions.Markdown, StringComparison.OrdinalIgnoreCase))
                     ? ArtifactType.Markdown
-                    : source.Type.Equals(SourceType.PlainText) 
-                        ? ArtifactType.Text 
+                    : source.Type.Equals(SourceType.PlainText)
+                        ? ArtifactType.Text
                         : ArtifactType.File;
 
         DomainResult<Artifact> artifactResult = Artifact.Create(artifactId, importJob.WorkspaceId, title.Value, artifactType, clock.UtcNow);
@@ -286,7 +286,7 @@ internal sealed class ImportPipelineStageExecutorService(
         EnsureSuccess(importJob.Complete(artifactId, revisionId, clock.UtcNow));
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        if (importJob.ParsedBlobHash is not null 
+        if (importJob.ParsedBlobHash is not null
             && !string.Equals(importJob.ParsedBlobHash, importJob.RawBlobHash, StringComparison.Ordinal)
             && !await importJobRepository.IsBlobReferencedByOtherImportAsync(importJob.Id, importJob.ParsedBlobHash, cancellationToken))
         {

@@ -45,7 +45,7 @@ internal sealed class SourceReader(IBlobStoreService blobStoreService, IConnecto
         {
             throw new IngestionException(JobFailureCategoryType.Transient, IngestionFailureCodes.ReadTimeout, "Source reading exceeded the configured timeout.");
         }
-        catch (Exception exception)when (exception is HttpRequestException or SocketException or IOException)
+        catch (Exception exception) when (exception is HttpRequestException or SocketException or IOException)
         {
             throw new IngestionException(JobFailureCategoryType.Transient, IngestionFailureCodes.SourceUnavailable, "Source could not be read because a dependency was unavailable.", exception);
         }
@@ -202,7 +202,7 @@ internal sealed class SourceReader(IBlobStoreService blobStoreService, IConnecto
                             cancellationToken);
                         return new NetworkStream(socket, ownsSocket: true);
                     }
-                    catch (Exception exception)
+                    catch (Exception exception) when (exception is SocketException or IOException or ObjectDisposedException)
                     {
                         lastError = exception;
                         socket.Dispose();
@@ -222,15 +222,7 @@ internal sealed class SourceReader(IBlobStoreService blobStoreService, IConnecto
 
         if (address.AddressFamily == AddressFamily.InterNetwork)
         {
-            byte[] bytes = address.GetAddressBytes();
-            return bytes[0] != 10
-                && bytes[0] != 127
-                && !(bytes[0] == 169 && bytes[1] == 254)
-                && !(bytes[0] == 172 && bytes[1] is >= 16 and <= 31)
-                && !(bytes[0] == 192 && bytes[1] == 168)
-                && !(bytes[0] == 100 && bytes[1] is >= 64 and <= 127)
-                && bytes[0] != 0
-                && !(bytes[0] >= 224);
+            return IsPublicIPv4Address(address.GetAddressBytes());
         }
 
         if (address.IsIPv6LinkLocal || address.IsIPv6Multicast || address.IsIPv6SiteLocal)
@@ -242,11 +234,44 @@ internal sealed class SourceReader(IBlobStoreService blobStoreService, IConnecto
         return (ipv6[0] & 0xFE) != 0xFC;
     }
 
+    private static bool IsPublicIPv4Address(byte[] bytes)
+    {
+        byte first = bytes[0];
+        byte second = bytes[1];
+
+        if (first is 0 or 10 or 127)
+        {
+            return false;
+        }
+
+        if (first == 169 && second == 254)
+        {
+            return false;
+        }
+
+        if (first == 172 && second is >= 16 and <= 31)
+        {
+            return false;
+        }
+
+        if (first == 192 && second == 168)
+        {
+            return false;
+        }
+
+        if (first == 100 && second is >= 64 and <= 127)
+        {
+            return false;
+        }
+
+        return first < 224;
+    }
+
     private static bool IsRedirect(HttpStatusCode statusCode) =>
         statusCode is HttpStatusCode.MovedPermanently or HttpStatusCode.Redirect or HttpStatusCode.RedirectMethod or HttpStatusCode.TemporaryRedirect or HttpStatusCode.PermanentRedirect;
 
     private static SourceReadResult FromUtf8(string content, string fileName, string mediaType) =>
-        new(new MemoryStream( Encoding.UTF8.GetBytes(content), writable: false), fileName, mediaType);
+        new(new MemoryStream(Encoding.UTF8.GetBytes(content), writable: false), fileName, mediaType);
 
     private static string FormatConversation(IReadOnlyList<ConversationMessage> messages) =>
         string.Join(Environment.NewLine, messages.Select(message => $"{message.Timestamp?.ToString("O") ?? "-"} [{message.Role}]" + $"{(string.IsNullOrWhiteSpace(message.Author) ? string.Empty : $" {message.Author}")}: {message.Content}"));

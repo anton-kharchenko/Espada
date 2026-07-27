@@ -40,7 +40,7 @@ internal sealed class StripeUsageReconciliationProcessor(StripeClient client, IB
                 cancellationToken);
             await storeService.MarkUsageReconciledAsync(usage.EventId, workerId, cancellationToken);
         }
-        catch (Exception exception)
+        catch (Exception exception) when (exception is not OperationCanceledException)
         {
             bool retryable = exception is StripeException or HttpRequestException or IOException or TimeoutException;
             retryable &= usage.Attempt <= BillingProcessingPolicy.MaximumRetryAttempts;

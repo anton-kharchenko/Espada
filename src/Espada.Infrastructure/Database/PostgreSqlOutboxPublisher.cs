@@ -38,7 +38,7 @@ internal sealed class PostgreSqlOutboxPublisher(EspadaDbContext dbContext, IDoma
         {
             throw;
         }
-        catch (Exception exception)
+        catch (Exception exception) when (exception is not OperationCanceledException)
         {
             await ReleaseForRetryAsync(envelope.EventId, leaseOwner, exception.Message.Length <= 4000 ? exception.Message : exception.Message[..4000], cancellationToken);
             return true;
@@ -58,14 +58,14 @@ internal sealed class PostgreSqlOutboxPublisher(EspadaDbContext dbContext, IDoma
                 .ThenBy(message => message.EventId)
                 .Select(message => (Guid?)message.EventId)
                 .FirstOrDefaultAsync(cancellationToken);
-            if (candidateId is null)
+            if (candidateId is not Guid eventId)
             {
                 return null;
             }
 
             DateTimeOffset leaseExpiresAtUtc = now + LeaseDuration;
             int updated = await EligibleMessages(now, availableBefore)
-                .Where(message => message.EventId == candidateId.Value)
+                .Where(message => message.EventId == eventId)
                 .ExecuteUpdateAsync(
                     setters => setters
                         .SetProperty(message => message.LeaseOwner, leaseOwner)
@@ -79,7 +79,7 @@ internal sealed class PostgreSqlOutboxPublisher(EspadaDbContext dbContext, IDoma
 
             return await dbContext.OutboxMessages
                 .AsNoTracking()
-                .Where(message => message.EventId == candidateId.Value)
+                .Where(message => message.EventId == eventId)
                 .Select(message => new OutboxEnvelope(message.EventId, message.EventName, message.EventVersion, message.PayloadJson))
                 .SingleAsync(cancellationToken);
         }

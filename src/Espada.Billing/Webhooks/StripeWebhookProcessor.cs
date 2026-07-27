@@ -28,13 +28,13 @@ internal sealed class StripeWebhookProcessor(IBillingStoreService storeService, 
 
             await storeService.MarkPaymentEventProcessedAsync(claimed.ProviderEventId, workerId, cancellationToken);
         }
-        catch (Exception exception)
+        catch (Exception exception) when (exception is not OperationCanceledException)
         {
             bool retryable = exception is StripeException or HttpRequestException or IOException or TimeoutException;
             int retryIndex = claimed.Attempt - 1;
             retryable &= retryIndex < BillingProcessingPolicy.WebhookRetryDelays.Count;
             DateTimeOffset availableAtUtc = retryable ? clock.UtcNow + BillingProcessingPolicy.WebhookRetryDelays[retryIndex] : clock.UtcNow;
-            
+
             await storeService.MarkPaymentEventFailedAsync(claimed.ProviderEventId, workerId, retryable, availableAtUtc, BillingErrorSanitizer.Sanitize(exception.Message), cancellationToken);
         }
 

@@ -1,5 +1,5 @@
-using Microsoft.EntityFrameworkCore;
 using Espada.Db.Constants;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Espada.Db.Models;

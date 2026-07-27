@@ -55,7 +55,7 @@ internal sealed class EmbeddingVectorStore(EspadaDbContext dbContext) : IEmbeddi
         EmbeddingDimensions dimensions = EmbeddingDimensions.Create(search.QueryVector.Count).Value!;
         var candidates =
             from vector in dbContext.EmbeddingVectors.AsNoTracking()
-            join embedding in dbContext.ChunkEmbeddings.AsNoTracking() 
+            join embedding in dbContext.ChunkEmbeddings.AsNoTracking()
                 on vector.ChunkEmbeddingId equals embedding.Id
             where embedding.WorkspaceId == search.WorkspaceId
                 && EF.Property<string>(embedding, Db.Constants.DbPropertyConstants.ChunkEmbeddingModelIdentifier) == search.Model.Identifier

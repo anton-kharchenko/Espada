@@ -4,12 +4,12 @@ using Espada.Application.Contracts.Persistence;
 using Espada.Application.Contracts.Time;
 using Espada.Application.Enums;
 using Espada.Application.Exceptions;
+using Espada.Billing.Contracts;
 using Espada.Domain.Aggregates;
 using Espada.Domain.Enums;
 using Espada.Domain.Rules;
 using Espada.Domain.ValueObjects;
 using Npgsql;
-using Espada.Billing.Contracts;
 
 namespace Espada.Worker;
 
@@ -47,7 +47,7 @@ public sealed class Worker(IServiceScopeFactory scopeFactory, ILogger<Worker> lo
             {
                 break;
             }
-            catch (Exception exception)
+            catch (Exception exception) when (exception is not OperationCanceledException)
             {
                 logger.LogError(exception, "Ingestion worker loop failed.");
                 await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
@@ -115,7 +115,7 @@ public sealed class Worker(IServiceScopeFactory scopeFactory, ILogger<Worker> lo
                 "A transient dependency error interrupted the stage.",
                 stoppingToken);
         }
-        catch (Exception exception)
+        catch (Exception exception) when (exception is not OperationCanceledException)
         {
             logger.LogError(exception, "Poisoned ingestion job {JobId} at stage {Stage}.", job.JobId, job.Stage);
             await FinishFailedJobAsync(job, JobFailureCategoryType.Poison, "The job payload or stage handler was invalid.", stoppingToken);

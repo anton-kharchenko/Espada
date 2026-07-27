@@ -12,10 +12,10 @@ public sealed record BillingCustomerSnapshot(
     DateTimeOffset LastProviderEventAtUtc)
 {
     public BillingAccessStateType GetAccessState(DateTimeOffset now) => PaymentFailedAtUtc switch
-        {
-            null => BillingAccessStateType.Active,
-            { } failedAt when now >= failedAt.AddDays(30) => BillingAccessStateType.SyncDisabled,
-            { } failedAt when now >= failedAt.AddDays(7) => BillingAccessStateType.ReadOnly,
-            _ => BillingAccessStateType.Grace
-        };
+    {
+        null => BillingAccessStateType.Active,
+        { } failedAt when now >= failedAt.AddDays(30) => BillingAccessStateType.SyncDisabled,
+        { } failedAt when now >= failedAt.AddDays(7) => BillingAccessStateType.ReadOnly,
+        _ => BillingAccessStateType.Grace
+    };
 }

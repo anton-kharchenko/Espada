@@ -48,7 +48,6 @@ public sealed class BillingDurabilityTests(PostgreSqlDatabaseFixture fixture) : 
             data = new { @object = new { id = "cus_test", @object = "customer" } },
             livemode = false,
             pending_webhooks = 1,
-            request = (object?)null,
             type = "customer.created"
         });
         string secret = "whsec_integration";

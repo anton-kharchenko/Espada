@@ -117,6 +117,12 @@ internal sealed class SemanticChunkingStrategy(IBatchEmbeddingGeneratorService e
             rightMagnitude += right[index] * right[index];
         }
 
-        return leftMagnitude == 0 || rightMagnitude == 0 ? 0 : dot / (Math.Sqrt(leftMagnitude) * Math.Sqrt(rightMagnitude));
+        const double magnitudeEpsilon = 1e-12;
+        if (leftMagnitude <= magnitudeEpsilon || rightMagnitude <= magnitudeEpsilon)
+        {
+            return 0;
+        }
+
+        return dot / (Math.Sqrt(leftMagnitude) * Math.Sqrt(rightMagnitude));
     }
 }

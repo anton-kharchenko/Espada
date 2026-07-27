@@ -1,5 +1,5 @@
-using Espada.Tests.Domain.TestData.Builders;
 using Espada.Domain.Errors;
+using Espada.Tests.Domain.TestData.Builders;
 
 namespace Espada.Tests.Domain.Aggregates;
 

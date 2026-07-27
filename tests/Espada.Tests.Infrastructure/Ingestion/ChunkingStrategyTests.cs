@@ -28,31 +28,23 @@ public sealed class ChunkingStrategyTests
     }
 
     [Fact]
-    public Task Catalog_ShouldExposeAllSixStrategies()
+    public void Catalog_ShouldExposeAllSixStrategies()
     {
-        try
-        {
-            ChunkingStrategyCatalog catalog = new(
-            [
-                new FixedSizeChunkingStrategy(),
-                new RecursiveChunkingStrategy(),
-                new MarkdownChunkingStrategy(),
-                new CodeChunkingStrategy(),
+        ChunkingStrategyCatalog catalog = new(
+        [
+            new FixedSizeChunkingStrategy(),
+            new RecursiveChunkingStrategy(),
+            new MarkdownChunkingStrategy(),
+            new CodeChunkingStrategy(),
             new SemanticChunkingStrategy(new TestBatchEmbeddingGeneratorService()),
-                new CustomChunkingStrategy()
-            ]);
+            new CustomChunkingStrategy()
+        ]);
 
-            string[] names = catalog.Strategies.Select(strategy => strategy.Name).Order().ToArray();
+        string[] names = catalog.Strategies.Select(strategy => strategy.Name).Order().ToArray();
 
-            Assert.Equal(
-                ["Code", "Custom", "FixedSize", "Markdown", "Recursive", "Semantic"],
-                names);
-            return Task.CompletedTask;
-        }
-        catch (Exception exception)
-        {
-            return Task.FromException(exception);
-        }
+        Assert.Equal(
+            ["Code", "Custom", "FixedSize", "Markdown", "Recursive", "Semantic"],
+            names);
     }
 
     [Fact]

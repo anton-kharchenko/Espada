@@ -28,10 +28,10 @@ using RandomPasswordArgs = Pulumi.Random.RandomPasswordArgs;
 using RegistrySkuArgs = Pulumi.AzureNative.ContainerRegistry.Inputs.SkuArgs;
 using Secret = Pulumi.AzureNative.KeyVault.Secret;
 using SecretArgs = Pulumi.AzureNative.KeyVault.SecretArgs;
-using VaultSkuArgs = Pulumi.AzureNative.KeyVault.Inputs.SkuArgs;
 using StorageAccount = Pulumi.AzureNative.Storage.StorageAccount;
 using StorageAccountArgs = Pulumi.AzureNative.Storage.StorageAccountArgs;
 using StorageSkuArgs = Pulumi.AzureNative.Storage.Inputs.SkuArgs;
+using VaultSkuArgs = Pulumi.AzureNative.KeyVault.Inputs.SkuArgs;
 
 namespace Espada.DeploymentKit.Azure;
 

@@ -1,6 +1,5 @@
-using FluentAssertions;
-
 using Espada.Domain.Rules;
+using FluentAssertions;
 
 namespace Espada.Tests.Integration.Assertions;
 

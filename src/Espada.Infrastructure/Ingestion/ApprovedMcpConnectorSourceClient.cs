@@ -16,10 +16,10 @@ internal sealed class ApprovedMcpConnectorSourceClient(IOptions<ConnectorRuntime
 
     public async Task<string> ReadAsync(ConnectorSourceDefinition definition, CancellationToken cancellationToken = default)
     {
-        ApprovedConnectorOptions approved = _options.Approved.SingleOrDefault(candidate => 
+        ApprovedConnectorOptions approved = _options.Approved.SingleOrDefault(candidate =>
                                                 candidate.PluginId.Equals(definition.PluginId, StringComparison.Ordinal) && candidate.Version.Equals(definition.Version, StringComparison.Ordinal))
                                             ?? throw new IngestionException(JobFailureCategoryType.Permanent, "connector_not_approved", $"Connector '{definition.PluginId}@{definition.Version}' is not approved.");
-       
+
         if (string.IsNullOrWhiteSpace(approved.Command))
         {
             throw new IngestionException(JobFailureCategoryType.Poison, "connector_configuration_invalid", "Approved connector command is not configured.");
@@ -47,6 +47,6 @@ internal sealed class ApprovedMcpConnectorSourceClient(IOptions<ConnectorRuntime
 
         string text = string.Join(Environment.NewLine, result.Content.OfType<TextContentBlock>().Select(block => block.Text));
 
-        return string.IsNullOrWhiteSpace(text) ? throw new IngestionException( JobFailureCategoryType.Permanent, "connector_empty_result", "Approved connector returned no text content.") : text;
+        return string.IsNullOrWhiteSpace(text) ? throw new IngestionException(JobFailureCategoryType.Permanent, "connector_empty_result", "Approved connector returned no text content.") : text;
     }
 }

@@ -129,12 +129,13 @@ internal sealed class SourceParser(IOptions<IngestionOptions> options) : ISource
             cancellationToken.ThrowIfCancellationRequested();
             text.AppendLine($"# {sheet.Name}");
             WorksheetPart worksheet = (WorksheetPart)workbook.GetPartById(sheet.Id!);
-            foreach (Row row in worksheet.Worksheet?.Descendants<Row>() ?? [])
+            IEnumerable<string> rows = (worksheet.Worksheet?.Descendants<Row>() ?? [])
+                .Select(row => string.Join(
+                    '\t',
+                    row.Elements<Cell>().Select(cell => ResolveCell(cell, sharedStrings))));
+            foreach (string rowText in rows)
             {
-                string[] cells = row.Elements<Cell>()
-                    .Select(cell => ResolveCell(cell, sharedStrings))
-                    .ToArray();
-                text.AppendLine(string.Join('\t', cells));
+                text.AppendLine(rowText);
             }
         }
 

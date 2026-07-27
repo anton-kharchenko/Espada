@@ -34,6 +34,6 @@ internal sealed class RequestImportCommandBuilder
         _options = _options with { EmbeddingModel = embeddingModel };
         return this;
     }
-    
+
     public RequestImportCommand Build() => new(_workspaceId, _sourceId, _idempotencyKey, _options);
 }

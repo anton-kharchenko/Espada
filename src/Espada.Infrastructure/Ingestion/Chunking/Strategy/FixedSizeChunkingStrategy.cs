@@ -14,7 +14,7 @@ internal sealed class FixedSizeChunkingStrategy : IChunkingStrategy
         Validate(content, options);
         List<ChunkSegment> chunks = [];
         int step = options.MaxCharacters - options.OverlapCharacters;
-        
+
         for (int start = 0, number = 1; start < content.Length; start += step, number++)
         {
             int length = Math.Min(options.MaxCharacters, content.Length - start);

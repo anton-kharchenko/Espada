@@ -58,14 +58,14 @@ internal sealed class PostgreSqlJobQueue(EspadaDbContext dbContext, IClockServic
                 .ThenBy(job => job.JobId)
                 .Select(job => (Guid?)job.JobId)
                 .FirstOrDefaultAsync(cancellationToken);
-            if (candidateId is null)
+            if (candidateId is not Guid jobId)
             {
                 return null;
             }
 
             DateTimeOffset leaseExpiresAtUtc = now + leaseDuration;
             int updated = await EligibleJobs(now, availableBefore)
-                .Where(job => job.JobId == candidateId.Value)
+                .Where(job => job.JobId == jobId)
                 .ExecuteUpdateAsync(
                     setters => setters
                         .SetProperty(job => job.Status, (int)IngestionJobStatusType.Running)
@@ -81,7 +81,7 @@ internal sealed class PostgreSqlJobQueue(EspadaDbContext dbContext, IClockServic
 
             IngestionJobs claimed = await dbContext.IngestionJobs
                 .AsNoTracking()
-                .SingleAsync(job => job.JobId == candidateId.Value, cancellationToken);
+                .SingleAsync(job => job.JobId == jobId, cancellationToken);
             return Map(claimed);
         }
     }
