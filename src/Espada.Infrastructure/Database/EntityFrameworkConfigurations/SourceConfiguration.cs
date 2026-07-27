@@ -132,7 +132,7 @@ internal sealed class SourceConfiguration : IEntityTypeConfiguration<Source>, IE
     {
         builder.ToTable(table => table.HasCheckConstraint(
             DbConstraintConstants.SourcePriorityRange,
-            CheckConstraintSql.ContextPriority(nameof(Espada.Db.Models.Sources.Priority))));
+            CheckConstraintSql.ContextPriority(nameof(Db.Models.Sources.Priority))));
         builder.Property(model => model.SourceId).ValueGeneratedNever();
         builder.Property(model => model.Priority).HasDefaultValue(ContextPriority.Neutral.Value);
         builder.Property(model => model.Version).IsRowVersion();

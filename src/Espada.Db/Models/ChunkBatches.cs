@@ -43,5 +43,7 @@ public class ChunkBatches
     [Column(TypeName = DbTextColumnTypeConstants.TextType)]
     public string? FailureReason { get; set; }
 
+    [Timestamp]
+    [Column("xmin", TypeName = DbIdentifierColumnTypeConstants.Xid)]
     public uint Version { get; set; }
 }

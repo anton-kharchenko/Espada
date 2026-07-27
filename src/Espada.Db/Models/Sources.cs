@@ -40,5 +40,7 @@ public class Sources
     [Column(TypeName = DbDateTimeColumnTypeConstants.TimestampTz)]
     public DateTimeOffset? ArchivedAtUtc { get; set; }
 
+    [Timestamp]
+    [Column("xmin", TypeName = DbIdentifierColumnTypeConstants.Xid)]
     public uint Version { get; set; }
 }
