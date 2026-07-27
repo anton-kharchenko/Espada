@@ -7,7 +7,6 @@ using Espada.Domain.ValueObjects.SourceDefinitions;
 using Espada.Infrastructure.Database;
 using Espada.Tests.Integration.Database;
 using Espada.Tests.Integration.Fixtures;
-using Espada.Tests.Integration.TestData;
 using Espada.Tests.Integration.TestData.Sql;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;

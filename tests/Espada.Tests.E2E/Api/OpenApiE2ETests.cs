@@ -1,5 +1,4 @@
 using Espada.Tests.E2E.Fixtures;
-using Espada.Tests.E2E.TestData;
 using Espada.Tests.E2E.TestData.Constants;
 using System.Net;
 

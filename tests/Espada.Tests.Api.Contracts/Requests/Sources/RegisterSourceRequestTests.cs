@@ -1,5 +1,4 @@
 using Espada.Api.Contracts.Requests.Sources;
-using Espada.Domain.ValueObjects;
 using Espada.Domain.ValueObjects.SourceDefinitions;
 using Espada.Tests.Api.Contracts.TestData;
 using Espada.Tests.Api.Contracts.Validation;

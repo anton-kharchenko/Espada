@@ -4,7 +4,6 @@ using Espada.Domain.ValueObjects;
 using Espada.Tests.Application.Fakes;
 using Espada.Tests.Application.TestData;
 using Espada.Tests.Application.TestData.Builder;
-using Espada.Application.Contracts.Billing;
 using Espada.Application.Services.Billing;
 
 namespace Espada.Tests.Application.Fixtures;

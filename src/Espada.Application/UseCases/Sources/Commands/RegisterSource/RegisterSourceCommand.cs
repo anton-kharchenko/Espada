@@ -1,6 +1,5 @@
 using Espada.Application.Contracts.Messaging;
 using Espada.Domain.Enums;
-using Espada.Domain.ValueObjects;
 using Espada.Domain.ValueObjects.SourceDefinitions;
 
 namespace Espada.Application.UseCases.Sources.Commands.RegisterSource;

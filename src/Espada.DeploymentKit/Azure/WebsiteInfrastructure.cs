@@ -1,4 +1,3 @@
-using Espada.DeploymentKit.Constants;
 using Pulumi;
 using AzureClassic = Pulumi.Azure;
 using AzureNative = Pulumi.AzureNative;

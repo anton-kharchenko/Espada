@@ -1,4 +1,3 @@
-using AutoMapper;
 using Espada.Application.Extensions;
 using Espada.Comms.Core.Security;
 using Espada.Daemon.Mappings;

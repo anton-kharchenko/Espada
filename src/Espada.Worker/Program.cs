@@ -1,6 +1,5 @@
 using Espada.Application.Extensions;
 using Espada.Infrastructure.Extensions;
-using Espada.ServiceDefaults;
 using Espada.Worker;
 using Espada.Billing;
 using Espada.ServiceDefaults.Extensions;

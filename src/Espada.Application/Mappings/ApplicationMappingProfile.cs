@@ -1,5 +1,4 @@
 using AutoMapper;
-using Espada.Application.Contracts.Persistence;
 using Espada.Application.Models;
 using Espada.Application.UseCases.ChunkEmbeddings.Commands.CreateChunkEmbedding;
 using Espada.Application.UseCases.Context.Queries.SearchWorkspaceContext;

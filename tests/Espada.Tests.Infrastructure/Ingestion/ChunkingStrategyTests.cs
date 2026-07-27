@@ -1,8 +1,6 @@
-using Espada.Application.Contracts.Embedding;
 using Espada.Application.Contracts.Ingestion;
 using Espada.Application.Models;
 using Espada.Application.UseCases.Imports.Commands.RequestImport;
-using Espada.Infrastructure.Ingestion.Chunking;
 using Espada.Infrastructure.Ingestion.Chunking.Strategy;
 using Espada.Tests.Infrastructure.Ingestion.Fakes;
 

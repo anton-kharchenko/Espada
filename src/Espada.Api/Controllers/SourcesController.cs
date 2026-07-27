@@ -1,6 +1,5 @@
 using Espada.Api.Contracts.Requests.Common;
 using Espada.Api.Contracts.Requests.Sources;
-using Espada.Api.Extensions;
 using Espada.Application.UseCases.Sources.Commands.ArchiveSource;
 using Espada.Application.UseCases.Sources.Commands.RegisterSource;
 using Espada.Application.UseCases.Sources.Commands.SetSourcePriority;
@@ -9,7 +8,6 @@ using Espada.Application.UseCases.Sources.Queries.GetSourceById;
 using Espada.Domain.Rules;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Espada.Domain.ValueObjects;
 using Espada.Application.ApplicationErrors;
 using Espada.Domain.ValueObjects.SourceDefinitions;
 

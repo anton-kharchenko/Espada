@@ -1,4 +1,5 @@
 using Espada.Db.Constants;
+using Espada.Db.Database;
 using Espada.Domain.Aggregates;
 using Espada.Domain.SeedWork;
 using Espada.Infrastructure.Database;
@@ -6,6 +7,8 @@ using Espada.Tests.Common.Database;
 using Espada.Tests.Infrastructure.TestData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Reflection;
 
 namespace Espada.Tests.Infrastructure.Database;
 
@@ -119,6 +122,109 @@ public sealed class EspadaDbContextModelTests
         Assert.True(property.IsConcurrencyToken);
     }
 
+    [Fact]
+    public void MigrationModels_ShouldDeclareStoreTypeForEveryPhysicalProperty()
+    {
+        string migrationModelNamespace = typeof(Db.Models.Workspaces).Namespace!;
+        string[] missingMappings = typeof(SetupDbContext).Assembly
+            .GetTypes()
+            .Where(type => type.Namespace == migrationModelNamespace)
+            .SelectMany(type => type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
+            .Where(property => IsPhysicalColumn(property, migrationModelNamespace))
+            .Where(property => string.IsNullOrWhiteSpace(
+                property.GetCustomAttribute<ColumnAttribute>()?.TypeName))
+            .Select(property => $"{property.DeclaringType!.Name}.{property.Name}")
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Empty(missingMappings);
+    }
+
+    [Fact]
+    public void SetupAndRuntimeModels_ShouldUseSameColumnTypesForSharedTables()
+    {
+        using SetupDbContext setupContext = CreateSetupContext();
+        using EspadaDbContext runtimeContext = CreateContext();
+
+        IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> setupTables =
+            GetTableColumnTypes(setupContext.Model);
+        IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> runtimeTables =
+            GetTableColumnTypes(runtimeContext.Model);
+        string[] sharedTables = setupTables.Keys
+            .Intersect(runtimeTables.Keys, StringComparer.Ordinal)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.NotEmpty(sharedTables);
+        foreach (string table in sharedTables)
+        {
+            KeyValuePair<string, string>[] setupColumns = setupTables[table]
+                .OrderBy(column => column.Key, StringComparer.Ordinal)
+                .ToArray();
+            KeyValuePair<string, string>[] runtimeColumns = runtimeTables[table]
+                .OrderBy(column => column.Key, StringComparer.Ordinal)
+                .ToArray();
+
+            Assert.Equal(setupColumns, runtimeColumns);
+        }
+    }
+
+    private static bool IsPhysicalColumn(
+        PropertyInfo property,
+        string migrationModelNamespace)
+    {
+        Type propertyType = Nullable.GetUnderlyingType(property.PropertyType)
+            ?? property.PropertyType;
+
+        return propertyType.Namespace != migrationModelNamespace;
+    }
+
+    private static IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>>
+        GetTableColumnTypes(IModel model)
+    {
+        Dictionary<string, Dictionary<string, string>> tables =
+            new(StringComparer.Ordinal);
+
+        foreach (IEntityType entityType in model.GetEntityTypes())
+        {
+            string? tableName = entityType.GetTableName();
+            if (tableName is null)
+            {
+                continue;
+            }
+
+            string? schema = entityType.GetSchema() ?? model.GetDefaultSchema();
+            string tableKey = $"{schema}.{tableName}";
+            StoreObjectIdentifier table = StoreObjectIdentifier.Table(tableName, schema);
+            if (!tables.TryGetValue(tableKey, out Dictionary<string, string>? columns))
+            {
+                columns = new Dictionary<string, string>(StringComparer.Ordinal);
+                tables.Add(tableKey, columns);
+            }
+
+            foreach (IProperty property in entityType.GetProperties())
+            {
+                string? columnName = property.GetColumnName(table);
+                string? columnType = property.GetColumnType();
+                if (columnName is not null && columnType is not null)
+                {
+                    columns[columnName] = columnType;
+                }
+            }
+        }
+
+        return tables.ToDictionary(
+            table => table.Key,
+            table => (IReadOnlyDictionary<string, string>)table.Value,
+            StringComparer.Ordinal);
+    }
+
+    private static SetupDbContext CreateSetupContext()
+    {
+        return new SetupDbContext(
+            PostgreSqlDbContextOptions.Create<SetupDbContext>(
+                ModelTestDatabase.ConnectionString));
+    }
     private static EspadaDbContext CreateContext()
     {
         return new EspadaDbContext(PostgreSqlDbContextOptions.Create<EspadaDbContext>(ModelTestDatabase.ConnectionString));

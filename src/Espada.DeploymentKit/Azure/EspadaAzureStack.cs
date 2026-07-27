@@ -16,7 +16,6 @@ using Pulumi.AzureNative.OperationalInsights;
 using Pulumi.AzureNative.OperationalInsights.Inputs;
 using Pulumi.AzureNative.Resources;
 using Pulumi.AzureNative.Storage;
-using Pulumi.AzureNative.Storage.Inputs;
 using System.Security.Cryptography;
 using System.Text;
 using AppManagedIdentityArgs = Pulumi.AzureNative.App.Inputs.ManagedServiceIdentityArgs;

@@ -1,4 +1,3 @@
-using Espada.Domain.ValueObjects;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using Espada.Api.Contracts.Serialization;

@@ -1,4 +1,3 @@
-using Espada.Api;
 using Espada.Tests.Api.TestData;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;

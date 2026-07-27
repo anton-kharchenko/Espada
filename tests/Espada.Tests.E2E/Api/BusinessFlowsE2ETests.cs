@@ -8,7 +8,6 @@ using Espada.Api.Contracts.Requests.Context;
 using Espada.Api.Contracts.Requests.Imports;
 using Espada.Api.Contracts.Requests.Sources;
 using Espada.Api.Contracts.Requests.Workspaces;
-using Espada.Domain.ValueObjects;
 using Espada.Application.UseCases.Artifacts.Commands.AddArtifactRevision;
 using Espada.Application.UseCases.Artifacts.Commands.CreateArtifact;
 using Espada.Application.UseCases.Artifacts.Queries.GetArtifactById;

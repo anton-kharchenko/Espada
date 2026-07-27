@@ -1,5 +1,4 @@
 using Asp.Versioning;
-using AutoMapper;
 using Espada.Api.Filters;
 using Espada.Api.Mappings;
 using Espada.Api.Middlewares;

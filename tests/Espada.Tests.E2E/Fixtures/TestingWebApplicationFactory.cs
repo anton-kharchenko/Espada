@@ -1,4 +1,3 @@
-using Espada.Api;
 using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace Espada.Tests.E2E.Fixtures;

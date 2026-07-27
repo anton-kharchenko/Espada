@@ -1,4 +1,3 @@
-using Espada.Domain.ValueObjects;
 using Espada.Domain.ValueObjects.SourceDefinitions;
 using Espada.Tests.Api.Assertions;
 using Espada.Tests.Api.Fixtures;
