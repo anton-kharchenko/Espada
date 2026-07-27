@@ -37,7 +37,14 @@ internal sealed class GetChunkEmbeddingByChunkIdQueryHandler(
             return DomainResult<GetChunkEmbeddingByChunkIdResponse>.Failure(ChunkApplicationErrors.NotFoundInWorkspace(request.ChunkId, request.WorkspaceId));
         }
 
-        ChunkEmbedding? embedding = await chunkEmbeddingRepository.GetByChunkIdAsync(chunk.Id, cancellationToken);
+        DomainResult<EmbeddingModel> modelResult = EmbeddingModel.Create(request.ModelIdentifier, request.ModelVersion);
+
+        if (modelResult.IsFailure)
+        {
+            return DomainResult<GetChunkEmbeddingByChunkIdResponse>.Failure(modelResult.Error);
+        }
+
+        ChunkEmbedding? embedding = await chunkEmbeddingRepository.GetByChunkIdAsync(chunk.Id, modelResult.Value, cancellationToken);
 
         if (embedding is null)
         {

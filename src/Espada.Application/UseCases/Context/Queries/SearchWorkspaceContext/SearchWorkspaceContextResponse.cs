@@ -1,0 +1,3 @@
+namespace Espada.Application.UseCases.Context.Queries.SearchWorkspaceContext;
+
+public sealed record SearchWorkspaceContextResponse(IReadOnlyList<WorkspaceContextItemResponse> Items);

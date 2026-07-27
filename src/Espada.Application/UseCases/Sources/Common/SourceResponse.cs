@@ -9,5 +9,6 @@ namespace Espada.Application.UseCases.Sources.Common
         string TypeName,
         int StatusId,
         string StatusName,
+        int Priority,
         DateTimeOffset CreatedAtUtc);
 }

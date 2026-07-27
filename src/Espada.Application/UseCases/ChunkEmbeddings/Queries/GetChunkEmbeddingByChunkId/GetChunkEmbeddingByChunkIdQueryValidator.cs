@@ -8,5 +8,7 @@ internal sealed class GetChunkEmbeddingByChunkIdQueryValidator : AbstractValidat
     {
         RuleFor(query => query.WorkspaceId).NotEmpty();
         RuleFor(query => query.ChunkId).NotEmpty();
+        RuleFor(query => query.ModelIdentifier).NotEmpty();
+        RuleFor(query => query.ModelVersion).NotEmpty();
     }
 }

@@ -13,9 +13,9 @@ internal sealed class StartImportHandlerFixture
 
     public UnitOfWorkSpy UnitOfWork { get; } = new();
 
-    public TestClock Clock { get; } = new(TestDates.ImportStartedAtUtc);
+    public TestClockService ClockService { get; } = new(TestDates.ImportStartedAtUtc);
 
-    public StartImportCommandHandler CreateHandler() => new(ImportJobRepository, UnitOfWork, Clock);
+    public StartImportCommandHandler CreateHandler() => new(ImportJobRepository, UnitOfWork, ClockService);
 
     public ImportJob GivenRequestedImportExists(WorkspaceId? workspaceId = null)
     {

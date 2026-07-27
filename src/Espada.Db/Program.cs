@@ -1,7 +1,7 @@
-using Espada.Db.Commands;
 using Espada.Db.Database;
 using Espada.Db.Enums;
 using Espada.Db.Extensions;
+using Espada.Db.Parsers;
 using Espada.Db.Seeding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -12,7 +12,7 @@ public static class Program
 {
     public static async Task<int> Main(string[] args)
     {
-        IConfiguration configuration =  new ConfigurationBuilder()
+        IConfiguration configuration = new ConfigurationBuilder()
             .SetBasePath(AppContext.BaseDirectory)
             .AddJsonFile("appsettings.json", optional: false)
             .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Development"}.json", optional: true)

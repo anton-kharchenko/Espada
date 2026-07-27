@@ -8,7 +8,7 @@ using Espada.Domain.ValueObjects;
 
 namespace Espada.Application.UseCases.Imports.Commands.CancelImport
 {
-    internal sealed class CancelImportCommandHandler(IImportJobRepository importJobRepository, IUnitOfWork unitOfWork, IClock clock)
+    internal sealed class CancelImportCommandHandler(IImportJobRepository importJobRepository, IUnitOfWork unitOfWork, IClockService clockService)
         : ICommandHandler<CancelImportCommand>
     {
         public async Task<DomainResult> Handle(CancelImportCommand request, CancellationToken cancellationToken)
@@ -37,7 +37,7 @@ namespace Espada.Application.UseCases.Imports.Commands.CancelImport
                 return DomainResult.Failure(ImportJobApplicationErrors.NotFoundInWorkspace(request.ImportJobId, request.WorkspaceId));
             }
 
-            DomainResult cancelResult = importJob.Cancel(clock.UtcNow);
+            DomainResult cancelResult = importJob.Cancel(clockService.UtcNow);
 
             if (cancelResult.IsFailure)
             {

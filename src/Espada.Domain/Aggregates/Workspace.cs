@@ -9,7 +9,7 @@ namespace Espada.Domain.Aggregates;
 
 public sealed class Workspace : AggregateRoot<WorkspaceId>, IHasConcurrencyVersion
 {
-    public long Version { get; private set; } = 1;
+    public uint Version { get; private set; }
 
     private Workspace()
     {

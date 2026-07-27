@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using Pgvector;
 
 #nullable disable
 
@@ -21,6 +22,7 @@ namespace Espada.Db.Migrations
                 .HasAnnotation("ProductVersion", "10.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+            NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "vector");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("Espada.Db.Models.ArtifactRevisions", b =>
@@ -147,6 +149,11 @@ namespace Espada.Db.Migrations
                     b.Property<int?>("CurrentRevisionNumber")
                         .HasColumnType("integer");
 
+                    b.Property<int>("Priority")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
                     b.Property<int>("StatusId")
                         .HasColumnType("integer");
 
@@ -161,11 +168,11 @@ namespace Espada.Db.Migrations
                     b.Property<DateTimeOffset>("UpdatedAtUtc")
                         .HasColumnType("timestamptz");
 
-                    b.Property<long>("Version")
+                    b.Property<uint>("Version")
                         .IsConcurrencyToken()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasDefaultValue(1L);
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.Property<Guid>("WorkspaceId")
                         .HasColumnType("uuid");
@@ -183,7 +190,10 @@ namespace Espada.Db.Migrations
                     b.HasIndex("WorkspaceId", "Title")
                         .HasDatabaseName("IX_Artifacts_WorkspaceId_Title");
 
-                    b.ToTable("Artifacts", "Espada");
+                    b.ToTable("Artifacts", "Espada", t =>
+                        {
+                            t.HasCheckConstraint("CK_Artifacts_Priority_Range", "\"Priority\" BETWEEN -100 AND 100");
+                        });
                 });
 
             modelBuilder.Entity("Espada.Db.Models.ChunkBatchStatusTypes", b =>
@@ -264,11 +274,11 @@ namespace Espada.Db.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("varchar(64)");
 
-                    b.Property<long>("Version")
+                    b.Property<uint>("Version")
                         .IsConcurrencyToken()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasDefaultValue(1L);
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.Property<Guid>("WorkspaceId")
                         .HasColumnType("uuid");
@@ -300,9 +310,9 @@ namespace Espada.Db.Migrations
                     b.Property<Guid>("ChunkEmbeddingId")
                         .HasColumnType("uuid");
 
-                    b.PrimitiveCollection<float[]>("Vector")
+                    b.Property<Vector>("Vector")
                         .IsRequired()
-                        .HasColumnType("real[]");
+                        .HasColumnType("vector");
 
                     b.HasKey("ChunkEmbeddingId");
 
@@ -491,11 +501,11 @@ namespace Espada.Db.Migrations
                     b.Property<int>("StatusId")
                         .HasColumnType("integer");
 
-                    b.Property<long>("Version")
+                    b.Property<uint>("Version")
                         .IsConcurrencyToken()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasDefaultValue(1L);
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.Property<Guid>("WorkspaceId")
                         .HasColumnType("uuid");
@@ -658,6 +668,11 @@ namespace Espada.Db.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)");
 
+                    b.Property<int>("Priority")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
                     b.Property<int>("StatusId")
                         .HasColumnType("integer");
 
@@ -667,11 +682,11 @@ namespace Espada.Db.Migrations
                     b.Property<DateTimeOffset>("UpdatedAtUtc")
                         .HasColumnType("timestamptz");
 
-                    b.Property<long>("Version")
+                    b.Property<uint>("Version")
                         .IsConcurrencyToken()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasDefaultValue(1L);
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.Property<Guid>("WorkspaceId")
                         .HasColumnType("uuid");
@@ -690,7 +705,10 @@ namespace Espada.Db.Migrations
                         .IsUnique()
                         .HasDatabaseName("UX_Sources_WorkspaceId_Locator");
 
-                    b.ToTable("Sources", "Espada");
+                    b.ToTable("Sources", "Espada", t =>
+                        {
+                            t.HasCheckConstraint("CK_Sources_Priority_Range", "\"Priority\" BETWEEN -100 AND 100");
+                        });
                 });
 
             modelBuilder.Entity("Espada.Db.Models.WorkspaceStatusTypes", b =>
@@ -782,11 +800,11 @@ namespace Espada.Db.Migrations
                     b.Property<int>("TypeId")
                         .HasColumnType("integer");
 
-                    b.Property<long>("Version")
+                    b.Property<uint>("Version")
                         .IsConcurrencyToken()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasDefaultValue(1L);
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.HasKey("WorkspaceId");
 

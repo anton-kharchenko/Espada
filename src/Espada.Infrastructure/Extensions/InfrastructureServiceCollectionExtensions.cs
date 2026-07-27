@@ -11,9 +11,9 @@ public static class InfrastructureServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
 
-        string environmentVariable = Environment.GetEnvironmentVariable(DatabaseConfigurationNames.ConnectionStringEnvironmentVariable) 
-                                     ?? configuration.GetConnectionString(DatabaseConfigurationNames.ConnectionString) 
+        string environmentVariable = Environment.GetEnvironmentVariable(DatabaseConfigurationNames.ConnectionStringEnvironmentVariable)
+                                     ?? configuration.GetConnectionString(DatabaseConfigurationNames.ConnectionString)
                                      ?? throw new InvalidOperationException($"Database connection string was not configured. Set ConnectionStrings:{DatabaseConfigurationNames.ConnectionString} or {DatabaseConfigurationNames.ConnectionStringEnvironmentVariable}.");
-        services.AddInfrastructure(environmentVariable);
+        services.AddInfrastructure(environmentVariable, configuration);
     }
 }

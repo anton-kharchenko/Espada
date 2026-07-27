@@ -1,8 +1,10 @@
 using Asp.Versioning;
+using AutoMapper;
 using Espada.Api.Filters;
+using Espada.Api.Mappings;
 using Espada.Api.Middlewares;
 using Espada.Api.OpenApi;
-using Espada.Api.Security;
+using Espada.Comms.Core.Security;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Espada.Api.Extensions;
@@ -42,19 +44,11 @@ internal static class ApiServiceCollectionExtensions
             options.AddOperationTransformer<ApiKeySecurityRequirementTransformer>();
         });
 
-        services
-            .AddAuthentication(ApiKeyAuthenticationDefaults.AuthenticationScheme)
-            .AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(
-                ApiKeyAuthenticationDefaults.AuthenticationScheme,
-                options =>
-                {
-                    IConfigurationSection section = configuration.GetSection(ApiKeyAuthenticationDefaults.ConfigurationSection);
-                    options.HeaderName = section["HeaderName"] ?? ApiKeyAuthenticationDefaults.DefaultHeaderName;
-                    options.ApiKey = section["Value"] ?? string.Empty;
-                });
+        services.AddEspadaApiKeyAuthentication(configuration);
 
         services.AddAuthorization();
         services.AddHealthChecks();
+        services.AddAutoMapper(_ => { }, typeof(ApiMappingProfile));
 
         return services;
     }

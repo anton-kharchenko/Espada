@@ -15,7 +15,7 @@ namespace Espada.Tests.Application.Fixtures
 
         public UnitOfWorkSpy UnitOfWork { get; } = new();
 
-        public TestClock Clock { get; } =
+        public TestClockService ClockService { get; } =
             new(TestDates.ArtifactSecondRevisionCreatedAtUtc);
 
         public AddArtifactRevisionCommandHandler CreateHandler()
@@ -24,7 +24,7 @@ namespace Espada.Tests.Application.Fixtures
                 ArtifactRepository,
                 ArtifactRevisionRepository,
                 UnitOfWork,
-                Clock);
+                ClockService);
         }
 
         public Artifact GivenArtifactExists(

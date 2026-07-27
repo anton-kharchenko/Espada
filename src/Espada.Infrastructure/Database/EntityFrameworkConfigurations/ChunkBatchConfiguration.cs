@@ -1,8 +1,8 @@
+using Espada.Db.Constants;
 using Espada.Domain.Aggregates;
 using Espada.Domain.Enums;
 using Espada.Domain.SeedWork;
 using Espada.Domain.ValueObjects;
-using Espada.Db.Constants;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -98,11 +98,7 @@ internal sealed class ChunkBatchConfiguration : IEntityTypeConfiguration<ChunkBa
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.Version)
-            .HasColumnName("Version")
-            .HasColumnType(DbConstants.ColumnTypes.Numeric.BigInt)
-            .HasDefaultValue(1L)
-            .IsConcurrencyToken()
-            .IsRequired()
+            .IsRowVersion()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.HasOne<ArtifactRevision>()
@@ -131,7 +127,7 @@ internal sealed class ChunkBatchConfiguration : IEntityTypeConfiguration<ChunkBa
     public void Configure(EntityTypeBuilder<Espada.Db.Models.ChunkBatches> builder)
     {
         builder.Property(model => model.ChunkBatchId).ValueGeneratedNever();
-        builder.Property(model => model.Version).HasDefaultValue(1L).IsConcurrencyToken();
+        builder.Property(model => model.Version).IsRowVersion();
         builder.HasOne<Espada.Db.Models.ArtifactRevisions>().WithMany().HasForeignKey(model => model.ArtifactRevisionId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Espada.Db.Models.ChunkingStrategyTypes>().WithMany().HasForeignKey(model => model.StrategyId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Espada.Db.Models.ChunkBatchStatusTypes>().WithMany().HasForeignKey(model => model.StatusId).OnDelete(DeleteBehavior.Restrict);

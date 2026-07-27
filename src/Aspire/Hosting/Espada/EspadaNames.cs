@@ -7,4 +7,6 @@ internal static class EspadaNames
     public const string Database = "Espada";
     public const string Migrations = "migrations";
     public const string Api = "api";
+    public const string Daemon = "daemon";
+    public const string Web = "web";
 }

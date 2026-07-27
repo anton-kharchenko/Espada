@@ -1,6 +1,6 @@
 using Asp.Versioning;
 using Espada.Api.Contracts.Responses;
-using Espada.Api.Security;
+using Espada.Comms.Core.Security;
 using Espada.Domain.Rules;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -15,7 +15,7 @@ namespace Espada.Application.UseCases.Artifacts.Commands.CreateArtifact
         IArtifactRepository artifactRepository,
         IArtifactRevisionRepository artifactRevisionRepository,
         IUnitOfWork unitOfWork,
-        IClock clock) : ICommandHandler<CreateArtifactCommand, CreateArtifactResponse>
+        IClockService clockService) : ICommandHandler<CreateArtifactCommand, CreateArtifactResponse>
     {
         public async Task<DomainResult<CreateArtifactResponse>> Handle(CreateArtifactCommand request, CancellationToken cancellationToken)
         {
@@ -58,7 +58,7 @@ namespace Espada.Application.UseCases.Artifacts.Commands.CreateArtifact
 
             ArtifactId artifactId = ArtifactId.Create(Guid.NewGuid());
 
-            DateTimeOffset createdAtUtc = clock.UtcNow;
+            DateTimeOffset createdAtUtc = clockService.UtcNow;
 
             DomainResult<Artifact> artifactResult = Artifact.Create(artifactId, workspace.Id, titleResult.Value, artifactType, createdAtUtc);
 

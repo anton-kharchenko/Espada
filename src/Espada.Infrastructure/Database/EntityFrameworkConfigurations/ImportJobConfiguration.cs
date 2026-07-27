@@ -1,8 +1,8 @@
+using Espada.Db.Constants;
 using Espada.Domain.Aggregates;
 using Espada.Domain.Enums;
 using Espada.Domain.SeedWork;
 using Espada.Domain.ValueObjects;
-using Espada.Db.Constants;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -105,11 +105,7 @@ internal sealed class ImportJobConfiguration : IEntityTypeConfiguration<ImportJo
             .IsRequired(false);
 
         builder.Property(e => e.Version)
-            .HasColumnName("Version")
-            .HasColumnType(DbConstants.ColumnTypes.Numeric.BigInt)
-            .HasDefaultValue(1L)
-            .IsConcurrencyToken()
-            .IsRequired()
+            .IsRowVersion()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.HasOne<Source>()
@@ -135,7 +131,7 @@ internal sealed class ImportJobConfiguration : IEntityTypeConfiguration<ImportJo
     public void Configure(EntityTypeBuilder<Espada.Db.Models.ImportJobs> builder)
     {
         builder.Property(model => model.ImportJobId).ValueGeneratedNever();
-        builder.Property(model => model.Version).HasDefaultValue(1L).IsConcurrencyToken();
+        builder.Property(model => model.Version).IsRowVersion();
         builder.OwnsOne(model => model.Failure, failure =>
         {
             failure.Property(model => model.Code).HasColumnName("FailureCode").HasColumnType(DbConstants.ColumnTypes.Text.Varchar200).HasMaxLength(DbConstants.Validations.MaxLengths.L200);

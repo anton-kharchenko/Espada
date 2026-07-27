@@ -13,10 +13,10 @@ Espada consists of:
 * A local daemon.
 * A command-line interface.
 * An MCP server and stdio bridge.
-* A local SQLite database.
+* An external PostgreSQL/pgvector database for local and cloud persistence.
 * Local filesystem blob storage.
 * An optional managed cloud service.
-* PostgreSQL cloud persistence.
+* Managed PostgreSQL cloud persistence.
 * Azure Blob Storage.
 * A synchronization protocol.
 * A React web application.
@@ -81,7 +81,6 @@ Prefer automated tests, builds, protocol checks, and migration checks over visua
 Examples:
 
 * Domain change → run targeted domain and application tests.
-* SQLite change → run SQLite integration tests and migration tests.
 * PostgreSQL change → run PostgreSQL integration tests.
 * MCP change → verify `tools/list` and targeted `tools/call`.
 * Sync change → verify offline writes, push, pull, retry, and conflict behavior.
@@ -107,10 +106,9 @@ The local product must work without:
 * An internet connection.
 * Espada Cloud.
 * Azure.
-* PostgreSQL.
 * A third-party AI API key.
 
-The local daemon and local database are the primary runtime for local users.
+The local daemon and a user-managed PostgreSQL/pgvector database are the primary runtime for local users.
 
 Cloud functionality is optional.
 
@@ -182,8 +180,9 @@ Do not expose low-level sync internals as general-purpose agent tools.
 
 Local:
 
-* SQLite.
-* Microsoft.Data.Sqlite.
+* PostgreSQL.
+* Npgsql.
+* pgvector.
 * Filesystem blob storage.
 
 Cloud:
@@ -224,8 +223,8 @@ src/
 ├── Espada.Contracts
 ├── Espada.Infrastructure
 │
-├── Espada.Storage.Sqlite
-├── Espada.Storage.Postgres
+├── Espada.Db
+├── Espada.Infrastructure
 │
 ├── Espada.Blobs.Abstractions
 ├── Espada.Blobs.FileSystem
@@ -256,8 +255,7 @@ Tests live under `tests/`.
 tests/
 ├── Espada.Domain.Tests
 ├── Espada.Application.Tests
-├── Espada.Storage.Sqlite.Tests
-├── Espada.Storage.Postgres.Tests
+├── Espada.Tests.Integration
 ├── Espada.Blobs.Tests
 ├── Espada.Protocol.Mcp.Tests
 ├── Espada.Protocol.Sync.Tests
@@ -325,7 +323,7 @@ Prefer targeted projects when possible:
 
 ```powershell
 dotnet test tests/Espada.Domain.Tests
-dotnet test tests/Espada.Storage.Sqlite.Tests
+dotnet test tests/Espada.Tests.Integration
 dotnet test tests/Espada.Protocol.Mcp.Tests
 dotnet test tests/Espada.Protocol.Sync.Tests
 ```
@@ -439,7 +437,6 @@ The domain layer must not depend on:
 
 * ASP.NET Core.
 * MCP SDK.
-* SQLite.
 * PostgreSQL.
 * Azure.
 * React.
@@ -467,7 +464,7 @@ Examples:
 
 Application services operate through interfaces.
 
-They must not know whether persistence is SQLite or PostgreSQL.
+They must not know whether PostgreSQL is user-managed locally or managed by Espada Cloud.
 
 ### Contracts
 
@@ -563,37 +560,14 @@ When the artifact model changes:
 
 ## 9. Persistence Guidelines
 
-### SQLite
-
-SQLite is the local source of truth.
-
-Use:
-
-* Microsoft.Data.Sqlite.
-* Explicit transactions.
-* FTS5 for full-text search where appropriate.
-* JSON columns as text when needed.
-* WAL mode when appropriate.
-* A single daemon as the primary local writer.
-
-Do not assume PostgreSQL-specific behavior in local repositories.
-
-Test:
-
-* Fresh database creation.
-* Migration from previous versions.
-* Transaction rollback.
-* Concurrent reads.
-* Daemon restart recovery.
-* Corrupted or incomplete sync state.
-
 ### PostgreSQL
 
-PostgreSQL is the managed cloud source of truth.
+PostgreSQL is the persistence engine for both local and managed cloud modes. Local installations use an external PostgreSQL/pgvector instance; Aspire starts a pgvector-enabled container for development.
 
 Use:
 
 * Npgsql.
+* pgvector for embedding vectors and exact semantic search.
 * JSONB where structured metadata benefits from indexing.
 * PostgreSQL full-text search where appropriate.
 * Tenant-aware queries.
@@ -605,10 +579,6 @@ Do not create one database per Solo or Pro customer.
 Use a multi-tenant design unless an Enterprise deployment explicitly requires dedicated infrastructure.
 
 ### Migrations
-
-SQLite and PostgreSQL may have separate migrations.
-
-Do not force one migration implementation to support both databases if it makes either implementation unsafe.
 
 Every migration must include:
 
@@ -664,7 +634,7 @@ Blobs should be content-addressed where practical.
 
 Use a cryptographic content hash such as SHA-256.
 
-Do not store large binary content directly in SQLite or PostgreSQL unless explicitly justified.
+Do not store large binary content directly in PostgreSQL unless explicitly justified.
 
 ### Azure authentication
 
@@ -1427,7 +1397,7 @@ Recommended:
 * FluentAssertions.
 * Moq where mocks are appropriate.
 * Testcontainers for PostgreSQL and supporting infrastructure.
-* Real SQLite for SQLite integration tests.
+* Real PostgreSQL/pgvector through Testcontainers for persistence integration tests.
 
 Avoid mocking everything.
 
@@ -1550,7 +1520,7 @@ Examples:
 feat: add context explanation endpoint
 fix: prevent duplicate sync event application
 docs: document local daemon setup
-test: add SQLite migration recovery coverage
+test: add PostgreSQL migration recovery coverage
 refactor: isolate MCP transport contracts
 chore: update Azure Blob SDK
 ```
@@ -1580,7 +1550,7 @@ Example verification list:
 
 ```text
 dotnet test tests/Espada.Application.Tests
-dotnet test tests/Espada.Storage.Sqlite.Tests
+dotnet test tests/Espada.Tests.Integration
 dotnet test tests/Espada.Protocol.Sync.Tests
 npm run lint
 npm run test
@@ -1654,14 +1624,13 @@ Before refactoring:
 
 For database changes:
 
-1. Identify SQLite impact.
-2. Identify PostgreSQL impact.
-3. Add migrations.
-4. Add migration tests.
-5. Test fresh database creation.
-6. Test upgrade from the previous version.
-7. Document rollback or recovery.
-8. Check sync compatibility.
+1. Identify local and managed PostgreSQL impact.
+2. Add migrations.
+3. Add migration tests.
+4. Test fresh database creation.
+5. Test upgrade from the previous version.
+6. Document rollback or recovery.
+7. Check sync compatibility.
 
 ### MCP-related change
 

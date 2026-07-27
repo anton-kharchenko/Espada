@@ -54,7 +54,7 @@ public sealed class RegisterSourceCommandHandlerTests
 
         fixture.GivenWorkspaceExists();
 
-        fixture.Clock.UtcNow = TestDates.LaterUtc;
+        fixture.ClockService.UtcNow = TestDates.LaterUtc;
 
         RegisterSourceCommandHandler handler = fixture.CreateHandler();
 

@@ -11,7 +11,7 @@ namespace Espada.Application.UseCases.Artifacts.Commands.ArchiveArtifact
     internal sealed class ArchiveArtifactCommandHandler(
         IArtifactRepository artifactRepository,
         IUnitOfWork unitOfWork,
-        IClock clock) : ICommandHandler<ArchiveArtifactCommand>
+        IClockService clockService) : ICommandHandler<ArchiveArtifactCommand>
     {
         public async Task<DomainResult> Handle(
             ArchiveArtifactCommand request,
@@ -49,7 +49,7 @@ namespace Espada.Application.UseCases.Artifacts.Commands.ArchiveArtifact
                         request.WorkspaceId));
             }
 
-            DomainResult archiveResult = artifact.Archive(clock.UtcNow);
+            DomainResult archiveResult = artifact.Archive(clockService.UtcNow);
 
             if (archiveResult.IsFailure)
             {

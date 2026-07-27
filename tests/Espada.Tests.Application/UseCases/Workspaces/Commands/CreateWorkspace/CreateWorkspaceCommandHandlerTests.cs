@@ -71,7 +71,7 @@ public sealed class CreateWorkspaceCommandHandlerTests
     public async Task Handle_WithValidCommand_ShouldUseCurrentClockTime()
     {
         // Arrange
-        CreateWorkspaceHandlerFixture fixture = new() { Clock = { UtcNow = TestDates.LaterUtc } };
+        CreateWorkspaceHandlerFixture fixture = new() { ClockService = { UtcNow = TestDates.LaterUtc } };
 
         CreateWorkspaceCommandHandler handler = fixture.CreateHandler();
 

@@ -32,6 +32,16 @@ public static class DbConstants
         public const string ChunkEmbeddingModelVersion = "_modelVersion";
     }
 
+    public static class Constraints
+    {
+        public const string ArtifactPriorityRange = "CK_Artifacts_Priority_Range";
+        public const string SourcePriorityRange = "CK_Sources_Priority_Range";
+    }
+
+    public static class Extensions
+    {
+        public const string Vector = "vector";
+    }
     public static class Indexes
     {
         public const string ArtifactRevisionArtifactNumber = "UX_ArtifactRevisions_ArtifactId_RevisionNumber";
@@ -87,7 +97,7 @@ public static class DbConstants
         {
             public const string Integer = "integer";
             public const string BigInt = "bigint";
-            public const string RealArray = "real[]";
+            public const string Vector = "vector";
         }
 
         public static class DateTime
@@ -115,8 +125,8 @@ public static class DbConstants
             public const string Now = "NOW()";
         }
     }
-    
+
     public const string ConnectionString = "Espada";
-    
+
     public const string ConnectionStringEnvironmentVariable = "ESPADA_CONNECTION_STRING";
 }

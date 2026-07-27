@@ -12,7 +12,7 @@ internal sealed class CreateChunksCommandHandler(
     IChunkBatchRepository chunkBatchRepository,
     IChunkRepository chunkRepository,
     IUnitOfWork unitOfWork,
-    IClock clock) : ICommandHandler<CreateChunksCommand, CreateChunksResponse>
+    IClockService clockService) : ICommandHandler<CreateChunksCommand, CreateChunksResponse>
 {
     public async Task<DomainResult<CreateChunksResponse>> Handle(CreateChunksCommand request, CancellationToken cancellationToken)
     {
@@ -51,7 +51,7 @@ internal sealed class CreateChunksCommandHandler(
             return DomainResult<CreateChunksResponse>.Failure(ChunkBatchApplicationErrors.NotFoundInWorkspace(request.ChunkBatchId, request.WorkspaceId));
         }
 
-        DateTimeOffset startedAtUtc = clock.UtcNow;
+        DateTimeOffset startedAtUtc = clockService.UtcNow;
         DomainResult startResult = batch.Start(startedAtUtc);
 
         if (startResult.IsFailure)
@@ -106,7 +106,7 @@ internal sealed class CreateChunksCommandHandler(
             chunks.Add(chunkResult.Value);
         }
 
-        DateTimeOffset completedAtUtc = clock.UtcNow;
+        DateTimeOffset completedAtUtc = clockService.UtcNow;
         DomainResult completeResult = batch.Complete(chunks.Count, completedAtUtc);
 
         if (completeResult.IsFailure)

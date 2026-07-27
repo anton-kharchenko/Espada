@@ -1,0 +1,1037 @@
+{
+  "info": {
+    "name": "Espada REST API",
+    "description": "Runnable examples for every current Espada REST endpoint.\n\nSetup:\n1. Import this collection and Local_Environment.postman_environment.json.\n2. Select the Espada Local environment.\n3. Read the local key with `aspire secret get Parameters:api-key --apphost src/Aspire/Aspire.csproj` and set the secret apiKey environment variable.\n4. Run folders in numeric order. IDs are captured automatically into the environment.\n\nThe Generate Chunk Embedding request requires a configured embedding provider and is the only request not asserted in the default local setup.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "X-Espada-Api-Key",
+        "type": "string"
+      },
+      {
+        "key": "value",
+        "value": "{{apiKey}}",
+        "type": "string"
+      },
+      {
+        "key": "in",
+        "value": "header",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "[\"baseUrl\", \"apiKey\"].forEach((key) => {",
+          "  if (!pm.environment.get(key)) {",
+          "    throw new Error(`Select the Espada Local environment and set ${key}.`);",
+          "  }",
+          "});"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "01 — Workspace",
+      "description": "Creates the workspace used by the remaining requests and stores workspaceId.",
+      "item": [
+        {
+          "name": "Create Workspace",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman workspace\",\n  \"typeId\": {{workspaceTypeId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", () => pm.response.to.have.status(201));",
+                  "const response = pm.response.json();",
+                  "pm.expect(response.workspaceId, \"workspaceId\").to.exist;",
+                  "pm.environment.set(\"workspaceId\", response.workspaceId);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Workspace",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 — Source",
+      "description": "Registers a source, reads it, and sets the source priority.",
+      "item": [
+        {
+          "name": "Register Source",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/sources",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Espada documentation\",\n  \"locator\": \"https://example.com/espada/postman\",\n  \"typeId\": {{sourceTypeId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", () => pm.response.to.have.status(201));",
+                  "const response = pm.response.json();",
+                  "pm.expect(response.sourceId, \"sourceId\").to.exist;",
+                  "pm.environment.set(\"sourceId\", response.sourceId);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Source",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/sources/{{sourceId}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Set Source Priority",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/sources/{{sourceId}}/priority",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"priority\": {{sourcePriority}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 — Import Request",
+      "description": "Starts the successful import lifecycle. Artifact creation and completion follow in the next folders.",
+      "item": [
+        {
+          "name": "Request Import",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/imports/sources/{{sourceId}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", () => pm.response.to.have.status(201));",
+                  "const response = pm.response.json();",
+                  "pm.expect(response.importJobId, \"importJobId\").to.exist;",
+                  "pm.environment.set(\"importJobId\", response.importJobId);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Start Import",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/imports/{{importJobId}}/start"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 — Artifact",
+      "description": "Creates the artifact and initial revision needed to complete the import.",
+      "item": [
+        {
+          "name": "Create Artifact",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/artifacts",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Postman artifact\",\n  \"typeId\": {{artifactTypeId}},\n  \"content\": \"# First revision\\n\\nCreated from the Espada Postman collection.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", () => pm.response.to.have.status(201));",
+                  "const response = pm.response.json();",
+                  "pm.expect(response.artifactId, \"artifactId\").to.exist;",
+                  "pm.environment.set(\"artifactId\", response.artifactId);",
+                  "pm.expect(response.artifactRevisionId, \"initialRevisionId\").to.exist;",
+                  "pm.environment.set(\"initialRevisionId\", response.artifactRevisionId);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Artifacts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/artifacts"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Artifact",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/artifacts/{{artifactId}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Set Artifact Priority",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/artifacts/{{artifactId}}/priority",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"priority\": {{artifactPriority}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Rename Artifact",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/artifacts/{{artifactId}}/rename",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Renamed Postman artifact\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05 — Complete Import",
+      "item": [
+        {
+          "name": "Complete Import",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/imports/{{importJobId}}/complete",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"artifactId\": \"{{artifactId}}\",\n  \"artifactRevisionId\": \"{{initialRevisionId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Import",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/imports/{{importJobId}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "06 — Artifact Revisions",
+      "item": [
+        {
+          "name": "Add Artifact Revision",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/artifacts/{{artifactId}}/revisions",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"# Second revision\\n\\nThis revision is chunked and embedded by the following requests.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", () => pm.response.to.have.status(201));",
+                  "const response = pm.response.json();",
+                  "pm.expect(response.artifactRevisionId, \"revisionId\").to.exist;",
+                  "pm.environment.set(\"revisionId\", response.artifactRevisionId);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Artifact Revisions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/artifacts/{{artifactId}}/revisions"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Artifact Revision",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/artifacts/{{artifactId}}/revisions/{{revisionId}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "07 — Chunks",
+      "item": [
+        {
+          "name": "Create Chunk Batch",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/artifacts/{{artifactId}}/revisions/{{revisionId}}/chunk-batches",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"strategyId\": {{chunkingStrategyId}},\n  \"strategyVersion\": \"{{chunkingStrategyVersion}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", () => pm.response.to.have.status(201));",
+                  "const response = pm.response.json();",
+                  "pm.expect(response.chunkBatchId, \"chunkBatchId\").to.exist;",
+                  "pm.environment.set(\"chunkBatchId\", response.chunkBatchId);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Chunks",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/chunk-batches/{{chunkBatchId}}/chunks",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"number\": 1,\n      \"content\": \"First chunk\",\n      \"sourceStart\": 0,\n      \"sourceLength\": 11\n    },\n    {\n      \"number\": 2,\n      \"content\": \"Second chunk\",\n      \"sourceStart\": 12,\n      \"sourceLength\": 12\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", () => pm.response.to.have.status(201));",
+                  "const response = pm.response.json();",
+                  "pm.expect(response.items).to.be.an(\"array\").that.is.not.empty;",
+                  "pm.environment.set(\"chunkId\", response.items[0].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Chunks by Revision",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/artifact-revisions/{{revisionId}}/chunks"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Chunk",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/chunks/{{chunkId}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "08 — Embeddings",
+      "item": [
+        {
+          "name": "Upsert Chunk Embedding",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/chunks/{{chunkId}}/embedding",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"modelIdentifier\": \"{{modelIdentifier}}\",\n  \"modelVersion\": \"{{modelVersion}}\",\n  \"vector\": {{embeddingVector}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", () => pm.response.to.have.status(201));",
+                  "const response = pm.response.json();",
+                  "pm.expect(response.chunkEmbeddingId, \"embeddingId\").to.exist;",
+                  "pm.environment.set(\"embeddingId\", response.chunkEmbeddingId);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Chunk Embedding",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/chunks/{{chunkId}}/embedding?modelIdentifier={{modelIdentifier}}&modelVersion={{modelVersion}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Generate Chunk Embedding",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/chunks/{{chunkId}}/embedding/generate",
+            "description": "Requires EmbeddingGeneration.BaseUrl, ApiKey, and a matching configured model. It is intentionally not asserted because the default local configuration has no provider.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"modelIdentifier\": \"{{generatedModelIdentifier}}\",\n  \"modelVersion\": \"{{generatedModelVersion}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "09 — Context Search",
+      "item": [
+        {
+          "name": "Search Workspace Context",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/context/search",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"queryText\": \"first chunk\",\n  \"queryVector\": {{embeddingVector}},\n  \"modelIdentifier\": \"{{modelIdentifier}}\",\n  \"modelVersion\": \"{{modelVersion}}\",\n  \"topK\": {{topK}},\n  \"artifactIds\": [\"{{artifactId}}\"],\n  \"revisionIds\": [\"{{revisionId}}\"],\n  \"sourceIds\": [\"{{sourceId}}\"],\n  \"artifactTypeIds\": [{{artifactTypeId}}],\n  \"sourceTypeIds\": [{{sourceTypeId}}],\n  \"createdAfterUtc\": null,\n  \"minimumSimilarity\": 0.1,\n  \"minimumArtifactPriority\": 0,\n  \"minimumSourcePriority\": -50\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "10 — Alternative Import States",
+      "description": "Independent examples for failed and cancelled import jobs.",
+      "item": [
+        {
+          "name": "Request Import for Failure",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/imports/sources/{{sourceId}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", () => pm.response.to.have.status(201));",
+                  "const response = pm.response.json();",
+                  "pm.expect(response.importJobId, \"failedImportJobId\").to.exist;",
+                  "pm.environment.set(\"failedImportJobId\", response.importJobId);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Start Import for Failure",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/imports/{{failedImportJobId}}/start"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Fail Import",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/imports/{{failedImportJobId}}/fail",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"failureCode\": \"postman.example\",\n  \"failureReason\": \"Example failure transition from the Postman collection.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Failed Import",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/imports/{{failedImportJobId}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Request Import for Cancellation",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/imports/sources/{{sourceId}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", () => pm.response.to.have.status(201));",
+                  "const response = pm.response.json();",
+                  "pm.expect(response.importJobId, \"cancelledImportJobId\").to.exist;",
+                  "pm.environment.set(\"cancelledImportJobId\", response.importJobId);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cancel Import",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/imports/{{cancelledImportJobId}}/cancel"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Cancelled Import",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/imports/{{cancelledImportJobId}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "11 — Archive",
+      "description": "Run last. These requests archive the resources created by the collection.",
+      "item": [
+        {
+          "name": "Archive Source",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/sources/{{sourceId}}/archive"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Archive Artifact",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/artifacts/{{artifactId}}/archive"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Archive Workspace",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/{{apiVersion}}/workspaces/{{workspaceId}}/archive"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

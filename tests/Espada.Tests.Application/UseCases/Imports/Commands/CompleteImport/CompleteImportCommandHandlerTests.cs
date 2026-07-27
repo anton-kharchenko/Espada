@@ -48,7 +48,7 @@ namespace Espada.Tests.Application.UseCases.Imports.Commands.CompleteImport
 
             DateTimeOffset expectedCompletedAtUtc = TestDates.ImportCompletedAtUtc.AddMinutes(10);
 
-            fixture.Clock.UtcNow = expectedCompletedAtUtc;
+            fixture.ClockService.UtcNow = expectedCompletedAtUtc;
 
             CompleteImportCommandHandler handler = fixture.CreateHandler();
 

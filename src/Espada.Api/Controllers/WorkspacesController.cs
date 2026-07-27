@@ -1,10 +1,10 @@
-using Espada.Domain.Enums;
-using Espada.Api.Extensions;
 using Espada.Api.Contracts.Requests.Workspaces;
+using Espada.Api.Extensions;
 using Espada.Application.UseCases.Workspaces.Commands.ArchiveWorkspace;
 using Espada.Application.UseCases.Workspaces.Commands.CreateWorkspace;
 using Espada.Application.UseCases.Workspaces.Common;
 using Espada.Application.UseCases.Workspaces.Queries.GetWorkspaceById;
+using Espada.Domain.Enums;
 using Espada.Domain.Rules;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

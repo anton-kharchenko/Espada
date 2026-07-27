@@ -16,7 +16,7 @@ public sealed class ArchitectureTests
     private static readonly Assembly ApplicationAssembly = typeof(IArtifactRepository).Assembly;
     private static readonly Assembly InfrastructureAssembly = typeof(Espada.Infrastructure.Extensions.InfrastructureServiceCollectionExtensions).Assembly;
     private static readonly Assembly ApiContractsAssembly = typeof(Api.Contracts.Responses.ErrorResponse).Assembly;
-    private static readonly Assembly ApiAssembly = typeof(SystemController).Assembly;
+    private static readonly Assembly ApiAssembly = typeof(BaseController).Assembly;
 
     [Fact]
     public void ProductionProjectReferences_ShouldMatchAllowedDependencyGraph()
@@ -31,8 +31,11 @@ public sealed class ArchitectureTests
             ["Espada.DeploymentKit"] = [],
             ["Espada.Deployment"] = ["Espada.DeploymentKit"],
             ["Espada.Api.Contracts"] = ["Espada.Domain"],
-            ["Espada.Api"] = ["Espada.Api.Contracts", "Espada.Application", "Espada.Domain", "Espada.Infrastructure", "Espada.ServiceDefaults"],
-            ["Aspire"] = ["Espada.Api", "Espada.Db"]
+            ["Espada.Protocol.Mcp"] = [],
+            ["Espada.Cli"] = ["Espada.Comms.Core", "Espada.Protocol.Mcp"],
+            ["Espada.Daemon"] = ["Espada.Application", "Espada.Comms.Core", "Espada.Infrastructure", "Espada.Protocol.Mcp", "Espada.ServiceDefaults"],
+            ["Espada.Api"] = ["Espada.Api.Contracts", "Espada.Application", "Espada.Comms.Core", "Espada.Domain", "Espada.Infrastructure", "Espada.ServiceDefaults"],
+            ["Aspire"] = ["Espada.Api", "Espada.Daemon", "Espada.Db"]
         };
 
         string repositoryRoot = FindRepositoryRoot();
@@ -42,7 +45,7 @@ public sealed class ArchitectureTests
             string projectPath = Directory.GetFiles(Path.Join(repositoryRoot, "src", projectName), "*.csproj", SearchOption.TopDirectoryOnly).Single();
             string[] actual = XDocument.Load(projectPath)
                 .Descendants("ProjectReference")
-                .Select(reference => Path.GetFileNameWithoutExtension(reference.Attribute("Include")!.Value))
+                .Select(reference => GetProjectReferenceName(reference.Attribute("Include")!.Value))
                 .Order(StringComparer.Ordinal)
                 .ToArray();
 
@@ -53,7 +56,7 @@ public sealed class ArchitectureTests
     [Fact]
     public void Domain_ShouldNotReferenceOuterOrFrameworkLayers()
     {
-        string[] forbiddenPrefixes = ["Espada.", "Microsoft.AspNetCore", "Microsoft.EntityFrameworkCore", "MediatR", "Npgsql", "Microsoft.Data.Sqlite", "ModelContextProtocol"];
+        string[] forbiddenPrefixes = ["Espada.", "Microsoft.AspNetCore", "Microsoft.EntityFrameworkCore", "MediatR", "Npgsql", "ModelContextProtocol"];
         string[] references = DomainAssembly.GetReferencedAssemblies().Select(reference => reference.Name!).ToArray();
 
         Assert.DoesNotContain(references, reference => forbiddenPrefixes.Any(prefix => reference.StartsWith(prefix, StringComparison.Ordinal)));
@@ -106,8 +109,20 @@ public sealed class ArchitectureTests
 
     private static void AssertNamespaces(Assembly assembly, string expectedPrefix)
     {
-        Type[] types = assembly.GetTypes().Where(type => type.Namespace is not null).ToArray();
+        // Coverlet injects tracker types when tests run with --collect "XPlat Code Coverage".
+        Type[] types = assembly.GetTypes()
+            .Where(type => type.Namespace is not null)
+            .Where(type => !type.Namespace!.StartsWith("Coverlet.", StringComparison.Ordinal))
+            .ToArray();
+
         Assert.All(types, type => Assert.StartsWith(expectedPrefix, type.Namespace, StringComparison.Ordinal));
+    }
+
+    private static string GetProjectReferenceName(string includePath)
+    {
+        // csproj paths may use Windows separators; normalize so Linux CI parses the file name correctly.
+        string normalized = includePath.Replace('\\', '/');
+        return Path.GetFileNameWithoutExtension(normalized);
     }
 
     private static string FindRepositoryRoot()

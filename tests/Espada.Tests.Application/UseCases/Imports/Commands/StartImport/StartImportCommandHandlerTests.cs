@@ -43,7 +43,7 @@ public sealed class StartImportCommandHandlerTests
 
         DateTimeOffset expectedStartedAtUtc = TestDates.ImportStartedAtUtc.AddMinutes(10);
 
-        fixture.Clock.UtcNow = expectedStartedAtUtc;
+        fixture.ClockService.UtcNow = expectedStartedAtUtc;
 
         StartImportCommandHandler handler = fixture.CreateHandler();
 

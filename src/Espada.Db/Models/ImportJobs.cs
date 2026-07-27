@@ -1,6 +1,6 @@
+using Espada.Db.Constants;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Espada.Db.Constants;
 
 namespace Espada.Db.Models;
 
@@ -36,6 +36,5 @@ public class ImportJobs
 
     public ImportFailureModel? Failure { get; set; }
 
-    [ConcurrencyCheck, Column(TypeName = DbConstants.ColumnTypes.Numeric.BigInt)]
-    public long Version { get; set; } = 1;
+    public uint Version { get; set; }
 }

@@ -8,11 +8,6 @@ internal static class ApiRoutes
 
     public const string Scalar = "/scalar/v1";
 
-    public static class System
-    {
-        public const string Get = ApiV1 + "/system";
-    }
-
     public static class Workspaces
     {
         public static string GetById(Guid workspaceId) => $"{ApiV1}/workspaces/{workspaceId}";

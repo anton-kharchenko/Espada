@@ -1,7 +1,9 @@
+using Espada.Db.Constants;
 using Espada.Domain.Aggregates;
 using Espada.Domain.SeedWork;
 using Espada.Infrastructure.Database;
-using Espada.Db.Constants;
+using Espada.Tests.Common.Database;
+using Espada.Tests.Infrastructure.TestData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -82,25 +84,12 @@ namespace Espada.Tests.Infrastructure.Database
         }
 
         [Theory]
-        [InlineData(typeof(Source), nameof(Source.WorkspaceId), typeof(Workspace))]
-        [InlineData(typeof(ImportJob), nameof(ImportJob.SourceId), typeof(Source))]
-        [InlineData(typeof(ImportJob), nameof(ImportJob.WorkspaceId), typeof(Workspace))]
-        [InlineData(typeof(Artifact), nameof(Artifact.WorkspaceId), typeof(Workspace))]
-        [InlineData(typeof(ArtifactRevision), nameof(ArtifactRevision.ArtifactId), typeof(Artifact))]
-        [InlineData(typeof(ChunkBatch), nameof(ChunkBatch.ArtifactRevisionId), typeof(ArtifactRevision))]
-        [InlineData(typeof(Chunk), nameof(Chunk.BatchId), typeof(ChunkBatch))]
-        [InlineData(typeof(Chunk), nameof(Chunk.ArtifactId), typeof(Artifact))]
-        [InlineData(typeof(Chunk), nameof(Chunk.ArtifactRevisionId), typeof(ArtifactRevision))]
-        [InlineData(typeof(ChunkEmbedding), nameof(ChunkEmbedding.ChunkId), typeof(Chunk))]
-        public void Model_ShouldConfigureRequiredForeignKey(
-            Type dependentType,
-            string foreignKeyProperty,
-            Type principalType)
+        [MemberData(nameof(RequiredForeignKeyTestData.Relationships), MemberType = typeof(RequiredForeignKeyTestData))]
+        public void Model_ShouldConfigureRequiredForeignKey(Type dependentType, string foreignKeyProperty, Type principalType)
         {
             using EspadaDbContext context = CreateContext();
 
-            IEntityType entityType = Assert.IsAssignableFrom<IEntityType>(
-                context.Model.FindEntityType(dependentType));
+            IEntityType entityType = Assert.IsAssignableFrom<IEntityType>(context.Model.FindEntityType(dependentType));
 
             IForeignKey? foreignKey = entityType.GetForeignKeys().SingleOrDefault(candidate =>
                 candidate.PrincipalEntityType.ClrType == principalType &&
@@ -112,13 +101,9 @@ namespace Espada.Tests.Infrastructure.Database
             Assert.Equal(DeleteBehavior.Restrict, foreignKey.DeleteBehavior);
         }
 
+        [MemberData(nameof(MutableAggregateTestData.Types), MemberType = typeof(MutableAggregateTestData))]
         [Theory]
-        [InlineData(typeof(Workspace))]
-        [InlineData(typeof(Source))]
-        [InlineData(typeof(ImportJob))]
-        [InlineData(typeof(Artifact))]
-        [InlineData(typeof(ChunkBatch))]
-        public void MutableAggregate_ShouldUseVersionConcurrencyToken(Type aggregateType)
+        public void MutableAggregate_ShouldUsePostgreSqlRowVersion(Type aggregateType)
         {
             using EspadaDbContext context = CreateContext();
 
@@ -127,19 +112,16 @@ namespace Espada.Tests.Infrastructure.Database
             IProperty property = Assert.IsAssignableFrom<IProperty>(
                 entityType.FindProperty(nameof(IHasConcurrencyVersion.Version)));
 
-            Assert.Equal(typeof(long), property.ClrType);
+            Assert.Equal(typeof(uint), property.ClrType);
+            Assert.Equal("xmin", property.GetColumnName());
+            Assert.Equal("xid", property.GetColumnType());
+            Assert.Equal(ValueGenerated.OnAddOrUpdate, property.ValueGenerated);
             Assert.True(property.IsConcurrencyToken);
         }
 
         private static EspadaDbContext CreateContext()
         {
-            DbContextOptions<EspadaDbContext> options =
-                new DbContextOptionsBuilder<EspadaDbContext>()
-                    .UseNpgsql(
-                        "Host=localhost;Port=5432;Database=espada_model_tests;Username=postgres;Password=postgres")
-                    .Options;
-
-            return new EspadaDbContext(options);
+            return new EspadaDbContext(PostgreSqlDbContextOptions.Create<EspadaDbContext>(ModelTestDatabase.ConnectionString));
         }
     }
 }

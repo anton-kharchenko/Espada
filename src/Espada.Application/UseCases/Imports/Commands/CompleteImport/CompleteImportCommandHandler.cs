@@ -8,7 +8,7 @@ using Espada.Domain.ValueObjects;
 
 namespace Espada.Application.UseCases.Imports.Commands.CompleteImport
 {
-    internal sealed class CompleteImportCommandHandler(IImportJobRepository importJobRepository, IUnitOfWork unitOfWork, IClock clock)
+    internal sealed class CompleteImportCommandHandler(IImportJobRepository importJobRepository, IUnitOfWork unitOfWork, IClockService clockService)
         : ICommandHandler<CompleteImportCommand>
     {
         public async Task<DomainResult> Handle(CompleteImportCommand request, CancellationToken cancellationToken)
@@ -51,7 +51,7 @@ namespace Espada.Application.UseCases.Imports.Commands.CompleteImport
 
             ArtifactRevisionId artifactRevisionId = ArtifactRevisionId.Create(request.ArtifactRevisionId);
 
-            DomainResult completeResult = importJob.Complete(artifactId, artifactRevisionId, clock.UtcNow);
+            DomainResult completeResult = importJob.Complete(artifactId, artifactRevisionId, clockService.UtcNow);
 
             if (completeResult.IsFailure)
             {

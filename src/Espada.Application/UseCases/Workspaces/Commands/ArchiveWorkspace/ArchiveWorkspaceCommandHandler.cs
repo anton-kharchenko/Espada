@@ -8,7 +8,7 @@ using Espada.Domain.ValueObjects;
 
 namespace Espada.Application.UseCases.Workspaces.Commands.ArchiveWorkspace
 {
-    internal sealed class ArchiveWorkspaceCommandHandler(IWorkspaceRepository workspaceRepository, IUnitOfWork unitOfWork, IClock clock) : ICommandHandler<ArchiveWorkspaceCommand>
+    internal sealed class ArchiveWorkspaceCommandHandler(IWorkspaceRepository workspaceRepository, IUnitOfWork unitOfWork, IClockService clockService) : ICommandHandler<ArchiveWorkspaceCommand>
     {
         public async Task<DomainResult> Handle(ArchiveWorkspaceCommand request, CancellationToken cancellationToken)
         {
@@ -26,7 +26,7 @@ namespace Espada.Application.UseCases.Workspaces.Commands.ArchiveWorkspace
                 return DomainResult.Failure(WorkspaceApplicationErrors.NotFound(request.WorkspaceId));
             }
 
-            DomainResult archiveResult = workspace.Archive(clock.UtcNow);
+            DomainResult archiveResult = workspace.Archive(clockService.UtcNow);
 
             if (archiveResult.IsFailure)
             {

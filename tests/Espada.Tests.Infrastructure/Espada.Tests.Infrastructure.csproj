@@ -25,6 +25,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Espada.Tests.Common\Espada.Tests.Common.csproj" />
         <ProjectReference Include="..\..\src\Espada.Infrastructure\Espada.Infrastructure.csproj" />
         <ProjectReference Include="..\..\src\Espada.Application\Espada.Application.csproj" />
         <ProjectReference Include="..\..\src\Espada.Domain\Espada.Domain.csproj" />

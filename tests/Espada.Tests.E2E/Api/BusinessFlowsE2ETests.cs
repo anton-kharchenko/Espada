@@ -3,6 +3,8 @@ using Espada.Api.Contracts.Requests.Artifacts;
 using Espada.Api.Contracts.Requests.ChunkBatches;
 using Espada.Api.Contracts.Requests.ChunkEmbeddings;
 using Espada.Api.Contracts.Requests.Chunks;
+using Espada.Api.Contracts.Requests.Common;
+using Espada.Api.Contracts.Requests.Context;
 using Espada.Api.Contracts.Requests.Imports;
 using Espada.Api.Contracts.Requests.Sources;
 using Espada.Api.Contracts.Requests.Workspaces;
@@ -16,6 +18,7 @@ using Espada.Application.UseCases.Chunks.Commands.CreateChunkBatch;
 using Espada.Application.UseCases.Chunks.Commands.CreateChunks;
 using Espada.Application.UseCases.Chunks.Queries.GetChunkById;
 using Espada.Application.UseCases.Chunks.Queries.ListChunksByRevision;
+using Espada.Application.UseCases.Context.Queries.SearchWorkspaceContext;
 using Espada.Application.UseCases.Imports.Commands.RequestImport;
 using Espada.Application.UseCases.Imports.Queries.GetImportById;
 using Espada.Application.UseCases.Sources.Commands.RegisterSource;
@@ -55,6 +58,12 @@ public sealed class BusinessFlowsE2ETests(EspadaE2EFactory factory) : E2ETest(fa
         });
         SourceResponse source = await http.GetAsync<SourceResponse>(E2ERoutes.Source(workspace.Id, createdSource.SourceId));
         Assert.Equal(workspace.Id, source.WorkspaceId);
+        await http.AssertStatusAsync(await client.PostAsJsonAsync(
+            E2ERoutes.SourcePriority(workspace.Id, source.Id),
+            new SetContextPriorityRequest { Priority = -25 },
+            TestContext.Current.CancellationToken), HttpStatusCode.NoContent);
+        source = await http.GetAsync<SourceResponse>(E2ERoutes.Source(workspace.Id, source.Id));
+        Assert.Equal(-25, source.Priority);
 
         RequestImportResponse requestedImport = await http.PostAsync<RequestImportResponse>(E2ERoutes.RequestImport(workspace.Id, source.Id));
         await http.AssertStatusAsync(await client.PostAsync(E2ERoutes.StartImport(workspace.Id, requestedImport.ImportJobId), null, TestContext.Current.CancellationToken), HttpStatusCode.NoContent);
@@ -65,6 +74,10 @@ public sealed class BusinessFlowsE2ETests(EspadaE2EFactory factory) : E2ETest(fa
             TypeId = ArtifactType.Markdown.Id,
             Content = BusinessFlowTestData.Lifecycle.InitialRevisionContent
         });
+        await http.AssertStatusAsync(await client.PostAsJsonAsync(
+            E2ERoutes.ArtifactPriority(workspace.Id, createdArtifact.ArtifactId),
+            new SetContextPriorityRequest { Priority = 50 },
+            TestContext.Current.CancellationToken), HttpStatusCode.NoContent);
 
         await http.AssertStatusAsync(await client.PostAsJsonAsync(E2ERoutes.CompleteImport(workspace.Id, requestedImport.ImportJobId), new CompleteImportRequest
         {
@@ -80,6 +93,7 @@ public sealed class BusinessFlowsE2ETests(EspadaE2EFactory factory) : E2ETest(fa
 
         GetArtifactByIdResponse artifact = await http.GetAsync<GetArtifactByIdResponse>(E2ERoutes.Artifact(workspace.Id, createdArtifact.ArtifactId));
         Assert.Equal(createdArtifact.ArtifactRevisionId, artifact.CurrentRevisionId);
+        Assert.Equal(50, artifact.Priority);
 
         AddArtifactRevisionResponse secondRevision = await http.PostAsync<AddArtifactRevisionRequest, AddArtifactRevisionResponse>(E2ERoutes.Revisions(workspace.Id, artifact.Id), new AddArtifactRevisionRequest
         {
@@ -138,9 +152,30 @@ public sealed class BusinessFlowsE2ETests(EspadaE2EFactory factory) : E2ETest(fa
             ModelVersion = BusinessFlowTestData.Lifecycle.EmbeddingModelVersion,
             Vector = vector
         });
-        GetChunkEmbeddingByChunkIdResponse embedding = await http.GetAsync<GetChunkEmbeddingByChunkIdResponse>(E2ERoutes.Embedding(workspace.Id, chunkId));
+        GetChunkEmbeddingByChunkIdResponse embedding = await http.GetAsync<GetChunkEmbeddingByChunkIdResponse>(
+            E2ERoutes.EmbeddingByModel(
+                workspace.Id,
+                chunkId,
+                BusinessFlowTestData.Lifecycle.EmbeddingModelIdentifier,
+                BusinessFlowTestData.Lifecycle.EmbeddingModelVersion));
         Assert.Equal(createdEmbedding.ChunkEmbeddingId, embedding.Id);
         Assert.Equal(vector, embedding.Vector);
+
+        SearchWorkspaceContextResponse context = await http.PostOkAsync<SearchWorkspaceContextRequest, SearchWorkspaceContextResponse>(
+            E2ERoutes.ContextSearch(workspace.Id),
+            new SearchWorkspaceContextRequest
+            {
+                QueryText = "first chunk",
+                QueryVector = vector,
+                ModelIdentifier = BusinessFlowTestData.Lifecycle.EmbeddingModelIdentifier,
+                ModelVersion = BusinessFlowTestData.Lifecycle.EmbeddingModelVersion,
+                TopK = 5
+            });
+        WorkspaceContextItemResponse contextItem = Assert.Single(context.Items);
+        Assert.Equal(chunkId, contextItem.ChunkId);
+        Assert.Equal(BusinessFlowTestData.Lifecycle.FirstChunkContent, contextItem.Content);
+        Assert.Equal(1d, contextItem.Similarity, precision: 6);
+        Assert.Equal(0.5d, contextItem.ArtifactPriorityScore, precision: 6);
 
         await http.AssertStatusAsync(await client.PostAsync(E2ERoutes.ArchiveArtifact(workspace.Id, artifact.Id), null, TestContext.Current.CancellationToken), HttpStatusCode.NoContent);
         artifact = await http.GetAsync<GetArtifactByIdResponse>(E2ERoutes.Artifact(workspace.Id, artifact.Id));

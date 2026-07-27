@@ -1,11 +1,11 @@
-using System.Net;
-using System.Net.Http.Json;
 using Espada.Api.Contracts.Requests.ChunkBatches;
 using Espada.Api.Contracts.Requests.ChunkEmbeddings;
 using Espada.Api.Contracts.Requests.Chunks;
 using Espada.Tests.Api.Assertions;
 using Espada.Tests.Api.Fixtures;
 using Espada.Tests.Api.TestData;
+using System.Net;
+using System.Net.Http.Json;
 
 namespace Espada.Tests.Api.Controllers;
 

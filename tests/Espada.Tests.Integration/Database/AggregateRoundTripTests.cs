@@ -247,6 +247,7 @@ public sealed class AggregateRoundTripTests(PostgreSqlDatabaseFixture fixture) :
 
         Workspace first = Assert.IsType<Workspace>(await firstContext.Workspaces.FindAsync([graph.Workspace.Id], TestContext.Current.CancellationToken));
         Workspace second = Assert.IsType<Workspace>(await secondContext.Workspaces.FindAsync([graph.Workspace.Id], TestContext.Current.CancellationToken));
+        uint originalVersion = first.Version;
 
         DateTimeOffset firstArchiveTime = new(2026, 7, 26, 6, 0, 0, TimeSpan.Zero);
         first.Archive(firstArchiveTime).ShouldSucceed();
@@ -256,12 +257,12 @@ public sealed class AggregateRoundTripTests(PostgreSqlDatabaseFixture fixture) :
 
         await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => secondContext.SaveChangesAsync(TestContext.Current.CancellationToken));
 
-        Assert.Equal(2, first.Version);
+        Assert.NotEqual(originalVersion, first.Version);
 
         await using EspadaDbContext verificationContext = Fixture.CreateDbContext();
         Workspace persisted = Assert.IsType<Workspace>(await verificationContext.Workspaces.FindAsync([graph.Workspace.Id], TestContext.Current.CancellationToken));
 
-        Assert.Equal(2, persisted.Version);
+        Assert.Equal(first.Version, persisted.Version);
         Assert.Equal(firstArchiveTime, persisted.ArchivedAtUtc);
     }
 

@@ -1,4 +1,5 @@
 using Espada.Domain.ValueObjects;
+using Pgvector;
 
 namespace Espada.Infrastructure.Models
 {
@@ -14,11 +15,17 @@ namespace Espada.Infrastructure.Models
             ArgumentNullException.ThrowIfNull(vector);
 
             ChunkEmbeddingId = chunkEmbeddingId;
-            Vector = vector.ToArray();
+            Vector = new Vector(vector.ToArray());
         }
 
         public ChunkEmbeddingId ChunkEmbeddingId { get; private set; } = null!;
 
-        public float[] Vector { get; private set; } = [];
+        public Vector Vector { get; private set; } = new(Array.Empty<float>());
+
+        public void Replace(IReadOnlyList<float> vector)
+        {
+            ArgumentNullException.ThrowIfNull(vector);
+            Vector = new Vector(vector.ToArray());
+        }
     }
 }
