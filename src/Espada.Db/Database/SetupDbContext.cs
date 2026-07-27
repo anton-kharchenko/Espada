@@ -5,15 +5,11 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
-using Pgvector;
-using Pgvector.EntityFrameworkCore;
 
 namespace Espada.Db.Database;
 
 public sealed class SetupDbContext(DbContextOptions<SetupDbContext> options) : DbContext(options)
 {
-    private const string InfrastructureAssemblyName = "Espada.Infrastructure";
-
     public DbSet<Workspaces> Workspaces => Set<Workspaces>();
     public DbSet<Sources> Sources => Set<Sources>();
     public DbSet<ImportJobs> ImportJobs => Set<ImportJobs>();
@@ -67,34 +63,6 @@ public sealed class SetupDbContext(DbContextOptions<SetupDbContext> options) : D
         modelBuilder.HasDefaultSchema(DbConstants.SchemaName);
         modelBuilder.HasPostgresExtension(DbExtensionConstants.Vector);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(SetupDbContext).Assembly);
-
-        try
-        {
-            System.Reflection.Assembly infrastructureAssembly =
-                AppDomain.CurrentDomain.GetAssemblies()
-                .FirstOrDefault(assembly => assembly.GetName().Name == InfrastructureAssemblyName)
-                ?? System.Reflection.Assembly.Load(InfrastructureAssemblyName);
-
-            modelBuilder.ApplyConfigurationsFromAssembly(infrastructureAssembly);
-        }
-        catch (FileNotFoundException)
-        {
-            // Espada.Db can apply compiled migrations without loading the application infrastructure.
-        }
-
-        foreach (
-            Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType
-            in modelBuilder.Model
-                .GetEntityTypes()
-                .Where(
-                    entityType =>
-                        entityType.ClrType.Assembly
-                        != typeof(Workspaces).Assembly)
-                .ToList())
-        {
-            modelBuilder.Ignore(entityType.ClrType);
-            modelBuilder.Model.RemoveEntityType(entityType.ClrType);
-        }
 
         base.OnModelCreating(modelBuilder);
     }

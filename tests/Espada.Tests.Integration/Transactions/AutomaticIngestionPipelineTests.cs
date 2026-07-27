@@ -1,7 +1,6 @@
 using Espada.Application.Contracts.Embedding;
 using Espada.Application.Contracts.Ingestion;
 using Espada.Application.Contracts.Jobs;
-using Espada.Application.Models;
 using Espada.Application.UseCases.Imports.Commands.RequestImport;
 using Espada.Domain.Aggregates;
 using Espada.Domain.Enums;

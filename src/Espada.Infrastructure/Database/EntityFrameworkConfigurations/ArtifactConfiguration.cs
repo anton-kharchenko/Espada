@@ -3,7 +3,6 @@ using Espada.Domain.Aggregates;
 using Espada.Domain.Enums;
 using Espada.Domain.SeedWork;
 using Espada.Domain.ValueObjects;
-using Espada.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -133,7 +132,7 @@ internal sealed class ArtifactConfiguration : IEntityTypeConfiguration<Artifact>
     {
         builder.ToTable(table => table.HasCheckConstraint(
             DbConstraintConstants.ArtifactPriorityRange,
-            CheckConstraintSql.ContextPriority(nameof(Espada.Db.Models.Artifacts.Priority))));
+            CheckConstraintSql.ContextPriority(nameof(Db.Models.Artifacts.Priority))));
         builder.Property(model => model.ArtifactId).ValueGeneratedNever();
         builder.Property(model => model.Priority).HasDefaultValue(ContextPriority.Neutral.Value);
         builder.Property(model => model.Version).IsRowVersion();

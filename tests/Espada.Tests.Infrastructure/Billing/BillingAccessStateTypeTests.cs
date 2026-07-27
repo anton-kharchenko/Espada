@@ -1,4 +1,3 @@
-using Espada.Billing;
 using Espada.Billing.Enums;
 using Espada.Billing.Models;
 using Espada.Tests.Infrastructure.Billing.TestData;
