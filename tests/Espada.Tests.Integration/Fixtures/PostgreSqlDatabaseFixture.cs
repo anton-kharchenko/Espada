@@ -2,7 +2,6 @@ using Espada.Application.Extensions;
 using Espada.Db.Database;
 using Espada.Infrastructure;
 using Espada.Infrastructure.Database;
-using Espada.Tests.Common.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

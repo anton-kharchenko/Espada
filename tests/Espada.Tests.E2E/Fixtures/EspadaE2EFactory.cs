@@ -1,7 +1,6 @@
 using Espada.Db.Constants;
 using Espada.Db.Database;
 using Espada.Infrastructure.Database;
-using Espada.Tests.Common.Database;
 using Espada.Tests.E2E.TestData;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;

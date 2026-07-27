@@ -1,2 +1,2 @@
-global using Espada.Tests.Common.Assertions;
+global using Espada.Tests.Integration.Assertions;
 global using Xunit;

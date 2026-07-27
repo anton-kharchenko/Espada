@@ -2,18 +2,15 @@ using Espada.Db.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Espada.Tests.Common.Database;
+namespace Espada.Tests.E2E.Fixtures;
 
-public static class PostgreSqlDatabaseCleaner
+internal static class PostgreSqlDatabaseCleaner
 {
-    public static async Task ResetAsync(
-        SetupDbContext dbContext,
-        CancellationToken cancellationToken = default)
+    public static async Task ResetAsync(SetupDbContext dbContext, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dbContext);
 
-        await using IDbContextTransaction transaction =
-            await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        await using IDbContextTransaction transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
         await dbContext.UsageReconciliationOutbox.ExecuteDeleteAsync(cancellationToken);
         await dbContext.UsageLedgerEntries.ExecuteDeleteAsync(cancellationToken);

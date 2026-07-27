@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 
-namespace Espada.Tests.Common.Database;
+namespace Espada.Tests.Infrastructure.Database;
 
-public static class PostgreSqlDbContextOptions
+internal static class PostgreSqlDbContextOptions
 {
     public static DbContextOptions<TContext> Create<TContext>(string connectionString, Action<NpgsqlDbContextOptionsBuilder>? configure = null) where TContext : DbContext
     {

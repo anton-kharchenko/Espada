@@ -3,7 +3,6 @@ using Espada.Db.Database;
 using Espada.Domain.Aggregates;
 using Espada.Domain.SeedWork;
 using Espada.Infrastructure.Database;
-using Espada.Tests.Common.Database;
 using Espada.Tests.Infrastructure.TestData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
