@@ -92,7 +92,7 @@ public sealed class Worker(IServiceScopeFactory scopeFactory, ILogger<Worker> lo
         try
         {
             using IServiceScope executionScope = scopeFactory.CreateScope();
-            await executionScope.ServiceProvider.GetRequiredService<IImportPipelineStageExecutor>().ExecuteAsync(job, stoppingToken);
+            await executionScope.ServiceProvider.GetRequiredService<IImportPipelineStageExecutorService>().ExecuteAsync(job, stoppingToken);
             await executionScope.ServiceProvider.GetRequiredService<IJobQueue>().CompleteAsync(job.JobId, _workerId, stoppingToken);
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)

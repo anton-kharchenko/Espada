@@ -8,6 +8,7 @@ using Espada.Application.UseCases.Imports.EventHandlers;
 using Espada.Application.Contracts.Ingestion;
 using Espada.Application.UseCases.Imports;
 using Espada.Application.Contracts.Billing;
+using Espada.Application.Services;
 using Espada.Application.Services.Billing;
 
 namespace Espada.Application.Extensions;
@@ -29,7 +30,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddAutoMapper(_ => { }, assembly);
         services.AddScoped<IDomainEventHandler<ImportJobRequestedDomainEvent>, ImportJobRequestedDomainEventHandler>();
         services.AddScoped<IDomainEventHandler<ImportStageScheduledDomainEvent>, ImportStageScheduledDomainEventHandler>();
-        services.AddScoped<IImportPipelineStageExecutor, ImportPipelineStageExecutor>();
+        services.AddScoped<IImportPipelineStageExecutorService, ImportPipelineStageExecutorService>();
         services.AddScoped<IImportAdmissionPolicy, AllowImportAdmissionPolicy>();
         services.AddScoped<IUsageMeterService, NoOpUsageMeterService>();
 

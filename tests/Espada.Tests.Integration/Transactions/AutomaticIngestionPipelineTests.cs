@@ -89,7 +89,7 @@ public sealed class AutomaticIngestionPipelineTests(PostgreSqlDatabaseFixture fi
                 Assert.NotNull(job);
                 using IServiceScope executionScope = serviceProvider.CreateScope();
                 await executionScope.ServiceProvider
-                    .GetRequiredService<IImportPipelineStageExecutor>()
+                    .GetRequiredService<IImportPipelineStageExecutorService>()
                     .ExecuteAsync(job, TestContext.Current.CancellationToken);
                 await executionScope.ServiceProvider
                     .GetRequiredService<IJobQueue>()
