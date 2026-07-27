@@ -47,7 +47,7 @@
     <PackageVersion Include="Pulumi.Azure" Version="6.39.0" />
     <PackageVersion Include="Pulumi.AzureNative" Version="3.23.0" />
     <PackageVersion Include="Pulumi.Automation" Version="3.107.3" />
-    <PackageVersion Include="Pulumi.Random" Version="4.20.0" />
+    <PackageVersion Include="Pulumi.Random" Version="4.21.1" />
     <!-- Configuration and hosting -->
     <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.10" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.10" />
