@@ -1,7 +1,7 @@
-using System.ComponentModel.DataAnnotations;
 using Espada.Domain.Enums;
 using Espada.Domain.SeedWork;
 using Espada.Domain.ValueObjects;
+using System.ComponentModel.DataAnnotations;
 
 namespace Espada.Api.Contracts.Requests.ChunkBatches;
 

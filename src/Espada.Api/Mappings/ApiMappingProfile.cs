@@ -1,6 +1,6 @@
 using AutoMapper;
-using Espada.Application.UseCases.Context.Queries.SearchWorkspaceContext;
 using Espada.Api.Contracts.Models;
+using Espada.Application.UseCases.Context.Queries.SearchWorkspaceContext;
 
 namespace Espada.Api.Mappings;
 

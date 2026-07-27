@@ -1,6 +1,6 @@
-using System.Net;
 using Espada.Tests.Api.Fixtures;
 using Espada.Tests.Api.TestData;
+using System.Net;
 
 namespace Espada.Tests.Api.Security;
 

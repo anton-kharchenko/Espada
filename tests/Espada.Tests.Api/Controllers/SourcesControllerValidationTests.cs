@@ -1,11 +1,11 @@
+using Espada.Domain.Enums;
+using Espada.Domain.SeedWork;
 using Espada.Tests.Api.Assertions;
+using Espada.Tests.Api.Fixtures;
+using Espada.Tests.Api.TestData;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Espada.Domain.Enums;
-using Espada.Domain.SeedWork;
-using Espada.Tests.Api.Fixtures;
-using Espada.Tests.Api.TestData;
 
 namespace Espada.Tests.Api.Controllers;
 

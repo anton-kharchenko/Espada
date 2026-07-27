@@ -18,7 +18,7 @@ internal sealed class DaemonFactory(ContextSearchServiceStub service) : WebAppli
                 configuration.AddJsonFile(
                     Path.Combine(AppContext.BaseDirectory, "appsettings.Testing.json"),
                     optional: false));
-        
+
         builder.ConfigureServices(services =>
         {
             services.RemoveAll<IContextSearchToolService>();

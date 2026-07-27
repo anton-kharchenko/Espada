@@ -6,6 +6,6 @@ namespace Espada.Db.Models;
 public sealed class ImportFailureModel
 {
     public string? Code { get; set; }
-    
+
     public string? Reason { get; set; }
 }

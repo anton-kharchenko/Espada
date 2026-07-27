@@ -1,6 +1,6 @@
+using Espada.Db.Constants;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Espada.Db.Constants;
 
 namespace Espada.Db.Models;
 

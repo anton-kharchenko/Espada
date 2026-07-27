@@ -1,6 +1,6 @@
+using Espada.Db.Constants;
 using Espada.Domain.Aggregates;
 using Espada.Domain.ValueObjects;
-using Espada.Db.Constants;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

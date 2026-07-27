@@ -1,6 +1,6 @@
-using System.ComponentModel.DataAnnotations;
 using Espada.Api.Contracts.Requests.Chunks;
 using Espada.Tests.Api.Contracts.Validation;
+using System.ComponentModel.DataAnnotations;
 
 namespace Espada.Tests.Api.Contracts.Requests.Chunks;
 

@@ -1,5 +1,5 @@
-using System.ComponentModel.DataAnnotations;
 using Espada.Domain.ValueObjects;
+using System.ComponentModel.DataAnnotations;
 
 namespace Espada.Api.Contracts.Requests.ChunkEmbeddings;
 

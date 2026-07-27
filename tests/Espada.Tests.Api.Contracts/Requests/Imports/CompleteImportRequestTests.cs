@@ -1,7 +1,7 @@
-using System.ComponentModel.DataAnnotations;
 using Espada.Api.Contracts.Requests.Imports;
 using Espada.Tests.Api.Contracts.TestData;
 using Espada.Tests.Api.Contracts.Validation;
+using System.ComponentModel.DataAnnotations;
 
 namespace Espada.Tests.Api.Contracts.Requests.Imports;
 

@@ -1,9 +1,9 @@
-using System.ComponentModel.DataAnnotations;
 using Espada.Api.Contracts.Requests.ChunkBatches;
 using Espada.Domain.Enums;
 using Espada.Domain.SeedWork;
 using Espada.Domain.ValueObjects;
 using Espada.Tests.Api.Contracts.Validation;
+using System.ComponentModel.DataAnnotations;
 
 namespace Espada.Tests.Api.Contracts.Requests.ChunkBatches;
 
