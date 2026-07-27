@@ -24,7 +24,7 @@
     <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="10.0.10" />
     <PackageVersion Include="Microsoft.AspNetCore.WebUtilities" Version="10.0.10" />
     <PackageVersion Include="Microsoft.OpenApi" Version="2.7.5" />
-    <PackageVersion Include="Scalar.AspNetCore" Version="2.12.0" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.16.16" />
     <!-- CLI -->
     <PackageVersion Include="System.CommandLine" Version="2.0.10" />
     <!-- Shared Entity Framework Core -->
