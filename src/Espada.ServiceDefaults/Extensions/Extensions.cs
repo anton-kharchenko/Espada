@@ -23,8 +23,7 @@ public static class Extensions
             logging.IncludeScopes = true;
         });
 
-        var openTelemetry = builder.Services.AddOpenTelemetry()
-            .WithMetrics(metrics => metrics.AddRuntimeInstrumentation());
+        OpenTelemetryBuilder openTelemetry = builder.Services.AddOpenTelemetry().WithMetrics(metrics => metrics.AddRuntimeInstrumentation());
 
         switch (ResolveTelemetryExporter(builder.Configuration))
         {
@@ -43,6 +42,8 @@ public static class Extensions
                 break;
             case TelemetryExporterType.None:
                 break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
 
         builder.Services.AddHealthChecks()
