@@ -45,7 +45,7 @@ public sealed class ArchitectureTests
             string projectPath = Directory.GetFiles(Path.Join(repositoryRoot, "src", projectName), "*.csproj", SearchOption.TopDirectoryOnly).Single();
             string[] actual = XDocument.Load(projectPath)
                 .Descendants("ProjectReference")
-                .Select(reference => Path.GetFileNameWithoutExtension(reference.Attribute("Include")!.Value))
+                .Select(reference => GetProjectReferenceName(reference.Attribute("Include")!.Value))
                 .Order(StringComparer.Ordinal)
                 .ToArray();
 
@@ -109,8 +109,20 @@ public sealed class ArchitectureTests
 
     private static void AssertNamespaces(Assembly assembly, string expectedPrefix)
     {
-        Type[] types = assembly.GetTypes().Where(type => type.Namespace is not null).ToArray();
+        // Coverlet injects tracker types when tests run with --collect "XPlat Code Coverage".
+        Type[] types = assembly.GetTypes()
+            .Where(type => type.Namespace is not null)
+            .Where(type => !type.Namespace!.StartsWith("Coverlet.", StringComparison.Ordinal))
+            .ToArray();
+
         Assert.All(types, type => Assert.StartsWith(expectedPrefix, type.Namespace, StringComparison.Ordinal));
+    }
+
+    private static string GetProjectReferenceName(string includePath)
+    {
+        // csproj paths may use Windows separators; normalize so Linux CI parses the file name correctly.
+        string normalized = includePath.Replace('\\', '/');
+        return Path.GetFileNameWithoutExtension(normalized);
     }
 
     private static string FindRepositoryRoot()
