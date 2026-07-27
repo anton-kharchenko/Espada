@@ -69,4 +69,19 @@ public sealed class RegisterSourceCommandValidatorTests
         // Assert
         result.ShouldHaveValidationErrorFor(value => value.Definition);
     }
+
+    [Fact]
+    public async Task Validate_WithLegacyDefinition_ShouldHaveError()
+    {
+        RegisterSourceCommand command = new RegisterSourceCommandBuilder()
+            .WithLocator(TestValues.SourceLocator)
+            .Build();
+
+        TestValidationResult<RegisterSourceCommand> result =
+            await _validator.TestValidateAsync(
+                command,
+                cancellationToken: TestContext.Current.CancellationToken);
+
+        result.ShouldHaveValidationErrorFor(value => value.Definition);
+    }
 }
