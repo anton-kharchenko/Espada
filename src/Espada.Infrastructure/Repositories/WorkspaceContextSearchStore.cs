@@ -43,7 +43,7 @@ internal sealed class WorkspaceContextSearchStore(WorkspaceContextSearchDbContex
                 source.Priority
             };
 
-        IQueryable<SearchCandidate> query =
+        var query =
             from vector in dbContext.EmbeddingVectors.AsNoTracking()
             join embedding in dbContext.ChunkEmbeddings.AsNoTracking()
                 on vector.ChunkEmbeddingId equals embedding.ChunkEmbeddingId
@@ -56,20 +56,28 @@ internal sealed class WorkspaceContextSearchStore(WorkspaceContextSearchDbContex
                 .Select(source => (int?)source.Priority)
                 .Max() ?? 0
             let similarity = 1d - vector.Vector.CosineDistance(queryVector)
-            where embedding.WorkspaceId == search.WorkspaceId &&
-                  embedding.ModelIdentifier == search.ModelIdentifier &&
-                  embedding.ModelVersion == search.ModelVersion &&
-                  embedding.Dimensions == search.QueryVector.Count &&
-                  artifact.StatusId == activeArtifactStatus &&
-                  (revisionIds.Length == 0 ? artifact.CurrentRevisionId == chunk.ArtifactRevisionId : ((IEnumerable<Guid>)revisionIds).Contains(chunk.ArtifactRevisionId)) &&
-                  (artifactIds.Length == 0 || ((IEnumerable<Guid>)artifactIds).Contains(chunk.ArtifactId)) &&
-                  (artifactTypeIds.Length == 0 || ((IEnumerable<int>)artifactTypeIds).Contains(artifact.TypeId)) &&
-                  (sourceIds.Length == 0 || activeSources.Any(source => source.ArtifactRevisionId == chunk.ArtifactRevisionId && ((IEnumerable<Guid>)sourceIds).Contains(source.SourceId))) &&
-                  (sourceTypeIds.Length == 0 || activeSources.Any(source => source.ArtifactRevisionId == chunk.ArtifactRevisionId && ((IEnumerable<int>)sourceTypeIds).Contains(source.TypeId))) &&
-                  (search.CreatedAfterUtc == null || chunk.CreatedAtUtc >= search.CreatedAfterUtc) &&
-                  (search.MinimumSimilarity == null || similarity >= search.MinimumSimilarity) &&
-                  (search.MinimumArtifactPriority == null || artifact.Priority >= search.MinimumArtifactPriority) &&
-                  (search.MinimumSourcePriority == null || sourcePriority >= search.MinimumSourcePriority)
+            where embedding.WorkspaceId == search.WorkspaceId
+            where embedding.ModelIdentifier == search.ModelIdentifier
+            where embedding.ModelVersion == search.ModelVersion
+            where embedding.Dimensions == search.QueryVector.Count
+            where artifact.StatusId == activeArtifactStatus
+            where revisionIds.Length == 0
+                ? artifact.CurrentRevisionId == chunk.ArtifactRevisionId
+                : revisionIds.Contains(chunk.ArtifactRevisionId)
+            where artifactIds.Length == 0 || artifactIds.Contains(chunk.ArtifactId)
+            where artifactTypeIds.Length == 0 || artifactTypeIds.Contains(artifact.TypeId)
+            where sourceIds.Length == 0 ||
+                  activeSources.Any(source =>
+                      source.ArtifactRevisionId == chunk.ArtifactRevisionId &&
+                      sourceIds.Contains(source.SourceId))
+            where sourceTypeIds.Length == 0 ||
+                  activeSources.Any(source =>
+                      source.ArtifactRevisionId == chunk.ArtifactRevisionId &&
+                      sourceTypeIds.Contains(source.TypeId))
+            where search.CreatedAfterUtc == null || chunk.CreatedAtUtc >= search.CreatedAfterUtc
+            where search.MinimumSimilarity == null || similarity >= search.MinimumSimilarity
+            where search.MinimumArtifactPriority == null || artifact.Priority >= search.MinimumArtifactPriority
+            where search.MinimumSourcePriority == null || sourcePriority >= search.MinimumSourcePriority
             select new SearchCandidate(
                 chunk.ChunkId,
                 chunk.ArtifactId,

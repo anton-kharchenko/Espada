@@ -16,7 +16,7 @@ internal sealed class DaemonFactory(ContextSearchServiceStub service) : WebAppli
             .UseContentRoot(AppContext.BaseDirectory)
             .ConfigureAppConfiguration(configuration =>
                 configuration.AddJsonFile(
-                    Path.Combine(AppContext.BaseDirectory, "appsettings.Testing.json"),
+                    Path.Join(AppContext.BaseDirectory, "appsettings.Testing.json"),
                     optional: false));
 
         builder.ConfigureServices(services =>
