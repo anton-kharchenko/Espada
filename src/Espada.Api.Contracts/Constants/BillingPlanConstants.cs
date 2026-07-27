@@ -1,6 +1,6 @@
 namespace Espada.Api.Contracts.Constants;
 
-public static class BillingPlanContractNames
+public static class BillingPlanConstants
 {
     public const string Solo = "Solo";
     public const string Team = "Team";

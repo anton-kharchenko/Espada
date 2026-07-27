@@ -1,3 +1,4 @@
+using Espada.Domain.ValueObjects.SourceDefinitions;
 using FluentValidation;
 
 namespace Espada.Application.UseCases.Sources.Commands.RegisterSource;
@@ -13,6 +14,7 @@ internal sealed class RegisterSourceCommandValidator : AbstractValidator<Registe
             .NotEmpty();
 
         RuleFor(command => command.Definition)
-            .NotNull();
+            .NotNull()
+            .Must(definition => definition is not LegacySourceDefinition);
     }
 }

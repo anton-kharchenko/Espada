@@ -9,8 +9,8 @@ public sealed class CreateCheckoutRequestTests
 {
     public static TheoryData<string> SupportedPlans =>
     [
-        BillingPlanContractNames.Solo,
-        BillingPlanContractNames.Team
+        BillingPlanConstants.Solo,
+        BillingPlanConstants.Team
     ];
 
     public static TheoryData<string> UnsupportedPlans =>
