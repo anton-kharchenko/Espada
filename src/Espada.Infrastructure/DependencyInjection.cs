@@ -8,11 +8,9 @@ using Espada.Infrastructure.Options;
 using Espada.Infrastructure.Repositories;
 using Espada.Infrastructure.Services;
 using Espada.Application.Contracts.Jobs;
-using Espada.Infrastructure.Jobs;
 using Espada.Domain.SeedWork;
 using Espada.Application.Contracts.Blobs;
 using Espada.Application.Contracts.Ingestion;
-using Espada.Infrastructure.Blobs;
 using Espada.Infrastructure.Ingestion;
 using Espada.Infrastructure.Ingestion.Chunking;
 using Microsoft.EntityFrameworkCore;
@@ -21,10 +19,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Npgsql;
 using Espada.Billing;
-using Espada.Infrastructure.Billing;
 using Espada.Application.Contracts.Billing;
 using Espada.Billing.Contracts;
-using Espada.Infrastructure.Options.Constants;
+using Espada.Infrastructure.Constants;
+using Espada.Infrastructure.Ingestion.Chunking.Strategy;
 
 namespace Espada.Infrastructure;
 
@@ -69,10 +67,10 @@ public static class DependencyInjection
             IWorkspaceContextSearchStore,
             WorkspaceContextSearchStore>();
         services.AddScoped<IJobQueue, PostgreSqlJobQueue>();
-        services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+        services.AddScoped<IDomainEventDispatcherService, DomainEventDispatcherService>();
         services.AddScoped<IOutboxPublisher, PostgreSqlOutboxPublisher>();
-        services.AddScoped<IBillingStore, PostgreSqlBillingStore>();
-        services.AddScoped<IUsageMeter, PostgreSqlUsageMeter>();
+        services.AddScoped<IBillingStoreService, PostgreSqlBillingStoreService>();
+        services.AddScoped<IUsageMeterService, PostgreSqlUsageMeterService>();
 
         OptionsBuilder<EmbeddingGenerationOptions> embeddingOptions =
             services.AddOptions<EmbeddingGenerationOptions>();
@@ -114,7 +112,7 @@ public static class DependencyInjection
             serviceProvider =>
                 serviceProvider.GetRequiredService<
                     OpenAiCompatibleEmbeddingGeneratorService>());
-        services.AddSingleton<IBlobStore>(serviceProvider =>
+        services.AddSingleton<IBlobStoreService>(serviceProvider =>
         {
             IngestionOptions options = serviceProvider
                 .GetRequiredService<IOptions<IngestionOptions>>()
@@ -131,7 +129,7 @@ public static class DependencyInjection
                         "BlobStorage:AzureContainerUri must be an absolute HTTPS URI.");
                 }
 
-                return new AzureBlobStore(containerUri);
+                return new AzureBlobStoreService(containerUri);
             }
 
             string root = string.IsNullOrWhiteSpace(options.BlobRoot)
@@ -141,7 +139,7 @@ public static class DependencyInjection
                     "Espada",
                     "blobs")
                 : options.BlobRoot;
-            return new FileSystemBlobStore(root);
+            return new FileSystemBlobStoreService(root);
         });
         services.AddTransient<ISourceReader, SourceReader>();
         services.AddTransient<IConnectorSourceClient, ApprovedMcpConnectorSourceClient>();
