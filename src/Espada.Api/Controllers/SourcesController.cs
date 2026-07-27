@@ -1,12 +1,12 @@
+using AutoMapper;
+using Espada.Api.Contracts.Models;
 using Espada.Api.Contracts.Requests.Common;
 using Espada.Api.Contracts.Requests.Sources;
-using Espada.Api.Extensions;
 using Espada.Application.UseCases.Sources.Commands.ArchiveSource;
 using Espada.Application.UseCases.Sources.Commands.RegisterSource;
 using Espada.Application.UseCases.Sources.Commands.SetSourcePriority;
 using Espada.Application.UseCases.Sources.Common;
 using Espada.Application.UseCases.Sources.Queries.GetSourceById;
-using Espada.Domain.Enums;
 using Espada.Domain.Rules;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Espada.Api.Controllers;
 
 [Route("api/v{version:apiVersion}/workspaces/{workspaceId:guid}/sources")]
-public sealed class SourcesController(IMediator mediator) : BaseController
+public sealed class SourcesController(IMediator mediator, IMapper mapper) : BaseController
 {
     [HttpPost]
     [ProducesResponseType(typeof(RegisterSourceResponse), StatusCodes.Status201Created)]
@@ -22,9 +22,8 @@ public sealed class SourcesController(IMediator mediator) : BaseController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Register([FromRoute] Guid workspaceId, [FromBody] RegisterSourceRequest request, CancellationToken cancellationToken)
     {
-        SourceType sourceType = request.TypeId.ToEnumeration<SourceType>() ?? throw new InvalidOperationException($"Source type ID '{request.TypeId}' passed validation but could not be resolved.");
-
-        DomainResult<RegisterSourceResponse> result = await mediator.Send(new RegisterSourceCommand(WorkspaceId: workspaceId, Name: request.Name, Locator: request.Locator, Type: sourceType), cancellationToken);
+        RegisterSourceCommand command = mapper.Map<RegisterSourceCommand>(new RegisterSourceMappingSource(workspaceId, request));
+        DomainResult<RegisterSourceResponse> result = await mediator.Send(command, cancellationToken);
 
         return result.IsFailure ? HandleError(result.Error) : StatusCode(StatusCodes.Status201Created, result.Value);
     }

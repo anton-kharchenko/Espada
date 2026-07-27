@@ -8,14 +8,20 @@ namespace Espada.Tests.Api.Controllers;
 
 public sealed class BaseControllerTests
 {
+    public static TheoryData<string, int> KnownErrorStatusCodes =>
+        new()
+        {
+            { "Workspace.NotFound", StatusCodes.Status404NotFound },
+            { "Security.Unauthorized", StatusCodes.Status401Unauthorized },
+            { "Security.Forbidden", StatusCodes.Status403Forbidden },
+            { "Artifact.AlreadyArchived", StatusCodes.Status409Conflict },
+            { "ArtifactRevision.Artifact.Archived", StatusCodes.Status409Conflict },
+            { "Request.RateLimitExceeded", StatusCodes.Status429TooManyRequests },
+            { "Source.Invalid", StatusCodes.Status400BadRequest }
+        };
+
     [Theory]
-    [InlineData("Workspace.NotFound", StatusCodes.Status404NotFound)]
-    [InlineData("Security.Unauthorized", StatusCodes.Status401Unauthorized)]
-    [InlineData("Security.Forbidden", StatusCodes.Status403Forbidden)]
-    [InlineData("Artifact.AlreadyArchived", StatusCodes.Status409Conflict)]
-    [InlineData("ArtifactRevision.Artifact.Archived", StatusCodes.Status409Conflict)]
-    [InlineData("Request.RateLimitExceeded", StatusCodes.Status429TooManyRequests)]
-    [InlineData("Source.Invalid", StatusCodes.Status400BadRequest)]
+    [MemberData(nameof(KnownErrorStatusCodes))]
     public void HandleError_WithKnownErrorCode_ShouldReturnExpectedStatusCode(string code, int expectedStatusCode)
     {
         DomainError error = new(code, "Test error description.");

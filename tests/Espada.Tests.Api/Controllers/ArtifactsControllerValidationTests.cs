@@ -4,6 +4,7 @@ using Espada.Domain.SeedWork;
 using Espada.Tests.Api.Assertions;
 using Espada.Tests.Api.Fixtures;
 using Espada.Tests.Api.TestData;
+using Espada.Tests.Api.TestData.Routes;
 using System.Net;
 using System.Net.Http.Json;
 
@@ -23,7 +24,7 @@ public sealed class ArtifactsControllerValidationTests(EspadaApiFactory factory)
             Content = TestValues.ArtifactContent
         };
 
-        HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.Artifacts.Create(TestIds.WorkspaceId), request, cancellationToken: TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.PostAsJsonAsync(ArtifactApiRoutes.Create(TestIds.WorkspaceId), request, cancellationToken: TestContext.Current.CancellationToken);
 
         await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
         await response.ShouldContainValidationErrorAsync(nameof(CreateArtifactRequest.TypeId));
@@ -42,7 +43,7 @@ public sealed class ArtifactsControllerValidationTests(EspadaApiFactory factory)
             Content = TestValues.ArtifactContent
         };
 
-        HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.Artifacts.Create(TestIds.WorkspaceId), request, cancellationToken: TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.PostAsJsonAsync(ArtifactApiRoutes.Create(TestIds.WorkspaceId), request, cancellationToken: TestContext.Current.CancellationToken);
 
         await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
         await response.ShouldContainValidationErrorAsync(nameof(CreateArtifactRequest.Title));
@@ -61,7 +62,7 @@ public sealed class ArtifactsControllerValidationTests(EspadaApiFactory factory)
             Content = " "
         };
 
-        HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.Artifacts.Create(TestIds.WorkspaceId), request, cancellationToken: TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.PostAsJsonAsync(ArtifactApiRoutes.Create(TestIds.WorkspaceId), request, cancellationToken: TestContext.Current.CancellationToken);
 
         await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
         await response.ShouldContainValidationErrorAsync(nameof(CreateArtifactRequest.Content));
@@ -77,7 +78,7 @@ public sealed class ArtifactsControllerValidationTests(EspadaApiFactory factory)
             Title = " "
         };
 
-        HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.Artifacts.Rename(TestIds.WorkspaceId, TestIds.ArtifactId), request, cancellationToken: TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.PostAsJsonAsync(ArtifactApiRoutes.Rename(TestIds.WorkspaceId, TestIds.ArtifactId), request, cancellationToken: TestContext.Current.CancellationToken);
 
         await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
         await response.ShouldContainValidationErrorAsync(nameof(RenameArtifactRequest.Title));

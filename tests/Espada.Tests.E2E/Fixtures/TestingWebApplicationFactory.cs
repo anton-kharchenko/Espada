@@ -9,6 +9,9 @@ internal sealed class TestingWebApplicationFactory(string connectionString) : We
         builder
             .UseEnvironment("Testing")
             .UseSetting("ConnectionStrings:Espada", connectionString)
-            .ConfigureAppConfiguration(configuration => configuration.AddJsonFile(Path.Join(AppContext.BaseDirectory, "appsettings.Testing.json"), optional: false));
+            .ConfigureAppConfiguration(configuration =>
+                configuration.AddJsonFile(
+                    Path.Join(AppContext.BaseDirectory, "appsettings.Testing.json"),
+                    optional: false));
     }
 }

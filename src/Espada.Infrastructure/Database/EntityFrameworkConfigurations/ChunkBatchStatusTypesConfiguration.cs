@@ -12,7 +12,14 @@ internal sealed class ChunkBatchStatusTypesConfiguration : IEntityTypeConfigurat
     public void Configure(EntityTypeBuilder<ChunkBatchStatusTypes> builder)
     {
         builder.Property(model => model.ChunkBatchStatusTypeId).ValueGeneratedNever();
-        builder.HasIndex(model => model.Name).IsUnique().HasDatabaseName(DbConstants.Indexes.ChunkBatchStatusTypeName);
-        builder.HasData(Enumeration.GetAll<ChunkBatchStatusType>().Select(value => new ChunkBatchStatusTypes { ChunkBatchStatusTypeId = value.Id, Name = value.Name }));
+        builder.HasIndex(model => model.Name).IsUnique().HasDatabaseName(DbIndexConstants.ChunkBatchStatusTypeName);
+        builder.HasData(
+            Enumeration.GetAll<ChunkBatchStatusType>()
+                .Select(
+                    value => new ChunkBatchStatusTypes
+                    {
+                        ChunkBatchStatusTypeId = value.Id,
+                        Name = value.Name
+                    }));
     }
 }

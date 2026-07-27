@@ -190,10 +190,43 @@ namespace Espada.Db.Migrations
                     b.HasIndex("WorkspaceId", "Title")
                         .HasDatabaseName("IX_Artifacts_WorkspaceId_Title");
 
-                    b.ToTable("Artifacts", "Espada", t =>
-                        {
-                            t.HasCheckConstraint("CK_Artifacts_Priority_Range", "\"Priority\" BETWEEN -100 AND 100");
-                        });
+                    b.ToTable("Artifacts", "Espada");
+                });
+
+            modelBuilder.Entity("Espada.Db.Models.BillingCustomers", b =>
+                {
+                    b.Property<Guid>("WorkspaceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("LastProviderEventAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("PaymentFailedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Plan")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ProviderCustomerId")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("ProviderSubscriptionId")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("SubscriptionStatus")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("WorkspaceId");
+
+                    b.HasIndex("ProviderCustomerId")
+                        .IsUnique();
+
+                    b.ToTable("BillingCustomers", "Espada");
                 });
 
             modelBuilder.Entity("Espada.Db.Models.ChunkBatchStatusTypes", b =>
@@ -486,14 +519,50 @@ namespace Espada.Db.Migrations
                     b.Property<Guid?>("ArtifactRevisionId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("ChunkBatchId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTimeOffset?>("CompletedAtUtc")
                         .HasColumnType("timestamptz");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasDefaultValueSql("gen_random_uuid()::text");
+
+                    b.Property<string>("OptionsJson")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasDefaultValue("{}");
+
+                    b.Property<string>("ParsedBlobHash")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("RawBlobHash")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("RequestFingerprint")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasDefaultValueSql("gen_random_uuid()::text");
 
                     b.Property<DateTimeOffset>("RequestedAtUtc")
                         .HasColumnType("timestamptz");
 
                     b.Property<Guid>("SourceId")
                         .HasColumnType("uuid");
+
+                    b.Property<int>("Stage")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
 
                     b.Property<DateTimeOffset?>("StartedAtUtc")
                         .HasColumnType("timestamptz");
@@ -520,6 +589,10 @@ namespace Espada.Db.Migrations
 
                     b.HasIndex("WorkspaceId")
                         .HasDatabaseName("IX_ImportJobs_WorkspaceId");
+
+                    b.HasIndex("WorkspaceId", "IdempotencyKey")
+                        .IsUnique()
+                        .HasDatabaseName("UX_ImportJobs_WorkspaceId_IdempotencyKey");
 
                     b.ToTable("ImportJobs", "Espada");
                 });
@@ -568,6 +641,169 @@ namespace Espada.Db.Migrations
                             ImportStatusTypeId = 5,
                             Name = "Cancelled"
                         });
+                });
+
+            modelBuilder.Entity("Espada.Db.Models.IngestionJobs", b =>
+                {
+                    b.Property<Guid>("JobId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Attempt")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("AvailableAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("CompletedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("FailureCategory")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<Guid>("ImportJobId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("LeaseExpiresAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LeaseOwner")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("SanitizedError")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<int>("Stage")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset?>("StartedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.HasKey("JobId");
+
+                    b.HasIndex("IdempotencyKey")
+                        .IsUnique();
+
+                    b.HasIndex("ImportJobId");
+
+                    b.HasIndex("Status", "AvailableAtUtc", "LeaseExpiresAtUtc");
+
+                    b.ToTable("IngestionJobs", "Espada");
+                });
+
+            modelBuilder.Entity("Espada.Db.Models.OutboxMessages", b =>
+                {
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Attempt")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("AvailableAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EventName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("EventVersion")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset?>("LeaseExpiresAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LeaseOwner")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTimeOffset>("OccurredAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PayloadJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTimeOffset?>("ProcessedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("SanitizedError")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.HasKey("EventId");
+
+                    b.HasIndex("ProcessedAtUtc", "AvailableAtUtc");
+
+                    b.ToTable("OutboxMessages", "Espada");
+                });
+
+            modelBuilder.Entity("Espada.Db.Models.PaymentEvents", b =>
+                {
+                    b.Property<string>("ProviderEventId")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("ApiVersion")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("Attempt")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("AvailableAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTimeOffset?>("LeaseExpiresAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LeaseOwner")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("PayloadJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTimeOffset?>("ProcessedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("ProviderCreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("ReceivedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("SanitizedError")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ProviderEventId");
+
+                    b.HasIndex("Status", "AvailableAtUtc", "LeaseExpiresAtUtc");
+
+                    b.ToTable("PaymentEvents", "Espada");
                 });
 
             modelBuilder.Entity("Espada.Db.Models.SourceStatusTypes", b =>
@@ -658,6 +894,9 @@ namespace Espada.Db.Migrations
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("timestamptz");
 
+                    b.Property<string>("DefinitionJson")
+                        .HasColumnType("jsonb");
+
                     b.Property<string>("Locator")
                         .IsRequired()
                         .HasMaxLength(2048)
@@ -705,10 +944,112 @@ namespace Espada.Db.Migrations
                         .IsUnique()
                         .HasDatabaseName("UX_Sources_WorkspaceId_Locator");
 
-                    b.ToTable("Sources", "Espada", t =>
-                        {
-                            t.HasCheckConstraint("CK_Sources_Priority_Range", "\"Priority\" BETWEEN -100 AND 100");
-                        });
+                    b.ToTable("Sources", "Espada");
+                });
+
+            modelBuilder.Entity("Espada.Db.Models.UsageLedgerEntries", b =>
+                {
+                    b.Property<Guid>("EntryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Metric")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("OccurredAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("Quantity")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("WorkspaceId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("EntryId");
+
+                    b.HasIndex("WorkspaceId", "Metric", "IdempotencyKey")
+                        .IsUnique();
+
+                    b.ToTable("UsageLedgerEntries", "Espada");
+                });
+
+            modelBuilder.Entity("Espada.Db.Models.UsageReconciliationOutbox", b =>
+                {
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Attempt")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("AvailableAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("LeaseExpiresAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LeaseOwner")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<Guid>("LedgerEntryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ProcessedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("SanitizedError")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.HasKey("EventId");
+
+                    b.HasIndex("LedgerEntryId")
+                        .IsUnique();
+
+                    b.HasIndex("Status", "AvailableAtUtc", "LeaseExpiresAtUtc");
+
+                    b.ToTable("UsageReconciliationOutbox", "Espada");
+                });
+
+            modelBuilder.Entity("Espada.Db.Models.WorkspaceMemberships", b =>
+                {
+                    b.Property<Guid>("WorkspaceMembershipId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Issuer")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTimeOffset>("JoinedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<Guid>("WorkspaceId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("WorkspaceMembershipId");
+
+                    b.HasIndex("WorkspaceId", "Issuer", "Subject")
+                        .IsUnique();
+
+                    b.ToTable("WorkspaceMemberships", "Espada");
                 });
 
             modelBuilder.Entity("Espada.Db.Models.WorkspaceStatusTypes", b =>
@@ -842,6 +1183,15 @@ namespace Espada.Db.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Espada.Db.Models.Workspaces", null)
+                        .WithMany()
+                        .HasForeignKey("WorkspaceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Espada.Db.Models.BillingCustomers", b =>
+                {
                     b.HasOne("Espada.Db.Models.Workspaces", null)
                         .WithMany()
                         .HasForeignKey("WorkspaceId")
@@ -984,6 +1334,15 @@ namespace Espada.Db.Migrations
                     b.Navigation("Failure");
                 });
 
+            modelBuilder.Entity("Espada.Db.Models.IngestionJobs", b =>
+                {
+                    b.HasOne("Espada.Db.Models.ImportJobs", null)
+                        .WithMany()
+                        .HasForeignKey("ImportJobId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Espada.Db.Models.Sources", b =>
                 {
                     b.HasOne("Espada.Db.Models.SourceStatusTypes", null)
@@ -998,6 +1357,33 @@ namespace Espada.Db.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Espada.Db.Models.Workspaces", null)
+                        .WithMany()
+                        .HasForeignKey("WorkspaceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Espada.Db.Models.UsageLedgerEntries", b =>
+                {
+                    b.HasOne("Espada.Db.Models.Workspaces", null)
+                        .WithMany()
+                        .HasForeignKey("WorkspaceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Espada.Db.Models.UsageReconciliationOutbox", b =>
+                {
+                    b.HasOne("Espada.Db.Models.UsageLedgerEntries", null)
+                        .WithMany()
+                        .HasForeignKey("LedgerEntryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Espada.Db.Models.WorkspaceMemberships", b =>
+                {
                     b.HasOne("Espada.Db.Models.Workspaces", null)
                         .WithMany()
                         .HasForeignKey("WorkspaceId")

@@ -6,13 +6,18 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
-    <ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Espada.Billing\Espada.Billing.csproj" />
         <ProjectReference Include="..\Espada.Application\Espada.Application.csproj" />
         <ProjectReference Include="..\Espada.Db\Espada.Db.csproj" />
         <ProjectReference Include="..\Espada.Domain\Espada.Domain.csproj" />
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="AngleSharp" />
+        <PackageReference Include="Azure.Identity" />
+        <PackageReference Include="Azure.Storage.Blobs" />
+        <PackageReference Include="DocumentFormat.OpenXml" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" />
 
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
@@ -24,8 +29,10 @@
   <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
   <PackageReference Include="Pgvector" />
   <PackageReference Include="Pgvector.EntityFrameworkCore" />
-  <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="ModelContextProtocol" />
   <PackageReference Include="Microsoft.Extensions.Options" />
+  <PackageReference Include="UglyToad.PdfPig" />
     </ItemGroup>
 
 </Project>

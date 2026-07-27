@@ -5,12 +5,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Espada.Db.Models;
 
-[Table(DbConstants.Tables.ChunkEmbeddingVectors, Schema = DbConstants.SchemaName)]
+[Table(DbTableConstants.ChunkEmbeddingVectors, Schema = DbConstants.SchemaName)]
 public class ChunkEmbeddingVectors
 {
-    [Key, Column(TypeName = DbConstants.ColumnTypes.Identifier.Uuid)]
+    [Key, Column(TypeName = DbIdentifierColumnTypeConstants.Uuid)]
     public Guid ChunkEmbeddingId { get; set; }
 
-    [Required, Column(TypeName = DbConstants.ColumnTypes.Numeric.Vector)]
+    [Required, Column(TypeName = DbNumericColumnTypeConstants.Vector)]
     public Vector Vector { get; set; } = new(Array.Empty<float>());
 }

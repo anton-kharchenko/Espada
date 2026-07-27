@@ -7,9 +7,16 @@ using Espada.Domain.ValueObjects;
 
 namespace Espada.Application.UseCases.Workspaces.Commands.CreateWorkspace;
 
-internal sealed class CreateWorkspaceCommandHandler(IWorkspaceRepository workspaceRepository, IUnitOfWork unitOfWork, IClockService clockService) : ICommandHandler<CreateWorkspaceCommand, CreateWorkspaceResponse>
+internal sealed class CreateWorkspaceCommandHandler(
+    IWorkspaceRepository workspaceRepository,
+    IWorkspaceMembershipRepository membershipRepository,
+    IUnitOfWork unitOfWork,
+    IClockService clockService)
+    : ICommandHandler<CreateWorkspaceCommand, CreateWorkspaceResponse>
 {
-    public async Task<DomainResult<CreateWorkspaceResponse>> Handle(CreateWorkspaceCommand request, CancellationToken cancellationToken)
+    public async Task<DomainResult<CreateWorkspaceResponse>> Handle(
+        CreateWorkspaceCommand request,
+        CancellationToken cancellationToken)
     {
         DomainResult<WorkspaceName> nameResult = WorkspaceName.Create(request.Name);
         if (nameResult.IsFailure)
@@ -18,7 +25,11 @@ internal sealed class CreateWorkspaceCommandHandler(IWorkspaceRepository workspa
         }
 
         WorkspaceId workspaceId = WorkspaceId.New();
-        DomainResult<Workspace> workspaceResult = Workspace.Create(workspaceId, nameResult.Value, request.Type, clockService.UtcNow);
+        DomainResult<Workspace> workspaceResult = Workspace.Create(
+            workspaceId,
+            nameResult.Value,
+            request.Type,
+            clockService.UtcNow);
         if (workspaceResult.IsFailure)
         {
             return DomainResult.Failure<CreateWorkspaceResponse>(workspaceResult.Error);
@@ -27,6 +38,19 @@ internal sealed class CreateWorkspaceCommandHandler(IWorkspaceRepository workspa
         Workspace workspace = workspaceResult.Value;
 
         await workspaceRepository.AddAsync(workspace, cancellationToken);
+
+        if (!string.IsNullOrWhiteSpace(request.IdentityIssuer)
+            && !string.IsNullOrWhiteSpace(request.IdentitySubject))
+        {
+            WorkspaceMembership owner = WorkspaceMembership.CreateOwner(
+                WorkspaceMembershipId.New(),
+                workspace.Id,
+                request.IdentityIssuer,
+                request.IdentitySubject,
+                clockService.UtcNow);
+
+            await membershipRepository.AddAsync(owner, cancellationToken);
+        }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

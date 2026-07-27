@@ -1,7 +1,7 @@
+using Espada.Application.Extensions;
 using Espada.Db.Database;
 using Espada.Infrastructure;
 using Espada.Infrastructure.Database;
-using Espada.Tests.Common.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -51,16 +51,20 @@ public sealed class PostgreSqlDatabaseFixture : IAsyncLifetime
             PostgreSqlDbContextOptions.Create<EspadaDbContext>(ConnectionString));
     }
 
-    public ServiceProvider CreateServiceProvider(IConfiguration? configuration = null)
+    public ServiceProvider CreateServiceProvider(
+        IConfiguration? configuration = null,
+        Action<IServiceCollection>? configureServices = null)
     {
         ServiceCollection services = new();
+        services.ConfigureApplicationLayer();
         services.AddInfrastructure(ConnectionString, configuration);
+        configureServices?.Invoke(services);
         return services.BuildServiceProvider();
     }
 
     public async Task ResetDatabaseAsync()
     {
-        await using EspadaDbContext dbContext = CreateDbContext();
+        await using SetupDbContext dbContext = CreateSetupDbContext();
         await PostgreSqlDatabaseCleaner.ResetAsync(dbContext);
     }
 

@@ -3,7 +3,6 @@ using Espada.Domain.Aggregates;
 using Espada.Domain.Enums;
 using Espada.Domain.SeedWork;
 using Espada.Domain.ValueObjects;
-using Espada.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -22,18 +21,13 @@ internal sealed class ArtifactConfiguration : IEntityTypeConfiguration<Artifact>
             number => number == null ? null : number.Value,
             value => value == null ? null : RevisionNumber.Create(value.Value).Value!);
 
-        builder.ToTable(
-            DbConstants.Tables.Artifacts,
-            DbConstants.SchemaName,
-            table => table.HasCheckConstraint(
-                DbConstants.Constraints.ArtifactPriorityRange,
-                CheckConstraintSql.ContextPriority(nameof(Artifact.Priority))));
+        builder.ToTable(DbTableConstants.Artifacts, DbConstants.SchemaName);
 
         builder.HasKey(e => e.Id);
 
         builder.Property(e => e.Id)
             .HasColumnName("ArtifactId")
-            .HasColumnType(DbConstants.ColumnTypes.Identifier.Uuid)
+            .HasColumnType(DbIdentifierColumnTypeConstants.Uuid)
             .HasConversion(id => id.Value, value => ArtifactId.Create(value))
             .IsRequired()
             .ValueGeneratedNever()
@@ -41,36 +35,36 @@ internal sealed class ArtifactConfiguration : IEntityTypeConfiguration<Artifact>
 
         builder.Property(e => e.WorkspaceId)
             .HasColumnName("WorkspaceId")
-            .HasColumnType(DbConstants.ColumnTypes.Identifier.Uuid)
+            .HasColumnType(DbIdentifierColumnTypeConstants.Uuid)
             .HasConversion(id => id.Value, value => WorkspaceId.Create(value))
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.Title)
             .HasColumnName("Title")
-            .HasColumnType(DbConstants.ColumnTypes.Text.Varchar200)
+            .HasColumnType(DbTextColumnTypeConstants.Varchar200)
             .HasConversion(title => title.Value, value => ArtifactTitle.Create(value).Value!)
-            .HasMaxLength(DbConstants.Validations.MaxLengths.L200)
+            .HasMaxLength(DbMaxLengthConstants.L200)
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.Type)
             .HasColumnName("TypeId")
-            .HasColumnType(DbConstants.ColumnTypes.Numeric.Integer)
+            .HasColumnType(DbNumericColumnTypeConstants.Integer)
             .HasConversion(type => type.Id, value => Enumeration.GetAll<ArtifactType>().Single(type => type.Id == value))
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.Status)
             .HasColumnName("StatusId")
-            .HasColumnType(DbConstants.ColumnTypes.Numeric.Integer)
+            .HasColumnType(DbNumericColumnTypeConstants.Integer)
             .HasConversion(status => status.Id, value => Enumeration.GetAll<ArtifactStatusType>().Single(status => status.Id == value))
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.Priority)
             .HasColumnName("Priority")
-            .HasColumnType(DbConstants.ColumnTypes.Numeric.Integer)
+            .HasColumnType(DbNumericColumnTypeConstants.Integer)
             .HasConversion(priority => priority.Value, value => ContextPriority.Create(value).Value!)
             .HasDefaultValue(ContextPriority.Neutral)
             .IsRequired()
@@ -78,33 +72,33 @@ internal sealed class ArtifactConfiguration : IEntityTypeConfiguration<Artifact>
 
         builder.Property(e => e.CurrentRevisionId)
             .HasColumnName("CurrentRevisionId")
-            .HasColumnType(DbConstants.ColumnTypes.Identifier.Uuid)
+            .HasColumnType(DbIdentifierColumnTypeConstants.Uuid)
             .HasConversion(revisionIdConverter)
             .IsRequired(false)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.CurrentRevisionNumber)
             .HasColumnName("CurrentRevisionNumber")
-            .HasColumnType(DbConstants.ColumnTypes.Numeric.Integer)
+            .HasColumnType(DbNumericColumnTypeConstants.Integer)
             .HasConversion(revisionNumberConverter)
             .IsRequired(false)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.CreatedAtUtc)
             .HasColumnName("CreatedAtUtc")
-            .HasColumnType(DbConstants.ColumnTypes.DateTime.TimestampTz)
+            .HasColumnType(DbDateTimeColumnTypeConstants.TimestampTz)
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.UpdatedAtUtc)
             .HasColumnName("UpdatedAtUtc")
-            .HasColumnType(DbConstants.ColumnTypes.DateTime.TimestampTz)
+            .HasColumnType(DbDateTimeColumnTypeConstants.TimestampTz)
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.ArchivedAtUtc)
             .HasColumnName("ArchivedAtUtc")
-            .HasColumnType(DbConstants.ColumnTypes.DateTime.TimestampTz)
+            .HasColumnType(DbDateTimeColumnTypeConstants.TimestampTz)
             .IsRequired(false)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
@@ -131,9 +125,6 @@ internal sealed class ArtifactConfiguration : IEntityTypeConfiguration<Artifact>
 
     public void Configure(EntityTypeBuilder<Espada.Db.Models.Artifacts> builder)
     {
-        builder.ToTable(table => table.HasCheckConstraint(
-            DbConstants.Constraints.ArtifactPriorityRange,
-            CheckConstraintSql.ContextPriority(nameof(Espada.Db.Models.Artifacts.Priority))));
         builder.Property(model => model.ArtifactId).ValueGeneratedNever();
         builder.Property(model => model.Priority).HasDefaultValue(ContextPriority.Neutral.Value);
         builder.Property(model => model.Version).IsRowVersion();

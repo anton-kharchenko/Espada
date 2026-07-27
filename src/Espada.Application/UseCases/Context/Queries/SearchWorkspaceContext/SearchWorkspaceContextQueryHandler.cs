@@ -3,7 +3,6 @@ using Espada.Application.ApplicationErrors;
 using Espada.Application.Contracts.Messaging;
 using Espada.Application.Contracts.Persistence;
 using Espada.Application.Contracts.Time;
-using Espada.Application.Mappings;
 using Espada.Application.Models;
 using Espada.Domain.Aggregates;
 using Espada.Domain.Rules;

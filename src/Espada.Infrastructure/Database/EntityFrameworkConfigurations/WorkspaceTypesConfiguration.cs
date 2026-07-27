@@ -12,7 +12,7 @@ internal sealed class WorkspaceTypesConfiguration : IEntityTypeConfiguration<Wor
     public void Configure(EntityTypeBuilder<WorkspaceTypes> builder)
     {
         builder.Property(model => model.WorkspaceTypeId).ValueGeneratedNever();
-        builder.HasIndex(model => model.Name).IsUnique().HasDatabaseName(DbConstants.Indexes.WorkspaceTypeName);
+        builder.HasIndex(model => model.Name).IsUnique().HasDatabaseName(DbIndexConstants.WorkspaceTypeName);
         builder.HasData(Enumeration.GetAll<WorkspaceType>().Select(value => new WorkspaceTypes { WorkspaceTypeId = value.Id, Name = value.Name }));
     }
 }

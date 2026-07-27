@@ -10,13 +10,13 @@ internal sealed class ChunkEmbeddingConfiguration : IEntityTypeConfiguration<Chu
 {
     public void Configure(EntityTypeBuilder<ChunkEmbedding> builder)
     {
-        builder.ToTable(DbConstants.Tables.ChunkEmbeddings, DbConstants.SchemaName);
+        builder.ToTable(DbTableConstants.ChunkEmbeddings, DbConstants.SchemaName);
 
         builder.HasKey(e => e.Id);
 
         builder.Property(e => e.Id)
             .HasColumnName("ChunkEmbeddingId")
-            .HasColumnType(DbConstants.ColumnTypes.Identifier.Uuid)
+            .HasColumnType(DbIdentifierColumnTypeConstants.Uuid)
             .HasConversion(id => id.Value, value => ChunkEmbeddingId.Create(value))
             .IsRequired()
             .ValueGeneratedNever()
@@ -24,51 +24,51 @@ internal sealed class ChunkEmbeddingConfiguration : IEntityTypeConfiguration<Chu
 
         builder.Property(e => e.WorkspaceId)
             .HasColumnName("WorkspaceId")
-            .HasColumnType(DbConstants.ColumnTypes.Identifier.Uuid)
+            .HasColumnType(DbIdentifierColumnTypeConstants.Uuid)
             .HasConversion(id => id.Value, value => WorkspaceId.Create(value))
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.ChunkId)
             .HasColumnName("ChunkId")
-            .HasColumnType(DbConstants.ColumnTypes.Identifier.Uuid)
+            .HasColumnType(DbIdentifierColumnTypeConstants.Uuid)
             .HasConversion(id => id.Value, value => ChunkId.Create(value))
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.ChunkContentHash)
             .HasColumnName("ChunkContentHash")
-            .HasColumnType(DbConstants.ColumnTypes.Text.Varchar64)
+            .HasColumnType(DbTextColumnTypeConstants.Varchar64)
             .HasConversion(hash => hash.Value, value => ContentHash.Create(value))
-            .HasMaxLength(DbConstants.Validations.MaxLengths.L64)
+            .HasMaxLength(DbMaxLengthConstants.L64)
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Ignore(e => e.Model);
 
-        builder.Property<string>(DbConstants.Properties.ChunkEmbeddingModelIdentifier)
-            .HasField(DbConstants.Properties.ChunkEmbeddingModelIdentifier)
+        builder.Property<string>(DbPropertyConstants.ChunkEmbeddingModelIdentifier)
+            .HasField(DbPropertyConstants.ChunkEmbeddingModelIdentifier)
             .HasColumnName("ModelIdentifier")
-            .HasColumnType(DbConstants.ColumnTypes.Text.Varchar200)
-            .HasMaxLength(DbConstants.Validations.MaxLengths.L200)
+            .HasColumnType(DbTextColumnTypeConstants.Varchar200)
+            .HasMaxLength(DbMaxLengthConstants.L200)
             .IsRequired();
 
-        builder.Property<string>(DbConstants.Properties.ChunkEmbeddingModelVersion)
-            .HasField(DbConstants.Properties.ChunkEmbeddingModelVersion)
+        builder.Property<string>(DbPropertyConstants.ChunkEmbeddingModelVersion)
+            .HasField(DbPropertyConstants.ChunkEmbeddingModelVersion)
             .HasColumnName("ModelVersion")
-            .HasColumnType(DbConstants.ColumnTypes.Text.Varchar100)
-            .HasMaxLength(DbConstants.Validations.MaxLengths.L100)
+            .HasColumnType(DbTextColumnTypeConstants.Varchar100)
+            .HasMaxLength(DbMaxLengthConstants.L100)
             .IsRequired();
         builder.Property(e => e.Dimensions)
             .HasColumnName("Dimensions")
-            .HasColumnType(DbConstants.ColumnTypes.Numeric.Integer)
+            .HasColumnType(DbNumericColumnTypeConstants.Integer)
             .HasConversion(dimensions => dimensions.Value, value => EmbeddingDimensions.Create(value).Value!)
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.CreatedAtUtc)
             .HasColumnName("CreatedAtUtc")
-            .HasColumnType(DbConstants.ColumnTypes.DateTime.TimestampTz)
+            .HasColumnType(DbDateTimeColumnTypeConstants.TimestampTz)
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
@@ -85,10 +85,10 @@ internal sealed class ChunkEmbeddingConfiguration : IEntityTypeConfiguration<Chu
 
         builder.HasIndex(
             nameof(ChunkEmbedding.ChunkId),
-            DbConstants.Properties.ChunkEmbeddingModelIdentifier,
-            DbConstants.Properties.ChunkEmbeddingModelVersion)
+            DbPropertyConstants.ChunkEmbeddingModelIdentifier,
+            DbPropertyConstants.ChunkEmbeddingModelVersion)
             .IsUnique()
-            .HasDatabaseName(DbConstants.Indexes.ChunkEmbeddingChunkModel);
+            .HasDatabaseName(DbIndexConstants.ChunkEmbeddingChunkModel);
 
         builder.Ignore(e => e.DomainEvents);
     }
@@ -99,6 +99,16 @@ internal sealed class ChunkEmbeddingConfiguration : IEntityTypeConfiguration<Chu
         builder.HasOne<Espada.Db.Models.Chunks>().WithMany().HasForeignKey(model => model.ChunkId).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(model => model.WorkspaceId).HasDatabaseName("IX_ChunkEmbeddings_WorkspaceId");
         builder.HasIndex(model => model.ChunkId).HasDatabaseName("IX_ChunkEmbeddings_ChunkId");
-        builder.HasIndex(model => new { model.ChunkId, model.ModelIdentifier, model.ModelVersion }).IsUnique().HasDatabaseName(DbConstants.Indexes.ChunkEmbeddingChunkModel);
+        builder
+            .HasIndex(
+                model => new
+                {
+                    model.ChunkId,
+                    model.ModelIdentifier,
+                    model.ModelVersion
+                })
+            .IsUnique()
+            .HasDatabaseName(
+                DbIndexConstants.ChunkEmbeddingChunkModel);
     }
 }

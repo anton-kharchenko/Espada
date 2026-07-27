@@ -4,37 +4,64 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Espada.Db.Models;
 
-[Table(DbConstants.Tables.ImportJobs, Schema = DbConstants.SchemaName)]
+[Table(DbTableConstants.ImportJobs, Schema = DbConstants.SchemaName)]
 public class ImportJobs
 {
-    [Key, Column(TypeName = DbConstants.ColumnTypes.Identifier.Uuid)]
+    [Key, Column(TypeName = DbIdentifierColumnTypeConstants.Uuid)]
     public Guid ImportJobId { get; set; }
 
-    [Column(TypeName = DbConstants.ColumnTypes.Identifier.Uuid)]
+    [Column(TypeName = DbIdentifierColumnTypeConstants.Uuid)]
     public Guid SourceId { get; set; }
 
-    [Column(TypeName = DbConstants.ColumnTypes.Identifier.Uuid)]
+    [Column(TypeName = DbIdentifierColumnTypeConstants.Uuid)]
     public Guid WorkspaceId { get; set; }
 
-    [Column(TypeName = DbConstants.ColumnTypes.Numeric.Integer)]
+    [Column(TypeName = DbNumericColumnTypeConstants.Integer)]
     public int StatusId { get; set; }
 
-    [Column(TypeName = DbConstants.ColumnTypes.DateTime.TimestampTz)]
+    [Column(TypeName = DbNumericColumnTypeConstants.Integer)]
+    public int Stage { get; set; }
+
+    [MaxLength(200)]
+    [Column(TypeName = DbTextColumnTypeConstants.CharacterVarying200)]
+    public string IdempotencyKey { get; set; } = string.Empty;
+
+    [MaxLength(64)]
+    [Column(TypeName = DbTextColumnTypeConstants.CharacterVarying64)]
+    public string RequestFingerprint { get; set; } = string.Empty;
+
+    [Column(TypeName = DbJsonColumnTypeConstants.Jsonb)]
+    public string OptionsJson { get; set; } = "{}";
+
+    [Column(TypeName = DbDateTimeColumnTypeConstants.TimestampTz)]
     public DateTimeOffset RequestedAtUtc { get; set; }
 
-    [Column(TypeName = DbConstants.ColumnTypes.DateTime.TimestampTz)]
+    [Column(TypeName = DbDateTimeColumnTypeConstants.TimestampTz)]
     public DateTimeOffset? StartedAtUtc { get; set; }
 
-    [Column(TypeName = DbConstants.ColumnTypes.DateTime.TimestampTz)]
+    [Column(TypeName = DbDateTimeColumnTypeConstants.TimestampTz)]
     public DateTimeOffset? CompletedAtUtc { get; set; }
 
-    [Column(TypeName = DbConstants.ColumnTypes.Identifier.Uuid)]
+    [Column(TypeName = DbIdentifierColumnTypeConstants.Uuid)]
     public Guid? ArtifactId { get; set; }
 
-    [Column(TypeName = DbConstants.ColumnTypes.Identifier.Uuid)]
+    [Column(TypeName = DbIdentifierColumnTypeConstants.Uuid)]
     public Guid? ArtifactRevisionId { get; set; }
+
+    [Column(TypeName = DbIdentifierColumnTypeConstants.Uuid)]
+    public Guid? ChunkBatchId { get; set; }
+
+    [MaxLength(200)]
+    [Column(TypeName = DbTextColumnTypeConstants.CharacterVarying200)]
+    public string? RawBlobHash { get; set; }
+
+    [MaxLength(200)]
+    [Column(TypeName = DbTextColumnTypeConstants.CharacterVarying200)]
+    public string? ParsedBlobHash { get; set; }
 
     public ImportFailureModel? Failure { get; set; }
 
+    [Timestamp]
+    [Column("xmin", TypeName = DbIdentifierColumnTypeConstants.Xid)]
     public uint Version { get; set; }
 }

@@ -26,9 +26,11 @@ using Espada.Application.UseCases.Sources.Common;
 using Espada.Application.UseCases.Workspaces.Commands.CreateWorkspace;
 using Espada.Application.UseCases.Workspaces.Common;
 using Espada.Domain.Enums;
+using Espada.Domain.ValueObjects.SourceDefinitions;
 using Espada.Tests.Common.Http;
 using Espada.Tests.E2E.Fixtures;
 using Espada.Tests.E2E.TestData;
+using Espada.Tests.E2E.TestData.Constants;
 using System.Net;
 
 namespace Espada.Tests.E2E.Api;
@@ -42,63 +44,74 @@ public sealed class BusinessFlowsE2ETests(EspadaE2EFactory factory) : E2ETest(fa
         using HttpClient client = Factory.CreateClient();
         HttpTestClient http = new(client, TestContext.Current.CancellationToken);
 
-        CreateWorkspaceResponse createdWorkspace = await http.PostAsync<CreateWorkspaceRequest, CreateWorkspaceResponse>(E2ERoutes.Workspaces, new CreateWorkspaceRequest
-        {
-            Name = BusinessFlowTestData.Lifecycle.WorkspaceName,
-            TypeId = WorkspaceType.Personal.Id
-        });
+        CreateWorkspaceResponse createdWorkspace =
+            await http.PostAsync<CreateWorkspaceRequest, CreateWorkspaceResponse>(
+                E2ERouteConstants.Workspaces,
+                new CreateWorkspaceRequest
+                {
+                    Name = BusinessFlowTestData.Lifecycle.WorkspaceName,
+                    TypeId = WorkspaceType.Personal.Id
+                });
         WorkspaceResponse workspace = await http.GetAsync<WorkspaceResponse>(E2ERoutes.Workspace(createdWorkspace.WorkspaceId));
         Assert.Equal(BusinessFlowTestData.Lifecycle.WorkspaceName, workspace.Name);
 
-        RegisterSourceResponse createdSource = await http.PostAsync<RegisterSourceRequest, RegisterSourceResponse>(E2ERoutes.Sources(workspace.Id), new RegisterSourceRequest
-        {
-            Name = BusinessFlowTestData.Lifecycle.SourceName,
-            Locator = BusinessFlowTestData.Lifecycle.SourceLocator,
-            TypeId = SourceType.WebPage.Id
-        });
+        RegisterSourceResponse createdSource =
+            await http.PostAsync<RegisterSourceRequest, RegisterSourceResponse>(
+                E2ERoutes.Sources(workspace.Id),
+                new RegisterSourceRequest
+                {
+                    Name = BusinessFlowTestData.Lifecycle.SourceName,
+                    Definition = new WebPageSourceDefinition(
+                        new Uri(BusinessFlowTestData.Lifecycle.SourceLocator))
+                });
         SourceResponse source = await http.GetAsync<SourceResponse>(E2ERoutes.Source(workspace.Id, createdSource.SourceId));
         Assert.Equal(workspace.Id, source.WorkspaceId);
-        await http.AssertStatusAsync(await client.PostAsJsonAsync(
-            E2ERoutes.SourcePriority(workspace.Id, source.Id),
-            new SetContextPriorityRequest { Priority = -25 },
-            TestContext.Current.CancellationToken), HttpStatusCode.NoContent);
+        await http.AssertStatusAsync(
+            await client.PostAsJsonAsync(
+                E2ERoutes.SourcePriority(workspace.Id, source.Id),
+                new SetContextPriorityRequest { Priority = -25 },
+                TestContext.Current.CancellationToken),
+            HttpStatusCode.NoContent);
         source = await http.GetAsync<SourceResponse>(E2ERoutes.Source(workspace.Id, source.Id));
         Assert.Equal(-25, source.Priority);
 
-        RequestImportResponse requestedImport = await http.PostAsync<RequestImportResponse>(E2ERoutes.RequestImport(workspace.Id, source.Id));
-        await http.AssertStatusAsync(await client.PostAsync(E2ERoutes.StartImport(workspace.Id, requestedImport.ImportJobId), null, TestContext.Current.CancellationToken), HttpStatusCode.NoContent);
+        RequestImportResponse requestedImport = await RequestImportAsync(client, workspace.Id, source.Id);
 
-        CreateArtifactResponse createdArtifact = await http.PostAsync<CreateArtifactRequest, CreateArtifactResponse>(E2ERoutes.Artifacts(workspace.Id), new CreateArtifactRequest
-        {
-            Title = BusinessFlowTestData.Lifecycle.InitialArtifactTitle,
-            TypeId = ArtifactType.Markdown.Id,
-            Content = BusinessFlowTestData.Lifecycle.InitialRevisionContent
-        });
+        CreateArtifactResponse createdArtifact =
+            await http.PostAsync<CreateArtifactRequest, CreateArtifactResponse>(
+                E2ERoutes.Artifacts(workspace.Id),
+                new CreateArtifactRequest
+                {
+                    Title = BusinessFlowTestData.Lifecycle.InitialArtifactTitle,
+                    TypeId = ArtifactType.Markdown.Id,
+                    Content = BusinessFlowTestData.Lifecycle.InitialRevisionContent
+                });
         await http.AssertStatusAsync(await client.PostAsJsonAsync(
             E2ERoutes.ArtifactPriority(workspace.Id, createdArtifact.ArtifactId),
             new SetContextPriorityRequest { Priority = 50 },
             TestContext.Current.CancellationToken), HttpStatusCode.NoContent);
 
-        await http.AssertStatusAsync(await client.PostAsJsonAsync(E2ERoutes.CompleteImport(workspace.Id, requestedImport.ImportJobId), new CompleteImportRequest
-        {
-            ArtifactId = createdArtifact.ArtifactId,
-            ArtifactRevisionId = createdArtifact.ArtifactRevisionId
-        }, TestContext.Current.CancellationToken), HttpStatusCode.NoContent);
-
-        GetImportByIdResponse completedImport = await http.GetAsync<GetImportByIdResponse>(E2ERoutes.Import(workspace.Id, requestedImport.ImportJobId));
-        Assert.Equal(ImportStatusType.Succeeded.Id, completedImport.StatusId);
-        Assert.Equal(createdArtifact.ArtifactId, completedImport.ArtifactId);
-        Assert.Equal(createdArtifact.ArtifactRevisionId, completedImport.ArtifactRevisionId);
-        Assert.NotNull(completedImport.CompletedAtUtc);
+        GetImportByIdResponse pendingImport = await http.GetAsync<GetImportByIdResponse>(
+            E2ERoutes.Import(workspace.Id, requestedImport.ImportJobId));
+        Assert.Equal(ImportStatusType.Requested.Id, pendingImport.StatusId);
+        await http.AssertStatusAsync(
+            await client.PostAsync(
+                E2ERoutes.CancelImport(workspace.Id, requestedImport.ImportJobId),
+                null,
+                TestContext.Current.CancellationToken),
+            HttpStatusCode.NoContent);
 
         GetArtifactByIdResponse artifact = await http.GetAsync<GetArtifactByIdResponse>(E2ERoutes.Artifact(workspace.Id, createdArtifact.ArtifactId));
         Assert.Equal(createdArtifact.ArtifactRevisionId, artifact.CurrentRevisionId);
         Assert.Equal(50, artifact.Priority);
 
-        AddArtifactRevisionResponse secondRevision = await http.PostAsync<AddArtifactRevisionRequest, AddArtifactRevisionResponse>(E2ERoutes.Revisions(workspace.Id, artifact.Id), new AddArtifactRevisionRequest
-        {
-            Content = BusinessFlowTestData.Lifecycle.SecondRevisionContent
-        });
+        AddArtifactRevisionResponse secondRevision =
+            await http.PostAsync<AddArtifactRevisionRequest, AddArtifactRevisionResponse>(
+                E2ERoutes.Revisions(workspace.Id, artifact.Id),
+                new AddArtifactRevisionRequest
+                {
+                    Content = BusinessFlowTestData.Lifecycle.SecondRevisionContent
+                });
 
         ListArtifactRevisionsResponse revisions = await http.GetAsync<ListArtifactRevisionsResponse>(E2ERoutes.Revisions(workspace.Id, artifact.Id));
         Assert.Equal(2, revisions.Items.Count);
@@ -111,34 +124,47 @@ public sealed class BusinessFlowsE2ETests(EspadaE2EFactory factory) : E2ETest(fa
         artifact = await http.GetAsync<GetArtifactByIdResponse>(E2ERoutes.Artifact(workspace.Id, artifact.Id));
         Assert.Equal(BusinessFlowTestData.Lifecycle.RenamedArtifactTitle, artifact.Title);
 
-        CreateChunkBatchResponse batch = await http.PostAsync<CreateChunkBatchRequest, CreateChunkBatchResponse>(E2ERoutes.ChunkBatches(workspace.Id, artifact.Id, secondRevision.ArtifactRevisionId), new CreateChunkBatchRequest
-        {
-            StrategyId = ChunkingStrategyType.Recursive.Id,
-            StrategyVersion = BusinessFlowTestData.Lifecycle.ChunkingStrategyVersion
-        });
-        CreateChunksResponse chunks = await http.PostAsync<CreateChunksRequest, CreateChunksResponse>(E2ERoutes.CreateChunks(workspace.Id, batch.ChunkBatchId), new CreateChunksRequest
-        {
-            Items =
-            [
-                new CreateChunkItemRequest
+        CreateChunkBatchResponse batch =
+            await http.PostAsync<CreateChunkBatchRequest, CreateChunkBatchResponse>(
+                E2ERoutes.ChunkBatches(
+                    workspace.Id,
+                    artifact.Id,
+                    secondRevision.ArtifactRevisionId),
+                new CreateChunkBatchRequest
                 {
-                    Number = BusinessFlowTestData.Lifecycle.FirstChunkNumber,
-                    Content = BusinessFlowTestData.Lifecycle.FirstChunkContent,
-                    SourceStart = BusinessFlowTestData.Lifecycle.FirstChunkSourceStart,
-                    SourceLength = BusinessFlowTestData.Lifecycle.FirstChunkSourceLength
-                },
-                new CreateChunkItemRequest
+                    StrategyId = ChunkingStrategyType.Recursive.Id,
+                    StrategyVersion = BusinessFlowTestData.Lifecycle.ChunkingStrategyVersion
+                });
+        CreateChunksResponse chunks =
+            await http.PostAsync<CreateChunksRequest, CreateChunksResponse>(
+                E2ERoutes.CreateChunks(workspace.Id, batch.ChunkBatchId),
+                new CreateChunksRequest
                 {
-                    Number = BusinessFlowTestData.Lifecycle.SecondChunkNumber,
-                    Content = BusinessFlowTestData.Lifecycle.SecondChunkContent,
-                    SourceStart = BusinessFlowTestData.Lifecycle.SecondChunkSourceStart,
-                    SourceLength = BusinessFlowTestData.Lifecycle.SecondChunkSourceLength
-                }
-            ]
-        });
+                    Items =
+                    [
+                        new CreateChunkItemRequest
+                        {
+                            Number = BusinessFlowTestData.Lifecycle.FirstChunkNumber,
+                            Content = BusinessFlowTestData.Lifecycle.FirstChunkContent,
+                            SourceStart = BusinessFlowTestData.Lifecycle.FirstChunkSourceStart,
+                            SourceLength = BusinessFlowTestData.Lifecycle.FirstChunkSourceLength
+                        },
+                        new CreateChunkItemRequest
+                        {
+                            Number = BusinessFlowTestData.Lifecycle.SecondChunkNumber,
+                            Content = BusinessFlowTestData.Lifecycle.SecondChunkContent,
+                            SourceStart = BusinessFlowTestData.Lifecycle.SecondChunkSourceStart,
+                            SourceLength = BusinessFlowTestData.Lifecycle.SecondChunkSourceLength
+                        }
+                    ]
+                });
         Assert.Equal(BusinessFlowTestData.Lifecycle.ExpectedChunkCount, chunks.ChunkCount);
 
-        ListChunksByRevisionResponse listedChunks = await http.GetAsync<ListChunksByRevisionResponse>(E2ERoutes.ChunksByRevision(workspace.Id, secondRevision.ArtifactRevisionId));
+        ListChunksByRevisionResponse listedChunks =
+            await http.GetAsync<ListChunksByRevisionResponse>(
+                E2ERoutes.ChunksByRevision(
+                    workspace.Id,
+                    secondRevision.ArtifactRevisionId));
         Assert.Equal(BusinessFlowTestData.Lifecycle.ExpectedChunkCount, listedChunks.Items.Count);
 
         Guid chunkId = chunks.Items[0].Id;
@@ -146,12 +172,15 @@ public sealed class BusinessFlowsE2ETests(EspadaE2EFactory factory) : E2ETest(fa
         Assert.Equal(BusinessFlowTestData.Lifecycle.FirstChunkContent, chunk.Content);
 
         float[] vector = BusinessFlowTestData.Lifecycle.CreateEmbeddingVector();
-        CreateChunkEmbeddingResponse createdEmbedding = await http.PostAsync<CreateChunkEmbeddingRequest, CreateChunkEmbeddingResponse>(E2ERoutes.Embedding(workspace.Id, chunkId), new CreateChunkEmbeddingRequest
-        {
-            ModelIdentifier = BusinessFlowTestData.Lifecycle.EmbeddingModelIdentifier,
-            ModelVersion = BusinessFlowTestData.Lifecycle.EmbeddingModelVersion,
-            Vector = vector
-        });
+        CreateChunkEmbeddingResponse createdEmbedding =
+            await http.PostAsync<CreateChunkEmbeddingRequest, CreateChunkEmbeddingResponse>(
+                E2ERoutes.Embedding(workspace.Id, chunkId),
+                new CreateChunkEmbeddingRequest
+                {
+                    ModelIdentifier = BusinessFlowTestData.Lifecycle.EmbeddingModelIdentifier,
+                    ModelVersion = BusinessFlowTestData.Lifecycle.EmbeddingModelVersion,
+                    Vector = vector
+                });
         GetChunkEmbeddingByChunkIdResponse embedding = await http.GetAsync<GetChunkEmbeddingByChunkIdResponse>(
             E2ERoutes.EmbeddingByModel(
                 workspace.Id,
@@ -171,13 +200,14 @@ public sealed class BusinessFlowsE2ETests(EspadaE2EFactory factory) : E2ETest(fa
                 ModelVersion = BusinessFlowTestData.Lifecycle.EmbeddingModelVersion,
                 TopK = 5
             });
-        WorkspaceContextItemResponse contextItem = Assert.Single(context.Items);
-        Assert.Equal(chunkId, contextItem.ChunkId);
-        Assert.Equal(BusinessFlowTestData.Lifecycle.FirstChunkContent, contextItem.Content);
-        Assert.Equal(1d, contextItem.Similarity, precision: 6);
-        Assert.Equal(0.5d, contextItem.ArtifactPriorityScore, precision: 6);
+        Assert.Empty(context.Items);
 
-        await http.AssertStatusAsync(await client.PostAsync(E2ERoutes.ArchiveArtifact(workspace.Id, artifact.Id), null, TestContext.Current.CancellationToken), HttpStatusCode.NoContent);
+        await http.AssertStatusAsync(
+            await client.PostAsync(
+                E2ERoutes.ArchiveArtifact(workspace.Id, artifact.Id),
+                null,
+                TestContext.Current.CancellationToken),
+            HttpStatusCode.NoContent);
         artifact = await http.GetAsync<GetArtifactByIdResponse>(E2ERoutes.Artifact(workspace.Id, artifact.Id));
         Assert.Equal(ArtifactStatusType.Archived.Id, artifact.StatusId);
     }
@@ -188,48 +218,119 @@ public sealed class BusinessFlowsE2ETests(EspadaE2EFactory factory) : E2ETest(fa
         using HttpClient client = Factory.CreateClient();
         HttpTestClient http = new(client, TestContext.Current.CancellationToken);
 
-        await http.AssertStatusAsync(await client.GetAsync(E2ERoutes.Workspace(Guid.NewGuid()), TestContext.Current.CancellationToken), HttpStatusCode.NotFound);
+        await http.AssertStatusAsync(
+            await client.GetAsync(
+                E2ERoutes.Workspace(Guid.NewGuid()),
+                TestContext.Current.CancellationToken),
+            HttpStatusCode.NotFound);
 
         CreateWorkspaceResponse firstWorkspace = await CreateWorkspaceAsync(http, BusinessFlowTestData.InvalidTransitions.FirstWorkspaceName);
         CreateWorkspaceResponse secondWorkspace = await CreateWorkspaceAsync(http, BusinessFlowTestData.InvalidTransitions.SecondWorkspaceName);
-        await http.AssertStatusAsync(await client.GetAsync(E2ERoutes.Source(firstWorkspace.WorkspaceId, Guid.NewGuid()), TestContext.Current.CancellationToken), HttpStatusCode.NotFound);
+        await http.AssertStatusAsync(
+            await client.GetAsync(
+                E2ERoutes.Source(firstWorkspace.WorkspaceId, Guid.NewGuid()),
+                TestContext.Current.CancellationToken),
+            HttpStatusCode.NotFound);
 
-        RegisterSourceResponse source = await http.PostAsync<RegisterSourceRequest, RegisterSourceResponse>(E2ERoutes.Sources(firstWorkspace.WorkspaceId), new RegisterSourceRequest
-        {
-            Name = BusinessFlowTestData.InvalidTransitions.SourceName,
-            Locator = BusinessFlowTestData.InvalidTransitions.SourceLocator,
-            TypeId = SourceType.WebPage.Id
-        });
+        RegisterSourceResponse source =
+            await http.PostAsync<RegisterSourceRequest, RegisterSourceResponse>(
+                E2ERoutes.Sources(firstWorkspace.WorkspaceId),
+                new RegisterSourceRequest
+                {
+                    Name = BusinessFlowTestData.InvalidTransitions.SourceName,
+                    Definition = new WebPageSourceDefinition(
+                        new Uri(BusinessFlowTestData.InvalidTransitions.SourceLocator))
+                });
 
-        await http.AssertStatusAsync(await client.GetAsync(E2ERoutes.Source(secondWorkspace.WorkspaceId, source.SourceId), TestContext.Current.CancellationToken), HttpStatusCode.NotFound);
+        await http.AssertStatusAsync(
+            await client.GetAsync(
+                E2ERoutes.Source(secondWorkspace.WorkspaceId, source.SourceId),
+                TestContext.Current.CancellationToken),
+            HttpStatusCode.NotFound);
 
-        RequestImportResponse requestedImport = await http.PostAsync<RequestImportResponse>(E2ERoutes.RequestImport(firstWorkspace.WorkspaceId, source.SourceId));
-        await http.AssertStatusAsync(await client.PostAsJsonAsync(E2ERoutes.CompleteImport(firstWorkspace.WorkspaceId, requestedImport.ImportJobId), new CompleteImportRequest
-        {
-            ArtifactId = Guid.NewGuid(),
-            ArtifactRevisionId = Guid.NewGuid()
-        }, TestContext.Current.CancellationToken), HttpStatusCode.Conflict);
+        RequestImportResponse requestedImport = await RequestImportAsync(client, firstWorkspace.WorkspaceId, source.SourceId);
+        await http.AssertStatusAsync(
+            await client.PostAsync(
+                E2ERoutes.CancelImport(
+                    firstWorkspace.WorkspaceId,
+                    requestedImport.ImportJobId),
+                null,
+                TestContext.Current.CancellationToken),
+            HttpStatusCode.NoContent);
+        await http.AssertStatusAsync(
+            await client.PostAsync(
+                E2ERoutes.CancelImport(
+                    firstWorkspace.WorkspaceId,
+                    requestedImport.ImportJobId),
+                null,
+                TestContext.Current.CancellationToken),
+            HttpStatusCode.Conflict);
 
-        CreateArtifactResponse artifact = await http.PostAsync<CreateArtifactRequest, CreateArtifactResponse>(E2ERoutes.Artifacts(firstWorkspace.WorkspaceId), new CreateArtifactRequest
-        {
-            Title = BusinessFlowTestData.InvalidTransitions.ArtifactTitle,
-            TypeId = ArtifactType.Markdown.Id,
-            Content = BusinessFlowTestData.InvalidTransitions.InitialRevisionContent
-        });
-        await http.AssertStatusAsync(await client.PostAsync(E2ERoutes.ArchiveArtifact(firstWorkspace.WorkspaceId, artifact.ArtifactId), null, TestContext.Current.CancellationToken), HttpStatusCode.NoContent);
-        await http.AssertStatusAsync(await client.PostAsync(E2ERoutes.ArchiveArtifact(firstWorkspace.WorkspaceId, artifact.ArtifactId), null, TestContext.Current.CancellationToken), HttpStatusCode.Conflict);
-        await http.AssertStatusAsync(await client.PostAsJsonAsync(E2ERoutes.Revisions(firstWorkspace.WorkspaceId, artifact.ArtifactId), new AddArtifactRevisionRequest
-        {
-            Content = BusinessFlowTestData.InvalidTransitions.RejectedRevisionContent
-        }, TestContext.Current.CancellationToken), HttpStatusCode.Conflict);
+        CreateArtifactResponse artifact =
+            await http.PostAsync<CreateArtifactRequest, CreateArtifactResponse>(
+                E2ERoutes.Artifacts(firstWorkspace.WorkspaceId),
+                new CreateArtifactRequest
+                {
+                    Title = BusinessFlowTestData.InvalidTransitions.ArtifactTitle,
+                    TypeId = ArtifactType.Markdown.Id,
+                    Content = BusinessFlowTestData.InvalidTransitions.InitialRevisionContent
+                });
+        await http.AssertStatusAsync(
+            await client.PostAsync(
+                E2ERoutes.ArchiveArtifact(
+                    firstWorkspace.WorkspaceId,
+                    artifact.ArtifactId),
+                null,
+                TestContext.Current.CancellationToken),
+            HttpStatusCode.NoContent);
+        await http.AssertStatusAsync(
+            await client.PostAsync(
+                E2ERoutes.ArchiveArtifact(
+                    firstWorkspace.WorkspaceId,
+                    artifact.ArtifactId),
+                null,
+                TestContext.Current.CancellationToken),
+            HttpStatusCode.Conflict);
+        await http.AssertStatusAsync(
+            await client.PostAsJsonAsync(
+                E2ERoutes.Revisions(
+                    firstWorkspace.WorkspaceId,
+                    artifact.ArtifactId),
+                new AddArtifactRevisionRequest
+                {
+                    Content = BusinessFlowTestData.InvalidTransitions.RejectedRevisionContent
+                },
+                TestContext.Current.CancellationToken),
+            HttpStatusCode.Conflict);
 
-        await http.AssertStatusAsync(await client.PostAsJsonAsync(E2ERoutes.Workspaces, new CreateWorkspaceRequest(), TestContext.Current.CancellationToken), HttpStatusCode.BadRequest);
+        await http.AssertStatusAsync(
+            await client.PostAsJsonAsync(
+                E2ERouteConstants.Workspaces,
+                new CreateWorkspaceRequest(),
+                TestContext.Current.CancellationToken),
+            HttpStatusCode.BadRequest);
     }
 
     private static Task<CreateWorkspaceResponse> CreateWorkspaceAsync(HttpTestClient http, string name) =>
-        http.PostAsync<CreateWorkspaceRequest, CreateWorkspaceResponse>(E2ERoutes.Workspaces, new CreateWorkspaceRequest
+        http.PostAsync<CreateWorkspaceRequest, CreateWorkspaceResponse>(E2ERouteConstants.Workspaces, new CreateWorkspaceRequest
         {
             Name = name,
             TypeId = WorkspaceType.Personal.Id
         });
+
+    private static async Task<RequestImportResponse> RequestImportAsync(HttpClient client, Guid workspaceId, Guid sourceId)
+    {
+        using HttpRequestMessage request = new(HttpMethod.Post, E2ERoutes.RequestImport(workspaceId));
+        request.Headers.Add("Idempotency-Key", $"e2e-{Guid.NewGuid():N}");
+        request.Content = JsonContent.Create(new RequestImportRequest
+        {
+            SourceId = sourceId,
+            Options = new ImportOptionsRequest { EmbeddingModel = "e2e-model@v1" }
+        });
+        using HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
+        Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+        return await response.Content.ReadFromJsonAsync<RequestImportResponse>(
+            TestContext.Current.CancellationToken)
+            ?? throw new InvalidOperationException("Import response was empty.");
+    }
 }

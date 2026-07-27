@@ -4,6 +4,7 @@ using Espada.Api.Contracts.Requests.Chunks;
 using Espada.Tests.Api.Assertions;
 using Espada.Tests.Api.Fixtures;
 using Espada.Tests.Api.TestData;
+using Espada.Tests.Api.TestData.Routes;
 using System.Net;
 using System.Net.Http.Json;
 
@@ -22,7 +23,13 @@ public sealed class ChunkApiValidationTests(EspadaApiFactory factory) : IClassFi
             StrategyVersion = TestValues.ChunkingStrategyVersion
         };
 
-        HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.ChunkBatches.Create(TestIds.WorkspaceId, TestIds.ArtifactId, TestIds.ArtifactRevisionId), request, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            ChunkBatchApiRoutes.Create(
+                TestIds.WorkspaceId,
+                TestIds.ArtifactId,
+                TestIds.ArtifactRevisionId),
+            request,
+            TestContext.Current.CancellationToken);
 
         await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
         await response.ShouldContainValidationErrorAsync(nameof(CreateChunkBatchRequest.StrategyId));
@@ -33,7 +40,10 @@ public sealed class ChunkApiValidationTests(EspadaApiFactory factory) : IClassFi
     {
         using HttpClient client = factory.CreateHttpsClient();
 
-        HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.Chunks.Create(TestIds.WorkspaceId, TestIds.ChunkBatchId), new CreateChunksRequest(), TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            ChunkApiRoutes.Create(TestIds.WorkspaceId, TestIds.ChunkBatchId),
+            new CreateChunksRequest(),
+            TestContext.Current.CancellationToken);
 
         await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
         await response.ShouldContainValidationErrorAsync(nameof(CreateChunksRequest.Items));
@@ -53,7 +63,10 @@ public sealed class ChunkApiValidationTests(EspadaApiFactory factory) : IClassFi
             ]
         };
 
-        HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.Chunks.Create(TestIds.WorkspaceId, TestIds.ChunkBatchId), request, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            ChunkApiRoutes.Create(TestIds.WorkspaceId, TestIds.ChunkBatchId),
+            request,
+            TestContext.Current.CancellationToken);
 
         await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
         await response.ShouldContainValidationErrorAsync(nameof(CreateChunksRequest.Items));
@@ -70,7 +83,10 @@ public sealed class ChunkApiValidationTests(EspadaApiFactory factory) : IClassFi
             ModelVersion = TestValues.EmbeddingModelVersion
         };
 
-        HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.ChunkEmbeddings.Create(TestIds.WorkspaceId, TestIds.ChunkId), request, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            ChunkEmbeddingApiRoutes.Create(TestIds.WorkspaceId, TestIds.ChunkId),
+            request,
+            TestContext.Current.CancellationToken);
 
         await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
         await response.ShouldContainValidationErrorAsync(nameof(CreateChunkEmbeddingRequest.Vector));

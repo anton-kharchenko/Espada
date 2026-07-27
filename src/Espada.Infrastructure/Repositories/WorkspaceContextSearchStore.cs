@@ -3,6 +3,7 @@ using Espada.Application.Models;
 using Espada.Domain.Enums;
 using Espada.Domain.ValueObjects;
 using Espada.Infrastructure.Database;
+using Espada.Infrastructure.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Pgvector;
@@ -10,7 +11,10 @@ using Pgvector.EntityFrameworkCore;
 
 namespace Espada.Infrastructure.Repositories;
 
-internal sealed class WorkspaceContextSearchStore(WorkspaceContextSearchDbContext dbContext, IOptions<WorkspaceContextSearchOptions> options) : IWorkspaceContextSearchStore
+internal sealed class WorkspaceContextSearchStore(
+    WorkspaceContextSearchDbContext dbContext,
+    IOptions<WorkspaceContextSearchOptions> options)
+    : IWorkspaceContextSearchStore
 {
     private const string TextSearchConfiguration = "simple";
 
@@ -61,6 +65,7 @@ internal sealed class WorkspaceContextSearchStore(WorkspaceContextSearchDbContex
             where embedding.ModelVersion == search.ModelVersion
             where embedding.Dimensions == search.QueryVector.Count
             where artifact.StatusId == activeArtifactStatus
+            where activeSources.Any(source => source.ArtifactRevisionId == chunk.ArtifactRevisionId)
             where revisionIds.Length == 0
                 ? artifact.CurrentRevisionId == chunk.ArtifactRevisionId
                 : revisionIds.Contains(chunk.ArtifactRevisionId)
@@ -89,7 +94,12 @@ internal sealed class WorkspaceContextSearchStore(WorkspaceContextSearchDbContex
                 similarity,
                 EF.Functions
                     .ToTsVector(TextSearchConfiguration, chunk.Content)
-                    .RankCoverDensity(EF.Functions.WebSearchToTsQuery(TextSearchConfiguration, search.QueryText), NpgsqlTsRankingNormalization.DivideByItselfPlusOne),
+                    .RankCoverDensity(
+                        EF.Functions.WebSearchToTsQuery(
+                            TextSearchConfiguration,
+                            search.QueryText),
+                        NpgsqlTsRankingNormalization
+                            .DivideByItselfPlusOne),
                 artifact.Priority,
                 sourcePriority);
 
@@ -138,16 +148,4 @@ internal sealed class WorkspaceContextSearchStore(WorkspaceContextSearchDbContex
             score);
     }
 
-    private sealed record SearchCandidate(
-        Guid ChunkId,
-        Guid ArtifactId,
-        Guid RevisionId,
-        string Content,
-        int? SourceSpanStart,
-        int? SourceSpanLength,
-        DateTimeOffset CreatedAtUtc,
-        double Similarity,
-        double KeywordScore,
-        int ArtifactPriority,
-        int SourcePriority);
 }

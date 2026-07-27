@@ -200,7 +200,13 @@ public static class PulumiDeploymentRunner
     private static async Task BuildImagesAsync(DeploymentSettings settings, ResourceNames names, CancellationToken cancellationToken)
     {
         await BuildImageAsync(settings, names, AzureDeploymentConstants.ApiImageRepository, AzureDeploymentConstants.ApiDockerfile, cancellationToken);
-        await BuildImageAsync(settings, names, AzureDeploymentConstants.DatabaseImageRepository, AzureDeploymentConstants.DatabaseDockerfile, cancellationToken);
+        await BuildImageAsync(
+            settings,
+            names,
+            AzureDeploymentConstants.DatabaseImageRepository,
+            AzureDeploymentConstants.DatabaseDockerfile,
+            cancellationToken);
+        await BuildImageAsync(settings, names, AzureDeploymentConstants.WorkerImageRepository, AzureDeploymentConstants.WorkerDockerfile, cancellationToken);
     }
 
     private static async Task BuildImageAsync(

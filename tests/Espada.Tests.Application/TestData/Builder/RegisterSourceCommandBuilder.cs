@@ -1,5 +1,7 @@
+using Espada.Application.Contracts.Ingestion;
 using Espada.Application.UseCases.Sources.Commands.RegisterSource;
 using Espada.Domain.Enums;
+using Espada.Domain.ValueObjects.SourceDefinitions;
 
 namespace Espada.Tests.Application.TestData.Builder;
 
@@ -9,9 +11,7 @@ internal sealed class RegisterSourceCommandBuilder
 
     private string? _name = TestValues.SourceName;
 
-    private string? _locator = TestValues.SourceLocator;
-
-    private SourceType _type = SourceTypeTestData.Any;
+    private SourceDefinition? _definition = new FileSourceDefinition(TestValues.SourceLocator, null, Path.GetFileName(new Uri(TestValues.SourceLocator).LocalPath), IngestionMediaTypes.Markdown);
 
     public RegisterSourceCommandBuilder InWorkspace(Guid workspaceId)
     {
@@ -27,21 +27,21 @@ internal sealed class RegisterSourceCommandBuilder
 
     public RegisterSourceCommandBuilder WithLocator(string? locator)
     {
-        _locator = locator;
+        _definition = new LegacySourceDefinition(SourceTypeTestData.Any.Id, locator!);
         return this;
     }
 
     public RegisterSourceCommandBuilder WithType(SourceType type)
     {
-        _type = type;
+        _definition = new LegacySourceDefinition(type.Id, TestValues.SourceLocator);
         return this;
     }
 
     public RegisterSourceCommandBuilder WithoutType()
     {
-        _type = null!;
+        _definition = null;
         return this;
     }
 
-    public RegisterSourceCommand Build() => new(_workspaceId, _name!, _locator!, _type);
+    public RegisterSourceCommand Build() => new(_workspaceId, _name!, _definition!);
 }

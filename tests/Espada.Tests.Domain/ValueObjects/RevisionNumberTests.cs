@@ -4,6 +4,10 @@ namespace Espada.Tests.Domain.ValueObjects;
 
 public sealed class RevisionNumberTests
 {
+    public static TheoryData<int> PositiveValues => new() { 1, 2, 100 };
+
+    public static TheoryData<int> NonPositiveValues => new() { 0, -1, -100 };
+
     [Fact]
     public void First_ShouldReturnOne()
     {
@@ -15,9 +19,7 @@ public sealed class RevisionNumberTests
     }
 
     [Theory]
-    [InlineData(1)]
-    [InlineData(2)]
-    [InlineData(100)]
+    [MemberData(nameof(PositiveValues))]
     public void Create_WithPositiveValue_ShouldCreateRevisionNumber(int value)
     {
         // Act
@@ -28,9 +30,7 @@ public sealed class RevisionNumberTests
     }
 
     [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
-    [InlineData(-100)]
+    [MemberData(nameof(NonPositiveValues))]
     public void Create_WithNonPositiveValue_ShouldReturnExpectedError(int value)
     {
         // Act

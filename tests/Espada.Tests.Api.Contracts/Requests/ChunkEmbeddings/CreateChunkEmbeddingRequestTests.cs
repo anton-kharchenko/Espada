@@ -7,6 +7,14 @@ namespace Espada.Tests.Api.Contracts.Requests.ChunkEmbeddings;
 
 public sealed class CreateChunkEmbeddingRequestTests
 {
+    public static TheoryData<float> NonFiniteVectorValues =>
+        new()
+        {
+            float.NaN,
+            float.PositiveInfinity,
+            float.NegativeInfinity
+        };
+
     [Fact]
     public void Validate_WithEmptyVector_ShouldReturnVectorError()
     {
@@ -42,9 +50,7 @@ public sealed class CreateChunkEmbeddingRequestTests
     }
 
     [Theory]
-    [InlineData(float.NaN)]
-    [InlineData(float.PositiveInfinity)]
-    [InlineData(float.NegativeInfinity)]
+    [MemberData(nameof(NonFiniteVectorValues))]
     public void Validate_WithNonFiniteVectorValue_ShouldReturnVectorError(float value)
     {
         CreateChunkEmbeddingRequest request = CreateValidRequest(vector: [value]);

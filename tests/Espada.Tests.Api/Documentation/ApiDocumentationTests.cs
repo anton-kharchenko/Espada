@@ -12,11 +12,12 @@ public sealed class ApiDocumentationTests(EspadaApiFactory factory) : IClassFixt
     {
         using HttpClient client = factory.CreateHttpsClient(authenticated: false);
 
-        HttpResponseMessage response = await client.GetAsync(ApiRoutes.OpenApi, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync(ApiRouteConstants.OpenApi, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        using JsonDocument document = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(TestContext.Current.CancellationToken), cancellationToken: TestContext.Current.CancellationToken);
+        await using Stream content = await response.Content.ReadAsStreamAsync(TestContext.Current.CancellationToken);
+        using JsonDocument document = await JsonDocument.ParseAsync(content, cancellationToken: TestContext.Current.CancellationToken);
         JsonElement root = document.RootElement;
         JsonElement scheme = root.GetProperty("components").GetProperty("securitySchemes").GetProperty("ApiKey");
 
@@ -30,7 +31,9 @@ public sealed class ApiDocumentationTests(EspadaApiFactory factory) : IClassFixt
         Assert.True(schemas.TryGetProperty("ErrorResponse", out _));
 
         JsonElement paths = root.GetProperty("paths");
-        Assert.Equal("ApiKey", paths.GetProperty("/api/v1/workspaces/{workspaceId}").GetProperty("get").GetProperty("security")[0].EnumerateObject().Single().Name);
+        string securityScheme = paths.GetProperty("/api/v1/workspaces/{workspaceId}").GetProperty("get").GetProperty("security")[0].EnumerateObject().Single().Name;
+
+        Assert.Equal("ApiKey", securityScheme);
     }
 
     [Fact]
@@ -38,7 +41,7 @@ public sealed class ApiDocumentationTests(EspadaApiFactory factory) : IClassFixt
     {
         using HttpClient client = factory.CreateHttpsClient(authenticated: false);
 
-        HttpResponseMessage response = await client.GetAsync(ApiRoutes.Scalar, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync(ApiRouteConstants.Scalar, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal("text/html", response.Content.Headers.ContentType?.MediaType);

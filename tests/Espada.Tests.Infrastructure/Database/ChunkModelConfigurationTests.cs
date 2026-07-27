@@ -1,7 +1,6 @@
 using Espada.Db.Constants;
 using Espada.Domain.Aggregates;
 using Espada.Infrastructure.Database;
-using Espada.Tests.Common.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -9,6 +8,14 @@ namespace Espada.Tests.Infrastructure.Database;
 
 public sealed class ChunkModelConfigurationTests
 {
+    public static TheoryData<Type, string> ChunkTables =>
+        new()
+        {
+            { typeof(ChunkBatch), DbTableConstants.ChunkBatches },
+            { typeof(Chunk), DbTableConstants.Chunks },
+            { typeof(ChunkEmbedding), DbTableConstants.ChunkEmbeddings }
+        };
+
     [Fact]
     public void Model_ShouldContainChunkAggregateTypes()
     {
@@ -20,9 +27,7 @@ public sealed class ChunkModelConfigurationTests
     }
 
     [Theory]
-    [InlineData(typeof(ChunkBatch), DbConstants.Tables.ChunkBatches)]
-    [InlineData(typeof(Chunk), DbConstants.Tables.Chunks)]
-    [InlineData(typeof(ChunkEmbedding), DbConstants.Tables.ChunkEmbeddings)]
+    [MemberData(nameof(ChunkTables))]
     public void Model_ShouldUseExpectedTableAndSchema(Type entityType, string tableName)
     {
         using EspadaDbContext context = CreateContext();
@@ -52,7 +57,7 @@ public sealed class ChunkModelConfigurationTests
 
         Assert.NotNull(index);
         Assert.True(index.IsUnique);
-        Assert.Equal(DbConstants.Indexes.ChunkBatchNumber, index.GetDatabaseName());
+        Assert.Equal(DbIndexConstants.ChunkBatchNumber, index.GetDatabaseName());
     }
 
     [Fact]
@@ -68,13 +73,13 @@ public sealed class ChunkModelConfigurationTests
                 .SequenceEqual(new[]
                 {
                     nameof(ChunkEmbedding.ChunkId),
-                    DbConstants.Properties.ChunkEmbeddingModelIdentifier,
-                    DbConstants.Properties.ChunkEmbeddingModelVersion
+                    DbPropertyConstants.ChunkEmbeddingModelIdentifier,
+                    DbPropertyConstants.ChunkEmbeddingModelVersion
                 }));
 
         Assert.NotNull(index);
         Assert.True(index.IsUnique);
-        Assert.Equal(DbConstants.Indexes.ChunkEmbeddingChunkModel, index.GetDatabaseName());
+        Assert.Equal(DbIndexConstants.ChunkEmbeddingChunkModel, index.GetDatabaseName());
     }
 
     private static EspadaDbContext CreateContext()

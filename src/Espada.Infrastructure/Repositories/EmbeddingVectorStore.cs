@@ -7,92 +7,91 @@ using Microsoft.EntityFrameworkCore;
 using Pgvector;
 using Pgvector.EntityFrameworkCore;
 
-namespace Espada.Infrastructure.Repositories
+namespace Espada.Infrastructure.Repositories;
+
+internal sealed class EmbeddingVectorStore(EspadaDbContext dbContext) : IEmbeddingVectorStore
 {
-    internal sealed class EmbeddingVectorStore(EspadaDbContext dbContext) : IEmbeddingVectorStore
+    public async Task UpsertAsync(ChunkEmbeddingId chunkEmbeddingId, IReadOnlyList<float> vector, CancellationToken cancellationToken = default)
     {
-        public async Task UpsertAsync(ChunkEmbeddingId chunkEmbeddingId, IReadOnlyList<float> vector, CancellationToken cancellationToken = default)
+        ArgumentNullException.ThrowIfNull(chunkEmbeddingId);
+        ArgumentNullException.ThrowIfNull(vector);
+
+        EmbeddingVectorRecord? existing = await dbContext.EmbeddingVectors.FindAsync([chunkEmbeddingId], cancellationToken);
+
+        if (existing is null)
         {
-            ArgumentNullException.ThrowIfNull(chunkEmbeddingId);
-            ArgumentNullException.ThrowIfNull(vector);
+            await dbContext.EmbeddingVectors.AddAsync(new EmbeddingVectorRecord(chunkEmbeddingId, vector), cancellationToken);
+            return;
+        }
 
-            EmbeddingVectorRecord? existing = await dbContext.EmbeddingVectors.FindAsync([chunkEmbeddingId], cancellationToken);
+        existing.Replace(vector);
+    }
 
-            if (existing is null)
+    public async Task<IReadOnlyList<float>?> GetByIdAsync(ChunkEmbeddingId chunkEmbeddingId, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(chunkEmbeddingId);
+
+        return await dbContext.EmbeddingVectors
+            .AsNoTracking()
+            .Where(record => record.ChunkEmbeddingId == chunkEmbeddingId)
+            .Select(record => record.Vector.ToArray())
+            .SingleOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task DeleteAsync(ChunkEmbeddingId chunkEmbeddingId, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(chunkEmbeddingId);
+
+        await dbContext.EmbeddingVectors
+            .Where(record => record.ChunkEmbeddingId == chunkEmbeddingId)
+            .ExecuteDeleteAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<EmbeddingVectorSearchHit>> SearchNearestAsync(EmbeddingVectorSearch search, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(search);
+
+        Vector queryVector = new(search.QueryVector.ToArray());
+        EmbeddingDimensions dimensions = EmbeddingDimensions.Create(search.QueryVector.Count).Value!;
+        var candidates =
+            from vector in dbContext.EmbeddingVectors.AsNoTracking()
+            join embedding in dbContext.ChunkEmbeddings.AsNoTracking()
+                on vector.ChunkEmbeddingId equals embedding.Id
+            where embedding.WorkspaceId == search.WorkspaceId
+                && EF.Property<string>(embedding, Db.Constants.DbPropertyConstants.ChunkEmbeddingModelIdentifier) == search.Model.Identifier
+                && EF.Property<string>(embedding, Db.Constants.DbPropertyConstants.ChunkEmbeddingModelVersion) == search.Model.Version
+                && embedding.Dimensions == dimensions
+            select new
             {
-                await dbContext.EmbeddingVectors.AddAsync(new EmbeddingVectorRecord(chunkEmbeddingId, vector), cancellationToken);
-                return;
-            }
+                embedding.Id,
+                embedding.ChunkId,
+                Similarity = 1 - vector.Vector.CosineDistance(queryVector)
+            };
 
-            existing.Replace(vector);
-        }
-
-        public async Task<IReadOnlyList<float>?> GetByIdAsync(ChunkEmbeddingId chunkEmbeddingId, CancellationToken cancellationToken = default)
+        if (search.MinimumSimilarity.HasValue)
         {
-            ArgumentNullException.ThrowIfNull(chunkEmbeddingId);
-
-            return await dbContext.EmbeddingVectors
-                .AsNoTracking()
-                .Where(record => record.ChunkEmbeddingId == chunkEmbeddingId)
-                .Select(record => record.Vector.ToArray())
-                .SingleOrDefaultAsync(cancellationToken);
+            double minimumSimilarity = search.MinimumSimilarity.Value;
+            candidates = candidates.Where(candidate => candidate.Similarity >= minimumSimilarity);
         }
 
-        public async Task DeleteAsync(ChunkEmbeddingId chunkEmbeddingId, CancellationToken cancellationToken = default)
-        {
-            ArgumentNullException.ThrowIfNull(chunkEmbeddingId);
+        return await candidates
+            .OrderByDescending(candidate => candidate.Similarity)
+            .ThenBy(candidate => candidate.Id)
+            .Select(candidate => new EmbeddingVectorSearchHit(candidate.Id, candidate.ChunkId, candidate.Similarity))
+            .Take(search.TopK)
+            .ToListAsync(cancellationToken);
+    }
 
-            await dbContext.EmbeddingVectors
-                .Where(record => record.ChunkEmbeddingId == chunkEmbeddingId)
-                .ExecuteDeleteAsync(cancellationToken);
-        }
+    public async Task DeleteByWorkspaceAsync(WorkspaceId workspaceId, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(workspaceId);
 
-        public async Task<IReadOnlyList<EmbeddingVectorSearchHit>> SearchNearestAsync(EmbeddingVectorSearch search, CancellationToken cancellationToken = default)
-        {
-            ArgumentNullException.ThrowIfNull(search);
+        IQueryable<ChunkEmbeddingId> embeddingIds = dbContext.ChunkEmbeddings
+            .Where(embedding => embedding.WorkspaceId == workspaceId)
+            .Select(embedding => embedding.Id);
 
-            Vector queryVector = new(search.QueryVector.ToArray());
-            EmbeddingDimensions dimensions = EmbeddingDimensions.Create(search.QueryVector.Count).Value!;
-            var candidates =
-                from vector in dbContext.EmbeddingVectors.AsNoTracking()
-                join embedding in dbContext.ChunkEmbeddings.AsNoTracking()
-                    on vector.ChunkEmbeddingId equals embedding.Id
-                where embedding.WorkspaceId == search.WorkspaceId
-                    && EF.Property<string>(embedding, Db.Constants.DbConstants.Properties.ChunkEmbeddingModelIdentifier) == search.Model.Identifier
-                    && EF.Property<string>(embedding, Db.Constants.DbConstants.Properties.ChunkEmbeddingModelVersion) == search.Model.Version
-                    && embedding.Dimensions == dimensions
-                select new
-                {
-                    embedding.Id,
-                    embedding.ChunkId,
-                    Similarity = 1 - vector.Vector.CosineDistance(queryVector)
-                };
-
-            if (search.MinimumSimilarity.HasValue)
-            {
-                double minimumSimilarity = search.MinimumSimilarity.Value;
-                candidates = candidates.Where(candidate => candidate.Similarity >= minimumSimilarity);
-            }
-
-            return await candidates
-                .OrderByDescending(candidate => candidate.Similarity)
-                .ThenBy(candidate => candidate.Id)
-                .Select(candidate => new EmbeddingVectorSearchHit(candidate.Id, candidate.ChunkId, candidate.Similarity))
-                .Take(search.TopK)
-                .ToListAsync(cancellationToken);
-        }
-
-        public async Task DeleteByWorkspaceAsync(WorkspaceId workspaceId, CancellationToken cancellationToken = default)
-        {
-            ArgumentNullException.ThrowIfNull(workspaceId);
-
-            IQueryable<ChunkEmbeddingId> embeddingIds = dbContext.ChunkEmbeddings
-                .Where(embedding => embedding.WorkspaceId == workspaceId)
-                .Select(embedding => embedding.Id);
-
-            await dbContext.EmbeddingVectors
-                .Where(record => embeddingIds.Contains(record.ChunkEmbeddingId))
-                .ExecuteDeleteAsync(cancellationToken);
-        }
+        await dbContext.EmbeddingVectors
+            .Where(record => embeddingIds.Contains(record.ChunkEmbeddingId))
+            .ExecuteDeleteAsync(cancellationToken);
     }
 }

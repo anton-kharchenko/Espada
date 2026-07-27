@@ -4,21 +4,21 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Espada.Db.Models;
 
-[Table(DbConstants.Tables.ArtifactRevisions, Schema = DbConstants.SchemaName)]
+[Table(DbTableConstants.ArtifactRevisions, Schema = DbConstants.SchemaName)]
 public class ArtifactRevisions
 {
-    [Key, Column(TypeName = DbConstants.ColumnTypes.Identifier.Uuid)]
+    [Key, Column(TypeName = DbIdentifierColumnTypeConstants.Uuid)]
     public Guid ArtifactRevisionId { get; set; }
 
-    [Column(TypeName = DbConstants.ColumnTypes.Identifier.Uuid)]
+    [Column(TypeName = DbIdentifierColumnTypeConstants.Uuid)]
     public Guid ArtifactId { get; set; }
 
-    [Column(TypeName = DbConstants.ColumnTypes.Numeric.Integer)]
+    [Column(TypeName = DbNumericColumnTypeConstants.Integer)]
     public int RevisionNumber { get; set; }
 
-    [Required, Column(TypeName = DbConstants.ColumnTypes.Text.TextType)]
+    [Required, Column(TypeName = DbTextColumnTypeConstants.TextType)]
     public string Content { get; set; } = null!;
 
-    [Column(TypeName = DbConstants.ColumnTypes.DateTime.TimestampTz)]
+    [Column(TypeName = DbDateTimeColumnTypeConstants.TimestampTz)]
     public DateTimeOffset CreatedAtUtc { get; set; }
 }

@@ -2,88 +2,67 @@ using Espada.Api.Contracts.Requests.Imports;
 using Espada.Tests.Api.Assertions;
 using Espada.Tests.Api.Fixtures;
 using Espada.Tests.Api.TestData;
+using Espada.Tests.Api.TestData.Routes;
 using System.Net;
 using System.Net.Http.Json;
-using System.Text.Json;
 
 namespace Espada.Tests.Api.Controllers;
 
-public sealed class ImportsControllerValidationTests(EspadaApiFactory factory) : IClassFixture<EspadaApiFactory>
+public sealed class ImportsControllerValidationTests(EspadaApiFactory factory)
+    : IClassFixture<EspadaApiFactory>
 {
     [Fact]
-    public async Task Complete_WithEmptyArtifactId_ShouldReturnBadRequest()
+    public async Task Request_WithoutIdempotencyKey_ShouldReturnBadRequest()
     {
         using HttpClient client = factory.CreateHttpsClient();
 
-        CompleteImportRequest request = new()
-        {
-            ArtifactId = Guid.Empty,
-            ArtifactRevisionId = TestIds.ArtifactRevisionId
-        };
-
-        HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.Imports.Complete(TestIds.WorkspaceId, TestIds.ImportJobId), request, cancellationToken: TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            ImportApiRoutes.Request(TestIds.WorkspaceId),
+            new RequestImportRequest { SourceId = TestIds.SourceId },
+            TestContext.Current.CancellationToken);
 
         await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
-        Assert.True(await HasValidationErrorAsync(response, nameof(CompleteImportRequest.ArtifactId)));
     }
 
     [Fact]
-    public async Task Complete_WithEmptyArtifactRevisionId_ShouldReturnBadRequest()
+    public async Task Request_WithEmptySourceId_ShouldReturnBadRequest()
     {
         using HttpClient client = factory.CreateHttpsClient();
+        using HttpRequestMessage request = new(
+            HttpMethod.Post,
+            ImportApiRoutes.Request(TestIds.WorkspaceId));
+        request.Headers.Add("Idempotency-Key", "validation-test");
+        request.Content = JsonContent.Create(new RequestImportRequest { SourceId = Guid.Empty });
 
-        CompleteImportRequest request = new()
-        {
-            ArtifactId = TestIds.ArtifactId,
-            ArtifactRevisionId = Guid.Empty
-        };
-
-        HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.Imports.Complete(TestIds.WorkspaceId, TestIds.ImportJobId), request, cancellationToken: TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.SendAsync(
+            request,
+            TestContext.Current.CancellationToken);
 
         await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
-        Assert.True(await HasValidationErrorAsync(response, nameof(CompleteImportRequest.ArtifactRevisionId)));
     }
 
     [Fact]
-    public async Task Fail_WithEmptyFailureCode_ShouldReturnBadRequest()
+    public async Task Request_WithInvalidOverlap_ShouldReturnBadRequest()
     {
         using HttpClient client = factory.CreateHttpsClient();
-
-        FailImportRequest request = new()
+        using HttpRequestMessage request = new(
+            HttpMethod.Post,
+            ImportApiRoutes.Request(TestIds.WorkspaceId));
+        request.Headers.Add("Idempotency-Key", "validation-test");
+        request.Content = JsonContent.Create(new RequestImportRequest
         {
-            FailureCode = " ",
-            FailureReason = TestValues.ImportFailureReason
-        };
+            SourceId = TestIds.SourceId,
+            Options = new ImportOptionsRequest
+            {
+                MaxCharacters = 100,
+                OverlapCharacters = 100
+            }
+        });
 
-        HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.Imports.Fail(TestIds.WorkspaceId, TestIds.ImportJobId), request, cancellationToken: TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.SendAsync(
+            request,
+            TestContext.Current.CancellationToken);
 
         await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
-        Assert.True(await HasValidationErrorAsync(response, nameof(FailImportRequest.FailureCode)));
-    }
-
-    [Fact]
-    public async Task Fail_WithEmptyFailureReason_ShouldReturnBadRequest()
-    {
-        using HttpClient client = factory.CreateHttpsClient();
-
-        FailImportRequest request = new()
-        {
-            FailureCode = TestValues.ImportFailureCode,
-            FailureReason = " "
-        };
-
-        HttpResponseMessage response = await client.PostAsJsonAsync(ApiRoutes.Imports.Fail(TestIds.WorkspaceId, TestIds.ImportJobId), request, cancellationToken: TestContext.Current.CancellationToken);
-
-        await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
-        Assert.True(await HasValidationErrorAsync(response, nameof(FailImportRequest.FailureReason)));
-    }
-
-    private static async Task<bool> HasValidationErrorAsync(HttpResponseMessage response, string propertyName)
-    {
-        using JsonDocument document = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-
-        JsonElement errors = document.RootElement.GetProperty("errors");
-
-        return errors.TryGetProperty(propertyName, out _);
     }
 }

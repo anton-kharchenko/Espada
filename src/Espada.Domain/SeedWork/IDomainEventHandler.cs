@@ -9,5 +9,5 @@ public interface IDomainEventHandler<in TEvent> where TEvent : IDomainEvent
     /// <summary>
     /// Handles the domain event asynchronously.
     /// </summary>
-    void Handle(TEvent domainEvent);
+    Task HandleAsync(TEvent domainEvent, CancellationToken cancellationToken = default);
 }

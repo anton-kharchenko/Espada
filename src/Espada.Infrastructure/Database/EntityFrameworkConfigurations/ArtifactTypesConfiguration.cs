@@ -12,7 +12,7 @@ internal sealed class ArtifactTypesConfiguration : IEntityTypeConfiguration<Arti
     public void Configure(EntityTypeBuilder<ArtifactTypes> builder)
     {
         builder.Property(model => model.ArtifactTypeId).ValueGeneratedNever();
-        builder.HasIndex(model => model.Name).IsUnique().HasDatabaseName(DbConstants.Indexes.ArtifactTypeName);
+        builder.HasIndex(model => model.Name).IsUnique().HasDatabaseName(DbIndexConstants.ArtifactTypeName);
         builder.HasData(Enumeration.GetAll<ArtifactType>().Select(value => new ArtifactTypes { ArtifactTypeId = value.Id, Name = value.Name }));
     }
 }

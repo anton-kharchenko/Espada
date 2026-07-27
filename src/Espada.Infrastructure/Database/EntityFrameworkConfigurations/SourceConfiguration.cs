@@ -3,8 +3,9 @@ using Espada.Domain.Aggregates;
 using Espada.Domain.Enums;
 using Espada.Domain.SeedWork;
 using Espada.Domain.ValueObjects;
-using Espada.Infrastructure.Database;
+using Espada.Domain.ValueObjects.SourceDefinitions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Espada.Infrastructure.Database.EntityFrameworkConfigurations;
@@ -13,16 +14,13 @@ internal sealed class SourceConfiguration : IEntityTypeConfiguration<Source>, IE
 {
     public void Configure(EntityTypeBuilder<Source> builder)
     {
-        builder.ToTable(
-            DbConstants.Tables.Sources,
-            DbConstants.SchemaName,
-            table => table.HasCheckConstraint(DbConstants.Constraints.SourcePriorityRange, CheckConstraintSql.ContextPriority(nameof(Source.Priority))));
+        builder.ToTable(DbTableConstants.Sources, DbConstants.SchemaName);
 
         builder.HasKey(e => e.Id);
 
         builder.Property(e => e.Id)
             .HasColumnName("SourceId")
-            .HasColumnType(DbConstants.ColumnTypes.Identifier.Uuid)
+            .HasColumnType(DbIdentifierColumnTypeConstants.Uuid)
             .HasConversion(id => id.Value, value => SourceId.Create(value))
             .IsRequired()
             .ValueGeneratedNever()
@@ -30,44 +28,59 @@ internal sealed class SourceConfiguration : IEntityTypeConfiguration<Source>, IE
 
         builder.Property(e => e.WorkspaceId)
             .HasColumnName("WorkspaceId")
-            .HasColumnType(DbConstants.ColumnTypes.Identifier.Uuid)
+            .HasColumnType(DbIdentifierColumnTypeConstants.Uuid)
             .HasConversion(id => id.Value, value => WorkspaceId.Create(value))
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.Name)
             .HasColumnName("Name")
-            .HasColumnType(DbConstants.ColumnTypes.Text.Varchar200)
+            .HasColumnType(DbTextColumnTypeConstants.Varchar200)
             .HasConversion(name => name.Value, value => SourceName.Create(value).Value!)
             .IsRequired()
-            .HasMaxLength(DbConstants.Validations.MaxLengths.L200)
+            .HasMaxLength(DbMaxLengthConstants.L200)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.Locator)
             .HasColumnName("Locator")
-            .HasColumnType(DbConstants.ColumnTypes.Text.Varchar2048)
+            .HasColumnType(DbTextColumnTypeConstants.Varchar2048)
             .HasConversion(locator => locator.Value, value => SourceLocator.Create(value).Value!)
             .IsRequired()
-            .HasMaxLength(DbConstants.Validations.MaxLengths.L2048)
+            .HasMaxLength(DbMaxLengthConstants.L2048)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        ValueComparer<SourceDefinition?> definitionComparer = new(
+            (left, right) => left == right || left != null && right != null
+                && SourceDefinitionSerializer.Serialize(left) == SourceDefinitionSerializer.Serialize(right),
+            definition => definition == null ? 0 : SourceDefinitionSerializer.Serialize(definition).GetHashCode(StringComparison.Ordinal),
+            definition => definition == null ? null : SourceDefinitionSerializer.Deserialize(SourceDefinitionSerializer.Serialize(definition)));
+
+        builder.Property<SourceDefinition?>("_definition")
+            .HasColumnName("DefinitionJson")
+            .HasColumnType(DbJsonColumnTypeConstants.Jsonb)
+            .HasConversion(
+                definition => definition == null ? null : SourceDefinitionSerializer.Serialize(definition),
+                json => json == null ? null : SourceDefinitionSerializer.Deserialize(json))
+            .IsRequired(false)
+            .Metadata.SetValueComparer(definitionComparer);
 
         builder.Property(e => e.Type)
             .HasColumnName("TypeId")
-            .HasColumnType(DbConstants.ColumnTypes.Numeric.Integer)
+            .HasColumnType(DbNumericColumnTypeConstants.Integer)
             .HasConversion(type => type.Id, value => Enumeration.GetAll<SourceType>().Single(type => type.Id == value))
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.Status)
             .HasColumnName("StatusId")
-            .HasColumnType(DbConstants.ColumnTypes.Numeric.Integer)
+            .HasColumnType(DbNumericColumnTypeConstants.Integer)
             .HasConversion(status => status.Id, value => Enumeration.GetAll<SourceStatusType>().Single(status => status.Id == value))
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.Priority)
             .HasColumnName("Priority")
-            .HasColumnType(DbConstants.ColumnTypes.Numeric.Integer)
+            .HasColumnType(DbNumericColumnTypeConstants.Integer)
             .HasConversion(priority => priority.Value, value => ContextPriority.Create(value).Value!)
             .HasDefaultValue(ContextPriority.Neutral)
             .IsRequired()
@@ -75,19 +88,19 @@ internal sealed class SourceConfiguration : IEntityTypeConfiguration<Source>, IE
 
         builder.Property(e => e.CreatedAtUtc)
             .HasColumnName("CreatedAtUtc")
-            .HasColumnType(DbConstants.ColumnTypes.DateTime.TimestampTz)
+            .HasColumnType(DbDateTimeColumnTypeConstants.TimestampTz)
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.UpdatedAtUtc)
             .HasColumnName("UpdatedAtUtc")
-            .HasColumnType(DbConstants.ColumnTypes.DateTime.TimestampTz)
+            .HasColumnType(DbDateTimeColumnTypeConstants.TimestampTz)
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.ArchivedAtUtc)
             .HasColumnName("ArchivedAtUtc")
-            .HasColumnType(DbConstants.ColumnTypes.DateTime.TimestampTz)
+            .HasColumnType(DbDateTimeColumnTypeConstants.TimestampTz)
             .IsRequired(false)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
@@ -105,7 +118,7 @@ internal sealed class SourceConfiguration : IEntityTypeConfiguration<Source>, IE
 
         builder.HasIndex(e => new { e.WorkspaceId, e.Locator })
             .IsUnique()
-            .HasDatabaseName(DbConstants.Indexes.SourceWorkspaceLocator);
+            .HasDatabaseName(DbIndexConstants.SourceWorkspaceLocator);
 
         builder.HasIndex(e => e.Status)
             .HasDatabaseName("IX_Sources_StatusId");
@@ -113,17 +126,15 @@ internal sealed class SourceConfiguration : IEntityTypeConfiguration<Source>, IE
 
     public void Configure(EntityTypeBuilder<Espada.Db.Models.Sources> builder)
     {
-        builder.ToTable(table => table.HasCheckConstraint(
-            DbConstants.Constraints.SourcePriorityRange,
-            CheckConstraintSql.ContextPriority(nameof(Espada.Db.Models.Sources.Priority))));
         builder.Property(model => model.SourceId).ValueGeneratedNever();
         builder.Property(model => model.Priority).HasDefaultValue(ContextPriority.Neutral.Value);
         builder.Property(model => model.Version).IsRowVersion();
+        builder.Property(model => model.DefinitionJson).HasColumnType(DbJsonColumnTypeConstants.Jsonb).IsRequired(false);
         builder.HasOne<Espada.Db.Models.Workspaces>().WithMany().HasForeignKey(model => model.WorkspaceId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Espada.Db.Models.SourceTypes>().WithMany().HasForeignKey(model => model.TypeId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Espada.Db.Models.SourceStatusTypes>().WithMany().HasForeignKey(model => model.StatusId).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(model => model.WorkspaceId).HasDatabaseName("IX_Sources_WorkspaceId");
         builder.HasIndex(model => model.StatusId).HasDatabaseName("IX_Sources_StatusId");
-        builder.HasIndex(model => new { model.WorkspaceId, model.Locator }).IsUnique().HasDatabaseName(DbConstants.Indexes.SourceWorkspaceLocator);
+        builder.HasIndex(model => new { model.WorkspaceId, model.Locator }).IsUnique().HasDatabaseName(DbIndexConstants.SourceWorkspaceLocator);
     }
 }

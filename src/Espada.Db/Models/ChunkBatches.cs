@@ -4,44 +4,46 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Espada.Db.Models;
 
-[Table(DbConstants.Tables.ChunkBatches, Schema = DbConstants.SchemaName)]
+[Table(DbTableConstants.ChunkBatches, Schema = DbConstants.SchemaName)]
 public class ChunkBatches
 {
-    [Key, Column(TypeName = DbConstants.ColumnTypes.Identifier.Uuid)]
+    [Key, Column(TypeName = DbIdentifierColumnTypeConstants.Uuid)]
     public Guid ChunkBatchId { get; set; }
 
-    [Column(TypeName = DbConstants.ColumnTypes.Identifier.Uuid)]
+    [Column(TypeName = DbIdentifierColumnTypeConstants.Uuid)]
     public Guid WorkspaceId { get; set; }
 
-    [Column(TypeName = DbConstants.ColumnTypes.Identifier.Uuid)]
+    [Column(TypeName = DbIdentifierColumnTypeConstants.Uuid)]
     public Guid ArtifactId { get; set; }
 
-    [Column(TypeName = DbConstants.ColumnTypes.Identifier.Uuid)]
+    [Column(TypeName = DbIdentifierColumnTypeConstants.Uuid)]
     public Guid ArtifactRevisionId { get; set; }
 
-    [Column(TypeName = DbConstants.ColumnTypes.Numeric.Integer)]
+    [Column(TypeName = DbNumericColumnTypeConstants.Integer)]
     public int StrategyId { get; set; }
 
-    [Required, MaxLength(DbConstants.Validations.MaxLengths.L64), Column(TypeName = DbConstants.ColumnTypes.Text.Varchar64)]
+    [Required, MaxLength(DbMaxLengthConstants.L64), Column(TypeName = DbTextColumnTypeConstants.Varchar64)]
     public string StrategyVersion { get; set; } = null!;
 
-    [Column(TypeName = DbConstants.ColumnTypes.Numeric.Integer)]
+    [Column(TypeName = DbNumericColumnTypeConstants.Integer)]
     public int StatusId { get; set; }
 
-    [Column(TypeName = DbConstants.ColumnTypes.DateTime.TimestampTz)]
+    [Column(TypeName = DbDateTimeColumnTypeConstants.TimestampTz)]
     public DateTimeOffset RequestedAtUtc { get; set; }
 
-    [Column(TypeName = DbConstants.ColumnTypes.DateTime.TimestampTz)]
+    [Column(TypeName = DbDateTimeColumnTypeConstants.TimestampTz)]
     public DateTimeOffset? StartedAtUtc { get; set; }
 
-    [Column(TypeName = DbConstants.ColumnTypes.DateTime.TimestampTz)]
+    [Column(TypeName = DbDateTimeColumnTypeConstants.TimestampTz)]
     public DateTimeOffset? CompletedAtUtc { get; set; }
 
-    [Column(TypeName = DbConstants.ColumnTypes.Numeric.Integer)]
+    [Column(TypeName = DbNumericColumnTypeConstants.Integer)]
     public int? ChunkCount { get; set; }
 
-    [Column(TypeName = DbConstants.ColumnTypes.Text.TextType)]
+    [Column(TypeName = DbTextColumnTypeConstants.TextType)]
     public string? FailureReason { get; set; }
 
+    [Timestamp]
+    [Column("xmin", TypeName = DbIdentifierColumnTypeConstants.Xid)]
     public uint Version { get; set; }
 }

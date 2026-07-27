@@ -10,11 +10,14 @@ internal sealed record ResourceNames(
     string ApplicationInsights,
     string ContainerEnvironment,
     string ApiIdentity,
+    string WorkerIdentity,
     string MigrationIdentity,
+    string StorageAccount,
     string KeyVault,
     string PostgreSqlServer,
     string PostgreSqlDatabase,
     string Api,
+    string Worker,
     string MigrationJob)
 {
     public static ResourceNames Create(
@@ -39,11 +42,14 @@ internal sealed record ResourceNames(
             $"espada-{suffix}-insights",
             $"espada-{suffix}-cae",
             $"espada-{suffix}-api-id",
+            $"espada-{suffix}-worker-id",
             $"espada-{suffix}-db-id",
+            $"espada{suffix}{uniqueSuffix}blob",
             $"espada-{suffix}-{uniqueSuffix}-kv",
             $"espada-{suffix}-{uniqueSuffix}-pg",
             DatabaseConfigurationNames.DatabaseName,
             $"espada-{suffix}-api",
+            $"espada-{suffix}-worker",
             $"espada-{suffix}-migrate");
     }
 }

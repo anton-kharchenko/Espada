@@ -20,14 +20,17 @@ internal sealed class ImportJobConfiguration : IEntityTypeConfiguration<ImportJo
         ValueConverter<ArtifactRevisionId?, Guid?> revisionIdConverter = new(
             id => id == null ? null : id.Value,
             value => value == null ? null : ArtifactRevisionId.Create(value.Value));
+        ValueConverter<ChunkBatchId?, Guid?> chunkBatchIdConverter = new(
+            id => id == null ? null : id.Value,
+            value => value == null ? null : ChunkBatchId.Create(value.Value));
 
-        builder.ToTable(DbConstants.Tables.ImportJobs, DbConstants.SchemaName);
+        builder.ToTable(DbTableConstants.ImportJobs, DbConstants.SchemaName);
 
         builder.HasKey(e => e.Id);
 
         builder.Property(e => e.Id)
             .HasColumnName("ImportJobId")
-            .HasColumnType(DbConstants.ColumnTypes.Identifier.Uuid)
+            .HasColumnType(DbIdentifierColumnTypeConstants.Uuid)
             .HasConversion(id => id.Value, value => ImportJobId.Create(value))
             .IsRequired()
             .ValueGeneratedNever()
@@ -35,54 +38,104 @@ internal sealed class ImportJobConfiguration : IEntityTypeConfiguration<ImportJo
 
         builder.Property(e => e.SourceId)
             .HasColumnName("SourceId")
-            .HasColumnType(DbConstants.ColumnTypes.Identifier.Uuid)
+            .HasColumnType(DbIdentifierColumnTypeConstants.Uuid)
             .HasConversion(id => id.Value, value => SourceId.Create(value))
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.WorkspaceId)
             .HasColumnName("WorkspaceId")
-            .HasColumnType(DbConstants.ColumnTypes.Identifier.Uuid)
+            .HasColumnType(DbIdentifierColumnTypeConstants.Uuid)
             .HasConversion(id => id.Value, value => WorkspaceId.Create(value))
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.Status)
             .HasColumnName("StatusId")
-            .HasColumnType(DbConstants.ColumnTypes.Numeric.Integer)
+            .HasColumnType(DbNumericColumnTypeConstants.Integer)
             .HasConversion(status => status.Id, value => Enumeration.GetAll<ImportStatusType>().Single(status => status.Id == value))
+            .IsRequired()
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.Property(e => e.Stage)
+            .HasColumnName("Stage")
+            .HasConversion(
+                stage => stage.Id,
+                value => Enumeration.GetAll<ImportPipelineStageType>()
+                    .Single(stage => stage.Id == value))
+            .HasDefaultValue(ImportPipelineStageType.Start)
+            .IsRequired()
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.Property(e => e.IdempotencyKey)
+            .HasColumnName("IdempotencyKey")
+            .HasMaxLength(200)
+            .HasDefaultValueSql("gen_random_uuid()::text")
+            .IsRequired()
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.Property(e => e.RequestFingerprint)
+            .HasColumnName("RequestFingerprint")
+            .HasMaxLength(64)
+            .HasDefaultValueSql("gen_random_uuid()::text")
+            .IsRequired()
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.Property(e => e.OptionsJson)
+            .HasColumnName("OptionsJson")
+            .HasColumnType(DbJsonColumnTypeConstants.Jsonb)
+            .HasDefaultValue("{}")
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.RequestedAtUtc)
             .HasColumnName("RequestedAtUtc")
-            .HasColumnType(DbConstants.ColumnTypes.DateTime.TimestampTz)
+            .HasColumnType(DbDateTimeColumnTypeConstants.TimestampTz)
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.StartedAtUtc)
             .HasColumnName("StartedAtUtc")
-            .HasColumnType(DbConstants.ColumnTypes.DateTime.TimestampTz)
+            .HasColumnType(DbDateTimeColumnTypeConstants.TimestampTz)
             .IsRequired(false)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.CompletedAtUtc)
             .HasColumnName("CompletedAtUtc")
-            .HasColumnType(DbConstants.ColumnTypes.DateTime.TimestampTz)
+            .HasColumnType(DbDateTimeColumnTypeConstants.TimestampTz)
             .IsRequired(false)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.ArtifactId)
             .HasColumnName("ArtifactId")
-            .HasColumnType(DbConstants.ColumnTypes.Identifier.Uuid)
+            .HasColumnType(DbIdentifierColumnTypeConstants.Uuid)
             .HasConversion(artifactIdConverter)
             .IsRequired(false)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.ArtifactRevisionId)
             .HasColumnName("ArtifactRevisionId")
-            .HasColumnType(DbConstants.ColumnTypes.Identifier.Uuid)
+            .HasColumnType(DbIdentifierColumnTypeConstants.Uuid)
             .HasConversion(revisionIdConverter)
+            .IsRequired(false)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.Property(e => e.ChunkBatchId)
+            .HasColumnName("ChunkBatchId")
+            .HasColumnType(DbIdentifierColumnTypeConstants.Uuid)
+            .HasConversion(chunkBatchIdConverter)
+            .IsRequired(false)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.Property(e => e.RawBlobHash)
+            .HasColumnName("RawBlobHash")
+            .HasMaxLength(200)
+            .IsRequired(false)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.Property(e => e.ParsedBlobHash)
+            .HasColumnName("ParsedBlobHash")
+            .HasMaxLength(200)
             .IsRequired(false)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
@@ -90,14 +143,14 @@ internal sealed class ImportJobConfiguration : IEntityTypeConfiguration<ImportJo
         {
             failure.Property(e => e.Code)
                 .HasColumnName("FailureCode")
-                .HasColumnType(DbConstants.ColumnTypes.Text.Varchar200)
-                .HasMaxLength(DbConstants.Validations.MaxLengths.L200)
+                .HasColumnType(DbTextColumnTypeConstants.Varchar200)
+                .HasMaxLength(DbMaxLengthConstants.L200)
                 .UsePropertyAccessMode(PropertyAccessMode.Field);
 
             failure.Property(e => e.Reason)
                 .HasColumnName("FailureReason")
-                .HasColumnType(DbConstants.ColumnTypes.Text.Varchar4000)
-                .HasMaxLength(DbConstants.Validations.MaxLengths.L4000)
+                .HasColumnType(DbTextColumnTypeConstants.Varchar4000)
+                .HasMaxLength(DbMaxLengthConstants.L4000)
                 .UsePropertyAccessMode(PropertyAccessMode.Field);
         });
 
@@ -126,16 +179,33 @@ internal sealed class ImportJobConfiguration : IEntityTypeConfiguration<ImportJo
 
         builder.HasIndex(e => e.Status)
             .HasDatabaseName("IX_ImportJobs_StatusId");
+
+        builder.HasIndex(e => new { e.WorkspaceId, e.IdempotencyKey })
+            .IsUnique()
+            .HasDatabaseName("UX_ImportJobs_WorkspaceId_IdempotencyKey");
     }
 
     public void Configure(EntityTypeBuilder<Espada.Db.Models.ImportJobs> builder)
     {
         builder.Property(model => model.ImportJobId).ValueGeneratedNever();
         builder.Property(model => model.Version).IsRowVersion();
+        builder.Property(model => model.Stage)
+            .HasDefaultValue(ImportPipelineStageType.Start.Id);
+        builder.Property(model => model.IdempotencyKey).HasDefaultValueSql("gen_random_uuid()::text");
+        builder.Property(model => model.RequestFingerprint).HasDefaultValueSql("gen_random_uuid()::text");
+        builder.Property(model => model.OptionsJson).HasColumnType(DbJsonColumnTypeConstants.Jsonb).HasDefaultValue("{}");
         builder.OwnsOne(model => model.Failure, failure =>
         {
-            failure.Property(model => model.Code).HasColumnName("FailureCode").HasColumnType(DbConstants.ColumnTypes.Text.Varchar200).HasMaxLength(DbConstants.Validations.MaxLengths.L200);
-            failure.Property(model => model.Reason).HasColumnName("FailureReason").HasColumnType(DbConstants.ColumnTypes.Text.Varchar4000).HasMaxLength(DbConstants.Validations.MaxLengths.L4000);
+            failure
+                .Property(model => model.Code)
+                .HasColumnName("FailureCode")
+                .HasColumnType(DbTextColumnTypeConstants.Varchar200)
+                .HasMaxLength(DbMaxLengthConstants.L200);
+            failure
+                .Property(model => model.Reason)
+                .HasColumnName("FailureReason")
+                .HasColumnType(DbTextColumnTypeConstants.Varchar4000)
+                .HasMaxLength(DbMaxLengthConstants.L4000);
         });
         builder.Navigation(model => model.Failure).IsRequired(false);
         builder.HasOne<Espada.Db.Models.Sources>().WithMany().HasForeignKey(model => model.SourceId).OnDelete(DeleteBehavior.Restrict);
@@ -144,5 +214,6 @@ internal sealed class ImportJobConfiguration : IEntityTypeConfiguration<ImportJo
         builder.HasIndex(model => model.WorkspaceId).HasDatabaseName("IX_ImportJobs_WorkspaceId");
         builder.HasIndex(model => model.SourceId).HasDatabaseName("IX_ImportJobs_SourceId");
         builder.HasIndex(model => model.StatusId).HasDatabaseName("IX_ImportJobs_StatusId");
+        builder.HasIndex(model => new { model.WorkspaceId, model.IdempotencyKey }).IsUnique().HasDatabaseName("UX_ImportJobs_WorkspaceId_IdempotencyKey");
     }
 }

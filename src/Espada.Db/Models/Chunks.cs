@@ -4,38 +4,38 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Espada.Db.Models;
 
-[Table(DbConstants.Tables.Chunks, Schema = DbConstants.SchemaName)]
+[Table(DbTableConstants.Chunks, Schema = DbConstants.SchemaName)]
 public class Chunks
 {
-    [Key, Column(TypeName = DbConstants.ColumnTypes.Identifier.Uuid)]
+    [Key, Column(TypeName = DbIdentifierColumnTypeConstants.Uuid)]
     public Guid ChunkId { get; set; }
 
-    [Column(TypeName = DbConstants.ColumnTypes.Identifier.Uuid)]
+    [Column(TypeName = DbIdentifierColumnTypeConstants.Uuid)]
     public Guid ChunkBatchId { get; set; }
 
-    [Column(TypeName = DbConstants.ColumnTypes.Identifier.Uuid)]
+    [Column(TypeName = DbIdentifierColumnTypeConstants.Uuid)]
     public Guid WorkspaceId { get; set; }
 
-    [Column(TypeName = DbConstants.ColumnTypes.Identifier.Uuid)]
+    [Column(TypeName = DbIdentifierColumnTypeConstants.Uuid)]
     public Guid ArtifactId { get; set; }
 
-    [Column(TypeName = DbConstants.ColumnTypes.Identifier.Uuid)]
+    [Column(TypeName = DbIdentifierColumnTypeConstants.Uuid)]
     public Guid ArtifactRevisionId { get; set; }
 
-    [Column(TypeName = DbConstants.ColumnTypes.Numeric.Integer)]
+    [Column(TypeName = DbNumericColumnTypeConstants.Integer)]
     public int ChunkNumber { get; set; }
 
-    [Required, Column(TypeName = DbConstants.ColumnTypes.Text.TextType)]
+    [Required, Column(TypeName = DbTextColumnTypeConstants.TextType)]
     public string Content { get; set; } = null!;
 
     public SourceSpanModel? SourceSpan { get; set; }
 
-    [Column(TypeName = DbConstants.ColumnTypes.Numeric.Integer)]
+    [Column(TypeName = DbNumericColumnTypeConstants.Integer)]
     public int StrategyId { get; set; }
 
-    [Required, MaxLength(DbConstants.Validations.MaxLengths.L64), Column(TypeName = DbConstants.ColumnTypes.Text.Varchar64)]
+    [Required, MaxLength(DbMaxLengthConstants.L64), Column(TypeName = DbTextColumnTypeConstants.Varchar64)]
     public string StrategyVersion { get; set; } = null!;
 
-    [Column(TypeName = DbConstants.ColumnTypes.DateTime.TimestampTz)]
+    [Column(TypeName = DbDateTimeColumnTypeConstants.TimestampTz)]
     public DateTimeOffset CreatedAtUtc { get; set; }
 }

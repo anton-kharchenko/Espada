@@ -13,5 +13,9 @@ internal sealed class CreateWorkspaceCommandValidator : AbstractValidator<Create
 
         RuleFor(command => command.Type)
             .NotNull();
+
+        RuleFor(command => command)
+            .Must(command => string.IsNullOrWhiteSpace(command.IdentityIssuer) == string.IsNullOrWhiteSpace(command.IdentitySubject))
+            .WithMessage("Identity issuer and subject must be provided together.");
     }
 }

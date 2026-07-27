@@ -12,7 +12,14 @@ internal sealed class ChunkingStrategyTypesConfiguration : IEntityTypeConfigurat
     public void Configure(EntityTypeBuilder<ChunkingStrategyTypes> builder)
     {
         builder.Property(model => model.ChunkingStrategyTypeId).ValueGeneratedNever();
-        builder.HasIndex(model => model.Name).IsUnique().HasDatabaseName(DbConstants.Indexes.ChunkingStrategyTypeName);
-        builder.HasData(Enumeration.GetAll<ChunkingStrategyType>().Select(value => new ChunkingStrategyTypes { ChunkingStrategyTypeId = value.Id, Name = value.Name }));
+        builder.HasIndex(model => model.Name).IsUnique().HasDatabaseName(DbIndexConstants.ChunkingStrategyTypeName);
+        builder.HasData(
+            Enumeration.GetAll<ChunkingStrategyType>()
+                .Select(
+                    value => new ChunkingStrategyTypes
+                    {
+                        ChunkingStrategyTypeId = value.Id,
+                        Name = value.Name
+                    }));
     }
 }

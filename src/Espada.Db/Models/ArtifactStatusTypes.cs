@@ -4,12 +4,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Espada.Db.Models;
 
-[Table(DbConstants.Tables.ArtifactStatusTypes, Schema = DbConstants.SchemaName)]
+[Table(DbTableConstants.ArtifactStatusTypes, Schema = DbConstants.SchemaName)]
 public class ArtifactStatusTypes
 {
-    [Key, Column(TypeName = DbConstants.ColumnTypes.Numeric.Integer)]
+    [Key, Column(TypeName = DbNumericColumnTypeConstants.Integer)]
     public int ArtifactStatusTypeId { get; set; }
 
-    [Required, MaxLength(DbConstants.Validations.MaxLengths.L100), Column(TypeName = DbConstants.ColumnTypes.Text.Varchar100)]
+    [Required, MaxLength(DbMaxLengthConstants.L100), Column(TypeName = DbTextColumnTypeConstants.Varchar100)]
     public string Name { get; set; } = null!;
 }
