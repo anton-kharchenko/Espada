@@ -37,6 +37,11 @@ namespace Espada.Tests.Application.UseCases.Imports.Queries.GetImportById
             response.WorkspaceId.Should().Be(importJob.WorkspaceId.Value);
             response.StatusId.Should().Be(ImportStatusType.Requested.Id);
             response.StatusName.Should().Be(ImportStatusType.Requested.Name);
+            response.Stage.Should().Be(ImportPipelineStageType.Start.Name);
+            response.Attempt.Should().Be(0);
+            response.QueueStatus.Should().BeNull();
+            response.FailureCategory.Should().BeNull();
+            response.IsTerminal.Should().BeFalse();
             response.RequestedAtUtc.Should().Be(importJob.RequestedAtUtc);
             response.StartedAtUtc.Should().BeNull();
             response.CompletedAtUtc.Should().BeNull();
@@ -69,6 +74,7 @@ namespace Espada.Tests.Application.UseCases.Imports.Queries.GetImportById
 
             response.StatusId.Should().Be(ImportStatusType.Succeeded.Id);
             response.StatusName.Should().Be(ImportStatusType.Succeeded.Name);
+            response.IsTerminal.Should().BeTrue();
             response.StartedAtUtc.Should().Be(TestDates.ImportStartedAtUtc);
             response.CompletedAtUtc.Should().Be(TestDates.ImportCompletedAtUtc);
             response.ArtifactId.Should().Be(TestIds.DefaultArtifactId.Value);

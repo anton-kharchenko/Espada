@@ -3,7 +3,7 @@ using Espada.Application.Models;
 using Espada.Domain.Enums;
 using Espada.Domain.ValueObjects;
 using Espada.Infrastructure.Database;
-using Espada.Infrastructure.Repositories.Models;
+using Espada.Infrastructure.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Pgvector;

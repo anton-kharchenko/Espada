@@ -3,6 +3,7 @@ using Espada.Application.Contracts.Persistence;
 using Espada.Application.Models;
 using Espada.Application.UseCases.ChunkEmbeddings.Commands.CreateChunkEmbedding;
 using Espada.Application.UseCases.Context.Queries.SearchWorkspaceContext;
+using Espada.Application.UseCases.Imports.Queries.GetImportById;
 using Espada.Application.UseCases.Sources.Common;
 using Espada.Application.UseCases.Workspaces.Common;
 using Espada.Domain.Aggregates;
@@ -54,6 +55,9 @@ public sealed class ApplicationMappingProfile : Profile
 
         CreateMap<WorkspaceContextSearchHit, WorkspaceContextItemResponse>();
 
+        CreateMap<GetImportByIdMappingSource, GetImportByIdResponse>()
+            .ConvertUsing(source => MapGetImportByIdResponse(source));
+
         CreateMap<Workspace, WorkspaceResponse>()
             .ForCtorParam(
                 nameof(WorkspaceResponse.Id),
@@ -103,4 +107,25 @@ public sealed class ApplicationMappingProfile : Profile
                 nameof(SourceResponse.Priority),
                 options => options.MapFrom(source => source.Priority.Value));
     }
+
+    private static GetImportByIdResponse MapGetImportByIdResponse(
+        GetImportByIdMappingSource source) =>
+        new(
+            source.ImportJob.Id.Value,
+            source.ImportJob.SourceId.Value,
+            source.ImportJob.WorkspaceId.Value,
+            source.ImportJob.Status.Id,
+            source.ImportJob.Status.Name,
+            source.ImportJob.Stage.Name,
+            source.LatestJob?.Attempt ?? 0,
+            source.LatestJob?.Status.ToString(),
+            source.LatestJob?.FailureCategory?.ToString(),
+            source.IsTerminal,
+            source.ImportJob.RequestedAtUtc,
+            source.ImportJob.StartedAtUtc,
+            source.ImportJob.CompletedAtUtc,
+            source.ImportJob.ArtifactId?.Value,
+            source.ImportJob.ArtifactRevisionId?.Value,
+            source.ImportJob.Failure?.Code,
+            source.ImportJob.Failure?.Reason);
 }
