@@ -1,8 +1,9 @@
+using Espada.Db.Constants;
 using Espada.Domain.Aggregates;
 using Espada.Domain.Enums;
 using Espada.Domain.SeedWork;
 using Espada.Domain.ValueObjects;
-using Espada.Db.Constants;
+using Espada.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -21,7 +22,12 @@ internal sealed class ArtifactConfiguration : IEntityTypeConfiguration<Artifact>
             number => number == null ? null : number.Value,
             value => value == null ? null : RevisionNumber.Create(value.Value).Value!);
 
-        builder.ToTable(DbConstants.Tables.Artifacts, DbConstants.SchemaName);
+        builder.ToTable(
+            DbConstants.Tables.Artifacts,
+            DbConstants.SchemaName,
+            table => table.HasCheckConstraint(
+                DbConstants.Constraints.ArtifactPriorityRange,
+                CheckConstraintSql.ContextPriority(nameof(Artifact.Priority))));
 
         builder.HasKey(e => e.Id);
 
@@ -62,6 +68,14 @@ internal sealed class ArtifactConfiguration : IEntityTypeConfiguration<Artifact>
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
+        builder.Property(e => e.Priority)
+            .HasColumnName("Priority")
+            .HasColumnType(DbConstants.ColumnTypes.Numeric.Integer)
+            .HasConversion(priority => priority.Value, value => ContextPriority.Create(value).Value!)
+            .HasDefaultValue(ContextPriority.Neutral)
+            .IsRequired()
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
         builder.Property(e => e.CurrentRevisionId)
             .HasColumnName("CurrentRevisionId")
             .HasColumnType(DbConstants.ColumnTypes.Identifier.Uuid)
@@ -95,11 +109,7 @@ internal sealed class ArtifactConfiguration : IEntityTypeConfiguration<Artifact>
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.Version)
-            .HasColumnName("Version")
-            .HasColumnType(DbConstants.ColumnTypes.Numeric.BigInt)
-            .HasDefaultValue(1L)
-            .IsConcurrencyToken()
-            .IsRequired()
+            .IsRowVersion()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.HasOne<Workspace>()
@@ -121,8 +131,12 @@ internal sealed class ArtifactConfiguration : IEntityTypeConfiguration<Artifact>
 
     public void Configure(EntityTypeBuilder<Espada.Db.Models.Artifacts> builder)
     {
+        builder.ToTable(table => table.HasCheckConstraint(
+            DbConstants.Constraints.ArtifactPriorityRange,
+            CheckConstraintSql.ContextPriority(nameof(Espada.Db.Models.Artifacts.Priority))));
         builder.Property(model => model.ArtifactId).ValueGeneratedNever();
-        builder.Property(model => model.Version).HasDefaultValue(1L).IsConcurrencyToken();
+        builder.Property(model => model.Priority).HasDefaultValue(ContextPriority.Neutral.Value);
+        builder.Property(model => model.Version).IsRowVersion();
         builder.HasOne<Espada.Db.Models.Workspaces>().WithMany().HasForeignKey(model => model.WorkspaceId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Espada.Db.Models.ArtifactTypes>().WithMany().HasForeignKey(model => model.TypeId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Espada.Db.Models.ArtifactStatusTypes>().WithMany().HasForeignKey(model => model.StatusId).OnDelete(DeleteBehavior.Restrict);

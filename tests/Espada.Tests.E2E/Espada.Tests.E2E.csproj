@@ -33,4 +33,8 @@
         <ProjectReference Include="..\..\src\Espada.Infrastructure\Espada.Infrastructure.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <None Update="appsettings.Testing.json" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+
 </Project>

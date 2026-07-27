@@ -9,7 +9,7 @@ namespace Espada.Domain.Aggregates;
 
 public sealed class Artifact : AggregateRoot<ArtifactId>, IHasConcurrencyVersion
 {
-    public long Version { get; private set; } = 1;
+    public uint Version { get; private set; }
 
     public int RevisionCount => CurrentRevisionNumber?.Value ?? 0;
 
@@ -29,6 +29,7 @@ public sealed class Artifact : AggregateRoot<ArtifactId>, IHasConcurrencyVersion
         Title = title;
         Type = type;
         Status = ArtifactStatusType.Active;
+        Priority = ContextPriority.Neutral;
         CreatedAtUtc = createdAtUtc;
         UpdatedAtUtc = createdAtUtc;
     }
@@ -40,6 +41,8 @@ public sealed class Artifact : AggregateRoot<ArtifactId>, IHasConcurrencyVersion
     public ArtifactType Type { get; private set; } = null!;
 
     public ArtifactStatusType Status { get; private set; } = null!;
+
+    public ContextPriority Priority { get; private set; } = ContextPriority.Neutral;
 
     public DateTimeOffset CreatedAtUtc { get; private set; }
 
@@ -96,6 +99,29 @@ public sealed class Artifact : AggregateRoot<ArtifactId>, IHasConcurrencyVersion
         UpdatedAtUtc = renamedAtUtc;
 
         RaiseDomainEvent(new ArtifactRenamedDomainEvent(Id, previousTitle, title.Value, renamedAtUtc));
+
+        return DomainResult.Success();
+    }
+
+    public DomainResult SetPriority(ContextPriority priority, DateTimeOffset changedAtUtc)
+    {
+        ArgumentNullException.ThrowIfNull(priority);
+
+        if (Equals(Status, ArtifactStatusType.Archived))
+        {
+            return DomainResult.Failure(ArtifactErrors.ArchivedArtifactCannotChangePriority);
+        }
+
+        if (Priority == priority)
+        {
+            return DomainResult.Success();
+        }
+
+        int previousPriority = Priority.Value;
+        Priority = priority;
+        UpdatedAtUtc = changedAtUtc;
+
+        RaiseDomainEvent(new ArtifactPriorityChangedDomainEvent(Id, previousPriority, priority.Value, changedAtUtc));
 
         return DomainResult.Success();
     }

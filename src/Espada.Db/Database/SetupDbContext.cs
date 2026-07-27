@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
+using Pgvector;
+using Pgvector.EntityFrameworkCore;
 
 namespace Espada.Db.Database;
 
@@ -38,8 +40,10 @@ public sealed class SetupDbContext(DbContextOptions<SetupDbContext> options) : D
         string connectionString = Environment.GetEnvironmentVariable(DbConstants.ConnectionStringEnvironmentVariable)
                                   ?? configuration.GetConnectionString(DbConstants.ConnectionString)
                                   ?? throw new InvalidOperationException($"Database connection string was not configured. Set ConnectionStrings:{DbConstants.ConnectionString} or {DbConstants.ConnectionStringEnvironmentVariable}.");
-        
-        NpgsqlDataSource dataSource = new NpgsqlDataSourceBuilder(connectionString).Build();
+
+        NpgsqlDataSourceBuilder dataSourceBuilder = new(connectionString);
+        dataSourceBuilder.UseVector();
+        NpgsqlDataSource dataSource = dataSourceBuilder.Build();
         DbContextOptionsBuilder<SetupDbContext> options = new();
         ConfigureMigrationWarnings(options);
         options.UseNpgsql(dataSource, ConfigureNpgsql);
@@ -49,6 +53,7 @@ public sealed class SetupDbContext(DbContextOptions<SetupDbContext> options) : D
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(DbConstants.SchemaName);
+        modelBuilder.HasPostgresExtension(DbConstants.Extensions.Vector);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(SetupDbContext).Assembly);
 
         try
@@ -82,5 +87,6 @@ public sealed class SetupDbContext(DbContextOptions<SetupDbContext> options) : D
     {
         options.MigrationsAssembly(typeof(SetupDbContext).Assembly.FullName);
         options.MigrationsHistoryTable("__EFMigrationsHistory", DbConstants.SchemaName);
+        options.UseVector();
     }
 }

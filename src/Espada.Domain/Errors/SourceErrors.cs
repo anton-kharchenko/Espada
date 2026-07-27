@@ -14,5 +14,7 @@ namespace Espada.Domain.Errors
         public static readonly DomainError LocatorTooLong = new("Source.Locator.TooLong", $"Source locator cannot exceed {SourceLocator.MaxLength} characters.");
 
         public static readonly DomainError AlreadyArchived = new("Source.AlreadyArchived", "Source is already archived.");
+
+        public static readonly DomainError ArchivedSourceCannotChangePriority = new("Source.ArchivedCannotChangePriority", "An archived source priority cannot be changed.");
     }
 }

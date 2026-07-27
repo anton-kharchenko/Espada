@@ -38,7 +38,7 @@ namespace Espada.Tests.Application.UseCases.Workspaces.Commands.ArchiveWorkspace
         public async Task Handle_WhenWorkspaceIsActive_ShouldUseClockTime()
         {
             // Arrange
-            ArchiveWorkspaceHandlerFixture fixture = new() { Clock = { UtcNow = TestDates.LaterUtc } };
+            ArchiveWorkspaceHandlerFixture fixture = new() { ClockService = { UtcNow = TestDates.LaterUtc } };
 
             Workspace workspace = fixture.GivenActiveWorkspaceExists();
 

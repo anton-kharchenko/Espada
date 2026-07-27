@@ -61,9 +61,9 @@ namespace Espada.Tests.Infrastructure.Repositories
 
             using ServiceProvider serviceProvider = services.BuildServiceProvider();
 
-            IClock clock = serviceProvider.GetRequiredService<IClock>();
+            IClockService clockService = serviceProvider.GetRequiredService<IClockService>();
 
-            Assert.IsType<SystemClock>(clock);
+            Assert.IsType<SystemClockService>(clockService);
         }
 
         [Fact]

@@ -14,9 +14,9 @@ internal sealed class RegisterSourceHandlerFixture
 
     public UnitOfWorkSpy UnitOfWork { get; } = new();
 
-    public TestClock Clock { get; } = new(TestDates.UtcNow);
+    public TestClockService ClockService { get; } = new(TestDates.UtcNow);
 
-    public RegisterSourceCommandHandler CreateHandler() => new(WorkspaceRepository, SourceRepository, UnitOfWork, Clock);
+    public RegisterSourceCommandHandler CreateHandler() => new(WorkspaceRepository, SourceRepository, UnitOfWork, ClockService);
 
     public Workspace GivenWorkspaceExists()
     {

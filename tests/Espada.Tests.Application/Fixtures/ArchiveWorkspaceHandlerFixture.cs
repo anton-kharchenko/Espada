@@ -12,9 +12,9 @@ namespace Espada.Tests.Application.Fixtures
 
         public UnitOfWorkSpy UnitOfWork { get; } = new();
 
-        public TestClock Clock { get; } = new(TestDates.WorkspaceArchivedAtUtc);
+        public TestClockService ClockService { get; } = new(TestDates.WorkspaceArchivedAtUtc);
 
-        public ArchiveWorkspaceCommandHandler CreateHandler() => new(WorkspaceRepository, UnitOfWork, Clock);
+        public ArchiveWorkspaceCommandHandler CreateHandler() => new(WorkspaceRepository, UnitOfWork, ClockService);
 
         public Workspace GivenActiveWorkspaceExists()
         {

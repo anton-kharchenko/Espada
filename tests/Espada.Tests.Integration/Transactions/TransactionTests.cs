@@ -70,7 +70,7 @@ public sealed class TransactionTests(PostgreSqlDatabaseFixture fixture) : Postgr
         {
             EspadaDbContext setupContext = setupScope.ServiceProvider.GetRequiredService<EspadaDbContext>();
             setupContext.AddRange(graph.Workspace, graph.Artifact, graph.ArtifactRevision, graph.ChunkBatch, graph.Chunk, graph.ChunkEmbedding);
-            await setupScope.ServiceProvider.GetRequiredService<IEmbeddingVectorStore>().AddAsync(graph.ChunkEmbedding.Id, [0.1f, 0.2f, 0.3f], TestContext.Current.CancellationToken);
+            await setupScope.ServiceProvider.GetRequiredService<IEmbeddingVectorStore>().UpsertAsync(graph.ChunkEmbedding.Id, [0.1f, 0.2f, 0.3f], TestContext.Current.CancellationToken);
             await setupContext.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
 
@@ -80,7 +80,7 @@ public sealed class TransactionTests(PostgreSqlDatabaseFixture fixture) : Postgr
         {
             IServiceProvider services = failingScope.ServiceProvider;
             await services.GetRequiredService<IChunkEmbeddingRepository>().AddAsync(duplicate, TestContext.Current.CancellationToken);
-            await services.GetRequiredService<IEmbeddingVectorStore>().AddAsync(duplicate.Id, [0.4f, 0.5f, 0.6f], TestContext.Current.CancellationToken);
+            await services.GetRequiredService<IEmbeddingVectorStore>().UpsertAsync(duplicate.Id, [0.4f, 0.5f, 0.6f], TestContext.Current.CancellationToken);
             await Assert.ThrowsAsync<DbUpdateException>(() => services.GetRequiredService<IUnitOfWork>().SaveChangesAsync(TestContext.Current.CancellationToken));
         }
 

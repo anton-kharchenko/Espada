@@ -8,7 +8,7 @@ using Espada.Domain.ValueObjects;
 
 namespace Espada.Application.UseCases.Imports.Commands.StartImport;
 
-internal sealed class StartImportCommandHandler(IImportJobRepository importJobRepository, IUnitOfWork unitOfWork, IClock clock)
+internal sealed class StartImportCommandHandler(IImportJobRepository importJobRepository, IUnitOfWork unitOfWork, IClockService clockService)
     : ICommandHandler<StartImportCommand>
 {
     public async Task<DomainResult> Handle(StartImportCommand request, CancellationToken cancellationToken)
@@ -37,7 +37,7 @@ internal sealed class StartImportCommandHandler(IImportJobRepository importJobRe
             return DomainResult.Failure(ImportJobApplicationErrors.NotFoundInWorkspace(request.ImportJobId, request.WorkspaceId));
         }
 
-        DomainResult startResult = importJob.Start(clock.UtcNow);
+        DomainResult startResult = importJob.Start(clockService.UtcNow);
 
         if (startResult.IsFailure)
         {

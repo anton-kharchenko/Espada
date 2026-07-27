@@ -35,6 +35,15 @@ public sealed class HttpTestClient
         return await ReadRequiredAsync<TResponse>(response);
     }
 
+    public async Task<TResponse> PostOkAsync<TRequest, TResponse>(string route, TRequest request)
+    {
+        using HttpResponseMessage response = await _client.PostAsJsonAsync(route, request, _cancellationToken);
+
+        await EnsureStatusAsync(response, HttpStatusCode.OK);
+
+        return await ReadRequiredAsync<TResponse>(response);
+    }
+
     public async Task<TResponse> GetAsync<TResponse>(string route)
     {
         using HttpResponseMessage response = await _client.GetAsync(route, _cancellationToken);

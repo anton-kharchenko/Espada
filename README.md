@@ -16,7 +16,7 @@ Core product capabilities:
 * Provide a shared context to Codex, Claude, Gemini, and other agents through MCP.
 * Resolve context based on workspace, repository, branch, directory, task, user, and agent.
 * Explain why every instruction, policy, memory, or skill was included or excluded.
-* Run fully locally using SQLite and filesystem blob storage.
+* Run fully locally using an external PostgreSQL/pgvector database and filesystem blob storage.
 * Synchronize local data with Espada Cloud when explicitly enabled.
 * Support shared team workspaces, RBAC, audit history, usage limits, and subscription plans.
 * Generate temporary Markdown compatibility files without treating them as the source of truth.
@@ -32,7 +32,7 @@ The open-source local and self-hosted edition.
 
 * No registration required.
 * No internet connection required.
-* Local SQLite database.
+* User-managed PostgreSQL/pgvector database.
 * Local filesystem blob storage.
 * Local MCP endpoint.
 * CLI and React WebUI.
@@ -69,8 +69,7 @@ A cloud-hosted MCP endpoint for environments where the local daemon cannot be in
 | Application        | `src/Espada.Application`        | Use-case orchestration for context resolution, memory, skills, policies, sessions, synchronization, and billing.                       |
 | Contracts          | `src/Espada.Contracts`          | Shared commands, queries, DTOs, events, sync contracts, and JSON schemas.                                                              |
 | Infrastructure     | `src/Espada.Infrastructure`     | Shared external integrations and infrastructure implementations.                                                                       |
-| SQLite storage     | `src/Espada.Storage.Sqlite`     | Local persistence, migrations, FTS5 search, event journal, and offline state.                                                          |
-| PostgreSQL storage | `src/Espada.Storage.Postgres`   | Managed cloud persistence, multi-tenant storage, search, and synchronization state.                                                    |
+| PostgreSQL storage | `src/Espada.Db`, `src/Espada.Infrastructure` | Migrations, pgvector and full-text search, local persistence, and managed multi-tenant persistence.                         |
 | Blob abstractions  | `src/Espada.Blobs.Abstractions` | Shared contracts for content-addressed blob storage.                                                                                   |
 | Filesystem blobs   | `src/Espada.Blobs.FileSystem`   | Local blob storage implementation.                                                                                                     |
 | Azure blobs        | `src/Espada.Blobs.Azure`        | Azure Blob Storage implementation for Espada Cloud.                                                                                    |
@@ -81,7 +80,7 @@ A cloud-hosted MCP endpoint for environments where the local daemon cannot be in
 | Compatibility      | `src/Espada.Compatibility`      | Importers and generated compatibility output for `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, and `SKILL.md`.                                |
 | Plugins            | `src/Espada.Plugins`            | Plugin manifests, permissions, discovery, execution, and registry integration.                                                         |
 | Billing            | `src/Espada.Billing`            | Plans, subscriptions, entitlements, usage accounting, trials, and payment webhooks.                                                    |
-| Local daemon       | `src/Espada.Daemon`             | Persistent local runtime providing SQLite, local APIs, MCP, sync workers, and the local WebUI.                                         |
+| Local daemon       | `src/Espada.Daemon`             | Persistent local runtime providing PostgreSQL-backed APIs, MCP, sync workers, and the local WebUI.                                    |
 | CLI                | `src/Espada.Cli`                | `espada` command-line interface and native agent launcher.                                                                             |
 | Cloud server       | `src/Espada.Server`             | Espada Cloud API, remote MCP, authentication, workspaces, billing, and synchronization endpoints.                                      |
 | Workers            | `src/Espada.Workers`            | Cloud background jobs for synchronization, retention, billing, indexing, and cleanup.                                                  |
@@ -97,8 +96,7 @@ A cloud-hosted MCP endpoint for environments where the local daemon cannot be in
 | Language            | C# 14                                |
 | Local daemon        | .NET Generic Host and ASP.NET Core   |
 | MCP                 | Official ModelContextProtocol C# SDK |
-| Local database      | SQLite and Microsoft.Data.Sqlite     |
-| Cloud database      | PostgreSQL and Npgsql                |
+| Database            | PostgreSQL, Npgsql, and pgvector     |
 | Local blob storage  | Filesystem content-addressed storage |
 | Cloud blob storage  | Azure Blob Storage                   |
 | CLI                 | System.CommandLine                   |
@@ -174,7 +172,7 @@ dotnet run --project src/Espada.Daemon/Espada.Daemon.csproj
 The local daemon uses:
 
 ```text
-SQLite database:       ~/.espada/espada.db
+PostgreSQL:            ESPADA_CONNECTION_STRING
 Blob storage:          ~/.espada/blobs
 Generated artifacts:   ~/.espada/generated
 Cache:                 ~/.espada/cache
@@ -250,7 +248,7 @@ dotnet test
 # Prefer targeted tests for focused changes
 dotnet test tests/Espada.Domain.Tests
 dotnet test tests/Espada.Application.Tests
-dotnet test tests/Espada.Storage.Sqlite.Tests
+dotnet test tests/Espada.Tests.Integration
 dotnet test tests/Espada.Protocol.Mcp.Tests
 dotnet test tests/Espada.Protocol.Sync.Tests
 dotnet test tests/Espada.Billing.Tests
@@ -430,9 +428,9 @@ Plan limits and prices must be defined through versioned billing configuration r
 ### Local
 
 ```text
-SQLite
+External PostgreSQL with pgvector
 Filesystem blob storage
-Local FTS5 search
+PostgreSQL full-text search
 Local event journal
 ```
 
@@ -561,7 +559,7 @@ Backend code follows explicit domain and application boundaries:
 * Use-case orchestration stays in `Espada.Application`.
 * Persistence and external services remain infrastructure details.
 * MCP and HTTP handlers remain thin protocol adapters.
-* SQLite and PostgreSQL implement shared application contracts.
+* The PostgreSQL adapter serves both external local deployments and managed cloud deployments.
 * Sync contracts are versioned.
 * Public contracts remain explicit.
 

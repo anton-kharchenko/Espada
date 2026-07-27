@@ -1,10 +1,12 @@
+using Espada.Api.Contracts.Requests.Common;
 using Espada.Api.Contracts.Requests.Sources;
 using Espada.Api.Extensions;
-using Espada.Domain.Enums;
 using Espada.Application.UseCases.Sources.Commands.ArchiveSource;
 using Espada.Application.UseCases.Sources.Commands.RegisterSource;
+using Espada.Application.UseCases.Sources.Commands.SetSourcePriority;
 using Espada.Application.UseCases.Sources.Common;
 using Espada.Application.UseCases.Sources.Queries.GetSourceById;
+using Espada.Domain.Enums;
 using Espada.Domain.Rules;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -45,6 +47,18 @@ public sealed class SourcesController(IMediator mediator) : BaseController
     public async Task<IActionResult> Archive([FromRoute] Guid workspaceId, [FromRoute] Guid sourceId, CancellationToken cancellationToken)
     {
         DomainResult result = await mediator.Send(new ArchiveSourceCommand(WorkspaceId: workspaceId, SourceId: sourceId), cancellationToken);
+
+        return result.IsFailure ? HandleError(result.Error) : NoContent();
+    }
+
+    [HttpPost("{sourceId:guid}/priority")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> SetPriority([FromRoute] Guid workspaceId, [FromRoute] Guid sourceId, [FromBody] SetContextPriorityRequest request, CancellationToken cancellationToken)
+    {
+        DomainResult result = await mediator.Send(new SetSourcePriorityCommand(workspaceId, sourceId, request.Priority), cancellationToken);
 
         return result.IsFailure ? HandleError(result.Error) : NoContent();
     }

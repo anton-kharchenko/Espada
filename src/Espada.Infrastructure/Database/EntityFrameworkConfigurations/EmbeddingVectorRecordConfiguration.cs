@@ -1,6 +1,6 @@
+using Espada.Db.Constants;
 using Espada.Domain.Aggregates;
 using Espada.Domain.ValueObjects;
-using Espada.Db.Constants;
 using Espada.Infrastructure.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -24,7 +24,7 @@ namespace Espada.Infrastructure.Database.EntityFrameworkConfigurations
 
             builder.Property(record => record.Vector)
                 .HasColumnName("Vector")
-                .HasColumnType(DbConstants.ColumnTypes.Numeric.RealArray)
+                .HasColumnType(DbConstants.ColumnTypes.Numeric.Vector)
                 .IsRequired();
 
             builder.HasOne<ChunkEmbedding>()

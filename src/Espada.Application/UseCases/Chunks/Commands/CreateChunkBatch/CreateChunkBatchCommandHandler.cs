@@ -15,7 +15,7 @@ internal sealed class CreateChunkBatchCommandHandler(
     IArtifactRevisionRepository artifactRevisionRepository,
     IChunkBatchRepository chunkBatchRepository,
     IUnitOfWork unitOfWork,
-    IClock clock) : ICommandHandler<CreateChunkBatchCommand, CreateChunkBatchResponse>
+    IClockService clockService) : ICommandHandler<CreateChunkBatchCommand, CreateChunkBatchResponse>
 {
     public async Task<DomainResult<CreateChunkBatchResponse>> Handle(CreateChunkBatchCommand request, CancellationToken cancellationToken)
     {
@@ -74,7 +74,7 @@ internal sealed class CreateChunkBatchCommandHandler(
             return DomainResult<CreateChunkBatchResponse>.Failure(ArtifactRevisionApplicationErrors.NotFoundInArtifact(request.ArtifactRevisionId, request.ArtifactId));
         }
 
-        DateTimeOffset requestedAtUtc = clock.UtcNow;
+        DateTimeOffset requestedAtUtc = clockService.UtcNow;
         DomainResult<ChunkBatch> batchResult = ChunkBatch.Request(ChunkBatchId.New(), artifact.WorkspaceId, artifact.Id, revision.Id, strategy, versionResult.Value, requestedAtUtc);
 
         if (batchResult.IsFailure)

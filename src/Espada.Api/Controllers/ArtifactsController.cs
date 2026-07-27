@@ -1,7 +1,9 @@
 using Espada.Api.Contracts.Requests.Artifacts;
+using Espada.Api.Contracts.Requests.Common;
 using Espada.Application.UseCases.Artifacts.Commands.ArchiveArtifact;
 using Espada.Application.UseCases.Artifacts.Commands.CreateArtifact;
 using Espada.Application.UseCases.Artifacts.Commands.RenameArtifact;
+using Espada.Application.UseCases.Artifacts.Commands.SetArtifactPriority;
 using Espada.Application.UseCases.Artifacts.Queries.GetArtifactById;
 using Espada.Application.UseCases.Artifacts.Queries.ListArtifacts;
 using Espada.Domain.Rules;
@@ -65,6 +67,18 @@ public sealed class ArtifactsController(IMediator mediator) : BaseController
     public async Task<IActionResult> Archive([FromRoute] Guid workspaceId, [FromRoute] Guid artifactId, CancellationToken cancellationToken)
     {
         DomainResult result = await mediator.Send(new ArchiveArtifactCommand(WorkspaceId: workspaceId, ArtifactId: artifactId), cancellationToken);
+
+        return result.IsFailure ? HandleError(result.Error) : NoContent();
+    }
+
+    [HttpPost("{artifactId:guid}/priority")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> SetPriority([FromRoute] Guid workspaceId, [FromRoute] Guid artifactId, [FromBody] SetContextPriorityRequest request, CancellationToken cancellationToken)
+    {
+        DomainResult result = await mediator.Send(new SetArtifactPriorityCommand(workspaceId, artifactId, request.Priority), cancellationToken);
 
         return result.IsFailure ? HandleError(result.Error) : NoContent();
     }

@@ -36,6 +36,7 @@ namespace Espada.Tests.Application.UseCases.Sources.Queries.GetSourceById
             response.TypeName.Should().Be(source.Type.Name);
             response.StatusId.Should().Be(source.Status.Id);
             response.StatusName.Should().Be(source.Status.Name);
+            response.Priority.Should().Be(source.Priority.Value);
             response.CreatedAtUtc.Should().Be(source.CreatedAtUtc);
         }
 

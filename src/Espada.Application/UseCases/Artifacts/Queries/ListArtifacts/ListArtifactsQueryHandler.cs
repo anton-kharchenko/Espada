@@ -49,6 +49,7 @@ namespace Espada.Application.UseCases.Artifacts.Queries.ListArtifacts
                     artifact.Type.Name,
                     artifact.Status.Id,
                     artifact.Status.Name,
+                    artifact.Priority.Value,
                     artifact.CurrentRevisionId?.Value,
                     artifact.CurrentRevisionNumber?.Value,
                     artifact.RevisionCount,

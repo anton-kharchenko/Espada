@@ -73,7 +73,7 @@ namespace Espada.Tests.Application.UseCases.Imports.Commands.CancelImport
 
             DateTimeOffset expectedCancelledAtUtc = TestDates.ImportCancelledAtUtc.AddMinutes(10);
 
-            fixture.Clock.UtcNow = expectedCancelledAtUtc;
+            fixture.ClockService.UtcNow = expectedCancelledAtUtc;
 
             CancelImportCommandHandler handler = fixture.CreateHandler();
 

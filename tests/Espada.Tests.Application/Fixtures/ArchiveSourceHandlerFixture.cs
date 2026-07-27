@@ -13,9 +13,9 @@ namespace Espada.Tests.Application.Fixtures
 
         public UnitOfWorkSpy UnitOfWork { get; } = new();
 
-        public TestClock Clock { get; } = new(TestDates.SourceArchivedAtUtc);
+        public TestClockService ClockService { get; } = new(TestDates.SourceArchivedAtUtc);
 
-        public ArchiveSourceCommandHandler CreateHandler() => new(SourceRepository, UnitOfWork, Clock);
+        public ArchiveSourceCommandHandler CreateHandler() => new(SourceRepository, UnitOfWork, ClockService);
 
         public Source GivenActiveSourceExists(WorkspaceId? workspaceId = null)
         {

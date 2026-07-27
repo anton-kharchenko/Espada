@@ -1,4 +1,4 @@
-using Espada.Api.Security;
+using Espada.Comms.Core.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;

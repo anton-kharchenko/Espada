@@ -27,12 +27,40 @@ public sealed class SourceTests
         source.Locator.Value.Should().Be("https://example.com/docs");
 
         source.Status.Should().Be(SourceStatusType.Active);
+        source.Priority.Should().Be(ContextPriority.Neutral);
 
         source.CreatedAtUtc.Should().Be(TestDates.SourceCreatedAtUtc);
 
         source.UpdatedAtUtc.Should().Be(TestDates.SourceCreatedAtUtc);
 
         source.ArchivedAtUtc.Should().BeNull();
+    }
+
+    [Fact]
+    public void SetPriority_WhenActive_ShouldUpdatePriorityAndRaiseEvent()
+    {
+        Source source = new SourceBuilder().BuildWithoutPendingEvents();
+        ContextPriority priority = ContextPriority.Create(-40).ShouldSucceed();
+
+        source.SetPriority(priority, TestDates.SourceArchivedAtUtc).ShouldSucceed();
+
+        source.Priority.Should().Be(priority);
+        source.UpdatedAtUtc.Should().Be(TestDates.SourceArchivedAtUtc);
+        source.ShouldHaveSingleDomainEvent<SourcePriorityChangedDomainEvent>();
+    }
+
+    [Fact]
+    public void SetPriority_WhenArchived_ShouldFail()
+    {
+        Source source = new SourceBuilder().BuildWithoutPendingEvents();
+        source.Archive(TestDates.SourceArchivedAtUtc).ShouldSucceed();
+        source.DequeueDomainEvents();
+
+        DomainResult result = source.SetPriority(ContextPriority.Create(10).ShouldSucceed(), TestDates.LaterUtc);
+
+        result.ShouldFailWith(SourceErrors.ArchivedSourceCannotChangePriority);
+        source.Priority.Should().Be(ContextPriority.Neutral);
+        source.ShouldHaveNoDomainEvents();
     }
 
     [Fact]

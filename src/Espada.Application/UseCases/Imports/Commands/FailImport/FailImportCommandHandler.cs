@@ -8,7 +8,7 @@ using Espada.Domain.ValueObjects;
 
 namespace Espada.Application.UseCases.Imports.Commands.FailImport
 {
-    internal sealed class FailImportCommandHandler(IImportJobRepository importJobRepository, IUnitOfWork unitOfWork, IClock clock) : ICommandHandler<FailImportCommand>
+    internal sealed class FailImportCommandHandler(IImportJobRepository importJobRepository, IUnitOfWork unitOfWork, IClockService clockService) : ICommandHandler<FailImportCommand>
     {
         public async Task<DomainResult> Handle(FailImportCommand request, CancellationToken cancellationToken)
         {
@@ -43,7 +43,7 @@ namespace Espada.Application.UseCases.Imports.Commands.FailImport
                 return DomainResult.Failure(ImportJobApplicationErrors.NotFoundInWorkspace(request.ImportJobId, request.WorkspaceId));
             }
 
-            DomainResult failResult = importJob.Fail(failureResult.Value, clock.UtcNow);
+            DomainResult failResult = importJob.Fail(failureResult.Value, clockService.UtcNow);
 
             if (failResult.IsFailure)
             {

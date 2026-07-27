@@ -1,14 +1,14 @@
-using System.Net;
-using System.Text.Json;
 using Espada.Tests.Api.Fixtures;
 using Espada.Tests.Api.TestData;
+using System.Net;
+using System.Text.Json;
 
 namespace Espada.Tests.Api.Documentation;
 
 public sealed class ApiDocumentationTests(EspadaApiFactory factory) : IClassFixture<EspadaApiFactory>
 {
     [Fact]
-    public async Task OpenApi_ShouldDescribeApiKeySecurityAndPublicSystemEndpoint()
+    public async Task OpenApi_ShouldDescribeApiKeySecurity()
     {
         using HttpClient client = factory.CreateHttpsClient(authenticated: false);
 
@@ -30,7 +30,6 @@ public sealed class ApiDocumentationTests(EspadaApiFactory factory) : IClassFixt
         Assert.True(schemas.TryGetProperty("ErrorResponse", out _));
 
         JsonElement paths = root.GetProperty("paths");
-        Assert.False(paths.GetProperty("/api/v1/system").GetProperty("get").TryGetProperty("security", out _));
         Assert.Equal("ApiKey", paths.GetProperty("/api/v1/workspaces/{workspaceId}").GetProperty("get").GetProperty("security")[0].EnumerateObject().Single().Name);
     }
 

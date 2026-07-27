@@ -30,7 +30,7 @@ public sealed class RepositoryTests(PostgreSqlDatabaseFixture fixture) : Postgre
             await services.GetRequiredService<IChunkBatchRepository>().AddAsync(graph.ChunkBatch, TestContext.Current.CancellationToken);
             await services.GetRequiredService<IChunkRepository>().AddRangeAsync([graph.Chunk], TestContext.Current.CancellationToken);
             await services.GetRequiredService<IChunkEmbeddingRepository>().AddAsync(graph.ChunkEmbedding, TestContext.Current.CancellationToken);
-            await services.GetRequiredService<IEmbeddingVectorStore>().AddAsync(graph.ChunkEmbedding.Id, vector, TestContext.Current.CancellationToken);
+            await services.GetRequiredService<IEmbeddingVectorStore>().UpsertAsync(graph.ChunkEmbedding.Id, vector, TestContext.Current.CancellationToken);
             await services.GetRequiredService<IUnitOfWork>().SaveChangesAsync(TestContext.Current.CancellationToken);
         }
 
@@ -82,7 +82,7 @@ public sealed class RepositoryTests(PostgreSqlDatabaseFixture fixture) : Postgre
 
         Assert.NotNull(await services.GetRequiredService<IArtifactRevisionRepository>().GetByIdAsync(graph.ArtifactRevision.Id, TestContext.Current.CancellationToken));
         Assert.NotNull(await services.GetRequiredService<IChunkRepository>().GetByIdAsync(graph.Chunk.Id, TestContext.Current.CancellationToken));
-        Assert.NotNull(await services.GetRequiredService<IChunkEmbeddingRepository>().GetByChunkIdAsync(graph.Chunk.Id, TestContext.Current.CancellationToken));
+        Assert.NotNull(await services.GetRequiredService<IChunkEmbeddingRepository>().GetByChunkIdAsync(graph.Chunk.Id, graph.ChunkEmbedding.Model, TestContext.Current.CancellationToken));
         Assert.Single(await services.GetRequiredService<IArtifactRepository>().ListByWorkspaceIdAsync(graph.Workspace.Id, TestContext.Current.CancellationToken));
         Assert.Single(await services.GetRequiredService<IArtifactRevisionRepository>().ListByArtifactIdAsync(graph.Artifact.Id, TestContext.Current.CancellationToken));
         Assert.Single(await services.GetRequiredService<IChunkRepository>().ListByArtifactRevisionIdAsync(graph.ArtifactRevision.Id, TestContext.Current.CancellationToken));
@@ -92,16 +92,9 @@ public sealed class RepositoryTests(PostgreSqlDatabaseFixture fixture) : Postgre
     }
 
     [Theory]
-    [InlineData("workspace")]
-    [InlineData("source")]
-    [InlineData("import")]
-    [InlineData("artifact")]
-    [InlineData("revision")]
-    [InlineData("batch")]
-    [InlineData("chunk")]
-    [InlineData("embedding")]
-    [InlineData("vector")]
-    public async Task Queries_WithCanceledToken_ShouldCancel(string repository)
+    [MemberData(nameof(RepositoryKinds))]
+    public async Task Queries_WithCanceledToken_ShouldCancel(RepositoryKind repository)
+
     {
         await using ServiceProvider serviceProvider = Fixture.CreateServiceProvider();
         using IServiceScope scope = serviceProvider.CreateScope();
@@ -113,31 +106,31 @@ public sealed class RepositoryTests(PostgreSqlDatabaseFixture fixture) : Postgre
             IServiceProvider services = scope.ServiceProvider;
             switch (repository)
             {
-                case "workspace":
+                case RepositoryKind.Workspace:
                     await services.GetRequiredService<IWorkspaceRepository>().GetByIdAsync(WorkspaceId.New(), cancellation.Token);
                     break;
-                case "source":
+                case RepositoryKind.Source:
                     await services.GetRequiredService<ISourceRepository>().GetByIdAsync(SourceId.Create(Guid.NewGuid()), cancellation.Token);
                     break;
-                case "import":
+                case RepositoryKind.Import:
                     await services.GetRequiredService<IImportJobRepository>().GetByIdAsync(ImportJobId.Create(Guid.NewGuid()), cancellation.Token);
                     break;
-                case "artifact":
+                case RepositoryKind.Artifact:
                     await services.GetRequiredService<IArtifactRepository>().GetByIdAsync(ArtifactId.Create(Guid.NewGuid()), cancellation.Token);
                     break;
-                case "revision":
+                case RepositoryKind.Revision:
                     await services.GetRequiredService<IArtifactRevisionRepository>().GetByIdAsync(ArtifactRevisionId.Create(Guid.NewGuid()), cancellation.Token);
                     break;
-                case "batch":
+                case RepositoryKind.Batch:
                     await services.GetRequiredService<IChunkBatchRepository>().GetByIdAsync(ChunkBatchId.Create(Guid.NewGuid()), cancellation.Token);
                     break;
-                case "chunk":
+                case RepositoryKind.Chunk:
                     await services.GetRequiredService<IChunkRepository>().GetByIdAsync(ChunkId.Create(Guid.NewGuid()), cancellation.Token);
                     break;
-                case "embedding":
-                    await services.GetRequiredService<IChunkEmbeddingRepository>().GetByChunkIdAsync(ChunkId.Create(Guid.NewGuid()), cancellation.Token);
+                case RepositoryKind.Embedding:
+                    await services.GetRequiredService<IChunkEmbeddingRepository>().GetByChunkIdAsync(ChunkId.Create(Guid.NewGuid()), EmbeddingModel.Create("test-embedding-model", "1").ShouldSucceed(), cancellation.Token);
                     break;
-                case "vector":
+                case RepositoryKind.Vector:
                     await services.GetRequiredService<IEmbeddingVectorStore>().GetByIdAsync(ChunkEmbeddingId.Create(Guid.NewGuid()), cancellation.Token);
                     break;
                 default:
@@ -148,12 +141,38 @@ public sealed class RepositoryTests(PostgreSqlDatabaseFixture fixture) : Postgre
         await Assert.ThrowsAnyAsync<OperationCanceledException>(QueryAsync);
     }
 
+    public static TheoryData<RepositoryKind> RepositoryKinds => new()
+    {
+        RepositoryKind.Workspace,
+        RepositoryKind.Source,
+        RepositoryKind.Import,
+        RepositoryKind.Artifact,
+        RepositoryKind.Revision,
+        RepositoryKind.Batch,
+        RepositoryKind.Chunk,
+        RepositoryKind.Embedding,
+        RepositoryKind.Vector
+    };
+
+    public enum RepositoryKind
+    {
+        Workspace,
+        Source,
+        Import,
+        Artifact,
+        Revision,
+        Batch,
+        Chunk,
+        Embedding,
+        Vector
+    }
+
     private static async Task SeedGraphAsync(ServiceProvider serviceProvider, PersistenceGraph graph)
     {
         using IServiceScope scope = serviceProvider.CreateScope();
         EspadaDbContext dbContext = scope.ServiceProvider.GetRequiredService<EspadaDbContext>();
         dbContext.AddRange(graph.Workspace, graph.Source, graph.ImportJob, graph.Artifact, graph.ArtifactRevision, graph.ChunkBatch, graph.Chunk, graph.ChunkEmbedding);
-        await scope.ServiceProvider.GetRequiredService<IEmbeddingVectorStore>().AddAsync(graph.ChunkEmbedding.Id, [0.25f, -0.5f, 1.25f], TestContext.Current.CancellationToken);
+        await scope.ServiceProvider.GetRequiredService<IEmbeddingVectorStore>().UpsertAsync(graph.ChunkEmbedding.Id, [0.25f, -0.5f, 1.25f], TestContext.Current.CancellationToken);
         await dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 }

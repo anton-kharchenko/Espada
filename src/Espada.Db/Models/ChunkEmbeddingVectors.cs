@@ -1,6 +1,7 @@
+using Espada.Db.Constants;
+using Pgvector;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Espada.Db.Constants;
 
 namespace Espada.Db.Models;
 
@@ -10,6 +11,6 @@ public class ChunkEmbeddingVectors
     [Key, Column(TypeName = DbConstants.ColumnTypes.Identifier.Uuid)]
     public Guid ChunkEmbeddingId { get; set; }
 
-    [Required, Column(TypeName = DbConstants.ColumnTypes.Numeric.RealArray)]
-    public float[] Vector { get; set; } = [];
+    [Required, Column(TypeName = DbConstants.ColumnTypes.Numeric.Vector)]
+    public Vector Vector { get; set; } = new(Array.Empty<float>());
 }

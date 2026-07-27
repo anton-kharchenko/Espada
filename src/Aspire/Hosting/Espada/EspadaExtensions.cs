@@ -16,6 +16,8 @@ internal static class EspadaExtensions
 
             IResourceBuilder<PostgresServerResource> postgres = builder
                 .AddPostgres(EspadaNames.Postgres)
+                .WithImage("pgvector/pgvector")
+                .WithImageTag("0.8.2-pg17")
                 .WithPassword(postgresPassword)
                 .WithHostPort(EspadaConstants.Ports.Postgres)
                 .WithDataVolume(EspadaNames.PostgresData)
@@ -40,6 +42,14 @@ internal static class EspadaExtensions
                 .WithReference(database)
                 .WithEnvironment(EspadaConstants.ConfigurationKeys.ApiKey, apiKey)
                 .WaitForCompletion(migrations);
+
+            builder
+                .AddProject<Projects.Espada_Daemon>(EspadaNames.Daemon)
+                .WithReference(database)
+                .WithEnvironment(EspadaConstants.ConfigurationKeys.ApiKey, apiKey)
+                .WaitForCompletion(migrations);
+
+            builder.AddViteApp(EspadaNames.Web, "../Espada.Web");
         }
     }
 

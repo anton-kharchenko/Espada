@@ -1,6 +1,7 @@
+using Espada.Db.Constants;
 using Espada.Domain.Aggregates;
 using Espada.Infrastructure.Database;
-using Espada.Db.Constants;
+using Espada.Tests.Common.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -78,11 +79,8 @@ public sealed class ChunkModelConfigurationTests
 
     private static EspadaDbContext CreateContext()
     {
-        DbContextOptions<EspadaDbContext> options =
-            new DbContextOptionsBuilder<EspadaDbContext>()
-                .UseNpgsql("Host=localhost;Database=espada_model_tests;Username=postgres;Password=postgres")
-                .Options;
-
-        return new EspadaDbContext(options);
+        return new EspadaDbContext(
+            PostgreSqlDbContextOptions.Create<EspadaDbContext>(
+                ModelTestDatabase.ConnectionString));
     }
 }

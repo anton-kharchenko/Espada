@@ -7,7 +7,7 @@ using Espada.Domain.ValueObjects;
 
 namespace Espada.Application.UseCases.Workspaces.Commands.CreateWorkspace;
 
-internal sealed class CreateWorkspaceCommandHandler(IWorkspaceRepository workspaceRepository, IUnitOfWork unitOfWork, IClock clock) : ICommandHandler<CreateWorkspaceCommand, CreateWorkspaceResponse>
+internal sealed class CreateWorkspaceCommandHandler(IWorkspaceRepository workspaceRepository, IUnitOfWork unitOfWork, IClockService clockService) : ICommandHandler<CreateWorkspaceCommand, CreateWorkspaceResponse>
 {
     public async Task<DomainResult<CreateWorkspaceResponse>> Handle(CreateWorkspaceCommand request, CancellationToken cancellationToken)
     {
@@ -18,7 +18,7 @@ internal sealed class CreateWorkspaceCommandHandler(IWorkspaceRepository workspa
         }
 
         WorkspaceId workspaceId = WorkspaceId.New();
-        DomainResult<Workspace> workspaceResult = Workspace.Create(workspaceId, nameResult.Value, request.Type, clock.UtcNow);
+        DomainResult<Workspace> workspaceResult = Workspace.Create(workspaceId, nameResult.Value, request.Type, clockService.UtcNow);
         if (workspaceResult.IsFailure)
         {
             return DomainResult.Failure<CreateWorkspaceResponse>(workspaceResult.Error);

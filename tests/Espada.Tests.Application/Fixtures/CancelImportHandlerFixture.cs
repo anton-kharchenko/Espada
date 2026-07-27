@@ -13,9 +13,9 @@ namespace Espada.Tests.Application.Fixtures
 
         public UnitOfWorkSpy UnitOfWork { get; } = new();
 
-        public TestClock Clock { get; } = new(TestDates.ImportCancelledAtUtc);
+        public TestClockService ClockService { get; } = new(TestDates.ImportCancelledAtUtc);
 
-        public CancelImportCommandHandler CreateHandler() => new(ImportJobRepository, UnitOfWork, Clock);
+        public CancelImportCommandHandler CreateHandler() => new(ImportJobRepository, UnitOfWork, ClockService);
 
         public ImportJob GivenRequestedImportExists(WorkspaceId? workspaceId = null)
         {

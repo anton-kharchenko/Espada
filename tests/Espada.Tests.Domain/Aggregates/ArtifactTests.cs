@@ -24,12 +24,40 @@ public sealed class ArtifactTests
         artifact.Title.Value.Should().Be("Architecture notes");
         artifact.Type.Should().Be(ArtifactType.Markdown);
         artifact.Status.Should().Be(ArtifactStatusType.Active);
+        artifact.Priority.Should().Be(ContextPriority.Neutral);
 
         artifact.CreatedAtUtc.Should().Be(TestDates.ArtifactCreatedAtUtc);
 
         artifact.UpdatedAtUtc.Should().Be(TestDates.ArtifactCreatedAtUtc);
 
         artifact.ArchivedAtUtc.Should().BeNull();
+    }
+
+    [Fact]
+    public void SetPriority_WhenActive_ShouldUpdatePriorityAndRaiseEvent()
+    {
+        Artifact artifact = CreateArtifactWithoutPendingEvents();
+        ContextPriority priority = ContextPriority.Create(75).ShouldSucceed();
+
+        artifact.SetPriority(priority, TestDates.ArtifactRenamedAtUtc).ShouldSucceed();
+
+        artifact.Priority.Should().Be(priority);
+        artifact.UpdatedAtUtc.Should().Be(TestDates.ArtifactRenamedAtUtc);
+        artifact.ShouldHaveSingleDomainEvent<ArtifactPriorityChangedDomainEvent>();
+    }
+
+    [Fact]
+    public void SetPriority_WhenArchived_ShouldFail()
+    {
+        Artifact artifact = CreateArtifactWithoutPendingEvents();
+        artifact.Archive(TestDates.ArtifactArchivedAtUtc).ShouldSucceed();
+        artifact.DequeueDomainEvents();
+
+        DomainResult result = artifact.SetPriority(ContextPriority.Create(10).ShouldSucceed(), TestDates.LaterUtc);
+
+        result.ShouldFailWith(ArtifactErrors.ArchivedArtifactCannotChangePriority);
+        artifact.Priority.Should().Be(ContextPriority.Neutral);
+        artifact.ShouldHaveNoDomainEvents();
     }
 
     [Fact]

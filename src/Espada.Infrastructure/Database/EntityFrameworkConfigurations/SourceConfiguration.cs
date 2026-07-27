@@ -1,8 +1,9 @@
+using Espada.Db.Constants;
 using Espada.Domain.Aggregates;
 using Espada.Domain.Enums;
 using Espada.Domain.SeedWork;
 using Espada.Domain.ValueObjects;
-using Espada.Db.Constants;
+using Espada.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -12,7 +13,10 @@ internal sealed class SourceConfiguration : IEntityTypeConfiguration<Source>, IE
 {
     public void Configure(EntityTypeBuilder<Source> builder)
     {
-        builder.ToTable(DbConstants.Tables.Sources, DbConstants.SchemaName);
+        builder.ToTable(
+            DbConstants.Tables.Sources,
+            DbConstants.SchemaName,
+            table => table.HasCheckConstraint(DbConstants.Constraints.SourcePriorityRange, CheckConstraintSql.ContextPriority(nameof(Source.Priority))));
 
         builder.HasKey(e => e.Id);
 
@@ -61,6 +65,14 @@ internal sealed class SourceConfiguration : IEntityTypeConfiguration<Source>, IE
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
+        builder.Property(e => e.Priority)
+            .HasColumnName("Priority")
+            .HasColumnType(DbConstants.ColumnTypes.Numeric.Integer)
+            .HasConversion(priority => priority.Value, value => ContextPriority.Create(value).Value!)
+            .HasDefaultValue(ContextPriority.Neutral)
+            .IsRequired()
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
         builder.Property(e => e.CreatedAtUtc)
             .HasColumnName("CreatedAtUtc")
             .HasColumnType(DbConstants.ColumnTypes.DateTime.TimestampTz)
@@ -80,11 +92,7 @@ internal sealed class SourceConfiguration : IEntityTypeConfiguration<Source>, IE
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.Version)
-            .HasColumnName("Version")
-            .HasColumnType(DbConstants.ColumnTypes.Numeric.BigInt)
-            .HasDefaultValue(1L)
-            .IsConcurrencyToken()
-            .IsRequired()
+            .IsRowVersion()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.HasOne<Workspace>()
@@ -105,8 +113,12 @@ internal sealed class SourceConfiguration : IEntityTypeConfiguration<Source>, IE
 
     public void Configure(EntityTypeBuilder<Espada.Db.Models.Sources> builder)
     {
+        builder.ToTable(table => table.HasCheckConstraint(
+            DbConstants.Constraints.SourcePriorityRange,
+            CheckConstraintSql.ContextPriority(nameof(Espada.Db.Models.Sources.Priority))));
         builder.Property(model => model.SourceId).ValueGeneratedNever();
-        builder.Property(model => model.Version).HasDefaultValue(1L).IsConcurrencyToken();
+        builder.Property(model => model.Priority).HasDefaultValue(ContextPriority.Neutral.Value);
+        builder.Property(model => model.Version).IsRowVersion();
         builder.HasOne<Espada.Db.Models.Workspaces>().WithMany().HasForeignKey(model => model.WorkspaceId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Espada.Db.Models.SourceTypes>().WithMany().HasForeignKey(model => model.TypeId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Espada.Db.Models.SourceStatusTypes>().WithMany().HasForeignKey(model => model.StatusId).OnDelete(DeleteBehavior.Restrict);

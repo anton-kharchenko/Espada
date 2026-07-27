@@ -48,7 +48,7 @@ namespace Espada.Tests.Application.UseCases.Imports.Commands.RequestImport
 
             fixture.GivenSourceExists();
 
-            fixture.Clock.UtcNow = TestDates.ImportRequestedAtUtc;
+            fixture.ClockService.UtcNow = TestDates.ImportRequestedAtUtc;
 
             RequestImportCommandHandler handler = fixture.CreateHandler();
 

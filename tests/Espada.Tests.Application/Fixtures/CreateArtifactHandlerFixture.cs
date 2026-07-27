@@ -16,9 +16,9 @@ namespace Espada.Tests.Application.Fixtures
 
         public UnitOfWorkSpy UnitOfWork { get; } = new();
 
-        public TestClock Clock { get; } = new(TestDates.ArtifactCreatedAtUtc);
+        public TestClockService ClockService { get; } = new(TestDates.ArtifactCreatedAtUtc);
 
-        public CreateArtifactCommandHandler CreateHandler() => new(WorkspaceRepository, ArtifactRepository, ArtifactRevisionRepository, UnitOfWork, Clock);
+        public CreateArtifactCommandHandler CreateHandler() => new(WorkspaceRepository, ArtifactRepository, ArtifactRevisionRepository, UnitOfWork, ClockService);
 
         public Workspace GivenWorkspaceExists()
         {

@@ -11,7 +11,7 @@ namespace Espada.Application.UseCases.Artifacts.Commands.RenameArtifact
     internal sealed class RenameArtifactCommandHandler(
         IArtifactRepository artifactRepository,
         IUnitOfWork unitOfWork,
-        IClock clock) : ICommandHandler<RenameArtifactCommand>
+        IClockService clockService) : ICommandHandler<RenameArtifactCommand>
     {
         public async Task<DomainResult> Handle(
             RenameArtifactCommand request,
@@ -59,7 +59,7 @@ namespace Espada.Application.UseCases.Artifacts.Commands.RenameArtifact
 
             DomainResult renameResult = artifact.Rename(
                 titleResult.Value,
-                clock.UtcNow);
+                clockService.UtcNow);
 
             if (renameResult.IsFailure)
             {

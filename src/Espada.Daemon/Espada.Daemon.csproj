@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Espada.Application\Espada.Application.csproj" />
+    <ProjectReference Include="..\Espada.Comms.Core\Espada.Comms.Core.csproj" />
+    <ProjectReference Include="..\Espada.Infrastructure\Espada.Infrastructure.csproj" />
+    <ProjectReference Include="..\Espada.Protocol.Mcp\Espada.Protocol.Mcp.csproj" />
+    <ProjectReference Include="..\Espada.ServiceDefaults\Espada.ServiceDefaults.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" />
+    <PackageReference Include="ModelContextProtocol.AspNetCore" />
+  </ItemGroup>
+</Project>

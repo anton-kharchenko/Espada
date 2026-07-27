@@ -16,7 +16,7 @@ public sealed class ArchitectureTests
     private static readonly Assembly ApplicationAssembly = typeof(IArtifactRepository).Assembly;
     private static readonly Assembly InfrastructureAssembly = typeof(Espada.Infrastructure.Extensions.InfrastructureServiceCollectionExtensions).Assembly;
     private static readonly Assembly ApiContractsAssembly = typeof(Api.Contracts.Responses.ErrorResponse).Assembly;
-    private static readonly Assembly ApiAssembly = typeof(SystemController).Assembly;
+    private static readonly Assembly ApiAssembly = typeof(BaseController).Assembly;
 
     [Fact]
     public void ProductionProjectReferences_ShouldMatchAllowedDependencyGraph()
@@ -31,8 +31,11 @@ public sealed class ArchitectureTests
             ["Espada.DeploymentKit"] = [],
             ["Espada.Deployment"] = ["Espada.DeploymentKit"],
             ["Espada.Api.Contracts"] = ["Espada.Domain"],
-            ["Espada.Api"] = ["Espada.Api.Contracts", "Espada.Application", "Espada.Domain", "Espada.Infrastructure", "Espada.ServiceDefaults"],
-            ["Aspire"] = ["Espada.Api", "Espada.Db"]
+            ["Espada.Protocol.Mcp"] = [],
+            ["Espada.Cli"] = ["Espada.Comms.Core", "Espada.Protocol.Mcp"],
+            ["Espada.Daemon"] = ["Espada.Application", "Espada.Comms.Core", "Espada.Infrastructure", "Espada.Protocol.Mcp", "Espada.ServiceDefaults"],
+            ["Espada.Api"] = ["Espada.Api.Contracts", "Espada.Application", "Espada.Comms.Core", "Espada.Domain", "Espada.Infrastructure", "Espada.ServiceDefaults"],
+            ["Aspire"] = ["Espada.Api", "Espada.Daemon", "Espada.Db"]
         };
 
         string repositoryRoot = FindRepositoryRoot();
@@ -53,7 +56,7 @@ public sealed class ArchitectureTests
     [Fact]
     public void Domain_ShouldNotReferenceOuterOrFrameworkLayers()
     {
-        string[] forbiddenPrefixes = ["Espada.", "Microsoft.AspNetCore", "Microsoft.EntityFrameworkCore", "MediatR", "Npgsql", "Microsoft.Data.Sqlite", "ModelContextProtocol"];
+        string[] forbiddenPrefixes = ["Espada.", "Microsoft.AspNetCore", "Microsoft.EntityFrameworkCore", "MediatR", "Npgsql", "ModelContextProtocol"];
         string[] references = DomainAssembly.GetReferencedAssemblies().Select(reference => reference.Name!).ToArray();
 
         Assert.DoesNotContain(references, reference => forbiddenPrefixes.Any(prefix => reference.StartsWith(prefix, StringComparison.Ordinal)));

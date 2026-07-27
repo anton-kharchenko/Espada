@@ -1,7 +1,7 @@
+using AutoMapper;
 using Espada.Application.ApplicationErrors;
 using Espada.Application.Contracts.Messaging;
 using Espada.Application.Contracts.Persistence;
-using Espada.Application.Mappings;
 using Espada.Application.UseCases.Sources.Common;
 using Espada.Domain.Aggregates;
 using Espada.Domain.Rules;
@@ -9,7 +9,7 @@ using Espada.Domain.ValueObjects;
 
 namespace Espada.Application.UseCases.Sources.Queries.GetSourceById
 {
-    internal sealed class GetSourceByIdQueryHandler(ISourceRepository sourceRepository) : IQueryHandler<GetSourceByIdQuery, SourceResponse>
+    internal sealed class GetSourceByIdQueryHandler(ISourceRepository sourceRepository, IMapper mapper) : IQueryHandler<GetSourceByIdQuery, SourceResponse>
     {
         public async Task<DomainResult<SourceResponse>> Handle(GetSourceByIdQuery request, CancellationToken cancellationToken)
         {
@@ -37,7 +37,7 @@ namespace Espada.Application.UseCases.Sources.Queries.GetSourceById
                 return DomainResult.Failure<SourceResponse>(SourceApplicationErrors.NotFoundInWorkspace(request.SourceId, request.WorkspaceId));
             }
 
-            SourceResponse response = source.ToResponse();
+            SourceResponse response = mapper.Map<SourceResponse>(source);
 
             return DomainResult.Success(response);
         }

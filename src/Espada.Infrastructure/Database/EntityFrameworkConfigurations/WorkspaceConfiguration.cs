@@ -1,8 +1,8 @@
+using Espada.Db.Constants;
 using Espada.Domain.Aggregates;
 using Espada.Domain.Enums;
 using Espada.Domain.SeedWork;
 using Espada.Domain.ValueObjects;
-using Espada.Db.Constants;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -60,11 +60,7 @@ internal sealed class WorkspaceConfiguration : IEntityTypeConfiguration<Workspac
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.Version)
-            .HasColumnName("Version")
-            .HasColumnType(DbConstants.ColumnTypes.Numeric.BigInt)
-            .HasDefaultValue(1L)
-            .IsConcurrencyToken()
-            .IsRequired()
+            .IsRowVersion()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.HasIndex(e => e.Name)
@@ -77,7 +73,7 @@ internal sealed class WorkspaceConfiguration : IEntityTypeConfiguration<Workspac
     public void Configure(EntityTypeBuilder<Espada.Db.Models.Workspaces> builder)
     {
         builder.Property(model => model.WorkspaceId).ValueGeneratedNever();
-        builder.Property(model => model.Version).HasDefaultValue(1L).IsConcurrencyToken();
+        builder.Property(model => model.Version).IsRowVersion();
         builder.HasOne<Espada.Db.Models.WorkspaceTypes>().WithMany().HasForeignKey(model => model.TypeId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Espada.Db.Models.WorkspaceStatusTypes>().WithMany().HasForeignKey(model => model.StatusId).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(model => model.Name).HasDatabaseName("IX_Workspaces_Name");

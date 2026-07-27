@@ -12,7 +12,7 @@ namespace Espada.Application.UseCases.Artifacts.Commands.AddArtifactRevision
         IArtifactRepository artifactRepository,
         IArtifactRevisionRepository artifactRevisionRepository,
         IUnitOfWork unitOfWork,
-        IClock clock)
+        IClockService clockService)
         : ICommandHandler<AddArtifactRevisionCommand, AddArtifactRevisionResponse>
     {
         public async Task<DomainResult<AddArtifactRevisionResponse>> Handle(
@@ -52,7 +52,7 @@ namespace Espada.Application.UseCases.Artifacts.Commands.AddArtifactRevision
 
             ArtifactRevisionId revisionId = ArtifactRevisionId.Create(Guid.NewGuid());
 
-            DateTimeOffset createdAtUtc = clock.UtcNow;
+            DateTimeOffset createdAtUtc = clockService.UtcNow;
 
             DomainResult<ArtifactRevision> revisionResult = artifact.CreateRevision(revisionId, contentResult.Value, createdAtUtc);
 

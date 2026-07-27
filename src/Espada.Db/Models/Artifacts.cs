@@ -1,6 +1,6 @@
+using Espada.Db.Constants;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Espada.Db.Constants;
 
 namespace Espada.Db.Models;
 
@@ -22,6 +22,9 @@ public class Artifacts
     [Column(TypeName = DbConstants.ColumnTypes.Numeric.Integer)]
     public int StatusId { get; set; }
 
+    [Column(TypeName = DbConstants.ColumnTypes.Numeric.Integer)]
+    public int Priority { get; set; }
+
     [Column(TypeName = DbConstants.ColumnTypes.Identifier.Uuid)]
     public Guid? CurrentRevisionId { get; set; }
 
@@ -37,6 +40,5 @@ public class Artifacts
     [Column(TypeName = DbConstants.ColumnTypes.DateTime.TimestampTz)]
     public DateTimeOffset? ArchivedAtUtc { get; set; }
 
-    [ConcurrencyCheck, Column(TypeName = DbConstants.ColumnTypes.Numeric.BigInt)]
-    public long Version { get; set; } = 1;
+    public uint Version { get; set; }
 }

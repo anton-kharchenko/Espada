@@ -9,7 +9,7 @@ namespace Espada.Domain.Aggregates;
 
 public sealed class Source : AggregateRoot<SourceId>, IHasConcurrencyVersion
 {
-    public long Version { get; private set; } = 1;
+    public uint Version { get; private set; }
 
     private Source()
     {
@@ -29,6 +29,7 @@ public sealed class Source : AggregateRoot<SourceId>, IHasConcurrencyVersion
         Type = type;
         Locator = locator;
         Status = SourceStatusType.Active;
+        Priority = ContextPriority.Neutral;
         CreatedAtUtc = createdAtUtc;
         UpdatedAtUtc = createdAtUtc;
     }
@@ -42,6 +43,8 @@ public sealed class Source : AggregateRoot<SourceId>, IHasConcurrencyVersion
     public SourceLocator Locator { get; private set; } = null!;
 
     public SourceStatusType Status { get; private set; } = null!;
+
+    public ContextPriority Priority { get; private set; } = ContextPriority.Neutral;
 
     public DateTimeOffset CreatedAtUtc { get; private set; }
 
@@ -82,6 +85,29 @@ public sealed class Source : AggregateRoot<SourceId>, IHasConcurrencyVersion
         UpdatedAtUtc = archivedAtUtc;
 
         RaiseDomainEvent(new SourceArchivedDomainEvent(Id, archivedAtUtc));
+
+        return DomainResult.Success();
+    }
+
+    public DomainResult SetPriority(ContextPriority priority, DateTimeOffset changedAtUtc)
+    {
+        ArgumentNullException.ThrowIfNull(priority);
+
+        if (Status.Equals(SourceStatusType.Archived))
+        {
+            return DomainResult.Failure(SourceErrors.ArchivedSourceCannotChangePriority);
+        }
+
+        if (Priority == priority)
+        {
+            return DomainResult.Success();
+        }
+
+        int previousPriority = Priority.Value;
+        Priority = priority;
+        UpdatedAtUtc = changedAtUtc;
+
+        RaiseDomainEvent(new SourcePriorityChangedDomainEvent(Id, previousPriority, priority.Value, changedAtUtc));
 
         return DomainResult.Success();
     }

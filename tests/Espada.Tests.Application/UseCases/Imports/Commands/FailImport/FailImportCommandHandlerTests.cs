@@ -51,7 +51,7 @@ namespace Espada.Tests.Application.UseCases.Imports.Commands.FailImport
 
             DateTimeOffset expectedFailedAtUtc = TestDates.ImportFailedAtUtc.AddMinutes(10);
 
-            fixture.Clock.UtcNow = expectedFailedAtUtc;
+            fixture.ClockService.UtcNow = expectedFailedAtUtc;
 
             FailImportCommandHandler handler = fixture.CreateHandler();
 

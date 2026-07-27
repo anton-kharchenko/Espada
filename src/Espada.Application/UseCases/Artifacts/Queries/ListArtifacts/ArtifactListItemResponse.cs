@@ -7,6 +7,7 @@ namespace Espada.Application.UseCases.Artifacts.Queries.ListArtifacts
         string TypeName,
         int StatusId,
         string StatusName,
+        int Priority,
         Guid? CurrentRevisionId,
         int? CurrentRevisionNumber,
         int RevisionCount,

@@ -3,6 +3,7 @@ using Espada.Infrastructure;
 using Espada.Infrastructure.Database;
 using Espada.Tests.Common.Database;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Testcontainers.PostgreSql;
 
@@ -10,7 +11,7 @@ namespace Espada.Tests.Integration.Fixtures;
 
 public sealed class PostgreSqlDatabaseFixture : IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:17-alpine")
+    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("pgvector/pgvector:0.8.2-pg17")
         .WithDatabase("espada_integration_tests")
         .WithUsername("postgres")
         .WithPassword("postgres")
@@ -34,27 +35,26 @@ public sealed class PostgreSqlDatabaseFixture : IAsyncLifetime
 
     public SetupDbContext CreateSetupDbContext()
     {
-        DbContextOptionsBuilder<SetupDbContext> options = new();
-        options.UseNpgsql(ConnectionString, npgsql =>
-        {
-            npgsql.MigrationsAssembly(typeof(SetupDbContext).Assembly.FullName);
-            npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "Espada");
-        });
-
-        return new SetupDbContext(options.Options);
+        return new SetupDbContext(
+            PostgreSqlDbContextOptions.Create<SetupDbContext>(
+                ConnectionString,
+                npgsql =>
+                {
+                    npgsql.MigrationsAssembly(typeof(SetupDbContext).Assembly.FullName);
+                    npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "Espada");
+                }));
     }
 
     public EspadaDbContext CreateDbContext()
     {
-        DbContextOptionsBuilder<EspadaDbContext> options = new();
-        options.UseNpgsql(ConnectionString);
-        return new EspadaDbContext(options.Options);
+        return new EspadaDbContext(
+            PostgreSqlDbContextOptions.Create<EspadaDbContext>(ConnectionString));
     }
 
-    public ServiceProvider CreateServiceProvider()
+    public ServiceProvider CreateServiceProvider(IConfiguration? configuration = null)
     {
         ServiceCollection services = new();
-        services.AddInfrastructure(ConnectionString);
+        services.AddInfrastructure(ConnectionString, configuration);
         return services.BuildServiceProvider();
     }
 
