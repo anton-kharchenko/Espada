@@ -1,26 +1,26 @@
+using Espada.Application.Contracts.Billing;
+using Espada.Application.Contracts.Blobs;
 using Espada.Application.Contracts.Embedding;
+using Espada.Application.Contracts.Ingestion;
+using Espada.Application.Contracts.Jobs;
 using Espada.Application.Contracts.Persistence;
 using Espada.Application.Contracts.Time;
+using Espada.Billing.Contracts;
 using Espada.Db.Constants;
+using Espada.Domain.SeedWork;
+using Espada.Infrastructure.Constants;
 using Espada.Infrastructure.Database;
 using Espada.Infrastructure.Extensions;
+using Espada.Infrastructure.Ingestion;
+using Espada.Infrastructure.Ingestion.Chunking.Strategy;
 using Espada.Infrastructure.Options;
 using Espada.Infrastructure.Repositories;
 using Espada.Infrastructure.Services;
-using Espada.Application.Contracts.Jobs;
-using Espada.Domain.SeedWork;
-using Espada.Application.Contracts.Blobs;
-using Espada.Application.Contracts.Ingestion;
-using Espada.Infrastructure.Ingestion;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Npgsql;
-using Espada.Application.Contracts.Billing;
-using Espada.Billing.Contracts;
-using Espada.Infrastructure.Constants;
-using Espada.Infrastructure.Ingestion.Chunking.Strategy;
 
 namespace Espada.Infrastructure;
 
@@ -61,6 +61,7 @@ public static class DependencyInjection
             serviceProvider =>
                 serviceProvider.GetRequiredService<EspadaDbContext>());
         services.AddScoped<IEmbeddingVectorStore, EmbeddingVectorStore>();
+        services.AddSingleton<IEmbeddingModelDefaults, EmbeddingModelDefaults>();
         services.AddScoped<
             IWorkspaceContextSearchStore,
             WorkspaceContextSearchStore>();

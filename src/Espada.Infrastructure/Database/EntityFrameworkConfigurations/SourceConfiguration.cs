@@ -5,8 +5,8 @@ using Espada.Domain.SeedWork;
 using Espada.Domain.ValueObjects;
 using Espada.Domain.ValueObjects.SourceDefinitions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Espada.Infrastructure.Database.EntityFrameworkConfigurations;
 
@@ -14,10 +14,7 @@ internal sealed class SourceConfiguration : IEntityTypeConfiguration<Source>, IE
 {
     public void Configure(EntityTypeBuilder<Source> builder)
     {
-        builder.ToTable(
-            DbTableConstants.Sources,
-            DbConstants.SchemaName,
-            table => table.HasCheckConstraint(DbConstraintConstants.SourcePriorityRange, CheckConstraintSql.ContextPriority(nameof(Source.Priority))));
+        builder.ToTable(DbTableConstants.Sources, DbConstants.SchemaName);
 
         builder.HasKey(e => e.Id);
 
@@ -129,9 +126,6 @@ internal sealed class SourceConfiguration : IEntityTypeConfiguration<Source>, IE
 
     public void Configure(EntityTypeBuilder<Espada.Db.Models.Sources> builder)
     {
-        builder.ToTable(table => table.HasCheckConstraint(
-            DbConstraintConstants.SourcePriorityRange,
-            CheckConstraintSql.ContextPriority(nameof(Db.Models.Sources.Priority))));
         builder.Property(model => model.SourceId).ValueGeneratedNever();
         builder.Property(model => model.Priority).HasDefaultValue(ContextPriority.Neutral.Value);
         builder.Property(model => model.Version).IsRowVersion();

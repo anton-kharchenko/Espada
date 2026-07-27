@@ -9,6 +9,14 @@ namespace Espada.Tests.Infrastructure.Database;
 
 public sealed class ChunkModelConfigurationTests
 {
+    public static TheoryData<Type, string> ChunkTables =>
+        new()
+        {
+            { typeof(ChunkBatch), DbTableConstants.ChunkBatches },
+            { typeof(Chunk), DbTableConstants.Chunks },
+            { typeof(ChunkEmbedding), DbTableConstants.ChunkEmbeddings }
+        };
+
     [Fact]
     public void Model_ShouldContainChunkAggregateTypes()
     {
@@ -20,9 +28,7 @@ public sealed class ChunkModelConfigurationTests
     }
 
     [Theory]
-    [InlineData(typeof(ChunkBatch), DbTableConstants.ChunkBatches)]
-    [InlineData(typeof(Chunk), DbTableConstants.Chunks)]
-    [InlineData(typeof(ChunkEmbedding), DbTableConstants.ChunkEmbeddings)]
+    [MemberData(nameof(ChunkTables))]
     public void Model_ShouldUseExpectedTableAndSchema(Type entityType, string tableName)
     {
         using EspadaDbContext context = CreateContext();

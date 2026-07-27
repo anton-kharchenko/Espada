@@ -1,15 +1,16 @@
 using Espada.Application.Contracts.Jobs;
 using Espada.Application.Contracts.Persistence;
 using Espada.Domain.Aggregates;
+using Espada.Domain.Constants;
 using Espada.Domain.Enums;
+using Espada.Domain.Events;
 using Espada.Domain.ValueObjects;
 using Espada.Domain.ValueObjects.SourceDefinitions;
 using Espada.Infrastructure.Database;
 using Espada.Tests.Integration.Database;
 using Espada.Tests.Integration.Fixtures;
-using Espada.Tests.Integration.TestData.Sql;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Npgsql;
 
 namespace Espada.Tests.Integration.Transactions;
 
@@ -36,14 +37,11 @@ public sealed class DurablePipelineTests(PostgreSqlDatabaseFixture fixture) : Po
 
         await dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        NpgsqlDataSource dataSource = scope.ServiceProvider.GetRequiredService<NpgsqlDataSource>();
-        await using NpgsqlCommand command = dataSource.CreateCommand(
-            PipelineSqlConstants.CountOutboxMessagesByEventName);
-        command.Parameters.AddWithValue(
-            "eventName",
-            "imports.requested.v1");
-        long count = (long)(await command.ExecuteScalarAsync(
-            TestContext.Current.CancellationToken))!;
+        await using Espada.Db.Database.SetupDbContext readContext =
+            Fixture.CreateSetupDbContext();
+        long count = await readContext.OutboxMessages.LongCountAsync(
+            message => message.EventName == DomainEventContractConstants.ImportRequested,
+            TestContext.Current.CancellationToken);
         Assert.Equal(1, count);
     }
 
@@ -58,33 +56,40 @@ public sealed class DurablePipelineTests(PostgreSqlDatabaseFixture fixture) : Po
         }
 
         await using ServiceProvider serviceProvider = Fixture.CreateServiceProvider();
-        using IServiceScope scope = serviceProvider.CreateScope();
-        IJobQueue queue = scope.ServiceProvider.GetRequiredService<IJobQueue>();
-        ImportJobId importJobId = graph.ImportJob.Id;
+        using (IServiceScope enqueueScope = serviceProvider.CreateScope())
+        {
+            IJobQueue queue = enqueueScope.ServiceProvider.GetRequiredService<IJobQueue>();
+            await queue.EnqueueAsync(
+                graph.ImportJob.Id,
+                ImportPipelineStageType.Read,
+                "import:read",
+                TestContext.Current.CancellationToken);
+            await queue.EnqueueAsync(
+                graph.ImportJob.Id,
+                ImportPipelineStageType.Read,
+                "import:read",
+                TestContext.Current.CancellationToken);
+        }
 
-        await queue.EnqueueAsync(
-            importJobId,
-            ImportPipelineStageType.Read,
-            "import:read",
-            TestContext.Current.CancellationToken);
-        await queue.EnqueueAsync(
-            importJobId,
-            ImportPipelineStageType.Read,
-            "import:read",
-            TestContext.Current.CancellationToken);
+        using IServiceScope firstScope = serviceProvider.CreateScope();
+        using IServiceScope secondScope = serviceProvider.CreateScope();
+        Task<IngestionJob?> firstClaim = firstScope.ServiceProvider
+            .GetRequiredService<IJobQueue>()
+            .ClaimAsync(
+                "worker-1",
+                TimeSpan.FromMinutes(1),
+                TestContext.Current.CancellationToken);
+        Task<IngestionJob?> secondClaim = secondScope.ServiceProvider
+            .GetRequiredService<IJobQueue>()
+            .ClaimAsync(
+                "worker-2",
+                TimeSpan.FromMinutes(1),
+                TestContext.Current.CancellationToken);
 
-        IngestionJob? first = await queue.ClaimAsync(
-            "worker-1",
-            TimeSpan.FromMinutes(1),
-            TestContext.Current.CancellationToken);
-        IngestionJob? second = await queue.ClaimAsync(
-            "worker-2",
-            TimeSpan.FromMinutes(1),
-            TestContext.Current.CancellationToken);
-
-        Assert.NotNull(first);
-        Assert.Equal(ImportPipelineStageType.Read, first.Stage);
-        Assert.Null(second);
+        IngestionJob?[] claims = await Task.WhenAll(firstClaim, secondClaim);
+        IngestionJob claimed = Assert.Single(claims.OfType<IngestionJob>());
+        Assert.Equal(ImportPipelineStageType.Read, claimed.Stage);
+        Assert.Equal(graph.ImportJob.Id, claimed.ImportJobId);
     }
 
     [Fact]
@@ -141,13 +146,12 @@ public sealed class DurablePipelineTests(PostgreSqlDatabaseFixture fixture) : Po
 
         await using ServiceProvider serviceProvider = Fixture.CreateServiceProvider();
         using IServiceScope scope = serviceProvider.CreateScope();
-        NpgsqlDataSource dataSource =
-            scope.ServiceProvider.GetRequiredService<NpgsqlDataSource>();
-        await using NpgsqlCommand command = dataSource.CreateCommand(
-            PipelineSqlConstants.GetSourceDefinitionJson);
-        command.Parameters.AddWithValue("sourceId", source.Id.Value);
-        string json = (string)(await command.ExecuteScalarAsync(
-            TestContext.Current.CancellationToken))!;
+        await using Espada.Db.Database.SetupDbContext readContext =
+            Fixture.CreateSetupDbContext();
+        string json = await readContext.Sources
+            .Where(model => model.SourceId == source.Id.Value)
+            .Select(model => model.DefinitionJson!)
+            .SingleAsync(TestContext.Current.CancellationToken);
         Assert.Contains("\"type\": \"webPage\"", json, StringComparison.Ordinal);
 
         Source? loaded = await scope.ServiceProvider

@@ -1,13 +1,16 @@
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using Stripe;
 using Espada.Application.Contracts.Billing;
 using Espada.Billing.Constants;
 using Espada.Billing.Contracts;
 using Espada.Billing.Services;
 using Espada.Billing.Webhooks;
 using Espada.Billing.Webhooks.Handlers;
+using FluentValidation;
+using MediatR;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Stripe;
+using System.Reflection;
 
 namespace Espada.Billing;
 
@@ -15,6 +18,10 @@ public static class BillingServiceCollectionExtensions
 {
     public static void AddEspadaBilling(this IServiceCollection services, IConfiguration configuration)
     {
+        Assembly assembly = typeof(BillingServiceCollectionExtensions).Assembly;
+        services.AddMediatR(configuration => configuration.RegisterServicesFromAssembly(assembly));
+        services.AddValidatorsFromAssembly(assembly, ServiceLifetime.Transient);
+
         IConfigurationSection section = configuration.GetSection(BillingConstants.SectionName);
         BillingOptions configured = section.Get<BillingOptions>() ?? new BillingOptions();
         services
@@ -22,7 +29,7 @@ public static class BillingServiceCollectionExtensions
             .Bind(section)
             .Validate(options => options.IsValid(), "Billing configuration is incomplete.")
             .ValidateOnStart();
-        
+
         if (!configured.Enabled)
         {
             return;
@@ -46,7 +53,7 @@ public static class BillingServiceCollectionExtensions
                 HttpClient = new SystemNetHttpClient(httpClient)
             });
         });
-        
+
         services.AddScoped<IStripeBillingProvider, StripeBillingProvider>();
         services.AddScoped<IStripeWebhookIngestor, StripeWebhookIngestor>();
         services.AddScoped<IStripeWebhookProcessor, StripeWebhookProcessor>();

@@ -21,12 +21,7 @@ internal sealed class ArtifactConfiguration : IEntityTypeConfiguration<Artifact>
             number => number == null ? null : number.Value,
             value => value == null ? null : RevisionNumber.Create(value.Value).Value!);
 
-        builder.ToTable(
-            DbTableConstants.Artifacts,
-            DbConstants.SchemaName,
-            table => table.HasCheckConstraint(
-                DbConstraintConstants.ArtifactPriorityRange,
-                CheckConstraintSql.ContextPriority(nameof(Artifact.Priority))));
+        builder.ToTable(DbTableConstants.Artifacts, DbConstants.SchemaName);
 
         builder.HasKey(e => e.Id);
 
@@ -130,9 +125,6 @@ internal sealed class ArtifactConfiguration : IEntityTypeConfiguration<Artifact>
 
     public void Configure(EntityTypeBuilder<Espada.Db.Models.Artifacts> builder)
     {
-        builder.ToTable(table => table.HasCheckConstraint(
-            DbConstraintConstants.ArtifactPriorityRange,
-            CheckConstraintSql.ContextPriority(nameof(Db.Models.Artifacts.Priority))));
         builder.Property(model => model.ArtifactId).ValueGeneratedNever();
         builder.Property(model => model.Priority).HasDefaultValue(ContextPriority.Neutral.Value);
         builder.Property(model => model.Version).IsRowVersion();

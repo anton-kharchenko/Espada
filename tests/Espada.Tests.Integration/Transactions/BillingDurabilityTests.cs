@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Espada.Application.Contracts.Billing;
 using Espada.Application.Contracts.Billing.Constants;
 using Espada.Application.Contracts.Persistence;
@@ -9,11 +8,11 @@ using Espada.Infrastructure.Database;
 using Espada.Tests.Integration.Database;
 using Espada.Tests.Integration.Fixtures;
 using Espada.Tests.Integration.TestData;
-using Espada.Tests.Integration.TestData.Sql;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Npgsql;
 using Stripe;
+using System.Text.Json;
 
 namespace Espada.Tests.Integration.Transactions;
 
@@ -110,17 +109,17 @@ public sealed class BillingDurabilityTests(PostgreSqlDatabaseFixture fixture) : 
             .GetRequiredService<IUnitOfWork>()
             .SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        NpgsqlDataSource dataSource =
-            scope.ServiceProvider.GetRequiredService<NpgsqlDataSource>();
-        await using NpgsqlCommand command = dataSource.CreateCommand(
-            BillingSqlConstants.CountUsageLedgerReconciliations);
-        command.Parameters.AddWithValue(
-            "idempotencyKey",
-            "usage-test");
+        await using Espada.Db.Database.SetupDbContext readContext =
+            Fixture.CreateSetupDbContext();
+        long reconciliationCount = await readContext.UsageLedgerEntries
+            .Where(entry => entry.IdempotencyKey == "usage-test")
+            .Join(
+                readContext.UsageReconciliationOutbox,
+                entry => entry.EntryId,
+                message => message.LedgerEntryId,
+                (_, _) => 1)
+            .LongCountAsync(TestContext.Current.CancellationToken);
 
-        Assert.Equal(
-            1,
-            (long)(await command.ExecuteScalarAsync(
-                TestContext.Current.CancellationToken))!);
+        Assert.Equal(1, reconciliationCount);
     }
 }

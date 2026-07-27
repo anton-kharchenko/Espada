@@ -31,6 +31,12 @@ public sealed class EspadaDbContext(DbContextOptions<EspadaDbContext> options) :
 
     internal DbSet<OutboxMessageRecord> OutboxMessages => Set<OutboxMessageRecord>();
 
+    internal DbSet<Espada.Db.Models.IngestionJobs> IngestionJobs => Set<Espada.Db.Models.IngestionJobs>();
+
+    internal DbSet<Espada.Db.Models.BillingCustomers> BillingCustomers => Set<Espada.Db.Models.BillingCustomers>();
+
+    internal DbSet<Espada.Db.Models.PaymentEvents> PaymentEvents => Set<Espada.Db.Models.PaymentEvents>();
+
     internal DbSet<Espada.Db.Models.UsageLedgerEntries> UsageLedgerEntries => Set<Espada.Db.Models.UsageLedgerEntries>();
 
     internal DbSet<Espada.Db.Models.UsageReconciliationOutbox> UsageReconciliationOutbox => Set<Espada.Db.Models.UsageReconciliationOutbox>();
@@ -93,6 +99,7 @@ public sealed class EspadaDbContext(DbContextOptions<EspadaDbContext> options) :
         modelBuilder.ApplyConfiguration<Chunk>(new ChunkConfiguration());
         modelBuilder.ApplyConfiguration<ChunkEmbedding>(new ChunkEmbeddingConfiguration());
         modelBuilder.ApplyConfiguration<EmbeddingVectorRecord>(new EmbeddingVectorRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new IngestionJobConfiguration());
         modelBuilder.ApplyConfiguration<OutboxMessageRecord>(new OutboxMessageConfiguration());
         modelBuilder.ApplyConfiguration(new BillingCustomerConfiguration());
         modelBuilder.ApplyConfiguration(new PaymentEventConfiguration());

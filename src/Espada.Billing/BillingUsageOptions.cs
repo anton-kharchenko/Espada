@@ -1,3 +1,5 @@
+using Espada.Application.Contracts.Billing.Constants;
+
 namespace Espada.Billing;
 
 public sealed class BillingUsageOptions
@@ -24,13 +26,13 @@ public sealed class BillingUsageOptions
 
     public string GetEventName(string metric) => metric switch
     {
-        "raw_bytes" => RawBytesEventName,
-        "extracted_bytes" => ExtractedBytesEventName,
-        "embedding_input_units" => EmbeddingInputUnitsEventName,
-        "parser_compute_milliseconds" => ParserComputeMillisecondsEventName,
-        "plugin_compute_milliseconds" => PluginComputeMillisecondsEventName,
-        "egress_bytes" => EgressBytesEventName,
-        "storage_byte_hours" => StorageByteHoursEventName,
+        UsageMetricConstants.RawBytes => RawBytesEventName,
+        UsageMetricConstants.ExtractedBytes => ExtractedBytesEventName,
+        UsageMetricConstants.EmbeddingInputUnits => EmbeddingInputUnitsEventName,
+        UsageMetricConstants.ParserComputeMilliseconds => ParserComputeMillisecondsEventName,
+        UsageMetricConstants.PluginComputeMilliseconds => PluginComputeMillisecondsEventName,
+        UsageMetricConstants.EgressBytes => EgressBytesEventName,
+        UsageMetricConstants.StorageByteHours => StorageByteHoursEventName,
         _ => throw new ArgumentOutOfRangeException(nameof(metric), metric, null)
     };
 }

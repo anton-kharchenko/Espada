@@ -1,10 +1,10 @@
+using Espada.Application.Services.Billing;
 using Espada.Application.UseCases.Imports.Commands.RequestImport;
 using Espada.Domain.Aggregates;
 using Espada.Domain.ValueObjects;
 using Espada.Tests.Application.Fakes;
 using Espada.Tests.Application.TestData;
 using Espada.Tests.Application.TestData.Builder;
-using Espada.Application.Services.Billing;
 
 namespace Espada.Tests.Application.Fixtures;
 
@@ -18,13 +18,16 @@ internal sealed class RequestImportHandlerFixture
 
     public TestClockService ClockService { get; } = new(TestDates.ImportRequestedAtUtc);
 
+    public TestEmbeddingModelDefaults EmbeddingModelDefaults { get; } = new();
+
     public RequestImportCommandHandler CreateHandler() =>
         new(
             SourceRepository,
             ImportJobRepository,
             UnitOfWork,
             ClockService,
-            new AllowImportAdmissionPolicy());
+            new AllowImportAdmissionPolicy(),
+            EmbeddingModelDefaults);
 
     public Source GivenSourceExists(WorkspaceId? workspaceId = null)
     {

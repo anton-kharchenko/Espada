@@ -4,6 +4,15 @@ namespace Espada.Tests.Domain.ValueObjects;
 
 public sealed class ChunkingVersionTests
 {
+    public static TheoryData<string?> EmptyValues =>
+        new()
+        {
+            null!,
+            string.Empty,
+            " ",
+            "\t"
+        };
+
     [Fact]
     public void Create_WithValidValue_ShouldCreateVersion()
     {
@@ -25,10 +34,7 @@ public sealed class ChunkingVersionTests
     }
 
     [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    [InlineData(" ")]
-    [InlineData("\t")]
+    [MemberData(nameof(EmptyValues))]
     public void Create_WithEmptyValue_ShouldReturnExpectedError(string? value)
     {
         // Act

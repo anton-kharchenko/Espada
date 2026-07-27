@@ -1,15 +1,16 @@
 using Espada.Application.ApplicationErrors;
+using Espada.Application.Contracts.Billing;
+using Espada.Application.Contracts.Embedding;
 using Espada.Application.Contracts.Messaging;
 using Espada.Application.Contracts.Persistence;
 using Espada.Application.Contracts.Time;
-using Espada.Application.Contracts.Billing;
 using Espada.Domain.Aggregates;
 using Espada.Domain.Rules;
 using Espada.Domain.ValueObjects;
 
 namespace Espada.Application.UseCases.Imports.Commands.RequestImport;
 
-internal sealed class RequestImportCommandHandler(ISourceRepository sourceRepository, IImportJobRepository importJobRepository, IUnitOfWork unitOfWork, IClockService clockService, IImportAdmissionPolicy importAdmissionPolicy) : ICommandHandler<RequestImportCommand, RequestImportResponse>
+internal sealed class RequestImportCommandHandler(ISourceRepository sourceRepository, IImportJobRepository importJobRepository, IUnitOfWork unitOfWork, IClockService clockService, IImportAdmissionPolicy importAdmissionPolicy, IEmbeddingModelDefaults embeddingModelDefaults) : ICommandHandler<RequestImportCommand, RequestImportResponse>
 {
     public async Task<DomainResult<RequestImportResponse>> Handle(RequestImportCommand request, CancellationToken cancellationToken)
     {
@@ -23,7 +24,11 @@ internal sealed class RequestImportCommandHandler(ISourceRepository sourceReposi
             return DomainResult.Failure<RequestImportResponse>(SourceApplicationErrors.InvalidId);
         }
 
-        if (string.IsNullOrWhiteSpace(request.Options.EmbeddingModel))
+        ImportOptions options = request.Options with
+        {
+            EmbeddingModel = request.Options.EmbeddingModel ?? embeddingModelDefaults.DefaultModel
+        };
+        if (string.IsNullOrWhiteSpace(options.EmbeddingModel))
         {
             return DomainResult.Failure<RequestImportResponse>(ImportJobApplicationErrors.EmbeddingModelRequired);
         }
@@ -49,7 +54,7 @@ internal sealed class RequestImportCommandHandler(ISourceRepository sourceReposi
             return DomainResult.Failure<RequestImportResponse>(SourceApplicationErrors.NotFoundInWorkspace(request.SourceId, request.WorkspaceId));
         }
 
-        string requestFingerprint = RequestImportFingerprint.Create(request.SourceId, request.Options);
+        string requestFingerprint = RequestImportFingerprint.Create(request.SourceId, options);
         ImportJob? existing = await importJobRepository.GetByIdempotencyKeyAsync(source.WorkspaceId, request.IdempotencyKey, cancellationToken);
 
         if (existing is not null)
@@ -61,7 +66,7 @@ internal sealed class RequestImportCommandHandler(ISourceRepository sourceReposi
 
         ImportJobId importJobId = ImportJobId.Create(Guid.NewGuid());
 
-        DomainResult<ImportJob> importJobResult = ImportJob.Request(importJobId, source.Id, source.WorkspaceId, clockService.UtcNow, request.IdempotencyKey, requestFingerprint, RequestImportFingerprint.SerializeOptions(request.Options));
+        DomainResult<ImportJob> importJobResult = ImportJob.Request(importJobId, source.Id, source.WorkspaceId, clockService.UtcNow, request.IdempotencyKey, requestFingerprint, RequestImportFingerprint.SerializeOptions(options));
 
         if (importJobResult.IsFailure)
         {

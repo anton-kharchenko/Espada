@@ -1,7 +1,7 @@
-using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 using Espada.Api.Contracts.Serialization;
 using Espada.Domain.ValueObjects.SourceDefinitions;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Espada.Api.Contracts.Requests.Sources;
 
@@ -20,6 +20,11 @@ public sealed class RegisterSourceRequest : IValidatableObject
         if (string.IsNullOrWhiteSpace(Name))
         {
             yield return new ValidationResult("Name is required.", [nameof(Name)]);
+        }
+
+        if (Definition is LegacySourceDefinition)
+        {
+            yield return new ValidationResult("Legacy source definitions are not supported.", [nameof(Definition)]);
         }
     }
 }

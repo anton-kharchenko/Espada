@@ -4,9 +4,26 @@ namespace Espada.Tests.Comms.Core.Pagination;
 
 public sealed class CursorCodecTests
 {
+    public static TheoryData<string> RoundTripValues =>
+        new()
+        {
+            "workspace:42",
+            "revision/Привет"
+        };
+
+    public static TheoryData<string?> InvalidCursors =>
+        new()
+        {
+            null!,
+            string.Empty,
+            " ",
+            "a",
+            "%%%",
+            "____"
+        };
+
     [Theory]
-    [InlineData("workspace:42")]
-    [InlineData("revision/Привет")]
+    [MemberData(nameof(RoundTripValues))]
     public void Encode_ThenDecode_ReturnsOriginalValue(
         string value)
     {
@@ -22,12 +39,7 @@ public sealed class CursorCodecTests
     }
 
     [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    [InlineData(" ")]
-    [InlineData("a")]
-    [InlineData("%%%")]
-    [InlineData("____")]
+    [MemberData(nameof(InvalidCursors))]
     public void TryDecode_WithInvalidCursor_ReturnsFalse(
         string? cursor)
     {

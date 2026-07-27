@@ -222,12 +222,24 @@
           "xunit.v3.runner.common": "[3.2.2]"
         }
       },
+      "espada.db": {
+        "type": "Project",
+        "dependencies": {
+          "Espada.Domain": "[1.0.0, )",
+          "Microsoft.EntityFrameworkCore.Relational": "[10.0.10, )",
+          "Npgsql": "[10.0.3, )",
+          "Npgsql.EntityFrameworkCore.PostgreSQL": "[10.0.3, )",
+          "Pgvector": "[0.3.2, )",
+          "Pgvector.EntityFrameworkCore": "[0.3.0, )"
+        }
+      },
       "espada.domain": {
         "type": "Project"
       },
       "espada.tests.common": {
         "type": "Project",
         "dependencies": {
+          "Espada.Db": "[1.0.0, )",
           "Espada.Domain": "[1.0.0, )",
           "FluentAssertions": "[8.10.0, )",
           "Microsoft.EntityFrameworkCore.Relational": "[10.0.10, )",

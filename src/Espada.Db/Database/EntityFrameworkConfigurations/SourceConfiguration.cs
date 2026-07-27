@@ -9,9 +9,6 @@ internal sealed class SourceConfiguration : IEntityTypeConfiguration<Models.Sour
 {
     public void Configure(EntityTypeBuilder<Models.Sources> builder)
     {
-        builder.ToTable(table => table.HasCheckConstraint(
-            DbConstraintConstants.SourcePriorityRange,
-            CheckConstraintSql.ContextPriority(nameof(Models.Sources.Priority))));
         builder.Property(model => model.SourceId).ValueGeneratedNever();
         builder.Property(model => model.Priority).HasDefaultValue(ContextPriority.Neutral.Value);
         builder.Property(model => model.Version).IsRowVersion();

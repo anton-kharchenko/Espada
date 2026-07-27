@@ -4,6 +4,10 @@ namespace Espada.Tests.Domain.ValueObjects;
 
 public sealed class SourceTextSpanTests
 {
+    public static TheoryData<int> NegativeValues => new() { -1, -100 };
+
+    public static TheoryData<int> NonPositiveValues => new() { 0, -1, -100 };
+
     [Fact]
     public void Create_WithValidValues_ShouldCreateSpan()
     {
@@ -28,8 +32,7 @@ public sealed class SourceTextSpanTests
     }
 
     [Theory]
-    [InlineData(-1)]
-    [InlineData(-100)]
+    [MemberData(nameof(NegativeValues))]
     public void Create_WithNegativeStart_ShouldReturnExpectedError(int start)
     {
         // Act
@@ -40,9 +43,7 @@ public sealed class SourceTextSpanTests
     }
 
     [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
-    [InlineData(-100)]
+    [MemberData(nameof(NonPositiveValues))]
     public void Create_WithNonPositiveLength_ShouldReturnExpectedError(int length)
     {
         // Act

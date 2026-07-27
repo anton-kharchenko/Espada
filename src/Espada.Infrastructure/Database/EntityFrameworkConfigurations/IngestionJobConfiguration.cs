@@ -10,9 +10,5 @@ internal sealed class IngestionJobConfiguration : IEntityTypeConfiguration<Espad
         builder.Property(job => job.JobId).ValueGeneratedNever();
         builder.HasIndex(job => job.IdempotencyKey).IsUnique();
         builder.HasIndex(job => new { job.Status, job.AvailableAtUtc, job.LeaseExpiresAtUtc });
-        builder.HasOne<Espada.Db.Models.ImportJobs>()
-            .WithMany()
-            .HasForeignKey(job => job.ImportJobId)
-            .OnDelete(DeleteBehavior.Cascade);
     }
 }

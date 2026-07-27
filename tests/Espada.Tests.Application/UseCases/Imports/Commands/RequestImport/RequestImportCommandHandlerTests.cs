@@ -331,4 +331,41 @@ public sealed class RequestImportCommandHandlerTests
 
         return fixture.ImportJobRepository.AddedImportJob!;
     }
+
+    [Fact]
+    public async Task Handle_WithoutRequestedModel_ShouldUseConfiguredDefault()
+    {
+        RequestImportHandlerFixture fixture = new();
+        fixture.GivenSourceExists();
+        fixture.EmbeddingModelDefaults.DefaultModel = "configured-model@v1";
+        RequestImportCommand command = new RequestImportCommandBuilder()
+            .WithEmbeddingModel(null)
+            .Build();
+
+        DomainResult<RequestImportResponse> result = await fixture.CreateHandler()
+            .Handle(command, TestContext.Current.CancellationToken);
+
+        result.ShouldSucceed();
+        fixture.ImportJobRepository.AddedImportJob.Should().NotBeNull();
+        fixture.ImportJobRepository.AddedImportJob!.OptionsJson
+            .Should()
+            .Contain("configured-model@v1");
+    }
+
+    [Fact]
+    public async Task Handle_WithoutAnyEmbeddingModel_ShouldRejectBeforeEnqueue()
+    {
+        RequestImportHandlerFixture fixture = new();
+        fixture.GivenSourceExists();
+        RequestImportCommand command = new RequestImportCommandBuilder()
+            .WithEmbeddingModel(null)
+            .Build();
+
+        DomainResult<RequestImportResponse> result = await fixture.CreateHandler()
+            .Handle(command, TestContext.Current.CancellationToken);
+
+        result.ShouldFailWith(ImportJobApplicationErrors.EmbeddingModelRequired);
+        fixture.ImportJobRepository.AddCallCount.Should().Be(0);
+        fixture.UnitOfWork.SaveChangesCallCount.Should().Be(0);
+    }
 }

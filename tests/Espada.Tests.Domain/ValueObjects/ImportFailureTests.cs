@@ -4,6 +4,14 @@ namespace Espada.Tests.Domain.ValueObjects;
 
 public sealed class ImportFailureTests
 {
+    public static TheoryData<string?> EmptyValues =>
+        new()
+        {
+            null!,
+            string.Empty,
+            " "
+        };
+
     [Fact]
     public void Create_WithValidValues_ShouldCreateFailure()
     {
@@ -28,9 +36,7 @@ public sealed class ImportFailureTests
     }
 
     [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    [InlineData(" ")]
+    [MemberData(nameof(EmptyValues))]
     public void Create_WithEmptyCode_ShouldReturnExpectedError(string? code)
     {
         // Act
@@ -41,9 +47,7 @@ public sealed class ImportFailureTests
     }
 
     [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    [InlineData(" ")]
+    [MemberData(nameof(EmptyValues))]
     public void Create_WithEmptyReason_ShouldReturnExpectedError(string? reason)
     {
         // Act

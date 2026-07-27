@@ -1,41 +1,37 @@
+using Espada.Db.Database;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-using System.Data.Common;
 
 namespace Espada.Tests.Common.Database;
 
 public static class PostgreSqlDatabaseCleaner
 {
-    public static async Task ResetAsync(DbContext dbContext, CancellationToken cancellationToken = default)
+    public static async Task ResetAsync(
+        SetupDbContext dbContext,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dbContext);
 
-        ISqlGenerationHelper sql = dbContext.GetService<ISqlGenerationHelper>();
-        string[] tables = dbContext.Model.GetEntityTypes()
-            .Select(entityType => (Schema: entityType.GetSchema(), Table: entityType.GetTableName()))
-            .Where(mapping => mapping.Table is not null)
-            .Distinct()
-            .Select(mapping => sql.DelimitIdentifier(mapping.Table!, mapping.Schema))
-            .Order(StringComparer.Ordinal)
-            .ToArray();
+        await using IDbContextTransaction transaction =
+            await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-        if (tables.Length == 0)
-        {
-            return;
-        }
+        await dbContext.UsageReconciliationOutbox.ExecuteDeleteAsync(cancellationToken);
+        await dbContext.UsageLedgerEntries.ExecuteDeleteAsync(cancellationToken);
+        await dbContext.PaymentEvents.ExecuteDeleteAsync(cancellationToken);
+        await dbContext.IngestionJobs.ExecuteDeleteAsync(cancellationToken);
+        await dbContext.OutboxMessages.ExecuteDeleteAsync(cancellationToken);
+        await dbContext.EmbeddingVectors.ExecuteDeleteAsync(cancellationToken);
+        await dbContext.ChunkEmbeddings.ExecuteDeleteAsync(cancellationToken);
+        await dbContext.Chunks.ExecuteDeleteAsync(cancellationToken);
+        await dbContext.ChunkBatches.ExecuteDeleteAsync(cancellationToken);
+        await dbContext.ImportJobs.ExecuteDeleteAsync(cancellationToken);
+        await dbContext.ArtifactRevisions.ExecuteDeleteAsync(cancellationToken);
+        await dbContext.Artifacts.ExecuteDeleteAsync(cancellationToken);
+        await dbContext.Sources.ExecuteDeleteAsync(cancellationToken);
+        await dbContext.BillingCustomers.ExecuteDeleteAsync(cancellationToken);
+        await dbContext.WorkspaceMemberships.ExecuteDeleteAsync(cancellationToken);
+        await dbContext.Workspaces.ExecuteDeleteAsync(cancellationToken);
 
-        await dbContext.Database.OpenConnectionAsync(cancellationToken);
-
-        try
-        {
-            await using DbCommand command = dbContext.Database.GetDbConnection().CreateCommand();
-            command.CommandText = $"TRUNCATE TABLE {string.Join(", ", tables)} RESTART IDENTITY CASCADE;";
-            await command.ExecuteNonQueryAsync(cancellationToken);
-        }
-        finally
-        {
-            await dbContext.Database.CloseConnectionAsync();
-        }
+        await transaction.CommitAsync(cancellationToken);
     }
 }

@@ -9,9 +9,6 @@ internal sealed class ArtifactConfiguration : IEntityTypeConfiguration<Models.Ar
 {
     public void Configure(EntityTypeBuilder<Models.Artifacts> builder)
     {
-        builder.ToTable(table => table.HasCheckConstraint(
-            DbConstraintConstants.ArtifactPriorityRange,
-            CheckConstraintSql.ContextPriority(nameof(Models.Artifacts.Priority))));
         builder.Property(model => model.ArtifactId).ValueGeneratedNever();
         builder.Property(model => model.Priority).HasDefaultValue(ContextPriority.Neutral.Value);
         builder.Property(model => model.Version).IsRowVersion();

@@ -1,6 +1,6 @@
+using Espada.Application.Extensions;
 using Espada.Db.Database;
 using Espada.Infrastructure;
-using Espada.Application.Extensions;
 using Espada.Infrastructure.Database;
 using Espada.Tests.Common.Database;
 using Microsoft.EntityFrameworkCore;
@@ -65,7 +65,7 @@ public sealed class PostgreSqlDatabaseFixture : IAsyncLifetime
 
     public async Task ResetDatabaseAsync()
     {
-        await using EspadaDbContext dbContext = CreateDbContext();
+        await using SetupDbContext dbContext = CreateSetupDbContext();
         await PostgreSqlDatabaseCleaner.ResetAsync(dbContext);
     }
 

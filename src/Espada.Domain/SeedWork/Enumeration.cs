@@ -22,9 +22,18 @@ public abstract class Enumeration(int id, string name) : IComparable
 
     public static IEnumerable<T> GetAll<T>() where T : Enumeration
     {
-        return typeof(T).GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
-            .Select(f => f.GetValue(null)).Cast<T>();
+        return typeof(T)
+            .GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
+            .Select(field => field.GetValue(null))
+            .Cast<T>();
     }
+
+    public static T FromId<T>(int id) where T : Enumeration =>
+        GetAll<T>().SingleOrDefault(value => value.Id == id)
+        ?? throw new ArgumentOutOfRangeException(
+            nameof(id),
+            id,
+            $"Unknown {typeof(T).Name} identifier.");
 
     public override bool Equals(object? obj)
     {

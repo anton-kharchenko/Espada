@@ -28,5 +28,12 @@ internal sealed class RequestImportCommandBuilder
         return this;
     }
 
+
+    public RequestImportCommandBuilder WithEmbeddingModel(string? embeddingModel)
+    {
+        _options = _options with { EmbeddingModel = embeddingModel };
+        return this;
+    }
+    
     public RequestImportCommand Build() => new(_workspaceId, _sourceId, _idempotencyKey, _options);
 }

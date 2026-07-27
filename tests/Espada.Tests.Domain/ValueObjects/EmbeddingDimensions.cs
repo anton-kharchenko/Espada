@@ -4,12 +4,13 @@ namespace Espada.Tests.Domain.ValueObjects;
 
 public sealed class EmbeddingDimensionsTests
 {
+    public static TheoryData<int> PositiveValues =>
+        new() { 1, 384, 768, 1536, 3072 };
+
+    public static TheoryData<int> NonPositiveValues => new() { 0, -1, -1536 };
+
     [Theory]
-    [InlineData(1)]
-    [InlineData(384)]
-    [InlineData(768)]
-    [InlineData(1536)]
-    [InlineData(3072)]
+    [MemberData(nameof(PositiveValues))]
     public void Create_WithPositiveValue_ShouldCreateDimensions(int value)
     {
         // Act
@@ -20,9 +21,7 @@ public sealed class EmbeddingDimensionsTests
     }
 
     [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
-    [InlineData(-1536)]
+    [MemberData(nameof(NonPositiveValues))]
     public void Create_WithNonPositiveValue_ShouldReturnExpectedError(int value)
     {
         // Act

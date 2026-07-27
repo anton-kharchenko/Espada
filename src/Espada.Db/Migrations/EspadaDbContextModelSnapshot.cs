@@ -190,10 +190,7 @@ namespace Espada.Db.Migrations
                     b.HasIndex("WorkspaceId", "Title")
                         .HasDatabaseName("IX_Artifacts_WorkspaceId_Title");
 
-                    b.ToTable("Artifacts", "Espada", t =>
-                        {
-                            t.HasCheckConstraint("CK_Artifacts_Priority_Range", "\"Priority\" BETWEEN -100 AND 100");
-                        });
+                    b.ToTable("Artifacts", "Espada");
                 });
 
             modelBuilder.Entity("Espada.Db.Models.BillingCustomers", b =>
@@ -947,10 +944,7 @@ namespace Espada.Db.Migrations
                         .IsUnique()
                         .HasDatabaseName("UX_Sources_WorkspaceId_Locator");
 
-                    b.ToTable("Sources", "Espada", t =>
-                        {
-                            t.HasCheckConstraint("CK_Sources_Priority_Range", "\"Priority\" BETWEEN -100 AND 100");
-                        });
+                    b.ToTable("Sources", "Espada");
                 });
 
             modelBuilder.Entity("Espada.Db.Models.UsageLedgerEntries", b =>
