@@ -4,11 +4,14 @@ using Espada.Domain.Events;
 using Espada.Domain.Rules;
 using Espada.Domain.SeedWork;
 using Espada.Domain.ValueObjects;
+using Espada.Domain.ValueObjects.SourceDefinitions;
 
 namespace Espada.Domain.Aggregates;
 
 public sealed class Source : AggregateRoot<SourceId>, IHasConcurrencyVersion
 {
+    private SourceDefinition? _definition;
+
     public uint Version { get; private set; }
 
     private Source()
@@ -21,6 +24,7 @@ public sealed class Source : AggregateRoot<SourceId>, IHasConcurrencyVersion
         SourceName name,
         SourceType type,
         SourceLocator locator,
+        SourceDefinition definition,
         DateTimeOffset createdAtUtc)
         : base(id)
     {
@@ -28,6 +32,7 @@ public sealed class Source : AggregateRoot<SourceId>, IHasConcurrencyVersion
         Name = name;
         Type = type;
         Locator = locator;
+        _definition = definition;
         Status = SourceStatusType.Active;
         Priority = ContextPriority.Neutral;
         CreatedAtUtc = createdAtUtc;
@@ -42,6 +47,8 @@ public sealed class Source : AggregateRoot<SourceId>, IHasConcurrencyVersion
 
     public SourceLocator Locator { get; private set; } = null!;
 
+    public SourceDefinition Definition => _definition ?? new LegacySourceDefinition(Type.Id, Locator.Value);
+
     public SourceStatusType Status { get; private set; } = null!;
 
     public ContextPriority Priority { get; private set; } = ContextPriority.Neutral;
@@ -52,13 +59,7 @@ public sealed class Source : AggregateRoot<SourceId>, IHasConcurrencyVersion
 
     public DateTimeOffset? ArchivedAtUtc { get; private set; }
 
-    public static DomainResult<Source> Create(
-        SourceId id,
-        WorkspaceId workspaceId,
-        SourceName name,
-        SourceType type,
-        SourceLocator locator,
-        DateTimeOffset createdAtUtc)
+    public static DomainResult<Source> Create(SourceId id, WorkspaceId workspaceId, SourceName name, SourceType type, SourceLocator locator, DateTimeOffset createdAtUtc)
     {
         ArgumentNullException.ThrowIfNull(id);
         ArgumentNullException.ThrowIfNull(workspaceId);
@@ -66,9 +67,25 @@ public sealed class Source : AggregateRoot<SourceId>, IHasConcurrencyVersion
         ArgumentNullException.ThrowIfNull(type);
         ArgumentNullException.ThrowIfNull(locator);
 
-        Source source = new(id, workspaceId, name, type, locator, createdAtUtc);
+        SourceDefinition definition = new LegacySourceDefinition(type.Id, locator.Value);
+        Source source = new(id, workspaceId, name, type, locator, definition, createdAtUtc);
+        source.RaiseDomainEvent(new SourceCreatedDomainEvent(source.Id, source.WorkspaceId, source.Name.Value, source.Type, source.Locator.Value, source.Definition, createdAtUtc));
 
-        source.RaiseDomainEvent(new SourceCreatedDomainEvent(source.Id, source.WorkspaceId, source.Name.Value, source.Type, source.Locator.Value, createdAtUtc));
+        return DomainResult<Source>.Success(source);
+    }
+
+    public static DomainResult<Source> Create(SourceId id, WorkspaceId workspaceId, SourceName name, SourceDefinition definition, DateTimeOffset createdAtUtc)
+    {
+        ArgumentNullException.ThrowIfNull(definition);
+
+        DomainResult<SourceLocator> locator = SourceLocator.Create(definition.CanonicalLocator);
+        if (locator.IsFailure)
+        {
+            return DomainResult.Failure<Source>(locator.Error);
+        }
+
+        Source source = new(id, workspaceId, name, definition.SourceType, locator.Value, definition, createdAtUtc);
+        source.RaiseDomainEvent(new SourceCreatedDomainEvent(source.Id, source.WorkspaceId, source.Name.Value, source.Type, source.Locator.Value, source.Definition, createdAtUtc));
 
         return DomainResult<Source>.Success(source);
     }

@@ -2,5 +2,5 @@ namespace Espada.Domain.SeedWork;
 
 public interface IDomainEventDispatcher
 {
-    void Publish(IDomainEvent domainEvent);
+    Task PublishAsync(IDomainEvent domainEvent, CancellationToken cancellationToken = default);
 }
