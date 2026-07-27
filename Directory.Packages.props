@@ -43,10 +43,10 @@
     <PackageVersion Include="Azure.ResourceManager.AppContainers" Version="1.5.0" />
     <PackageVersion Include="Azure.Storage.Blobs" Version="12.29.1" />
     <!-- Infrastructure as code -->
-    <PackageVersion Include="Pulumi" Version="3.107.3" />
+    <PackageVersion Include="Pulumi" Version="3.108.0" />
     <PackageVersion Include="Pulumi.Azure" Version="6.39.0" />
     <PackageVersion Include="Pulumi.AzureNative" Version="3.23.0" />
-    <PackageVersion Include="Pulumi.Automation" Version="3.107.3" />
+    <PackageVersion Include="Pulumi.Automation" Version="3.108.0" />
     <PackageVersion Include="Pulumi.Random" Version="4.20.0" />
     <!-- Configuration and hosting -->
     <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.10" />
