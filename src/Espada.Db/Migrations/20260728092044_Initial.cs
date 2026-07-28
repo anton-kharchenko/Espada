@@ -86,6 +86,72 @@ namespace Espada.Db.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "OneTimeBootstrapCodes",
+                schema: "Espada",
+                columns: table => new
+                {
+                    OneTimeBootstrapCodeId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CodeHash = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    Purpose = table.Column<string>(type: "varchar(32)", maxLength: 32, nullable: false),
+                    IdentityIssuer = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    IdentitySubject = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    CreatedAtUtc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    ExpiresAtUtc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    ConsumedAtUtc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OneTimeBootstrapCodes", x => x.OneTimeBootstrapCodeId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OpenIddictApplications",
+                schema: "Espada",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ApplicationType = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    ClientId = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    ClientSecret = table.Column<string>(type: "text", nullable: true),
+                    ClientType = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    ConcurrencyToken = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    ConsentType = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    DisplayName = table.Column<string>(type: "text", nullable: true),
+                    DisplayNames = table.Column<string>(type: "text", nullable: true),
+                    JsonWebKeySet = table.Column<string>(type: "text", nullable: true),
+                    Permissions = table.Column<string>(type: "text", nullable: true),
+                    PostLogoutRedirectUris = table.Column<string>(type: "text", nullable: true),
+                    Properties = table.Column<string>(type: "text", nullable: true),
+                    RedirectUris = table.Column<string>(type: "text", nullable: true),
+                    Requirements = table.Column<string>(type: "text", nullable: true),
+                    Settings = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OpenIddictApplications", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OpenIddictScopes",
+                schema: "Espada",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ConcurrencyToken = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    Description = table.Column<string>(type: "text", nullable: true),
+                    Descriptions = table.Column<string>(type: "text", nullable: true),
+                    DisplayName = table.Column<string>(type: "text", nullable: true),
+                    DisplayNames = table.Column<string>(type: "text", nullable: true),
+                    Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    Properties = table.Column<string>(type: "text", nullable: true),
+                    Resources = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OpenIddictScopes", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Organizations",
                 schema: "Espada",
                 columns: table => new
@@ -199,6 +265,32 @@ namespace Espada.Db.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "OpenIddictAuthorizations",
+                schema: "Espada",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ApplicationId = table.Column<Guid>(type: "uuid", nullable: true),
+                    ConcurrencyToken = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    CreationDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    Properties = table.Column<string>(type: "text", nullable: true),
+                    Scopes = table.Column<string>(type: "text", nullable: true),
+                    Status = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    Subject = table.Column<string>(type: "character varying(400)", maxLength: 400, nullable: true),
+                    Type = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OpenIddictAuthorizations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_OpenIddictAuthorizations_OpenIddictApplications_Application~",
+                        column: x => x.ApplicationId,
+                        principalSchema: "Espada",
+                        principalTable: "OpenIddictApplications",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "OrganizationMemberships",
                 schema: "Espada",
                 columns: table => new
@@ -228,6 +320,7 @@ namespace Espada.Db.Migrations
                 columns: table => new
                 {
                     WorkspaceId = table.Column<Guid>(type: "uuid", nullable: false),
+                    OrganizationId = table.Column<Guid>(type: "uuid", nullable: true),
                     Name = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false),
                     TypeId = table.Column<int>(type: "integer", nullable: false),
                     StatusId = table.Column<int>(type: "integer", nullable: false),
@@ -238,6 +331,13 @@ namespace Espada.Db.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Workspaces", x => x.WorkspaceId);
+                    table.ForeignKey(
+                        name: "FK_Workspaces_Organizations_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalSchema: "Espada",
+                        principalTable: "Organizations",
+                        principalColumn: "OrganizationId",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Workspaces_WorkspaceStatusTypes_StatusId",
                         column: x => x.StatusId,
@@ -252,6 +352,42 @@ namespace Espada.Db.Migrations
                         principalTable: "WorkspaceTypes",
                         principalColumn: "WorkspaceTypeId",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OpenIddictTokens",
+                schema: "Espada",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ApplicationId = table.Column<Guid>(type: "uuid", nullable: true),
+                    AuthorizationId = table.Column<Guid>(type: "uuid", nullable: true),
+                    ConcurrencyToken = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    CreationDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    ExpirationDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    Payload = table.Column<string>(type: "text", nullable: true),
+                    Properties = table.Column<string>(type: "text", nullable: true),
+                    RedemptionDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    ReferenceId = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    Status = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    Subject = table.Column<string>(type: "character varying(400)", maxLength: 400, nullable: true),
+                    Type = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OpenIddictTokens", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_OpenIddictTokens_OpenIddictApplications_ApplicationId",
+                        column: x => x.ApplicationId,
+                        principalSchema: "Espada",
+                        principalTable: "OpenIddictApplications",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_OpenIddictTokens_OpenIddictAuthorizations_AuthorizationId",
+                        column: x => x.AuthorizationId,
+                        principalSchema: "Espada",
+                        principalTable: "OpenIddictAuthorizations",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -1289,6 +1425,52 @@ namespace Espada.Db.Migrations
                 filter: "\"SupersededMemoryId\" IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "UX_OneTimeBootstrapCodes_CodeHash",
+                schema: "Espada",
+                table: "OneTimeBootstrapCodes",
+                column: "CodeHash",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OpenIddictApplications_ClientId",
+                schema: "Espada",
+                table: "OpenIddictApplications",
+                column: "ClientId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OpenIddictAuthorizations_ApplicationId_Status_Subject_Type",
+                schema: "Espada",
+                table: "OpenIddictAuthorizations",
+                columns: new[] { "ApplicationId", "Status", "Subject", "Type" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OpenIddictScopes_Name",
+                schema: "Espada",
+                table: "OpenIddictScopes",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OpenIddictTokens_ApplicationId_Status_Subject_Type",
+                schema: "Espada",
+                table: "OpenIddictTokens",
+                columns: new[] { "ApplicationId", "Status", "Subject", "Type" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OpenIddictTokens_AuthorizationId",
+                schema: "Espada",
+                table: "OpenIddictTokens",
+                column: "AuthorizationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OpenIddictTokens_ReferenceId",
+                schema: "Espada",
+                table: "OpenIddictTokens",
+                column: "ReferenceId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "UX_OrganizationMemberships_OrganizationId_Issuer_Subject",
                 schema: "Espada",
                 table: "OrganizationMemberships",
@@ -1411,6 +1593,12 @@ namespace Espada.Db.Migrations
                 column: "Name");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Workspaces_OrganizationId",
+                schema: "Espada",
+                table: "Workspaces",
+                column: "OrganizationId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Workspaces_StatusId",
                 schema: "Espada",
                 table: "Workspaces",
@@ -1465,6 +1653,18 @@ namespace Espada.Db.Migrations
                 schema: "Espada");
 
             migrationBuilder.DropTable(
+                name: "OneTimeBootstrapCodes",
+                schema: "Espada");
+
+            migrationBuilder.DropTable(
+                name: "OpenIddictScopes",
+                schema: "Espada");
+
+            migrationBuilder.DropTable(
+                name: "OpenIddictTokens",
+                schema: "Espada");
+
+            migrationBuilder.DropTable(
                 name: "OrganizationMemberships",
                 schema: "Espada");
 
@@ -1501,7 +1701,7 @@ namespace Espada.Db.Migrations
                 schema: "Espada");
 
             migrationBuilder.DropTable(
-                name: "Organizations",
+                name: "OpenIddictAuthorizations",
                 schema: "Espada");
 
             migrationBuilder.DropTable(
@@ -1522,6 +1722,10 @@ namespace Espada.Db.Migrations
 
             migrationBuilder.DropTable(
                 name: "Sources",
+                schema: "Espada");
+
+            migrationBuilder.DropTable(
+                name: "OpenIddictApplications",
                 schema: "Espada");
 
             migrationBuilder.DropTable(
@@ -1562,6 +1766,10 @@ namespace Espada.Db.Migrations
 
             migrationBuilder.DropTable(
                 name: "Workspaces",
+                schema: "Espada");
+
+            migrationBuilder.DropTable(
+                name: "Organizations",
                 schema: "Espada");
 
             migrationBuilder.DropTable(

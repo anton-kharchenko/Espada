@@ -13,7 +13,12 @@ public sealed class WorkspaceTests
         DateTimeOffset createdAtUtc = new(2026, 7, 24, 10, 30, 0, TimeSpan.Zero);
 
         // Act
-        DomainResult<Workspace> result = Workspace.Create(id, name ?? throw new InvalidOperationException("Name cannot be null."), WorkspaceType.Team, createdAtUtc);
+        DomainResult<Workspace> result = Workspace.Create(
+            id,
+            name ?? throw new InvalidOperationException("Name cannot be null."),
+            WorkspaceType.Team,
+            null,
+            createdAtUtc);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
@@ -23,6 +28,7 @@ public sealed class WorkspaceTests
         workspace?.Id.Should().Be(id);
         workspace?.Name.Should().Be(name);
         workspace?.Type.Should().Be(WorkspaceType.Team);
+        workspace?.OrganizationId.Should().BeNull();
         workspace?.Status.Should().Be(WorkspaceStatusType.Active);
         workspace?.CreatedAtUtc.Should().Be(createdAtUtc);
         workspace?.ArchivedAtUtc.Should().BeNull();

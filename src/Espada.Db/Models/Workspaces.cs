@@ -10,6 +10,9 @@ public class Workspaces
     [Key, Column(TypeName = DbIdentifierColumnTypeConstants.Uuid)]
     public Guid WorkspaceId { get; set; }
 
+    [Column(TypeName = DbIdentifierColumnTypeConstants.Uuid)]
+    public Guid? OrganizationId { get; set; }
+
     [Required, MaxLength(DbMaxLengthConstants.L200), Column(TypeName = DbTextColumnTypeConstants.Varchar200)]
     public string Name { get; set; } = null!;
 
