@@ -19,7 +19,9 @@ namespace Espada.Tests.Api.Controllers
 
             CreateArtifactRequest request = new()
             {
-                Title = TestValues.ArtifactTitle, TypeId = int.MaxValue, Content = TestValues.ArtifactContent
+                Title = TestValues.ArtifactTitle,
+                TypeId = int.MaxValue,
+                Content = TestValues.ArtifactContent
             };
 
             HttpResponseMessage response = await client.PostAsJsonAsync(ArtifactApiRoutes.Create(TestIds.WorkspaceId),
@@ -37,7 +39,9 @@ namespace Espada.Tests.Api.Controllers
 
             CreateArtifactRequest request = new()
             {
-                Title = " ", TypeId = artifactType.Id, Content = TestValues.ArtifactContent
+                Title = " ",
+                TypeId = artifactType.Id,
+                Content = TestValues.ArtifactContent
             };
 
             HttpResponseMessage response = await client.PostAsJsonAsync(ArtifactApiRoutes.Create(TestIds.WorkspaceId),
@@ -55,7 +59,9 @@ namespace Espada.Tests.Api.Controllers
 
             CreateArtifactRequest request = new()
             {
-                Title = TestValues.ArtifactTitle, TypeId = artifactType.Id, Content = " "
+                Title = TestValues.ArtifactTitle,
+                TypeId = artifactType.Id,
+                Content = " "
             };
 
             HttpResponseMessage response = await client.PostAsJsonAsync(ArtifactApiRoutes.Create(TestIds.WorkspaceId),

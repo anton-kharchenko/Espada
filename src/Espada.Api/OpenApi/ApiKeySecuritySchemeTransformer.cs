@@ -1,6 +1,6 @@
+using Espada.Comms.Core.Constants;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
-using Espada.Comms.Core.Constants;
 
 namespace Espada.Api.OpenApi
 {

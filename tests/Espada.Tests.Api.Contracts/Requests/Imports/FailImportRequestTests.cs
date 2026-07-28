@@ -12,7 +12,8 @@ namespace Espada.Tests.Api.Contracts.Requests.Imports
         {
             FailImportRequest request = new()
             {
-                FailureCode = TestValues.ImportFailureCode, FailureReason = TestValues.ImportFailureReason
+                FailureCode = TestValues.ImportFailureCode,
+                FailureReason = TestValues.ImportFailureReason
             };
 
             IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
@@ -26,7 +27,8 @@ namespace Espada.Tests.Api.Contracts.Requests.Imports
         {
             FailImportRequest request = new()
             {
-                FailureCode = failureCode!, FailureReason = TestValues.ImportFailureReason
+                FailureCode = failureCode!,
+                FailureReason = TestValues.ImportFailureReason
             };
 
             IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
@@ -40,7 +42,8 @@ namespace Espada.Tests.Api.Contracts.Requests.Imports
         {
             FailImportRequest request = new()
             {
-                FailureCode = TestValues.ImportFailureCode, FailureReason = failureReason!
+                FailureCode = TestValues.ImportFailureCode,
+                FailureReason = failureReason!
             };
 
             IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);

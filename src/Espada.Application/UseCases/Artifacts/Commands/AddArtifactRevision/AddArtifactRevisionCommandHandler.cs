@@ -4,11 +4,11 @@ using Espada.Application.Contracts.Messaging;
 using Espada.Application.Contracts.Persistence;
 using Espada.Application.Contracts.Time;
 using Espada.Application.Models;
+using Espada.Application.Rules;
 using Espada.Domain.Aggregates;
 using Espada.Domain.Enums;
 using Espada.Domain.Rules;
 using Espada.Domain.ValueObjects;
-using Espada.Application.Rules;
 
 namespace Espada.Application.UseCases.Artifacts.Commands.AddArtifactRevision
 {

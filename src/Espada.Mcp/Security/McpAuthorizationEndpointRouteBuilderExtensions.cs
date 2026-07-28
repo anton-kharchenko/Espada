@@ -1,5 +1,12 @@
+using Espada.Application.Constants;
 using Espada.Application.Contracts.Time;
+using Espada.Infrastructure.Constants;
 using Espada.Infrastructure.Security;
+using Espada.Mcp.Constants;
+using Espada.Mcp.Models;
+using Espada.Mcp.Requests;
+using Espada.Mcp.Responses;
+using Espada.Mcp.Services;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
@@ -13,13 +20,6 @@ using System.Globalization;
 using System.Net;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using Espada.Application.Constants;
-using Espada.Mcp.Constants;
-using Espada.Mcp.Services;
-using Espada.Mcp.Requests;
-using Espada.Mcp.Responses;
-using Espada.Mcp.Models;
-using Espada.Infrastructure.Constants;
 
 namespace Espada.Mcp.Security
 {
@@ -170,7 +170,9 @@ namespace Espada.Mcp.Security
                 principal,
                 new AuthenticationProperties
                 {
-                    IsPersistent = false, AllowRefresh = false, ExpiresUtc = clockService.UtcNow.AddHours(8)
+                    IsPersistent = false,
+                    AllowRefresh = false,
+                    ExpiresUtc = clockService.UtcNow.AddHours(8)
                 });
 
             string validatedReturnUrl = ValidateLocalReturnUrl(returnUrl);

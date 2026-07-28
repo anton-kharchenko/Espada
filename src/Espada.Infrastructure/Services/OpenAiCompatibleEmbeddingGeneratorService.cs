@@ -2,11 +2,11 @@ using Espada.Application.Contracts.Embedding;
 using Espada.Application.Models;
 using Espada.Infrastructure.Models;
 using Espada.Infrastructure.Options;
+using Espada.Infrastructure.Requests;
+using Espada.Infrastructure.Responses;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using Espada.Infrastructure.Requests;
-using Espada.Infrastructure.Responses;
 
 namespace Espada.Infrastructure.Services
 {

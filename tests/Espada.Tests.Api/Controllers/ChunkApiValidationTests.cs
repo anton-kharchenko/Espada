@@ -19,7 +19,8 @@ namespace Espada.Tests.Api.Controllers
 
             CreateChunkBatchRequest request = new()
             {
-                StrategyId = int.MaxValue, StrategyVersion = TestValues.ChunkingStrategyVersion
+                StrategyId = int.MaxValue,
+                StrategyVersion = TestValues.ChunkingStrategyVersion
             };
 
             HttpResponseMessage response = await client.PostAsJsonAsync(

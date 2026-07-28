@@ -1,6 +1,6 @@
+using Aspire.Hosting.Espada.Constants;
 using Microsoft.Extensions.Configuration;
 using Projects;
-using Aspire.Hosting.Espada.Constants;
 
 namespace Aspire.Hosting.Espada
 {

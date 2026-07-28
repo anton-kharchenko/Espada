@@ -1,3 +1,4 @@
+using Espada.DeploymentKit.Constants;
 using Pulumi;
 using Pulumi.Azure.AppService;
 using Pulumi.AzureNative.Dns;
@@ -6,7 +7,6 @@ using Pulumi.AzureNative.Resources;
 using Pulumi.AzureNative.Web.Inputs;
 using StaticSite = Pulumi.AzureNative.Web.StaticSite;
 using StaticSiteArgs = Pulumi.AzureNative.Web.StaticSiteArgs;
-using Espada.DeploymentKit.Constants;
 
 namespace Espada.DeploymentKit.Azure
 {
@@ -118,7 +118,9 @@ namespace Espada.DeploymentKit.Azure
             StaticWebAppCustomDomain apexDomain = new("website-apex-domain",
                 new StaticWebAppCustomDomainArgs
                 {
-                    DomainName = domainName, StaticWebAppId = staticSite.Id, ValidationType = "dns-txt-token"
+                    DomainName = domainName,
+                    StaticWebAppId = staticSite.Id,
+                    ValidationType = "dns-txt-token"
                 });
 
             StaticWebAppCustomDomain wwwDomain = new("website-www-domain",

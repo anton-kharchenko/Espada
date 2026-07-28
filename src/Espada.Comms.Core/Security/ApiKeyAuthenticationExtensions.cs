@@ -1,6 +1,6 @@
+using Espada.Comms.Core.Constants;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Espada.Comms.Core.Constants;
 
 namespace Espada.Comms.Core.Security
 {

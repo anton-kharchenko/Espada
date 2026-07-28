@@ -1,3 +1,4 @@
+using Espada.Application.Constants;
 using ModelContextProtocol.Client;
 using ModelContextProtocol.Protocol;
 using OpenIddict.Abstractions;
@@ -6,7 +7,6 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
-using Espada.Application.Constants;
 
 namespace Espada.Tests.Mcp.Http
 {

@@ -1,3 +1,4 @@
+using Espada.Application.Constants;
 using Espada.Application.Contracts.Billing;
 using Espada.Application.Contracts.Billing.Constants;
 using Espada.Application.Contracts.Embedding;
@@ -15,7 +16,6 @@ using Espada.Domain.SeedWork;
 using Espada.Domain.ValueObjects;
 using System.Security.Cryptography;
 using System.Text;
-using Espada.Application.Constants;
 
 namespace Espada.Application.Services
 {

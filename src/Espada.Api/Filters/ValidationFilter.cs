@@ -11,7 +11,8 @@ namespace Espada.Api.Filters
             {
                 ValidationProblemDetails problemDetails = new(context.ModelState)
                 {
-                    Status = StatusCodes.Status400BadRequest, Title = "One or more validation errors occurred."
+                    Status = StatusCodes.Status400BadRequest,
+                    Title = "One or more validation errors occurred."
                 };
 
                 context.Result = new BadRequestObjectResult(problemDetails);

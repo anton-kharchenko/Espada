@@ -7,7 +7,7 @@ namespace Espada.Api.Contracts.Requests.Sources
 {
     public sealed class RegisterSourceRequest : IValidatableObject
     {
-        [Required] [MaxLength(200)] public string Name { get; init; } = string.Empty;
+        [Required][MaxLength(200)] public string Name { get; init; } = string.Empty;
 
         [Required]
         [JsonConverter(typeof(SourceDefinitionJsonConverter))]

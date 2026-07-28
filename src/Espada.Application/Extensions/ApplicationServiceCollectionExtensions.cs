@@ -1,8 +1,9 @@
 using Espada.Application.Behaviors;
 using Espada.Application.Contracts.Billing;
 using Espada.Application.Contracts.Ingestion;
-using Espada.Application.Services;
 using Espada.Application.Policies;
+using Espada.Application.Policies.Billing;
+using Espada.Application.Services;
 using Espada.Application.Services.Billing;
 using Espada.Application.UseCases.Imports.EventHandlers;
 using Espada.Domain.Events;
@@ -10,7 +11,6 @@ using Espada.Domain.SeedWork;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
-using Espada.Application.Policies.Billing;
 
 namespace Espada.Application.Extensions
 {

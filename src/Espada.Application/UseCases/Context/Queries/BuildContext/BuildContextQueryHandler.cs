@@ -1,5 +1,6 @@
 using AutoMapper;
 using Espada.Application.ApplicationErrors;
+using Espada.Application.Constants;
 using Espada.Application.Contracts.Messaging;
 using Espada.Application.Contracts.Persistence;
 using Espada.Application.Models;
@@ -7,7 +8,6 @@ using Espada.Application.Services;
 using Espada.Domain.Aggregates;
 using Espada.Domain.Rules;
 using Espada.Domain.ValueObjects;
-using Espada.Application.Constants;
 
 namespace Espada.Application.UseCases.Context.Queries.BuildContext
 {

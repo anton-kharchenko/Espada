@@ -1,10 +1,10 @@
+using Espada.Application.Constants;
 using Espada.Application.Enums;
 using Espada.Application.Exceptions;
 using Espada.Infrastructure.Ingestion;
 using Espada.Infrastructure.Options;
 using Microsoft.Extensions.Options;
 using System.Text;
-using Espada.Application.Constants;
 
 namespace Espada.Tests.Infrastructure.Ingestion
 {

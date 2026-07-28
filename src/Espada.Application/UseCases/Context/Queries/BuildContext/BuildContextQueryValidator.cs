@@ -1,5 +1,5 @@
-using FluentValidation;
 using Espada.Application.Constants;
+using FluentValidation;
 
 namespace Espada.Application.UseCases.Context.Queries.BuildContext
 {

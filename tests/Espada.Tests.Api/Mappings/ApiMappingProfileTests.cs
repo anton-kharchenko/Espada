@@ -27,7 +27,9 @@ namespace Espada.Tests.Api.Mappings
             CreateWorkspaceMappingSource source = new(
                 new CreateWorkspaceRequest
                 {
-                    Name = "Mapped workspace", TypeId = WorkspaceType.Personal.Id, OrganizationId = organizationId
+                    Name = "Mapped workspace",
+                    TypeId = WorkspaceType.Personal.Id,
+                    OrganizationId = organizationId
                 },
                 "issuer",
                 "subject");

@@ -1,3 +1,4 @@
+using Espada.Application.Constants;
 using Espada.Application.UseCases.Memories.Commands.RememberMemory;
 using Espada.Application.UseCases.Memories.Queries.SearchMemory;
 using Espada.Protocol.Mcp.Contracts.Requests;
@@ -5,7 +6,6 @@ using Espada.Protocol.Mcp.Mappings;
 using Espada.Protocol.Mcp.Services;
 using ModelContextProtocol.Server;
 using System.ComponentModel;
-using Espada.Application.Constants;
 
 namespace Espada.Protocol.Mcp.Tools
 {

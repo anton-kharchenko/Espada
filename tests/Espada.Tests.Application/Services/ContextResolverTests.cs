@@ -1,4 +1,5 @@
 using Espada.Application.ApplicationErrors;
+using Espada.Application.Constants;
 using Espada.Application.Models;
 using Espada.Application.Services;
 using Espada.Domain.Aggregates;
@@ -6,7 +7,6 @@ using Espada.Domain.Enums;
 using Espada.Domain.Rules;
 using Espada.Domain.ValueObjects;
 using System.Text;
-using Espada.Application.Constants;
 
 namespace Espada.Tests.Application.Services
 {
@@ -291,9 +291,9 @@ namespace Espada.Tests.Application.Services
                     0.5m,
                     "codex",
                     null) with
-                {
-                    IsMemorySuperseded = true
-                };
+            {
+                IsMemorySuperseded = true
+            };
 
             ResolvedContext resolved = _resolver.Resolve(
                 CreateRequest(workspace),

@@ -71,7 +71,9 @@ namespace Espada.Infrastructure.Repositories
                       && embedding.Dimensions == dimensions
                 select new
                 {
-                    embedding.Id, embedding.ChunkId, Similarity = 1 - vector.Vector.CosineDistance(queryVector)
+                    embedding.Id,
+                    embedding.ChunkId,
+                    Similarity = 1 - vector.Vector.CosineDistance(queryVector)
                 };
 
             if (search.MinimumSimilarity.HasValue)

@@ -1,3 +1,4 @@
+using Espada.Application.Constants;
 using Espada.Application.UseCases.Context.Queries.BuildContext;
 using Espada.Domain.Enums;
 using Espada.Protocol.Mcp.Contracts.Responses;
@@ -5,7 +6,6 @@ using Espada.Protocol.Mcp.Services;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using System.ComponentModel;
-using Espada.Application.Constants;
 
 namespace Espada.Protocol.Mcp.Resources
 {

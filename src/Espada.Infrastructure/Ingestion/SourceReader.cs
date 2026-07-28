@@ -1,3 +1,4 @@
+using Espada.Application.Constants;
 using Espada.Application.Contracts.Blobs;
 using Espada.Application.Contracts.Ingestion;
 using Espada.Application.Enums;
@@ -9,7 +10,6 @@ using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using Espada.Application.Constants;
 
 namespace Espada.Infrastructure.Ingestion
 {

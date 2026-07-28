@@ -1,3 +1,4 @@
+using Espada.Application.Constants;
 using Espada.Application.UseCases.Artifacts.Queries.GetArtifactById;
 using Espada.Application.UseCases.Artifacts.Queries.GetArtifactRevisionById;
 using Espada.Application.UseCases.Artifacts.Queries.ListArtifactRevisions;
@@ -6,7 +7,6 @@ using Espada.Protocol.Mcp.Services;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using System.ComponentModel;
-using Espada.Application.Constants;
 
 namespace Espada.Protocol.Mcp.Resources
 {

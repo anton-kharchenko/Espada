@@ -20,7 +20,7 @@ namespace Espada.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
         public async Task<IActionResult> Upload([FromRoute] Guid workspaceId,
-            [FromHeader(Name = "X-File-Name")] [Required] string fileName, CancellationToken cancellationToken)
+            [FromHeader(Name = "X-File-Name")][Required] string fileName, CancellationToken cancellationToken)
         {
             if (workspaceId == Guid.Empty || string.IsNullOrWhiteSpace(fileName))
             {

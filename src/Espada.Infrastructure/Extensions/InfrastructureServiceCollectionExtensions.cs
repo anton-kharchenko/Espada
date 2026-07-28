@@ -1,6 +1,6 @@
+using Espada.Infrastructure.Constants;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Espada.Infrastructure.Constants;
 
 namespace Espada.Infrastructure.Extensions
 {

@@ -2,6 +2,7 @@ using Espada.Application.Contracts.Billing;
 using Espada.Billing.Constants;
 using Espada.Billing.Contracts;
 using Espada.Billing.Options;
+using Espada.Billing.Policies;
 using Espada.Billing.Services;
 using Espada.Billing.Webhooks;
 using Espada.Billing.Webhooks.Handlers;
@@ -11,7 +12,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Stripe;
 using System.Reflection;
-using Espada.Billing.Policies;
 
 namespace Espada.Billing.Extensions
 {
@@ -52,7 +52,8 @@ namespace Espada.Billing.Extensions
                     .CreateClient("Stripe");
                 return new StripeClient(new StripeClientOptions
                 {
-                    ApiKey = options.StripeSecretKey, HttpClient = new SystemNetHttpClient(httpClient)
+                    ApiKey = options.StripeSecretKey,
+                    HttpClient = new SystemNetHttpClient(httpClient)
                 });
             });
 

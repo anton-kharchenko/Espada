@@ -61,12 +61,13 @@ namespace Espada.Tests.Mcp.Stdio
                 foreach (string expectedAgent in agents)
                 {
                     JsonElement item = Assert.Single(
-                        items.EnumerateArray().Where(candidate =>
+                        items.EnumerateArray(),
+                        candidate =>
                             candidate
                                 .GetProperty("provenance")
                                 .GetProperty("clientIdentity")
                                 .GetString()
-                            == expectedAgent));
+                            == expectedAgent);
                     Assert.Equal(
                         MemoryContent(expectedAgent),
                         item.GetProperty("content").GetString());

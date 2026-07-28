@@ -19,7 +19,9 @@ namespace Espada.Infrastructure.Database.EntityFrameworkConfigurations
             builder.Property(paymentEvent => paymentEvent.SanitizedError).HasMaxLength(1000);
             builder.HasIndex(paymentEvent => new
             {
-                paymentEvent.Status, paymentEvent.AvailableAtUtc, paymentEvent.LeaseExpiresAtUtc
+                paymentEvent.Status,
+                paymentEvent.AvailableAtUtc,
+                paymentEvent.LeaseExpiresAtUtc
             });
         }
     }

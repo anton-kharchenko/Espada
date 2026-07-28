@@ -1,5 +1,5 @@
-using OpenIddict.Abstractions;
 using Espada.Mcp.Constants;
+using OpenIddict.Abstractions;
 
 namespace Espada.Mcp.Security
 {

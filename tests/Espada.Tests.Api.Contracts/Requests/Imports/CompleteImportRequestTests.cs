@@ -12,7 +12,8 @@ namespace Espada.Tests.Api.Contracts.Requests.Imports
         {
             CompleteImportRequest request = new()
             {
-                ArtifactId = TestIds.DefaultArtifactId, ArtifactRevisionId = TestIds.DefaultArtifactRevisionId
+                ArtifactId = TestIds.DefaultArtifactId,
+                ArtifactRevisionId = TestIds.DefaultArtifactRevisionId
             };
 
             IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
@@ -25,7 +26,8 @@ namespace Espada.Tests.Api.Contracts.Requests.Imports
         {
             CompleteImportRequest request = new()
             {
-                ArtifactId = Guid.Empty, ArtifactRevisionId = TestIds.DefaultArtifactRevisionId
+                ArtifactId = Guid.Empty,
+                ArtifactRevisionId = TestIds.DefaultArtifactRevisionId
             };
 
             IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
@@ -38,7 +40,8 @@ namespace Espada.Tests.Api.Contracts.Requests.Imports
         {
             CompleteImportRequest request = new()
             {
-                ArtifactId = TestIds.DefaultArtifactId, ArtifactRevisionId = Guid.Empty
+                ArtifactId = TestIds.DefaultArtifactId,
+                ArtifactRevisionId = Guid.Empty
             };
 
             IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);

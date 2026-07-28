@@ -74,7 +74,9 @@ export const TasksPage = ({ workspaceId, readOnly }: TasksPageProps) => {
           <div className="resource-list">
             {tasks.data.items.map((task) => {
               const project = projects.data?.items.find((item) => item.id === task.projectId);
-              const isActive = task.statusTypeName.toLowerCase() === 'active';
+              const status = task.statusTypeName.toLowerCase();
+              const isActive = status === 'active';
+              const isArchived = status === 'archived';
               const actionPending =
                 (completeTask.isPending && completeTask.variables === task.id) ||
                 (archiveTask.isPending && archiveTask.variables === task.id);
@@ -91,16 +93,18 @@ export const TasksPage = ({ workspaceId, readOnly }: TasksPageProps) => {
                     </span>
                   </div>
                   <p className="resource-mono">{task.id}</p>
-                  {isActive && (
+                  {!isArchived && (
                     <div className="card-actions">
-                      <button
-                        className="button button-secondary"
-                        disabled={readOnly || actionPending}
-                        onClick={() => completeTask.mutate(task.id)}
-                        type="button"
-                      >
-                        Complete
-                      </button>
+                      {isActive && (
+                        <button
+                          className="button button-secondary"
+                          disabled={readOnly || actionPending}
+                          onClick={() => completeTask.mutate(task.id)}
+                          type="button"
+                        >
+                          Complete
+                        </button>
+                      )}
                       <button
                         className="button button-quiet"
                         disabled={readOnly || actionPending}

@@ -1,9 +1,9 @@
+using Espada.Application.UseCases.Artifacts.Common;
 using Espada.Domain.Aggregates;
 using Espada.Domain.Enums;
 using Espada.Domain.Rules;
 using Espada.Domain.SeedWork;
 using Espada.Domain.ValueObjects;
-using Espada.Application.UseCases.Artifacts.Common;
 
 namespace Espada.Application.Rules
 {

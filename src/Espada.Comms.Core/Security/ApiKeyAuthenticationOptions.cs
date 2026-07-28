@@ -1,5 +1,5 @@
-using Microsoft.AspNetCore.Authentication;
 using Espada.Comms.Core.Constants;
+using Microsoft.AspNetCore.Authentication;
 
 namespace Espada.Comms.Core.Security
 {

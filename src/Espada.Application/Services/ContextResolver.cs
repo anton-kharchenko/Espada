@@ -1,10 +1,10 @@
 using Espada.Application.ApplicationErrors;
+using Espada.Application.Constants;
 using Espada.Application.Models;
 using Espada.Domain.Aggregates;
 using Espada.Domain.Enums;
 using Espada.Domain.Rules;
 using System.Text;
-using Espada.Application.Constants;
 
 namespace Espada.Application.Services
 {

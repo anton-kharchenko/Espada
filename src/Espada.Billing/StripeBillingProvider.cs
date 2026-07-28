@@ -75,7 +75,8 @@ namespace Espada.Billing
             Stripe.BillingPortal.Session session = await client.V1.BillingPortal.Sessions.CreateAsync(
                 new Stripe.BillingPortal.SessionCreateOptions
                 {
-                    Customer = customerId, ReturnUrl = _options.PortalReturnUrl!.AbsoluteUri
+                    Customer = customerId,
+                    ReturnUrl = _options.PortalReturnUrl!.AbsoluteUri
                 },
                 new RequestOptions { IdempotencyKey = idempotencyKey },
                 cancellationToken);

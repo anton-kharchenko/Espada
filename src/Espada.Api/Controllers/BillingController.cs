@@ -8,11 +8,11 @@ using Espada.Billing.UseCases.Checkout;
 using Espada.Billing.UseCases.Portal;
 using Espada.Billing.UseCases.Status;
 using Espada.Billing.UseCases.Webhook;
+using Espada.Comms.Core.Constants;
 using Espada.Domain.Rules;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Espada.Comms.Core.Constants;
 
 namespace Espada.Api.Controllers
 {

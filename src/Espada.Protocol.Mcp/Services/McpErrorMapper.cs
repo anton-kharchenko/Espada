@@ -1,6 +1,6 @@
 using Espada.Domain.Rules;
-using ModelContextProtocol;
 using Espada.Protocol.Mcp.Constants;
+using ModelContextProtocol;
 
 namespace Espada.Protocol.Mcp.Services
 {

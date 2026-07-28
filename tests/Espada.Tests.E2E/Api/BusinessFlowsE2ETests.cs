@@ -47,7 +47,8 @@ namespace Espada.Tests.E2E.Api
                     E2ERouteConstants.Workspaces,
                     new CreateWorkspaceRequest
                     {
-                        Name = BusinessFlowTestData.Lifecycle.WorkspaceName, TypeId = WorkspaceType.Personal.Id
+                        Name = BusinessFlowTestData.Lifecycle.WorkspaceName,
+                        TypeId = WorkspaceType.Personal.Id
                     });
             WorkspaceResponse workspace =
                 await http.GetAsync<WorkspaceResponse>(E2ERoutes.Workspace(createdWorkspace.WorkspaceId));
@@ -315,7 +316,8 @@ namespace Espada.Tests.E2E.Api
             request.Headers.Add("Idempotency-Key", $"e2e-{Guid.NewGuid():N}");
             request.Content = JsonContent.Create(new RequestImportRequest
             {
-                SourceId = sourceId, Options = new ImportOptionsRequest { EmbeddingModel = "e2e-model@v1" }
+                SourceId = sourceId,
+                Options = new ImportOptionsRequest { EmbeddingModel = "e2e-model@v1" }
             });
             using HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
             Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);

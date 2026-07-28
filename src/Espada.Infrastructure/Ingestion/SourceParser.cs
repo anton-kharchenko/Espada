@@ -3,6 +3,7 @@ using AngleSharp.Html.Dom;
 using AngleSharp.Html.Parser;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
+using Espada.Application.Constants;
 using Espada.Application.Contracts.Ingestion;
 using Espada.Application.Enums;
 using Espada.Application.Exceptions;
@@ -13,7 +14,6 @@ using System.Text.Json;
 using UglyToad.PdfPig;
 using Page = UglyToad.PdfPig.Content.Page;
 using Text = DocumentFormat.OpenXml.Drawing.Text;
-using Espada.Application.Constants;
 
 namespace Espada.Infrastructure.Ingestion
 {

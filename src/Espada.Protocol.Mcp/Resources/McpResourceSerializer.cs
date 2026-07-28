@@ -9,7 +9,8 @@ namespace Espada.Protocol.Mcp.Resources
         private const string JsonMediaType = "application/json";
 
         private static readonly JsonSerializerOptions JsonOptions = new(
-            JsonSerializerDefaults.Web) { WriteIndented = true };
+            JsonSerializerDefaults.Web)
+        { WriteIndented = true };
 
         public static TextResourceContents Create<TData>(
             string uri,
@@ -23,7 +24,9 @@ namespace Espada.Protocol.Mcp.Resources
 
             return new TextResourceContents
             {
-                Uri = uri, MimeType = JsonMediaType, Text = JsonSerializer.Serialize(document, JsonOptions)
+                Uri = uri,
+                MimeType = JsonMediaType,
+                Text = JsonSerializer.Serialize(document, JsonOptions)
             };
         }
 

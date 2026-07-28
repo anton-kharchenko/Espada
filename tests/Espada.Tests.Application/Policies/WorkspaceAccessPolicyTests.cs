@@ -1,4 +1,5 @@
 using Espada.Application.ApplicationErrors;
+using Espada.Application.Constants;
 using Espada.Application.Models;
 using Espada.Application.Policies;
 using Espada.Domain.Aggregates;
@@ -8,7 +9,6 @@ using Espada.Domain.ValueObjects;
 using Espada.Tests.Application.Fakes;
 using Espada.Tests.Application.TestData;
 using Espada.Tests.Application.TestData.Builder;
-using Espada.Application.Constants;
 
 namespace Espada.Tests.Application.Policies
 {

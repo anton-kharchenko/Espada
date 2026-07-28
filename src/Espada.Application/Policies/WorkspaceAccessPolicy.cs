@@ -1,11 +1,11 @@
 using Espada.Application.ApplicationErrors;
+using Espada.Application.Constants;
 using Espada.Application.Contracts.Persistence;
 using Espada.Application.Contracts.Security;
 using Espada.Application.Models;
 using Espada.Domain.Aggregates;
 using Espada.Domain.Rules;
 using Espada.Domain.ValueObjects;
-using Espada.Application.Constants;
 
 namespace Espada.Application.Policies
 {

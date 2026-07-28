@@ -76,10 +76,8 @@ namespace Espada.Tests.Api.WebConsole
                     .GetProperty("displayName")
                     .GetString());
             JsonElement workspace = Assert.Single(
-                root.GetProperty("workspaces")
-                    .EnumerateArray()
-                    .Where(item =>
-                        item.GetProperty("id").GetGuid() == workspaceId));
+                root.GetProperty("workspaces").EnumerateArray(),
+                item => item.GetProperty("id").GetGuid() == workspaceId);
             Assert.Equal(
                 workspaceId,
                 workspace.GetProperty("id").GetGuid());

@@ -60,7 +60,9 @@ namespace Espada.DeploymentKit.Azure
             ResourceGroup resourceGroup = new(names.ResourceGroup,
                 new ResourceGroupArgs
                 {
-                    ResourceGroupName = names.ResourceGroup, Location = settings.Location, Tags = tags
+                    ResourceGroupName = names.ResourceGroup,
+                    Location = settings.Location,
+                    Tags = tags
                 });
 
             Registry registry = new(names.Registry,
@@ -99,7 +101,8 @@ namespace Espada.DeploymentKit.Azure
 
             Output<GetSharedKeysResult> workspaceKeys = GetSharedKeys.Invoke(new GetSharedKeysInvokeArgs
             {
-                ResourceGroupName = resourceGroup.Name, WorkspaceName = workspace.Name
+                ResourceGroupName = resourceGroup.Name,
+                WorkspaceName = workspace.Name
             });
 
             ManagedEnvironment containerEnvironment = new(names.ContainerEnvironment,
@@ -175,7 +178,8 @@ namespace Espada.DeploymentKit.Azure
                         SoftDeleteRetentionInDays = 90,
                         Sku = new VaultSkuArgs
                         {
-                            Family = "A", Name = Pulumi.AzureNative.KeyVault.SkuName.Standard
+                            Family = "A",
+                            Name = Pulumi.AzureNative.KeyVault.SkuName.Standard
                         }
                     },
                     Tags = tags
@@ -907,7 +911,10 @@ namespace Espada.DeploymentKit.Azure
             return new UserAssignedIdentity(name,
                 new Pulumi.AzureNative.ManagedIdentity.UserAssignedIdentityArgs
                 {
-                    ResourceName = name, ResourceGroupName = resourceGroup.Name, Location = location, Tags = tags
+                    ResourceName = name,
+                    ResourceGroupName = resourceGroup.Name,
+                    Location = location,
+                    Tags = tags
                 });
         }
 

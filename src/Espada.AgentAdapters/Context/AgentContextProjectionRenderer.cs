@@ -1,15 +1,16 @@
+using Espada.Application.Constants;
 using Espada.Application.UseCases.Context.Queries.BuildContext;
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
-using Espada.Application.Constants;
 
 namespace Espada.AgentAdapters.Context
 {
     public static class AgentContextProjectionRenderer
     {
         private static readonly JsonSerializerOptions JsonOptions = new(
-            JsonSerializerDefaults.Web) { WriteIndented = true };
+            JsonSerializerDefaults.Web)
+        { WriteIndented = true };
 
         public static AgentContextProjection Render(BuildContextResponse context)
         {

@@ -16,7 +16,9 @@ namespace Espada.Tests.Api.Contracts.Requests.Artifacts
 
             CreateArtifactRequest request = new()
             {
-                Title = TestValues.ArtifactTitle, TypeId = artifactType.Id, Content = TestValues.ArtifactContent
+                Title = TestValues.ArtifactTitle,
+                TypeId = artifactType.Id,
+                Content = TestValues.ArtifactContent
             };
 
             IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
@@ -32,7 +34,9 @@ namespace Espada.Tests.Api.Contracts.Requests.Artifacts
 
             CreateArtifactRequest request = new()
             {
-                Title = title!, TypeId = artifactType.Id, Content = TestValues.ArtifactContent
+                Title = title!,
+                TypeId = artifactType.Id,
+                Content = TestValues.ArtifactContent
             };
 
             IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
@@ -45,7 +49,9 @@ namespace Espada.Tests.Api.Contracts.Requests.Artifacts
         {
             CreateArtifactRequest request = new()
             {
-                Title = TestValues.ArtifactTitle, TypeId = int.MaxValue, Content = TestValues.ArtifactContent
+                Title = TestValues.ArtifactTitle,
+                TypeId = int.MaxValue,
+                Content = TestValues.ArtifactContent
             };
 
             IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
@@ -61,7 +67,9 @@ namespace Espada.Tests.Api.Contracts.Requests.Artifacts
 
             CreateArtifactRequest request = new()
             {
-                Title = TestValues.ArtifactTitle, TypeId = artifactType.Id, Content = content!
+                Title = TestValues.ArtifactTitle,
+                TypeId = artifactType.Id,
+                Content = content!
             };
 
             IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);

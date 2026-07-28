@@ -53,7 +53,8 @@ namespace Espada.Tests.E2E.Fixtures
 
             HttpClient client = factory.CreateClient(new WebApplicationFactoryClientOptions
             {
-                BaseAddress = new Uri("https://localhost"), AllowAutoRedirect = false
+                BaseAddress = new Uri("https://localhost"),
+                AllowAutoRedirect = false
             });
 
             if (authenticated)

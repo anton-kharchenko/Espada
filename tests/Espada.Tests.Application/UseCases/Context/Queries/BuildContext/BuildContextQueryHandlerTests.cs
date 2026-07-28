@@ -1,5 +1,6 @@
 using AutoMapper;
 using Espada.Application.ApplicationErrors;
+using Espada.Application.Constants;
 using Espada.Application.Mappings;
 using Espada.Application.Models;
 using Espada.Application.Services;
@@ -11,7 +12,6 @@ using Espada.Domain.ValueObjects;
 using Espada.Tests.Application.Fakes;
 using Espada.Tests.Application.TestData;
 using Microsoft.Extensions.Logging.Abstractions;
-using Espada.Application.Constants;
 
 namespace Espada.Tests.Application.UseCases.Context.Queries.BuildContext
 {

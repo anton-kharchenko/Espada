@@ -1,3 +1,4 @@
+using Espada.Application.Constants;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Primitives;
 using System.Net;
@@ -6,7 +7,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using Espada.Application.Constants;
 
 namespace Espada.Tests.Mcp.Http
 {
@@ -127,7 +127,9 @@ namespace Espada.Tests.Mcp.Http
                 new FormUrlEncodedContent(
                     new Dictionary<string, string>
                     {
-                        ["grant_type"] = "refresh_token", ["client_id"] = clientId, ["refresh_token"] = refreshToken
+                        ["grant_type"] = "refresh_token",
+                        ["client_id"] = clientId,
+                        ["refresh_token"] = refreshToken
                     }),
                 cancellationToken);
             response.EnsureSuccessStatusCode();
@@ -146,7 +148,9 @@ namespace Espada.Tests.Mcp.Http
                 new FormUrlEncodedContent(
                     new Dictionary<string, string>
                     {
-                        ["grant_type"] = "refresh_token", ["client_id"] = clientId, ["refresh_token"] = refreshToken
+                        ["grant_type"] = "refresh_token",
+                        ["client_id"] = clientId,
+                        ["refresh_token"] = refreshToken
                     }),
                 cancellationToken);
         }

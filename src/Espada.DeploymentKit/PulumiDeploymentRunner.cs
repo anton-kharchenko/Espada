@@ -174,7 +174,8 @@ namespace Espada.DeploymentKit
                 $"{PulumiOrganization}/{PulumiProjectName}/{settings.StackName}",
                 PulumiFn.Create(() => EspadaAzureStack.Create(settings)))
             {
-                WorkDir = settings.RepositoryRoot, EnvironmentVariables = environmentVariables
+                WorkDir = settings.RepositoryRoot,
+                EnvironmentVariables = environmentVariables
             };
         }
 
@@ -261,7 +262,9 @@ namespace Espada.DeploymentKit
         {
             ProcessStartInfo startInfo = new()
             {
-                FileName = fileName, WorkingDirectory = workingDirectory, UseShellExecute = false
+                FileName = fileName,
+                WorkingDirectory = workingDirectory,
+                UseShellExecute = false
             };
 
             foreach (string argument in arguments)
