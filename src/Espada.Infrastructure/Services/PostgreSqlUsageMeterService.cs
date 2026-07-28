@@ -2,6 +2,7 @@ using Espada.Application.Contracts.Billing;
 using Espada.Application.Contracts.Time;
 using Espada.Billing;
 using Espada.Billing.Enums;
+using Espada.Billing.Options;
 using Espada.Db.Models;
 using Espada.Infrastructure.Database;
 using Microsoft.Extensions.Options;

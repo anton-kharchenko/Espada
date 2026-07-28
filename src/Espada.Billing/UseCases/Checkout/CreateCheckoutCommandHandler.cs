@@ -2,6 +2,7 @@ using Espada.Application.Contracts.Messaging;
 using Espada.Billing.ApplicationErrors;
 using Espada.Billing.Contracts;
 using Espada.Billing.Models;
+using Espada.Billing.Options;
 using Espada.Domain.Rules;
 using Microsoft.Extensions.Options;
 

@@ -3,6 +3,7 @@ using Espada.Application.Contracts.Time;
 using Espada.Billing.ApplicationErrors;
 using Espada.Billing.Contracts;
 using Espada.Billing.Models;
+using Espada.Billing.Options;
 using Espada.Domain.Rules;
 using Microsoft.Extensions.Options;
 

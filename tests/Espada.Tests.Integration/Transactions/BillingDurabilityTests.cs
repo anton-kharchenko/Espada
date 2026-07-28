@@ -4,6 +4,7 @@ using Espada.Application.Contracts.Persistence;
 using Espada.Billing;
 using Espada.Billing.Constants;
 using Espada.Billing.Contracts;
+using Espada.Billing.Extensions;
 using Espada.Infrastructure.Database;
 using Espada.Tests.Integration.Database;
 using Espada.Tests.Integration.Fixtures;

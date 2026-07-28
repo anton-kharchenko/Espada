@@ -1,6 +1,7 @@
 using Espada.Api.Extensions;
 using Espada.Application.Extensions;
 using Espada.Billing;
+using Espada.Billing.Extensions;
 using Espada.Infrastructure.Extensions;
 using Espada.ServiceDefaults.Extensions;
 

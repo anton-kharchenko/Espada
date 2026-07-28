@@ -1,6 +1,6 @@
 using Espada.Application.Contracts.Billing.Constants;
 
-namespace Espada.Billing;
+namespace Espada.Billing.Options;
 
 public sealed class BillingUsageOptions
 {

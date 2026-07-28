@@ -1,18 +1,18 @@
 using Espada.Application.Contracts.Billing;
 using Espada.Billing.Constants;
 using Espada.Billing.Contracts;
+using Espada.Billing.Options;
 using Espada.Billing.Services;
 using Espada.Billing.Webhooks;
 using Espada.Billing.Webhooks.Handlers;
 using FluentValidation;
-using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Stripe;
 using System.Reflection;
 
-namespace Espada.Billing;
+namespace Espada.Billing.Extensions;
 
 public static class BillingServiceCollectionExtensions
 {

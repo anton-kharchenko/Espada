@@ -1,6 +1,7 @@
 using Espada.Billing.Constants;
 using Espada.Billing.Contracts;
 using Espada.Billing.Models;
+using Espada.Billing.Options;
 using Microsoft.Extensions.Options;
 using Stripe;
 
