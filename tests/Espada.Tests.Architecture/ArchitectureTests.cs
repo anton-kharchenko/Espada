@@ -26,6 +26,7 @@ public sealed class ArchitectureTests
             ["Espada.Comms.Core"] = [],
             ["Espada.Domain"] = [],
             ["Espada.Application"] = ["Espada.Domain"],
+            ["Espada.AgentAdapters"] = ["Espada.Application"],
             ["Espada.Billing"] = ["Espada.Application", "Espada.Domain"],
             ["Espada.Infrastructure"] = ["Espada.Application", "Espada.Billing", "Espada.Db", "Espada.Domain"],
             ["Espada.Db"] = ["Espada.Domain"],

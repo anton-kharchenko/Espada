@@ -3,7 +3,6 @@ using Espada.Api.Contracts.Models;
 using Espada.Api.Contracts.Requests.Imports;
 using Espada.Api.Contracts.Responses.Billing;
 using Espada.Api.Extensions;
-using Espada.Application.UseCases.Context.Queries.SearchWorkspaceContext;
 using Espada.Application.UseCases.Imports.Commands.RequestImport;
 using Espada.Application.UseCases.Sources.Commands.RegisterSource;
 using Espada.Application.UseCases.Workspaces.Commands.CreateWorkspace;
@@ -48,23 +47,6 @@ public sealed class ApiMappingProfile : Profile
         CreateMap<RequestImportMappingSource, RequestImportCommand>()
             .ConvertUsing(source => MapRequestImportCommand(source));
 
-        CreateMap<SearchWorkspaceContextMappingSource, SearchWorkspaceContextQuery>()
-            .ConvertUsing(source => new SearchWorkspaceContextQuery(
-                source.WorkspaceId,
-                source.Request.QueryText,
-                source.Request.QueryVector,
-                source.Request.ModelIdentifier,
-                source.Request.ModelVersion,
-                source.Request.TopK,
-                source.Request.ArtifactIds,
-                source.Request.RevisionIds,
-                source.Request.SourceIds,
-                source.Request.ArtifactTypeIds,
-                source.Request.SourceTypeIds,
-                source.Request.CreatedAfterUtc,
-                source.Request.MinimumSimilarity,
-                source.Request.MinimumArtifactPriority,
-                source.Request.MinimumSourcePriority));
     }
 
     private static RequestImportCommand MapRequestImportCommand(
@@ -93,6 +75,7 @@ public sealed class ApiMappingProfile : Profile
             source.Request.TypeId.ToEnumeration<WorkspaceType>()
                 ?? throw new InvalidOperationException(
                     $"Workspace type ID '{source.Request.TypeId}' passed validation but could not be resolved."),
+            source.Request.OrganizationId,
             source.IdentityIssuer,
             source.IdentitySubject);
 }

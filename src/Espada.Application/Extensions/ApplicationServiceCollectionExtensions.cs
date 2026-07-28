@@ -31,6 +31,9 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<IDomainEventHandler<ImportJobRequestedDomainEvent>, ImportJobRequestedDomainEventHandler>();
         services.AddScoped<IDomainEventHandler<ImportStageScheduledDomainEvent>, ImportStageScheduledDomainEventHandler>();
         services.AddScoped<IImportPipelineStageExecutorService, ImportPipelineStageExecutorService>();
+        services.AddScoped<ArtifactIndexingService>();
+        services.AddScoped<WorkspaceAccessPolicy>();
+        services.AddSingleton<ContextResolver>();
         services.AddScoped<IImportAdmissionPolicy, AllowImportAdmissionPolicy>();
         services.AddScoped<IUsageMeterService, NoOpUsageMeterService>();
 

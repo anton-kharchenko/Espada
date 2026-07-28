@@ -48,5 +48,5 @@ internal sealed class ArtifactBuilder
         return this;
     }
 
-    public Artifact Build() => Artifact.Create(_id, _workspaceId, _title, _type, _createdAtUtc).ShouldSucceed();
+    public Artifact Build() => Artifact.Create(_id, _workspaceId, _title, ArtifactKindType.Document, _type, _createdAtUtc).ShouldSucceed();
 }

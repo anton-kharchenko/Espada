@@ -172,7 +172,7 @@ footer > div a:hover { color: var(--text); }
 
 @media (max-width: 620px) {
   .site-header { height: 68px; }
-  .site-header nav > a:not(.nav-github) { display: none; }
+  .site-header nav > a:not(.nav-github):not(.nav-console) { display: none; }
   .hero { min-height: auto; padding: 4.5rem 0; }
   .hero h1 { font-size: clamp(3.05rem, 15vw, 4.8rem); }
   .hero-actions { flex-direction: column; align-items: stretch; }

@@ -8,5 +8,6 @@ public sealed record ArtifactCreatedDomainEvent(
     ArtifactId ArtifactId,
     WorkspaceId WorkspaceId,
     string Title,
+    ArtifactKindType KindType,
     ArtifactType Type,
     DateTimeOffset CreatedAtUtc) : IDomainEvent;

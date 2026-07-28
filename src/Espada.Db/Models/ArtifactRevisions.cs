@@ -13,6 +13,12 @@ public class ArtifactRevisions
     [Column(TypeName = DbIdentifierColumnTypeConstants.Uuid)]
     public Guid ArtifactId { get; set; }
 
+    [Column(TypeName = DbIdentifierColumnTypeConstants.Uuid)]
+    public Guid WorkspaceId { get; set; }
+
+    [Required, MaxLength(DbMaxLengthConstants.L32), Column(TypeName = DbTextColumnTypeConstants.Varchar32)]
+    public string Kind { get; set; } = null!;
+
     [Column(TypeName = DbNumericColumnTypeConstants.Integer)]
     public int RevisionNumber { get; set; }
 

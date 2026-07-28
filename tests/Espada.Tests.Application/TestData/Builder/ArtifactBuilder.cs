@@ -67,6 +67,7 @@ namespace Espada.Tests.Application.TestData.Builder
                 _id,
                 _workspaceId,
                 titleResult.Value!,
+                ArtifactKindType.Document,
                 _type,
                 _createdAtUtc);
         }

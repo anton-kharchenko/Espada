@@ -14,7 +14,4 @@ public sealed class ArtifactType(int id, string name) : Enumeration(id, name)
 
     public static readonly ArtifactType Conversation = new(5, nameof(Conversation));
 
-    public override bool Equals(object? obj) => base.Equals(obj);
-
-    public override int GetHashCode() => base.GetHashCode();
 }

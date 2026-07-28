@@ -8,11 +8,22 @@ namespace Espada.Application.ApplicationErrors
             "Artifact.Id.Invalid",
             "Artifact ID cannot be empty.");
 
+        public static readonly DomainError MemoryRequiresRememberCommand = new(
+            "Artifact.Memory.RequiresRememberCommand",
+            "Memory artifacts must be created through remember-memory.");
+
         public static DomainError UnsupportedType(int typeId)
         {
             return new DomainError(
                 "Artifact.Type.Unsupported",
                 $"Artifact type with ID '{typeId}' is not supported.");
+        }
+
+        public static DomainError UnsupportedKindType(int kindTypeId)
+        {
+            return new DomainError(
+                "Artifact.KindType.Unsupported",
+                $"Artifact kind type with ID '{kindTypeId}' is not supported.");
         }
 
         public static DomainError NotFound(Guid artifactId)

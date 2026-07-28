@@ -43,7 +43,7 @@ public sealed class AutomaticIngestionPipelineTests(PostgreSqlDatabaseFixture fi
             SourceId sourceId = SourceId.New();
             ImportJobId importJobId = ImportJobId.New();
             DateTimeOffset now = DateTimeOffset.UtcNow;
-            Workspace workspace = Workspace.Create(workspaceId, WorkspaceName.Create("Pipeline test").Value, WorkspaceType.Personal, now).Value;
+            Workspace workspace = Workspace.Create(workspaceId, WorkspaceName.Create("Pipeline test").Value, WorkspaceType.Personal, null, now).Value;
             Source source = Source.Create(
                 sourceId,
                 workspaceId,

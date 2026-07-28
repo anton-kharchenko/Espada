@@ -23,11 +23,13 @@ public sealed class ApiMappingProfileTests
     {
         MapperConfiguration configuration = CreateConfiguration();
         IMapper mapper = configuration.CreateMapper();
+        Guid organizationId = Guid.NewGuid();
         CreateWorkspaceMappingSource source = new(
             new CreateWorkspaceRequest
             {
                 Name = "Mapped workspace",
-                TypeId = WorkspaceType.Personal.Id
+                TypeId = WorkspaceType.Personal.Id,
+                OrganizationId = organizationId
             },
             "issuer",
             "subject");
@@ -36,6 +38,7 @@ public sealed class ApiMappingProfileTests
 
         Assert.Equal(source.Request.Name, command.Name);
         Assert.Equal(WorkspaceType.Personal, command.Type);
+        Assert.Equal(organizationId, command.OrganizationId);
         Assert.Equal(source.IdentityIssuer, command.IdentityIssuer);
         Assert.Equal(source.IdentitySubject, command.IdentitySubject);
     }

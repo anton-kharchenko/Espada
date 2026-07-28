@@ -16,6 +16,9 @@ public class Artifacts
     [Required, MaxLength(DbMaxLengthConstants.L200), Column(TypeName = DbTextColumnTypeConstants.Varchar200)]
     public string Title { get; set; } = null!;
 
+    [Required, MaxLength(DbMaxLengthConstants.L32), Column(TypeName = DbTextColumnTypeConstants.Varchar32)]
+    public string Kind { get; set; } = null!;
+
     [Column(TypeName = DbNumericColumnTypeConstants.Integer)]
     public int TypeId { get; set; }
 

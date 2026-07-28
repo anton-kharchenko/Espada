@@ -12,6 +12,7 @@ internal sealed class ArtifactConfiguration : IEntityTypeConfiguration<Models.Ar
         builder.Property(model => model.ArtifactId).ValueGeneratedNever();
         builder.Property(model => model.Priority).HasDefaultValue(ContextPriority.Neutral.Value);
         builder.Property(model => model.Version).IsRowVersion();
+        builder.HasAlternateKey(model => new { model.ArtifactId, model.WorkspaceId });
         builder.HasOne<Models.Workspaces>().WithMany().HasForeignKey(model => model.WorkspaceId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Models.ArtifactTypes>().WithMany().HasForeignKey(model => model.TypeId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Models.ArtifactStatusTypes>().WithMany().HasForeignKey(model => model.StatusId).OnDelete(DeleteBehavior.Restrict);

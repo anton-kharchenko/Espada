@@ -48,6 +48,14 @@ internal sealed class ArtifactConfiguration : IEntityTypeConfiguration<Artifact>
             .IsRequired()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
+        builder.Property(e => e.KindType)
+            .HasColumnName("Kind")
+            .HasColumnType(DbTextColumnTypeConstants.Varchar32)
+            .HasMaxLength(DbMaxLengthConstants.L32)
+            .HasConversion(kind => kind.Name, value => Enumeration.GetAll<ArtifactKindType>().Single(kind => kind.Name == value))
+            .IsRequired()
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
         builder.Property(e => e.Type)
             .HasColumnName("TypeId")
             .HasColumnType(DbNumericColumnTypeConstants.Integer)
@@ -106,6 +114,8 @@ internal sealed class ArtifactConfiguration : IEntityTypeConfiguration<Artifact>
             .IsRowVersion()
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
+        builder.HasAlternateKey(e => new { e.Id, e.WorkspaceId });
+
         builder.HasOne<Workspace>()
             .WithMany()
             .HasForeignKey(e => e.WorkspaceId)
@@ -128,6 +138,7 @@ internal sealed class ArtifactConfiguration : IEntityTypeConfiguration<Artifact>
         builder.Property(model => model.ArtifactId).ValueGeneratedNever();
         builder.Property(model => model.Priority).HasDefaultValue(ContextPriority.Neutral.Value);
         builder.Property(model => model.Version).IsRowVersion();
+        builder.HasAlternateKey(model => new { model.ArtifactId, model.WorkspaceId });
         builder.HasOne<Espada.Db.Models.Workspaces>().WithMany().HasForeignKey(model => model.WorkspaceId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Espada.Db.Models.ArtifactTypes>().WithMany().HasForeignKey(model => model.TypeId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Espada.Db.Models.ArtifactStatusTypes>().WithMany().HasForeignKey(model => model.StatusId).OnDelete(DeleteBehavior.Restrict);
