@@ -1,8 +1,8 @@
 using Espada.Billing.Constants;
 
-namespace Espada.Billing.Services;
+namespace Espada.Billing.Helpers;
 
-internal static class BillingErrorSanitizer
+internal static class BillingErrorSanitizerHelper
 {
     public static string Sanitize(string value)
     {

@@ -61,6 +61,6 @@ public static class BillingServiceCollectionExtensions
         services.AddScoped<IStripeWebhookHandler, SubscriptionWebhookHandler>();
         services.AddScoped<IStripeWebhookHandler, InvoicePaymentWebhookHandler>();
         services.AddScoped<IImportAdmissionPolicy, BillingImportAdmissionPolicy>();
-        services.AddScoped<IUsageReconciliationProcessor, StripeUsageReconciliationProcessor>();
+        services.AddScoped<IUsageReconciliationProcessor, StripeUsageReconciliationProcessorService>();
     }
 }

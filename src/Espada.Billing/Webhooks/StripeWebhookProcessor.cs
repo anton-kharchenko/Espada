@@ -1,6 +1,7 @@
 using Espada.Application.Contracts.Time;
 using Espada.Billing.Constants;
 using Espada.Billing.Contracts;
+using Espada.Billing.Helpers;
 using Espada.Billing.Models;
 using Espada.Billing.Services;
 using Stripe;
@@ -35,7 +36,7 @@ internal sealed class StripeWebhookProcessor(IBillingStoreService storeService, 
             retryable &= retryIndex < BillingProcessingConstnts.WebhookRetryDelays.Count;
             DateTimeOffset availableAtUtc = retryable ? clock.UtcNow + BillingProcessingConstnts.WebhookRetryDelays[retryIndex] : clock.UtcNow;
 
-            await storeService.MarkPaymentEventFailedAsync(claimed.ProviderEventId, workerId, retryable, availableAtUtc, BillingErrorSanitizer.Sanitize(exception.Message), cancellationToken);
+            await storeService.MarkPaymentEventFailedAsync(claimed.ProviderEventId, workerId, retryable, availableAtUtc, BillingErrorSanitizerHelper.Sanitize(exception.Message), cancellationToken);
         }
 
         return true;

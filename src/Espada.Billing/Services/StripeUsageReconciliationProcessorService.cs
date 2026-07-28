@@ -1,6 +1,7 @@
 using Espada.Application.Contracts.Time;
 using Espada.Billing.Constants;
 using Espada.Billing.Contracts;
+using Espada.Billing.Helpers;
 using Espada.Billing.Models;
 using Microsoft.Extensions.Options;
 using Stripe;
@@ -9,7 +10,7 @@ using System.Globalization;
 
 namespace Espada.Billing.Services;
 
-internal sealed class StripeUsageReconciliationProcessor(StripeClient client, IBillingStoreService storeService, IOptions<BillingOptions> options, IClockService clock) : IUsageReconciliationProcessor
+internal sealed class StripeUsageReconciliationProcessorService(StripeClient client, IBillingStoreService storeService, IOptions<BillingOptions> options, IClockService clock) : IUsageReconciliationProcessor
 {
     public async Task<bool> ProcessNextAsync(string workerId, CancellationToken cancellationToken = default)
     {
@@ -45,7 +46,7 @@ internal sealed class StripeUsageReconciliationProcessor(StripeClient client, IB
             bool retryable = exception is StripeException or HttpRequestException or IOException or TimeoutException;
             retryable &= usage.Attempt <= BillingProcessingConstnts.MaximumRetryAttempts;
             DateTimeOffset availableAtUtc = retryable ? clock.UtcNow + BillingProcessingConstnts.GetUsageRetryDelay(usage.Attempt) : clock.UtcNow;
-            await storeService.MarkUsageReconciliationFailedAsync(usage.EventId, workerId, retryable, availableAtUtc, BillingErrorSanitizer.Sanitize(exception.Message), cancellationToken);
+            await storeService.MarkUsageReconciliationFailedAsync(usage.EventId, workerId, retryable, availableAtUtc, BillingErrorSanitizerHelper.Sanitize(exception.Message), cancellationToken);
         }
 
         return true;
