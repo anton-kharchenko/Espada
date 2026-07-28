@@ -23,11 +23,13 @@ namespace Espada.Tests.AgentAdapters.Context
                 AgentContextProjectionRenderer.Render(context);
 
             string expected = File.ReadAllText(
-                Path.Join(
-                    AppContext.BaseDirectory,
-                    "Golden",
-                    "Context",
-                    goldenFile));
+                    Path.Join(
+                        AppContext.BaseDirectory,
+                        "Golden",
+                        "Context",
+                        goldenFile))
+                .Replace("\r\n", "\n", StringComparison.Ordinal)
+                .Replace('\r', '\n');
             Assert.Equal(expected, first.Content);
             Assert.Equal(first, second);
             Assert.Equal(

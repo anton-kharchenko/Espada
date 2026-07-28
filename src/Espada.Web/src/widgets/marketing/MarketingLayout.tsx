@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Link } from 'react-router';
+import { Link, NavLink } from 'react-router';
 import { ROUTES } from 'shared/config';
 import { LogoMark } from 'shared/ui';
 
@@ -22,7 +22,7 @@ export const MarketingLayout = ({ children }: MarketingLayoutProps) => (
       <nav aria-label="Primary navigation">
         <a href="/#capabilities">Context</a>
         <a href="/#workflow">How it works</a>
-        <Link to={ROUTES.pricing}>Pricing</Link>
+        <NavLink to={ROUTES.pricing}>Pricing</NavLink>
         <Link className="nav-console" to={ROUTES.app}>
           Console
         </Link>
@@ -39,7 +39,7 @@ export const MarketingLayout = ({ children }: MarketingLayoutProps) => (
       </Link>
       <p>Free local context runtime. Paid managed collaboration for teams.</p>
       <div>
-        <Link to={ROUTES.pricing}>Pricing</Link>
+        <NavLink to={ROUTES.pricing}>Pricing</NavLink>
         <a href={repositoryUrl} rel="noreferrer" target="_blank">
           GitHub
         </a>

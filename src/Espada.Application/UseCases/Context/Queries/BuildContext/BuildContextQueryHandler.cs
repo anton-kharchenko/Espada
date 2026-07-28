@@ -170,8 +170,7 @@ namespace Espada.Application.UseCases.Context.Queries.BuildContext
             string[] segments = normalized.Split(
                 '/',
                 StringSplitOptions.RemoveEmptyEntries);
-            if (Path.IsPathRooted(normalized)
-                || segments.Any(segment => segment is "." or ".."))
+            if (IsAbsoluteOrUnsafePath(normalized, segments))
             {
                 normalized = null;
                 return false;
@@ -179,6 +178,28 @@ namespace Espada.Application.UseCases.Context.Queries.BuildContext
 
             normalized = string.Join('/', segments);
             return true;
+        }
+
+        private static bool IsAbsoluteOrUnsafePath(
+            string normalized,
+            IReadOnlyList<string> segments)
+        {
+            if (Path.IsPathRooted(normalized)
+                || segments.Any(segment => segment is "." or ".."))
+            {
+                return true;
+            }
+
+            // Reject Windows drive roots even when running on Unix hosts
+            // (e.g. "C:/repo/src" is not Path.IsPathRooted on Linux).
+            if (normalized.Length >= 2
+                && char.IsAsciiLetter(normalized[0])
+                && normalized[1] == ':')
+            {
+                return true;
+            }
+
+            return normalized.StartsWith("//", StringComparison.Ordinal);
         }
 
         private static string? Normalize(string? value)
