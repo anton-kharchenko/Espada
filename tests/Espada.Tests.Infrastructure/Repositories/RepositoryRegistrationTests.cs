@@ -33,6 +33,17 @@ namespace Espada.Tests.Infrastructure.Repositories
             Assert.IsType<ChunkRepository>(scopedServices.GetRequiredService<IChunkRepository>());
             Assert.IsType<ChunkEmbeddingRepository>(scopedServices.GetRequiredService<IChunkEmbeddingRepository>());
             Assert.IsType<EmbeddingVectorStore>(scopedServices.GetRequiredService<IEmbeddingVectorStore>());
+            Assert.IsType<InstructionRuleRepository>(scopedServices.GetRequiredService<IInstructionRuleRepository>());
+            Assert.IsType<PolicyRuleRepository>(scopedServices.GetRequiredService<IPolicyRuleRepository>());
+            Assert.IsType<MemoryMetadataRepository>(scopedServices.GetRequiredService<IMemoryMetadataRepository>());
+            Assert.IsType<MemorySearchStore>(scopedServices.GetRequiredService<IMemorySearchStore>());
+            Assert.IsType<ContextCandidateStore>(scopedServices.GetRequiredService<IContextCandidateStore>());
+            Assert.IsType<ProjectRepository>(scopedServices.GetRequiredService<IProjectRepository>());
+            Assert.IsType<ProjectTaskRepository>(scopedServices.GetRequiredService<IProjectTaskRepository>());
+            Assert.IsType<BindingRepository>(scopedServices.GetRequiredService<IBindingRepository>());
+            Assert.IsType<OrganizationRepository>(scopedServices.GetRequiredService<IOrganizationRepository>());
+            Assert.IsType<OrganizationMembershipRepository>(scopedServices.GetRequiredService<IOrganizationMembershipRepository>());
+            Assert.IsType<WorkspaceContextSearchStore>(scopedServices.GetRequiredService<IWorkspaceContextSearchStore>());
         }
 
         [Fact]

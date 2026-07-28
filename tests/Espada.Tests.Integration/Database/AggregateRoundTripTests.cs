@@ -1,5 +1,7 @@
+using Espada.Db.Database;
 using Espada.Domain.Aggregates;
 using Espada.Domain.Enums;
+using Espada.Domain.Rules;
 using Espada.Domain.ValueObjects;
 using Espada.Infrastructure.Database;
 using Espada.Tests.Integration.Fixtures;
@@ -11,6 +13,112 @@ namespace Espada.Tests.Integration.Database;
 [Collection(PostgreSqlIntegrationCollection.Name)]
 public sealed class AggregateRoundTripTests(PostgreSqlDatabaseFixture fixture) : PostgreSqlIntegrationTest(fixture)
 {
+    [Fact]
+    public async Task CanonicalAggregateGraph_ShouldRoundTripThroughRuntimeModel()
+    {
+        DateTimeOffset createdAtUtc = new(2026, 7, 28, 5, 0, 0, TimeSpan.Zero);
+        Organization organization = Organization.Create(OrganizationId.New(), "Espada", createdAtUtc).ShouldSucceed();
+        OrganizationMembership membership = organization.CreateMembership(OrganizationMembershipId.New(), "https://issuer.example", "user-123", OrganizationMembershipRoleType.Owner, createdAtUtc).ShouldSucceed();
+        Workspace workspace = Workspace.Create(WorkspaceId.New(), WorkspaceName.Create("Canonical workspace").ShouldSucceed(), WorkspaceType.Personal, organization.Id, createdAtUtc).ShouldSucceed();
+        Project project = Project.Create(ProjectId.New(), workspace.Id, "Espada", "https://example.test/espada.git", ["C:\\Startups\\Espada"], createdAtUtc).ShouldSucceed();
+        ProjectTask task = project.CreateTask(TaskId.New(), "Implement MCP runtime", createdAtUtc).ShouldSucceed();
+
+        Artifact instruction = CreateCanonicalArtifact(workspace.Id, ArtifactKindType.Instruction, "Instruction", createdAtUtc);
+        ArtifactRevision instructionRevision = instruction.CreateRevision(ArtifactRevisionId.New(), ArtifactContent.Create("Use repository instructions.").ShouldSucceed(), createdAtUtc).ShouldSucceed();
+        InstructionRule instructionRule = instruction.CreateInstructionRule(instructionRevision, RuleKey.Create("repo.instructions").ShouldSucceed(), "Use repository instructions.", ContextPriority.Create(10).ShouldSucceed()).ShouldSucceed();
+        Binding binding = instruction.CreateBinding(BindingId.New(), instructionRevision, workspace, organization.Id, project, project.CanonicalRemoteUri, "src", "feature/canonical-context-runtime", task, "codex", createdAtUtc).ShouldSucceed();
+
+        Artifact policy = CreateCanonicalArtifact(workspace.Id, ArtifactKindType.Policy, "Policy", createdAtUtc);
+        ArtifactRevision policyRevision = policy.CreateRevision(ArtifactRevisionId.New(), ArtifactContent.Create("Never expose secrets.").ShouldSucceed(), createdAtUtc).ShouldSucceed();
+        PolicyRule policyRule = policy.CreatePolicyRule(policyRevision, RuleKey.Create("security.no-secrets").ShouldSucceed(), "Never expose secrets.", ContextPriority.Create(100).ShouldSucceed(), PolicyEnforcementType.Hard).ShouldSucceed();
+
+        Artifact memory = CreateCanonicalArtifact(workspace.Id, ArtifactKindType.Memory, "Memory", createdAtUtc);
+        ArtifactRevision memoryRevision = memory.CreateRevision(ArtifactRevisionId.New(), ArtifactContent.Create("The user prefers targeted verification.").ShouldSucceed(), createdAtUtc).ShouldSucceed();
+        MemoryMetadata memoryMetadata = memory.CreateMemoryMetadata(MemoryId.New(), memoryRevision, MemoryCategoryType.Preference, 0.9m, true, "codex", "session-canonical", createdAtUtc).ShouldSucceed();
+
+        await using (EspadaDbContext dbContext = Fixture.CreateDbContext())
+        {
+            dbContext.AddRange(organization, membership, workspace, project, task, instruction, instructionRevision, instructionRule, binding, policy, policyRevision, policyRule, memory, memoryRevision, memoryMetadata);
+            await dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        }
+
+        await using EspadaDbContext verification = Fixture.CreateDbContext();
+        Assert.Equal("Espada", (await verification.Organizations.FindAsync([organization.Id], TestContext.Current.CancellationToken))!.Name);
+        Assert.Equal("user-123", (await verification.OrganizationMemberships.FindAsync([membership.Id], TestContext.Current.CancellationToken))!.Subject);
+        Assert.Equal(workspace.Id, (await verification.Projects.FindAsync([project.Id], TestContext.Current.CancellationToken))!.WorkspaceId);
+        Assert.Equal(project.Id, (await verification.Tasks.FindAsync([task.Id], TestContext.Current.CancellationToken))!.ProjectId);
+        Assert.Equal(ArtifactKindType.Instruction, (await verification.ArtifactRevisions.FindAsync([instructionRevision.Id], TestContext.Current.CancellationToken))!.KindType);
+        Assert.Equal(ArtifactKindType.Instruction, (await verification.InstructionRules.FindAsync([instructionRevision.Id, instructionRule.RuleKey], TestContext.Current.CancellationToken))!.KindType);
+        Assert.Equal(task.Id, (await verification.Bindings.FindAsync([binding.Id], TestContext.Current.CancellationToken))!.TaskId);
+        Assert.Equal(ArtifactKindType.Policy, (await verification.PolicyRules.FindAsync([policyRevision.Id, policyRule.RuleKey], TestContext.Current.CancellationToken))!.KindType);
+        MemoryMetadata persistedMemory = Assert.IsType<MemoryMetadata>(await verification.MemoryMetadata.FindAsync([memoryMetadata.Id], TestContext.Current.CancellationToken));
+        Assert.Equal(memory.Id, persistedMemory.ArtifactId);
+        Assert.Equal(memoryRevision.Id, persistedMemory.ArtifactRevisionId);
+        Assert.Equal(ArtifactKindType.Memory, persistedMemory.KindType);
+    }
+
+    [Fact]
+    public async Task CompositeConstraints_ShouldRejectCrossWorkspaceTaskAndBinding()
+    {
+        DateTimeOffset createdAtUtc = DateTimeOffset.UtcNow;
+        Workspace firstWorkspace = CreateWorkspace("First", createdAtUtc);
+        Workspace secondWorkspace = CreateWorkspace("Second", createdAtUtc);
+        Project firstProject = Project.Create(ProjectId.New(), firstWorkspace.Id, "First", "https://example.test/first.git", [], createdAtUtc).ShouldSucceed();
+        Artifact artifact = CreateCanonicalArtifact(firstWorkspace.Id, ArtifactKindType.Document, "Document", createdAtUtc);
+        ArtifactRevision revision = artifact.CreateRevision(ArtifactRevisionId.New(), ArtifactContent.Create("Document content").ShouldSucceed(), createdAtUtc).ShouldSucceed();
+        await PersistAsync(firstWorkspace, secondWorkspace, firstProject, artifact, revision);
+
+        await using (SetupDbContext setup = Fixture.CreateSetupDbContext())
+        {
+            setup.Tasks.Add(new Espada.Db.Models.Tasks { TaskId = Guid.NewGuid(), WorkspaceId = secondWorkspace.Id.Value, ProjectId = firstProject.Id.Value, Title = "Cross workspace", Status = "active", CreatedAtUtc = createdAtUtc, UpdatedAtUtc = createdAtUtc });
+            await AssertDatabaseViolationAsync(setup, PostgresErrorCodes.ForeignKeyViolation);
+        }
+
+        await using (SetupDbContext setup = Fixture.CreateSetupDbContext())
+        {
+            setup.Bindings.Add(new Espada.Db.Models.Bindings { BindingId = Guid.NewGuid(), ArtifactRevisionId = revision.Id.Value, WorkspaceId = secondWorkspace.Id.Value, CreatedAtUtc = createdAtUtc });
+            await AssertDatabaseViolationAsync(setup, PostgresErrorCodes.ForeignKeyViolation);
+        }
+    }
+
+    [Fact]
+    public async Task CompositeConstraint_ShouldRejectMemoryArtifactRevisionMismatch()
+    {
+        DateTimeOffset createdAtUtc = DateTimeOffset.UtcNow;
+        Workspace workspace = CreateWorkspace("Memory", createdAtUtc);
+        Artifact first = CreateCanonicalArtifact(workspace.Id, ArtifactKindType.Memory, "First memory", createdAtUtc);
+        ArtifactRevision firstRevision = first.CreateRevision(ArtifactRevisionId.New(), ArtifactContent.Create("First").ShouldSucceed(), createdAtUtc).ShouldSucceed();
+        Artifact second = CreateCanonicalArtifact(workspace.Id, ArtifactKindType.Memory, "Second memory", createdAtUtc);
+        ArtifactRevision secondRevision = second.CreateRevision(ArtifactRevisionId.New(), ArtifactContent.Create("Second").ShouldSucceed(), createdAtUtc).ShouldSucceed();
+        await PersistAsync(workspace, first, firstRevision, second, secondRevision);
+
+        await using SetupDbContext setup = Fixture.CreateSetupDbContext();
+        setup.MemoryMetadata.Add(new Espada.Db.Models.MemoryMetadataRecords { MemoryId = Guid.NewGuid(), ArtifactId = second.Id.Value, ArtifactRevisionId = firstRevision.Id.Value, Kind = "memory", Category = "Fact", Confidence = 1m, UserConfirmed = true, ClientIdentity = "codex", CapturedAtUtc = createdAtUtc });
+        await AssertDatabaseViolationAsync(setup, PostgresErrorCodes.ForeignKeyViolation);
+    }
+
+    [Fact]
+    public async Task RuleConstraints_ShouldRejectWrongRevisionKindAndDisguisedPolicyRule()
+    {
+        DateTimeOffset createdAtUtc = DateTimeOffset.UtcNow;
+        Workspace workspace = CreateWorkspace("Rules", createdAtUtc);
+        Artifact instruction = CreateCanonicalArtifact(workspace.Id, ArtifactKindType.Instruction, "Instruction", createdAtUtc);
+        ArtifactRevision revision = instruction.CreateRevision(ArtifactRevisionId.New(), ArtifactContent.Create("Instruction").ShouldSucceed(), createdAtUtc).ShouldSucceed();
+        await PersistAsync(workspace, instruction, revision);
+
+        await using (SetupDbContext setup = Fixture.CreateSetupDbContext())
+        {
+            setup.PolicyRules.Add(new Espada.Db.Models.PolicyRules { ArtifactRevisionId = revision.Id.Value, Kind = "policy", RuleKey = "wrong-kind", Text = "Wrong", Priority = 0, Enforcement = "Hard" });
+            await AssertDatabaseViolationAsync(setup, PostgresErrorCodes.ForeignKeyViolation);
+        }
+
+        await using (SetupDbContext setup = Fixture.CreateSetupDbContext())
+        {
+            setup.PolicyRules.Add(new Espada.Db.Models.PolicyRules { ArtifactRevisionId = revision.Id.Value, Kind = "instruction", RuleKey = "disguised", Text = "Wrong", Priority = 0, Enforcement = "Hard" });
+            await AssertDatabaseViolationAsync(setup, PostgresErrorCodes.CheckViolation);
+        }
+    }
+
     [Fact]
     public async Task Workspace_ShouldRoundTripAllProperties()
     {
@@ -80,6 +188,7 @@ public sealed class AggregateRoundTripTests(PostgreSqlDatabaseFixture fixture) :
         Assert.Equal(graph.Artifact.Id, actual.Id);
         Assert.Equal(graph.Artifact.WorkspaceId, actual.WorkspaceId);
         Assert.Equal(graph.Artifact.Title, actual.Title);
+        Assert.Equal(graph.Artifact.KindType, actual.KindType);
         Assert.Equal(graph.Artifact.Type, actual.Type);
         Assert.Equal(graph.Artifact.Status, actual.Status);
         Assert.Equal(graph.Artifact.CreatedAtUtc, actual.CreatedAtUtc);
@@ -101,6 +210,8 @@ public sealed class AggregateRoundTripTests(PostgreSqlDatabaseFixture fixture) :
 
         Assert.Equal(graph.ArtifactRevision.Id, actual.Id);
         Assert.Equal(graph.ArtifactRevision.ArtifactId, actual.ArtifactId);
+        Assert.Equal(graph.ArtifactRevision.WorkspaceId, actual.WorkspaceId);
+        Assert.Equal(graph.ArtifactRevision.KindType, actual.KindType);
         Assert.Equal(graph.ArtifactRevision.Number, actual.Number);
         Assert.Equal(graph.ArtifactRevision.Content, actual.Content);
         Assert.Equal(graph.ArtifactRevision.ContentHash, actual.ContentHash);
@@ -203,7 +314,7 @@ public sealed class AggregateRoundTripTests(PostgreSqlDatabaseFixture fixture) :
         PersistenceGraph graph = await PersistGraphAsync();
         await using EspadaDbContext dbContext = Fixture.CreateDbContext();
 
-        Artifact revisionOwner = Artifact.Create(graph.Artifact.Id, graph.Artifact.WorkspaceId, graph.Artifact.Title, graph.Artifact.Type, graph.Artifact.CreatedAtUtc).ShouldSucceed();
+        Artifact revisionOwner = Artifact.Create(graph.Artifact.Id, graph.Artifact.WorkspaceId, graph.Artifact.Title, ArtifactKindType.Document, graph.Artifact.Type, graph.Artifact.CreatedAtUtc).ShouldSucceed();
 
         ArtifactRevision duplicate = revisionOwner.CreateRevision(ArtifactRevisionId.Create(Guid.NewGuid()), graph.ArtifactRevision.Content, graph.ArtifactRevision.CreatedAtUtc).ShouldSucceed();
 
@@ -266,6 +377,19 @@ public sealed class AggregateRoundTripTests(PostgreSqlDatabaseFixture fixture) :
         Assert.Equal(firstArchiveTime, persisted.ArchivedAtUtc);
     }
 
+    private static Artifact CreateCanonicalArtifact(WorkspaceId workspaceId, ArtifactKindType kindType, string title, DateTimeOffset createdAtUtc) =>
+        Artifact.Create(ArtifactId.New(), workspaceId, ArtifactTitle.Create(title).ShouldSucceed(), kindType, ArtifactType.Markdown, createdAtUtc).ShouldSucceed();
+
+    private static Workspace CreateWorkspace(string name, DateTimeOffset createdAtUtc) =>
+        Workspace.Create(WorkspaceId.New(), WorkspaceName.Create(name).ShouldSucceed(), WorkspaceType.Personal, null, createdAtUtc).ShouldSucceed();
+
+    private async Task PersistAsync(params object[] entities)
+    {
+        await using EspadaDbContext dbContext = Fixture.CreateDbContext();
+        dbContext.AddRange(entities);
+        await dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+    }
+
     private async Task<PersistenceGraph> PersistGraphAsync()
     {
         PersistenceGraph graph = PersistenceGraphFactory.Create();
@@ -280,6 +404,14 @@ public sealed class AggregateRoundTripTests(PostgreSqlDatabaseFixture fixture) :
     }
 
     private static async Task AssertDatabaseViolationAsync(EspadaDbContext dbContext, string expectedSqlState)
+    {
+        DbUpdateException exception = await Assert.ThrowsAsync<DbUpdateException>(() => dbContext.SaveChangesAsync(TestContext.Current.CancellationToken));
+        PostgresException postgresException = Assert.IsType<PostgresException>(exception.InnerException);
+
+        Assert.Equal(expectedSqlState, postgresException.SqlState);
+    }
+
+    private static async Task AssertDatabaseViolationAsync(SetupDbContext dbContext, string expectedSqlState)
     {
         DbUpdateException exception = await Assert.ThrowsAsync<DbUpdateException>(() => dbContext.SaveChangesAsync(TestContext.Current.CancellationToken));
         PostgresException postgresException = Assert.IsType<PostgresException>(exception.InnerException);

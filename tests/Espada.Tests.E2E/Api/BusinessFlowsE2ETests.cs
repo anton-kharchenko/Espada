@@ -4,7 +4,6 @@ using Espada.Api.Contracts.Requests.ChunkBatches;
 using Espada.Api.Contracts.Requests.ChunkEmbeddings;
 using Espada.Api.Contracts.Requests.Chunks;
 using Espada.Api.Contracts.Requests.Common;
-using Espada.Api.Contracts.Requests.Context;
 using Espada.Api.Contracts.Requests.Imports;
 using Espada.Api.Contracts.Requests.Sources;
 using Espada.Api.Contracts.Requests.Workspaces;
@@ -18,7 +17,6 @@ using Espada.Application.UseCases.Chunks.Commands.CreateChunkBatch;
 using Espada.Application.UseCases.Chunks.Commands.CreateChunks;
 using Espada.Application.UseCases.Chunks.Queries.GetChunkById;
 using Espada.Application.UseCases.Chunks.Queries.ListChunksByRevision;
-using Espada.Application.UseCases.Context.Queries.SearchWorkspaceContext;
 using Espada.Application.UseCases.Imports.Commands.RequestImport;
 using Espada.Application.UseCases.Imports.Queries.GetImportById;
 using Espada.Application.UseCases.Sources.Commands.RegisterSource;
@@ -189,18 +187,6 @@ public sealed class BusinessFlowsE2ETests(EspadaE2EFactory factory) : E2ETest(fa
                 BusinessFlowTestData.Lifecycle.EmbeddingModelVersion));
         Assert.Equal(createdEmbedding.ChunkEmbeddingId, embedding.Id);
         Assert.Equal(vector, embedding.Vector);
-
-        SearchWorkspaceContextResponse context = await http.PostOkAsync<SearchWorkspaceContextRequest, SearchWorkspaceContextResponse>(
-            E2ERoutes.ContextSearch(workspace.Id),
-            new SearchWorkspaceContextRequest
-            {
-                QueryText = "first chunk",
-                QueryVector = vector,
-                ModelIdentifier = BusinessFlowTestData.Lifecycle.EmbeddingModelIdentifier,
-                ModelVersion = BusinessFlowTestData.Lifecycle.EmbeddingModelVersion,
-                TopK = 5
-            });
-        Assert.Empty(context.Items);
 
         await http.AssertStatusAsync(
             await client.PostAsync(

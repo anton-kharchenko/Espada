@@ -3,6 +3,7 @@ using Espada.Domain.Aggregates;
 using Espada.Domain.Enums;
 using Espada.Domain.Errors;
 using Espada.Domain.Rules;
+using Espada.Domain.ValueObjects;
 using Espada.Tests.Application.Fixtures;
 using Espada.Tests.Application.TestData;
 using Espada.Tests.Application.TestData.Builder;
@@ -65,6 +66,35 @@ public sealed class CreateWorkspaceCommandHandlerTests
         workspace.Name.Value.Should().Be(TestValues.WorkspaceName);
 
         workspace.Type.Should().Be(workspaceType);
+    }
+
+    [Fact]
+    public async Task Handle_WithOrganization_ShouldPersistWorkspaceOwnership()
+    {
+        // Arrange
+        CreateWorkspaceHandlerFixture fixture = new();
+        Organization organization = Organization.Create(
+            OrganizationId.New(),
+            "Espada",
+            TestDates.UtcNow).Value;
+        fixture.OrganizationRepository.OrganizationToReturn = organization;
+        CreateWorkspaceCommandHandler handler = fixture.CreateHandler();
+        CreateWorkspaceCommand command = new CreateWorkspaceCommandBuilder()
+            .WithOrganizationId(organization.Id.Value)
+            .Build();
+
+        // Act
+        DomainResult<CreateWorkspaceResponse> result = await handler.Handle(
+            command,
+            TestContext.Current.CancellationToken);
+
+        // Assert
+        CreateWorkspaceResponse response = result.ShouldSucceed();
+        response.OrganizationId.Should().Be(organization.Id.Value);
+        fixture.WorkspaceRepository.AddedWorkspace!
+            .OrganizationId
+            .Should()
+            .Be(organization.Id);
     }
 
     [Fact]

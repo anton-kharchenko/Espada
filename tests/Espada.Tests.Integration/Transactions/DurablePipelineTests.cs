@@ -3,7 +3,6 @@ using Espada.Application.Contracts.Persistence;
 using Espada.Domain.Aggregates;
 using Espada.Domain.Constants;
 using Espada.Domain.Enums;
-using Espada.Domain.Events;
 using Espada.Domain.ValueObjects;
 using Espada.Domain.ValueObjects.SourceDefinitions;
 using Espada.Infrastructure.Database;
