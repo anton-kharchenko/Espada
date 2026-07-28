@@ -1,6 +1,6 @@
 namespace Espada.Billing.Constants;
 
-public static class BillingProcessingPolicy
+public static class BillingProcessingConstnts
 {
     public const int MaximumRetryAttempts = 5;
     public const int MaximumSanitizedErrorLength = 1000;

@@ -17,6 +17,6 @@ internal sealed class InvoicePaymentWebhookHandler(IBillingStoreService storeSer
         }
 
         bool failed = stripeEvent.Type == EventTypes.InvoicePaymentFailed;
-        await storeService.ApplyCustomerUpdateAsync(new BillingCustomerUpdate(null, invoice.CustomerId, null, null, failed ? BillingSubscriptionStatusNames.PastDue : BillingSubscriptionStatusNames.Active, failed ? stripeEvent.Created : null, stripeEvent.Created), cancellationToken);
+        await storeService.ApplyCustomerUpdateAsync(new BillingCustomerUpdate(null, invoice.CustomerId, null, null, failed ? BillingSubscriptionStatusConstants.PastDue : BillingSubscriptionStatusConstants.Active, failed ? stripeEvent.Created : null, stripeEvent.Created), cancellationToken);
     }
 }

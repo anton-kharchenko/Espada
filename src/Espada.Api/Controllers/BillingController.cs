@@ -49,7 +49,7 @@ public sealed class BillingController(IMediator mediator, IMapper mapper) : Base
 
     [AllowAnonymous]
     [HttpPost("billing/stripe/webhook")]
-    [RequestSizeLimit(BillingRequestLimits.MaximumWebhookPayloadBytes)]
+    [RequestSizeLimit(BillingRequestLimitConstnts.MaximumWebhookPayloadBytes)]
     [ProducesResponseType<StripeWebhookReceiptResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> StripeWebhook(CancellationToken cancellationToken)
     {

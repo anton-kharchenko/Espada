@@ -19,7 +19,7 @@ internal sealed class CheckoutCompletedWebhookHandler(IBillingStoreService store
         }
 
         CloudBillingPlanType plan = ParsePlan(session.Metadata);
-        await storeService.ApplyCustomerUpdateAsync(new BillingCustomerUpdate(workspaceId, session.CustomerId, session.SubscriptionId, plan, BillingSubscriptionStatusNames.Active, null, stripeEvent.Created), cancellationToken);
+        await storeService.ApplyCustomerUpdateAsync(new BillingCustomerUpdate(workspaceId, session.CustomerId, session.SubscriptionId, plan, BillingSubscriptionStatusConstants.Active, null, stripeEvent.Created), cancellationToken);
     }
 
     private static CloudBillingPlanType ParsePlan(IReadOnlyDictionary<string, string> metadata) =>

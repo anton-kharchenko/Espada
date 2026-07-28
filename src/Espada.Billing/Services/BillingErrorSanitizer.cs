@@ -10,6 +10,6 @@ internal static class BillingErrorSanitizer
 
         string sanitized = value.Replace('\r', ' ').Replace('\n', ' ').Trim();
 
-        return sanitized.Length <= BillingProcessingPolicy.MaximumSanitizedErrorLength ? sanitized : sanitized[..BillingProcessingPolicy.MaximumSanitizedErrorLength];
+        return sanitized.Length <= BillingProcessingConstnts.MaximumSanitizedErrorLength ? sanitized : sanitized[..BillingProcessingConstnts.MaximumSanitizedErrorLength];
     }
 }

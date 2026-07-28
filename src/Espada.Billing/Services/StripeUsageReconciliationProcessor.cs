@@ -13,7 +13,7 @@ internal sealed class StripeUsageReconciliationProcessor(StripeClient client, IB
 {
     public async Task<bool> ProcessNextAsync(string workerId, CancellationToken cancellationToken = default)
     {
-        ClaimedUsageReconciliation? usage = await storeService.ClaimUsageReconciliationAsync(workerId, BillingProcessingPolicy.LeaseDuration, cancellationToken);
+        ClaimedUsageReconciliation? usage = await storeService.ClaimUsageReconciliationAsync(workerId, BillingProcessingConstnts.LeaseDuration, cancellationToken);
         if (usage is null)
         {
             return false;
@@ -21,7 +21,7 @@ internal sealed class StripeUsageReconciliationProcessor(StripeClient client, IB
 
         try
         {
-            string idempotencyKey = usage.EventId.ToString(BillingProcessingPolicy.CompactGuidFormat);
+            string idempotencyKey = usage.EventId.ToString(BillingProcessingConstnts.CompactGuidFormat);
             await client.V1.Billing.MeterEvents.CreateAsync(
                 new MeterEventCreateOptions
                 {
@@ -43,8 +43,8 @@ internal sealed class StripeUsageReconciliationProcessor(StripeClient client, IB
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
             bool retryable = exception is StripeException or HttpRequestException or IOException or TimeoutException;
-            retryable &= usage.Attempt <= BillingProcessingPolicy.MaximumRetryAttempts;
-            DateTimeOffset availableAtUtc = retryable ? clock.UtcNow + BillingProcessingPolicy.GetUsageRetryDelay(usage.Attempt) : clock.UtcNow;
+            retryable &= usage.Attempt <= BillingProcessingConstnts.MaximumRetryAttempts;
+            DateTimeOffset availableAtUtc = retryable ? clock.UtcNow + BillingProcessingConstnts.GetUsageRetryDelay(usage.Attempt) : clock.UtcNow;
             await storeService.MarkUsageReconciliationFailedAsync(usage.EventId, workerId, retryable, availableAtUtc, BillingErrorSanitizer.Sanitize(exception.Message), cancellationToken);
         }
 

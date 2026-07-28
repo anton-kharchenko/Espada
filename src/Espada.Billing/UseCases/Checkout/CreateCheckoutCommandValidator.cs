@@ -15,6 +15,6 @@ internal sealed class CreateCheckoutCommandValidator : AbstractValidator<CreateC
 
         RuleFor(command => command.IdempotencyKey)
             .NotEmpty()
-            .MaximumLength(BillingRequestLimits.MaximumIdempotencyKeyLength);
+            .MaximumLength(BillingRequestLimitConstnts.MaximumIdempotencyKeyLength);
     }
 }

@@ -39,7 +39,7 @@ internal sealed class StripeBillingProvider(
             {
                 Mode = StripeCheckoutModeConstants.Subscription,
                 Customer = customerId,
-                ClientReferenceId = workspaceId.ToString(BillingProcessingPolicy.DefaultGuidFormat),
+                ClientReferenceId = workspaceId.ToString(BillingProcessingConstnts.DefaultGuidFormat),
                 SuccessUrl = _options.CheckoutSuccessUrl!.AbsoluteUri,
                 CancelUrl = _options.CheckoutCancelUrl!.AbsoluteUri,
                 LineItems =
@@ -50,7 +50,7 @@ internal sealed class StripeBillingProvider(
                 {
                     Metadata = new Dictionary<string, string>
                     {
-                        [StripeMetadataKeyContants.WorkspaceId] = workspaceId.ToString(BillingProcessingPolicy.DefaultGuidFormat),
+                        [StripeMetadataKeyContants.WorkspaceId] = workspaceId.ToString(BillingProcessingConstnts.DefaultGuidFormat),
                         [StripeMetadataKeyContants.Plan] = plan.ToString()
                     }
                 }

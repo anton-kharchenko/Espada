@@ -1,6 +1,6 @@
 namespace Espada.Billing.Constants;
 
-public static class BillingRequestLimits
+public static class BillingRequestLimitConstnts
 {
     public const int MaximumIdempotencyKeyLength = 255;
     public const int MaximumWebhookPayloadBytes = 1_048_576;

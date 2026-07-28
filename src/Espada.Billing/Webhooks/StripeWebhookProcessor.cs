@@ -11,7 +11,7 @@ internal sealed class StripeWebhookProcessor(IBillingStoreService storeService, 
 {
     public async Task<bool> ProcessNextAsync(string workerId, CancellationToken cancellationToken = default)
     {
-        ClaimedPaymentEvent? claimed = await storeService.ClaimPaymentEventAsync(workerId, BillingProcessingPolicy.LeaseDuration, cancellationToken);
+        ClaimedPaymentEvent? claimed = await storeService.ClaimPaymentEventAsync(workerId, BillingProcessingConstnts.LeaseDuration, cancellationToken);
         if (claimed is null)
         {
             return false;
@@ -32,8 +32,8 @@ internal sealed class StripeWebhookProcessor(IBillingStoreService storeService, 
         {
             bool retryable = exception is StripeException or HttpRequestException or IOException or TimeoutException;
             int retryIndex = claimed.Attempt - 1;
-            retryable &= retryIndex < BillingProcessingPolicy.WebhookRetryDelays.Count;
-            DateTimeOffset availableAtUtc = retryable ? clock.UtcNow + BillingProcessingPolicy.WebhookRetryDelays[retryIndex] : clock.UtcNow;
+            retryable &= retryIndex < BillingProcessingConstnts.WebhookRetryDelays.Count;
+            DateTimeOffset availableAtUtc = retryable ? clock.UtcNow + BillingProcessingConstnts.WebhookRetryDelays[retryIndex] : clock.UtcNow;
 
             await storeService.MarkPaymentEventFailedAsync(claimed.ProviderEventId, workerId, retryable, availableAtUtc, BillingErrorSanitizer.Sanitize(exception.Message), cancellationToken);
         }

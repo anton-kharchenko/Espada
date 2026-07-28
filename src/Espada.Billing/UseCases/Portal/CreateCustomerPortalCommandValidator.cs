@@ -13,6 +13,6 @@ internal sealed class CreateCustomerPortalCommandValidator
 
         RuleFor(command => command.IdempotencyKey)
             .NotEmpty()
-            .MaximumLength(BillingRequestLimits.MaximumIdempotencyKeyLength);
+            .MaximumLength(BillingRequestLimitConstnts.MaximumIdempotencyKeyLength);
     }
 }

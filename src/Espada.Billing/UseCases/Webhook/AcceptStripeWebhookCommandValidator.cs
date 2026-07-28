@@ -9,10 +9,10 @@ internal sealed class AcceptStripeWebhookCommandValidator : AbstractValidator<Ac
     {
         RuleFor(command => command.Payload)
             .NotEmpty()
-            .MaximumLength(BillingRequestLimits.MaximumWebhookPayloadBytes);
+            .MaximumLength(BillingRequestLimitConstnts.MaximumWebhookPayloadBytes);
 
         RuleFor(command => command.Signature)
             .NotEmpty()
-            .MaximumLength(BillingRequestLimits.MaximumWebhookSignatureLength);
+            .MaximumLength(BillingRequestLimitConstnts.MaximumWebhookSignatureLength);
     }
 }
