@@ -1,17 +1,37 @@
+using AutoMapper;
+using Espada.Application.Mappings;
 using Espada.Application.UseCases.Workspaces.Commands.CreateWorkspace;
 using Espada.Tests.Application.Fakes;
 using Espada.Tests.Application.TestData;
+using Microsoft.Extensions.Logging.Abstractions;
 
-namespace Espada.Tests.Application.Fixtures;
-
-internal sealed class CreateWorkspaceHandlerFixture
+namespace Espada.Tests.Application.Fixtures
 {
-    public WorkspaceRepositorySpy WorkspaceRepository { get; } = new();
+    internal sealed class CreateWorkspaceHandlerFixture
+    {
+        private readonly IMapper _mapper = new MapperConfiguration(
+            options => options.AddProfile<ApplicationMappingProfile>(),
+            NullLoggerFactory.Instance).CreateMapper();
 
-    public UnitOfWorkSpy UnitOfWork { get; } = new();
-    public WorkspaceMembershipRepositorySpy MembershipRepository { get; } = new();
+        public WorkspaceRepositorySpy WorkspaceRepository { get; } = new();
 
-    public TestClockService ClockService { get; } = new(TestDates.UtcNow);
+        public OrganizationRepositorySpy OrganizationRepository { get; } = new();
 
-    public CreateWorkspaceCommandHandler CreateHandler() => new(WorkspaceRepository, MembershipRepository, UnitOfWork, ClockService);
+        public UnitOfWorkSpy UnitOfWork { get; } = new();
+
+        public WorkspaceMembershipRepositorySpy MembershipRepository { get; } = new();
+
+        public TestClockService ClockService { get; } = new(TestDates.UtcNow);
+
+        public CreateWorkspaceCommandHandler CreateHandler()
+        {
+            return new CreateWorkspaceCommandHandler(
+                WorkspaceRepository,
+                OrganizationRepository,
+                MembershipRepository,
+                UnitOfWork,
+                ClockService,
+                _mapper);
+        }
+    }
 }

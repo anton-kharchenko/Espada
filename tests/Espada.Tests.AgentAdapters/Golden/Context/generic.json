@@ -1,0 +1,75 @@
+{
+  "workspaceId": "11111111-1111-1111-1111-111111111111",
+  "organizationId": null,
+  "projectId": "22222222-2222-2222-2222-222222222222",
+  "taskId": null,
+  "repositoryCanonicalUri": "https://example.test/espada.git",
+  "repositoryRelativePath": "src",
+  "branch": "feature/context",
+  "agent": "generic",
+  "items": [
+    {
+      "bindingId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1",
+      "artifactId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb1",
+      "revisionId": "cccccccc-cccc-cccc-cccc-ccccccccccc1",
+      "artifactKind": "policy",
+      "title": "Secrets policy",
+      "ruleKey": "security.secrets",
+      "enforcement": "hard",
+      "content": "Never expose secrets.",
+      "rulePriority": 100,
+      "artifactPriority": 100,
+      "status": null,
+      "userConfirmed": null,
+      "confidence": null,
+      "provenance": null,
+      "sizeInBytes": 21
+    },
+    {
+      "bindingId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa2",
+      "artifactId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb2",
+      "revisionId": "cccccccc-cccc-cccc-cccc-ccccccccccc2",
+      "artifactKind": "instruction",
+      "title": "Repository style",
+      "ruleKey": "repo.style",
+      "enforcement": null,
+      "content": "Follow repository style.",
+      "rulePriority": 10,
+      "artifactPriority": 20,
+      "status": null,
+      "userConfirmed": null,
+      "confidence": null,
+      "provenance": null,
+      "sizeInBytes": 24
+    },
+    {
+      "bindingId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa3",
+      "artifactId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb3",
+      "revisionId": "cccccccc-cccc-cccc-cccc-ccccccccccc3",
+      "artifactKind": "memory",
+      "title": "Mapping preference",
+      "ruleKey": null,
+      "enforcement": null,
+      "content": "Use AutoMapper for declarative DTO mapping.",
+      "rulePriority": 0,
+      "artifactPriority": 0,
+      "status": "[unconfirmed]",
+      "userConfirmed": false,
+      "confidence": 0.82,
+      "provenance": {
+        "clientIdentity": "claude",
+        "sessionIdentity": "session-1"
+      },
+      "sizeInBytes": 43
+    }
+  ],
+  "conflicts": [],
+  "budget": {
+    "requestedBytes": 4096,
+    "hardPolicyBytes": 21,
+    "usedBytes": 88,
+    "remainingBytes": 4008,
+    "includedItemCount": 3,
+    "excludedItemCount": 0
+  }
+}

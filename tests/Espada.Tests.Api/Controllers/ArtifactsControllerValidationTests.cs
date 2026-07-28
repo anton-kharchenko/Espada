@@ -8,79 +8,76 @@ using Espada.Tests.Api.TestData.Routes;
 using System.Net;
 using System.Net.Http.Json;
 
-namespace Espada.Tests.Api.Controllers;
-
-public sealed class ArtifactsControllerValidationTests(EspadaApiFactory factory) : IClassFixture<EspadaApiFactory>
+namespace Espada.Tests.Api.Controllers
 {
-    [Fact]
-    public async Task Create_WithUnsupportedTypeId_ShouldReturnBadRequest()
+    public sealed class ArtifactsControllerValidationTests(EspadaApiFactory factory) : IClassFixture<EspadaApiFactory>
     {
-        using HttpClient client = factory.CreateHttpsClient();
-
-        CreateArtifactRequest request = new()
+        [Fact]
+        public async Task Create_WithUnsupportedTypeId_ShouldReturnBadRequest()
         {
-            Title = TestValues.ArtifactTitle,
-            TypeId = int.MaxValue,
-            Content = TestValues.ArtifactContent
-        };
+            using HttpClient client = factory.CreateHttpsClient();
 
-        HttpResponseMessage response = await client.PostAsJsonAsync(ArtifactApiRoutes.Create(TestIds.WorkspaceId), request, cancellationToken: TestContext.Current.CancellationToken);
+            CreateArtifactRequest request = new()
+            {
+                Title = TestValues.ArtifactTitle, TypeId = int.MaxValue, Content = TestValues.ArtifactContent
+            };
 
-        await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
-        await response.ShouldContainValidationErrorAsync(nameof(CreateArtifactRequest.TypeId));
-    }
+            HttpResponseMessage response = await client.PostAsJsonAsync(ArtifactApiRoutes.Create(TestIds.WorkspaceId),
+                request, TestContext.Current.CancellationToken);
 
-    [Fact]
-    public async Task Create_WithEmptyTitle_ShouldReturnBadRequest()
-    {
-        using HttpClient client = factory.CreateHttpsClient();
-        ArtifactType artifactType = Enumeration.GetAll<ArtifactType>().First();
+            await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
+            await response.ShouldContainValidationErrorAsync(nameof(CreateArtifactRequest.TypeId));
+        }
 
-        CreateArtifactRequest request = new()
+        [Fact]
+        public async Task Create_WithEmptyTitle_ShouldReturnBadRequest()
         {
-            Title = " ",
-            TypeId = artifactType.Id,
-            Content = TestValues.ArtifactContent
-        };
+            using HttpClient client = factory.CreateHttpsClient();
+            ArtifactType artifactType = Enumeration.GetAll<ArtifactType>().First();
 
-        HttpResponseMessage response = await client.PostAsJsonAsync(ArtifactApiRoutes.Create(TestIds.WorkspaceId), request, cancellationToken: TestContext.Current.CancellationToken);
+            CreateArtifactRequest request = new()
+            {
+                Title = " ", TypeId = artifactType.Id, Content = TestValues.ArtifactContent
+            };
 
-        await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
-        await response.ShouldContainValidationErrorAsync(nameof(CreateArtifactRequest.Title));
-    }
+            HttpResponseMessage response = await client.PostAsJsonAsync(ArtifactApiRoutes.Create(TestIds.WorkspaceId),
+                request, TestContext.Current.CancellationToken);
 
-    [Fact]
-    public async Task Create_WithEmptyContent_ShouldReturnBadRequest()
-    {
-        using HttpClient client = factory.CreateHttpsClient();
-        ArtifactType artifactType = Enumeration.GetAll<ArtifactType>().First();
+            await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
+            await response.ShouldContainValidationErrorAsync(nameof(CreateArtifactRequest.Title));
+        }
 
-        CreateArtifactRequest request = new()
+        [Fact]
+        public async Task Create_WithEmptyContent_ShouldReturnBadRequest()
         {
-            Title = TestValues.ArtifactTitle,
-            TypeId = artifactType.Id,
-            Content = " "
-        };
+            using HttpClient client = factory.CreateHttpsClient();
+            ArtifactType artifactType = Enumeration.GetAll<ArtifactType>().First();
 
-        HttpResponseMessage response = await client.PostAsJsonAsync(ArtifactApiRoutes.Create(TestIds.WorkspaceId), request, cancellationToken: TestContext.Current.CancellationToken);
+            CreateArtifactRequest request = new()
+            {
+                Title = TestValues.ArtifactTitle, TypeId = artifactType.Id, Content = " "
+            };
 
-        await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
-        await response.ShouldContainValidationErrorAsync(nameof(CreateArtifactRequest.Content));
-    }
+            HttpResponseMessage response = await client.PostAsJsonAsync(ArtifactApiRoutes.Create(TestIds.WorkspaceId),
+                request, TestContext.Current.CancellationToken);
 
-    [Fact]
-    public async Task Rename_WithEmptyTitle_ShouldReturnBadRequest()
-    {
-        using HttpClient client = factory.CreateHttpsClient();
+            await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
+            await response.ShouldContainValidationErrorAsync(nameof(CreateArtifactRequest.Content));
+        }
 
-        RenameArtifactRequest request = new()
+        [Fact]
+        public async Task Rename_WithEmptyTitle_ShouldReturnBadRequest()
         {
-            Title = " "
-        };
+            using HttpClient client = factory.CreateHttpsClient();
 
-        HttpResponseMessage response = await client.PostAsJsonAsync(ArtifactApiRoutes.Rename(TestIds.WorkspaceId, TestIds.ArtifactId), request, cancellationToken: TestContext.Current.CancellationToken);
+            RenameArtifactRequest request = new() { Title = " " };
 
-        await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
-        await response.ShouldContainValidationErrorAsync(nameof(RenameArtifactRequest.Title));
+            HttpResponseMessage response = await client.PostAsJsonAsync(
+                ArtifactApiRoutes.Rename(TestIds.WorkspaceId, TestIds.ArtifactId), request,
+                TestContext.Current.CancellationToken);
+
+            await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
+            await response.ShouldContainValidationErrorAsync(nameof(RenameArtifactRequest.Title));
+        }
     }
 }

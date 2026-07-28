@@ -1,28 +1,34 @@
 using Espada.Domain.Rules;
 using FluentAssertions;
 
-namespace Espada.Tests.Integration.Assertions;
-
-internal static class DomainResultAssertions
+namespace Espada.Tests.Integration.Assertions
 {
-    public static void ShouldSucceed(this DomainResult result) => result.IsSuccess.Should().BeTrue($"expected success, but received {result.Error.Code}: {result.Error.Description}");
-
-    public static TValue ShouldSucceed<TValue>(this DomainResult<TValue> result)
+    internal static class DomainResultAssertions
     {
-        result.IsSuccess.Should().BeTrue($"expected success, but received {result.Error.Code}: {result.Error.Description}");
+        public static void ShouldSucceed(this DomainResult result)
+        {
+            result.IsSuccess.Should()
+                .BeTrue($"expected success, but received {result.Error.Code}: {result.Error.Description}");
+        }
 
-        return result.Value;
-    }
+        public static TValue ShouldSucceed<TValue>(this DomainResult<TValue> result)
+        {
+            result.IsSuccess.Should()
+                .BeTrue($"expected success, but received {result.Error.Code}: {result.Error.Description}");
 
-    public static void ShouldFailWith(this DomainResult result, DomainError expectedError)
-    {
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(expectedError);
-    }
+            return result.Value;
+        }
 
-    public static void ShouldFailWith<TValue>(this DomainResult<TValue> result, DomainError expectedError)
-    {
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(expectedError);
+        public static void ShouldFailWith(this DomainResult result, DomainError expectedError)
+        {
+            result.IsFailure.Should().BeTrue();
+            result.Error.Should().Be(expectedError);
+        }
+
+        public static void ShouldFailWith<TValue>(this DomainResult<TValue> result, DomainError expectedError)
+        {
+            result.IsFailure.Should().BeTrue();
+            result.Error.Should().Be(expectedError);
+        }
     }
 }

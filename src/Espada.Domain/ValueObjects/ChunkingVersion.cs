@@ -2,35 +2,41 @@ using Espada.Domain.Errors;
 using Espada.Domain.Rules;
 using Espada.Domain.SeedWork;
 
-namespace Espada.Domain.ValueObjects;
-
-public sealed class ChunkingVersion : ValueObject
+namespace Espada.Domain.ValueObjects
 {
-    public const int MaxLength = 64;
-
-    private ChunkingVersion(string value)
+    public sealed class ChunkingVersion : ValueObject
     {
-        Value = value;
-    }
+        public const int MaxLength = 64;
 
-    public string Value { get; }
-
-    public static DomainResult<ChunkingVersion> Create(string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
+        private ChunkingVersion(string value)
         {
-            return DomainResult<ChunkingVersion>.Failure(ChunkErrors.VersionEmpty);
+            Value = value;
         }
 
-        string normalized = value.Trim();
+        public string Value { get; }
 
-        return normalized.Length > MaxLength ? DomainResult<ChunkingVersion>.Failure(ChunkErrors.VersionTooLong) : DomainResult<ChunkingVersion>.Success(new ChunkingVersion(normalized));
+        public static DomainResult<ChunkingVersion> Create(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return DomainResult<ChunkingVersion>.Failure(ChunkErrors.VersionEmpty);
+            }
+
+            string normalized = value.Trim();
+
+            return normalized.Length > MaxLength
+                ? DomainResult<ChunkingVersion>.Failure(ChunkErrors.VersionTooLong)
+                : DomainResult<ChunkingVersion>.Success(new ChunkingVersion(normalized));
+        }
+
+        protected override IEnumerable<object> GetEqualityComponents()
+        {
+            yield return Value;
+        }
+
+        public override string ToString()
+        {
+            return Value;
+        }
     }
-
-    protected override IEnumerable<object> GetEqualityComponents()
-    {
-        yield return Value;
-    }
-
-    public override string ToString() => Value;
 }

@@ -1,10 +1,10 @@
 using AutoMapper;
 using Espada.Application.ApplicationErrors;
 using Espada.Application.Mappings;
+using Espada.Application.UseCases.Projects.Common;
 using Espada.Application.UseCases.ProjectTasks.Commands.ArchiveProjectTask;
 using Espada.Application.UseCases.ProjectTasks.Commands.CompleteProjectTask;
 using Espada.Application.UseCases.ProjectTasks.Commands.CreateProjectTask;
-using Espada.Application.UseCases.Projects.Common;
 using Espada.Domain.Aggregates;
 using Espada.Domain.Enums;
 using Espada.Domain.Rules;

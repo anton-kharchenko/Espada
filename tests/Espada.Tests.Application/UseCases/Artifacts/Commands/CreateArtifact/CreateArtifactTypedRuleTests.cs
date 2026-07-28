@@ -50,7 +50,7 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Commands.CreateArtifact
             CreateArtifactCommandHandler handler = fixture.CreateHandler();
             CreateArtifactCommand command = CreateCommand(
                 ArtifactKindType.Instruction.Id,
-                instructionRules: [new InstructionRuleInput("database.migrations", "Require rollback.", 50)]);
+                [new InstructionRuleInput("database.migrations", "Require rollback.", 50)]);
 
             DomainResult<CreateArtifactResponse> result = await handler.Handle(
                 command,
@@ -70,7 +70,8 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Commands.CreateArtifact
             CreateArtifactCommandHandler handler = fixture.CreateHandler();
             CreateArtifactCommand command = CreateCommand(
                 ArtifactKindType.Policy.Id,
-                policyRules: [new PolicyRuleInput("git.main", "Do not push.", 100, PolicyEnforcementType.Hard.Id)]);
+                policyRules: [new PolicyRuleInput("git.main", "Do not push.", 100, PolicyEnforcementType.Hard.Id)],
+                allowPolicyMutation: true);
 
             DomainResult<CreateArtifactResponse> result = await handler.Handle(
                 command,
@@ -82,6 +83,26 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Commands.CreateArtifact
         }
 
         [Fact]
+        public async Task Handle_WithPolicyRuleWithoutAdministratorPermission_ShouldFail()
+        {
+            CreateArtifactHandlerFixture fixture = new();
+            fixture.GivenWorkspaceExists();
+            CreateArtifactCommandHandler handler = fixture.CreateHandler();
+            CreateArtifactCommand command = CreateCommand(
+                ArtifactKindType.Policy.Id,
+                policyRules: [new PolicyRuleInput("git.main", "Do not push.", 100, PolicyEnforcementType.Hard.Id)]);
+
+            DomainResult<CreateArtifactResponse> result = await handler.Handle(
+                command,
+                TestContext.Current.CancellationToken);
+
+            result.ShouldFailWith(
+                ArtifactApplicationErrors.PolicyMutationRequiresAdministrator);
+            fixture.PolicyRuleRepository.AddedRules.Should().BeEmpty();
+            fixture.UnitOfWork.SaveChangesCallCount.Should().Be(0);
+        }
+
+        [Fact]
         public async Task Handle_WithDuplicateNormalizedInstructionRuleKeys_ShouldFail()
         {
             CreateArtifactHandlerFixture fixture = new();
@@ -89,7 +110,6 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Commands.CreateArtifact
             CreateArtifactCommandHandler handler = fixture.CreateHandler();
             CreateArtifactCommand command = CreateCommand(
                 ArtifactKindType.Instruction.Id,
-                instructionRules:
                 [
                     new InstructionRuleInput("database.migrations", "First.", 50),
                     new InstructionRuleInput(" database.migrations ", "Second.", 40)
@@ -117,7 +137,8 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Commands.CreateArtifact
                 [
                     new PolicyRuleInput("git.main", "First.", 100, PolicyEnforcementType.Hard.Id),
                     new PolicyRuleInput(" git.main ", "Second.", 90, PolicyEnforcementType.Hard.Id)
-                ]);
+                ],
+                allowPolicyMutation: true);
 
             DomainResult<CreateArtifactResponse> result = await handler.Handle(
                 command,
@@ -128,10 +149,12 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Commands.CreateArtifact
             fixture.PolicyRuleRepository.AddedRules.Should().BeEmpty();
             fixture.UnitOfWork.SaveChangesCallCount.Should().Be(0);
         }
+
         private static CreateArtifactCommand CreateCommand(
             int kindTypeId,
             IReadOnlyList<InstructionRuleInput>? instructionRules = null,
-            IReadOnlyList<PolicyRuleInput>? policyRules = null)
+            IReadOnlyList<PolicyRuleInput>? policyRules = null,
+            bool allowPolicyMutation = false)
         {
             return new CreateArtifactCommand(
                 TestIds.DefaultWorkspaceId.Value,
@@ -140,7 +163,8 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Commands.CreateArtifact
                 TestValues.ArtifactContent,
                 kindTypeId,
                 instructionRules,
-                policyRules);
+                policyRules,
+                allowPolicyMutation);
         }
     }
 }

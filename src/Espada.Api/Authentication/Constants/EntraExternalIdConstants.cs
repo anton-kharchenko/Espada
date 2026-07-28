@@ -1,6 +1,7 @@
-namespace Espada.Api.Authentication.Constants;
-
-internal static class EntraExternalIdConstants
+namespace Espada.Api.Authentication.Constants
 {
-    public const string SectionName = "Authentication:EntraExternalId";
+    internal static class EntraExternalIdConstants
+    {
+        public const string SectionName = "Authentication:EntraExternalId";
+    }
 }

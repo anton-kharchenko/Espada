@@ -10,6 +10,7 @@ export const DEFAULT_WORKSPACE_SECTION_PATH = 'overview';
 
 export const ROUTES = {
   home: '/',
+  pricing: '/pricing',
   app: `/${routeSegments.app}`,
   billing: `/${routeSegments.app}/${routeSegments.billing}`,
   settings: `/${routeSegments.app}/${routeSegments.settings}`,

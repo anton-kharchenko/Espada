@@ -2,69 +2,70 @@ using Espada.Application.UseCases.Imports.Commands.RequestImport;
 using Espada.Tests.Application.TestData.Builder;
 using FluentValidation.TestHelper;
 
-namespace Espada.Tests.Application.UseCases.Imports.Commands.RequestImport;
-
-public sealed class RequestImportCommandValidatorTests
+namespace Espada.Tests.Application.UseCases.Imports.Commands.RequestImport
 {
-    private readonly RequestImportCommandValidator _validator =
-        new();
-
-    [Fact]
-    public async Task Validate_WithValidCommand_ShouldNotHaveErrors()
+    public sealed class RequestImportCommandValidatorTests
     {
-        // Arrange
-        RequestImportCommand command = new RequestImportCommandBuilder().Build();
+        private readonly RequestImportCommandValidator _validator =
+            new();
 
-        // Act
-        TestValidationResult<RequestImportCommand> result = await _validator.TestValidateAsync(
-            command,
-            cancellationToken: TestContext.Current.CancellationToken);
+        [Fact]
+        public async Task Validate_WithValidCommand_ShouldNotHaveErrors()
+        {
+            // Arrange
+            RequestImportCommand command = new RequestImportCommandBuilder().Build();
 
-        // Assert
-        result.ShouldNotHaveAnyValidationErrors();
-    }
+            // Act
+            TestValidationResult<RequestImportCommand> result = await _validator.TestValidateAsync(
+                command,
+                cancellationToken: TestContext.Current.CancellationToken);
 
-    [Fact]
-    public async Task Validate_WithEmptyWorkspaceId_ShouldHaveError()
-    {
-        // Arrange
-        RequestImportCommand command = new RequestImportCommandBuilder().InWorkspace(Guid.Empty).Build();
+            // Assert
+            result.ShouldNotHaveAnyValidationErrors();
+        }
 
-        // Act
-        TestValidationResult<RequestImportCommand> result = await _validator.TestValidateAsync(
-            command,
-            cancellationToken: TestContext.Current.CancellationToken);
+        [Fact]
+        public async Task Validate_WithEmptyWorkspaceId_ShouldHaveError()
+        {
+            // Arrange
+            RequestImportCommand command = new RequestImportCommandBuilder().InWorkspace(Guid.Empty).Build();
 
-        // Assert
-        result.ShouldHaveValidationErrorFor(value => value.WorkspaceId);
-    }
+            // Act
+            TestValidationResult<RequestImportCommand> result = await _validator.TestValidateAsync(
+                command,
+                cancellationToken: TestContext.Current.CancellationToken);
 
-    [Fact]
-    public async Task Validate_WithEmptySourceId_ShouldHaveError()
-    {
-        // Arrange
-        RequestImportCommand command = new RequestImportCommandBuilder().ForSource(Guid.Empty).Build();
+            // Assert
+            result.ShouldHaveValidationErrorFor(value => value.WorkspaceId);
+        }
 
-        // Act
-        TestValidationResult<RequestImportCommand> result = await _validator.TestValidateAsync(
-            command,
-            cancellationToken: TestContext.Current.CancellationToken);
+        [Fact]
+        public async Task Validate_WithEmptySourceId_ShouldHaveError()
+        {
+            // Arrange
+            RequestImportCommand command = new RequestImportCommandBuilder().ForSource(Guid.Empty).Build();
 
-        // Assert
-        result.ShouldHaveValidationErrorFor(value => value.SourceId);
-    }
+            // Act
+            TestValidationResult<RequestImportCommand> result = await _validator.TestValidateAsync(
+                command,
+                cancellationToken: TestContext.Current.CancellationToken);
 
-    [Fact]
-    public async Task Validate_WithEmptyIdempotencyKey_ShouldHaveError()
-    {
-        RequestImportCommand command = new RequestImportCommandBuilder()
-            .WithIdempotencyKey(string.Empty)
-            .Build();
+            // Assert
+            result.ShouldHaveValidationErrorFor(value => value.SourceId);
+        }
 
-        TestValidationResult<RequestImportCommand> result = await _validator.TestValidateAsync(
-            command,
-            cancellationToken: TestContext.Current.CancellationToken);
+        [Fact]
+        public async Task Validate_WithEmptyIdempotencyKey_ShouldHaveError()
+        {
+            RequestImportCommand command = new RequestImportCommandBuilder()
+                .WithIdempotencyKey(string.Empty)
+                .Build();
 
-        result.ShouldHaveValidationErrorFor(value => value.IdempotencyKey);
+            TestValidationResult<RequestImportCommand> result = await _validator.TestValidateAsync(
+                command,
+                cancellationToken: TestContext.Current.CancellationToken);
+
+            result.ShouldHaveValidationErrorFor(value => value.IdempotencyKey);
+        }
     }
 }

@@ -78,8 +78,7 @@ namespace Espada.Tests.Application.UseCases.Memories.Queries.SearchMemory
                 return new SearchMemoryQuery(
                     WorkspaceId,
                     "PostgreSQL",
-                    [MemoryCategoryType.Decision.Id],
-                    10);
+                    [MemoryCategoryType.Decision.Id]);
             }
         }
     }

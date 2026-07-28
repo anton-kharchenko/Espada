@@ -1,15 +1,19 @@
+using AutoMapper;
 using Espada.Application.ApplicationErrors;
 using Espada.Application.Contracts.Messaging;
 using Espada.Application.Contracts.Persistence;
 using Espada.Domain.Aggregates;
+using Espada.Domain.Enums;
 using Espada.Domain.Rules;
+using Espada.Domain.SeedWork;
 using Espada.Domain.ValueObjects;
 
 namespace Espada.Application.UseCases.Artifacts.Queries.ListArtifacts
 {
     internal sealed class ListArtifactsQueryHandler(
         IWorkspaceRepository workspaceRepository,
-        IArtifactRepository artifactRepository)
+        IArtifactRepository artifactRepository,
+        IMapper mapper)
         : IQueryHandler<ListArtifactsQuery, ListArtifactsResponse>
     {
         public async Task<DomainResult<ListArtifactsResponse>> Handle(
@@ -18,48 +22,48 @@ namespace Espada.Application.UseCases.Artifacts.Queries.ListArtifacts
         {
             if (request.WorkspaceId == Guid.Empty)
             {
-                return DomainResult<ListArtifactsResponse>.Failure(
+                return DomainResult.Failure<ListArtifactsResponse>(
                     WorkspaceApplicationErrors.InvalidId);
             }
 
-            WorkspaceId workspaceId =
-                WorkspaceId.Create(request.WorkspaceId);
+            ArtifactKindType? kindType = null;
+            if (request.KindTypeId.HasValue)
+            {
+                kindType = Enumeration
+                    .GetAll<ArtifactKindType>()
+                    .SingleOrDefault(value =>
+                        value.Id == request.KindTypeId.Value);
+                if (kindType is null)
+                {
+                    return DomainResult.Failure<ListArtifactsResponse>(
+                        ArtifactApplicationErrors.UnsupportedKindType(
+                            request.KindTypeId.Value));
+                }
+            }
 
+            WorkspaceId workspaceId = WorkspaceId.Create(request.WorkspaceId);
             Workspace? workspace = await workspaceRepository.GetByIdAsync(
                 workspaceId,
                 cancellationToken);
-
             if (workspace is null)
             {
-                return DomainResult<ListArtifactsResponse>.Failure(
+                return DomainResult.Failure<ListArtifactsResponse>(
                     WorkspaceApplicationErrors.NotFound(request.WorkspaceId));
             }
 
-            IReadOnlyList<Artifact> artifacts =
-                await artifactRepository.ListByWorkspaceIdAsync(
-                    workspace.Id,
-                    cancellationToken);
-
-            ArtifactListItemResponse[] items = artifacts
+            IReadOnlyList<Artifact> artifacts = await artifactRepository.ListByWorkspaceIdAsync(
+                workspace.Id,
+                cancellationToken);
+            Artifact[] orderedArtifacts = artifacts
+                .Where(artifact =>
+                    kindType is null
+                    || artifact.KindType.Equals(kindType))
                 .OrderByDescending(artifact => artifact.UpdatedAtUtc)
-                .Select(artifact => new ArtifactListItemResponse(
-                    artifact.Id.Value,
-                    artifact.Title.Value,
-                    artifact.Type.Id,
-                    artifact.Type.Name,
-                    artifact.Status.Id,
-                    artifact.Status.Name,
-                    artifact.Priority.Value,
-                    artifact.CurrentRevisionId?.Value,
-                    artifact.CurrentRevisionNumber?.Value,
-                    artifact.RevisionCount,
-                    artifact.CreatedAtUtc,
-                    artifact.UpdatedAtUtc,
-                    artifact.ArchivedAtUtc))
                 .ToArray();
+            ArtifactListItemResponse[] items = mapper.Map<ArtifactListItemResponse[]>(
+                orderedArtifacts);
 
-            return DomainResult<ListArtifactsResponse>.Success(
-                new ListArtifactsResponse(items));
+            return DomainResult.Success(new ListArtifactsResponse(items));
         }
     }
 }

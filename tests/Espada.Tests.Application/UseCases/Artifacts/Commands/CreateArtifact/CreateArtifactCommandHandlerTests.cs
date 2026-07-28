@@ -271,7 +271,8 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Commands.CreateArtifact
                 .Build();
 
             // Act
-            DomainResult<CreateArtifactResponse> result = await handler.Handle(command, TestContext.Current.CancellationToken);
+            DomainResult<CreateArtifactResponse> result =
+                await handler.Handle(command, TestContext.Current.CancellationToken);
 
             // Assert
             result.ShouldFailWith(ArtifactRevisionErrors.ContentEmpty);

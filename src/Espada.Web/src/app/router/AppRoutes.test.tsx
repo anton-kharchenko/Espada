@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
-import { MemoryRouter, useLocation } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router';
 import type { ConsoleSession } from 'entities/session';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AppRoutes } from './AppRoutes';
@@ -9,7 +9,7 @@ import { AppRoutes } from './AppRoutes';
 const authenticatedSession: ConsoleSession = {
   authenticated: true,
   mode: 'local',
-  user: { displayName: 'Anton' },
+  user: { displayName: 'Anton', email: null },
   workspaces: [{ id: 'workspace-one', name: 'Espada' }],
   readOnly: false,
 };

@@ -1,9 +1,10 @@
-namespace Espada.Billing.Contracts;
-
-public interface IStripeWebhookIngestor
+namespace Espada.Billing.Contracts
 {
-    Task<bool> AcceptAsync(
-        string payload,
-        string signature,
-        CancellationToken cancellationToken = default);
+    public interface IStripeWebhookIngestor
+    {
+        Task<bool> AcceptAsync(
+            string payload,
+            string signature,
+            CancellationToken cancellationToken = default);
+    }
 }

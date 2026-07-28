@@ -3,42 +3,43 @@ using Espada.Api.Contracts.Requests.Billing;
 using Espada.Tests.Api.Contracts.Validation;
 using System.ComponentModel.DataAnnotations;
 
-namespace Espada.Tests.Api.Contracts.Requests.Billing;
-
-public sealed class CreateCheckoutRequestTests
+namespace Espada.Tests.Api.Contracts.Requests.Billing
 {
-    public static TheoryData<string> SupportedPlans =>
-    [
-        BillingPlanConstants.Solo,
-        BillingPlanConstants.Team
-    ];
-
-    public static TheoryData<string> UnsupportedPlans =>
-    [
-        string.Empty,
-        "Enterprise",
-        "Pro"
-    ];
-
-    [Theory]
-    [MemberData(nameof(SupportedPlans))]
-    public void Validate_WithSupportedPlan_ShouldSucceed(string plan)
+    public sealed class CreateCheckoutRequestTests
     {
-        CreateCheckoutRequest request = new(plan);
+        public static TheoryData<string> SupportedPlans =>
+        [
+            BillingPlanConstants.Solo,
+            BillingPlanConstants.Team
+        ];
 
-        IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
+        public static TheoryData<string> UnsupportedPlans =>
+        [
+            string.Empty,
+            "Enterprise",
+            "Pro"
+        ];
 
-        Assert.Empty(results);
-    }
+        [Theory]
+        [MemberData(nameof(SupportedPlans))]
+        public void Validate_WithSupportedPlan_ShouldSucceed(string plan)
+        {
+            CreateCheckoutRequest request = new(plan);
 
-    [Theory]
-    [MemberData(nameof(UnsupportedPlans))]
-    public void Validate_WithUnsupportedPlan_ShouldReturnPlanError(string plan)
-    {
-        CreateCheckoutRequest request = new(plan);
+            IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
 
-        IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
+            Assert.Empty(results);
+        }
 
-        Assert.True(results.HasErrorFor(nameof(CreateCheckoutRequest.Plan)));
+        [Theory]
+        [MemberData(nameof(UnsupportedPlans))]
+        public void Validate_WithUnsupportedPlan_ShouldReturnPlanError(string plan)
+        {
+            CreateCheckoutRequest request = new(plan);
+
+            IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
+
+            Assert.True(results.HasErrorFor(nameof(CreateCheckoutRequest.Plan)));
+        }
     }
 }

@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router';
 import { useConsoleSession } from 'entities/session';
 import { PageState, type PageStateKind } from 'shared/ui';
 import { getSessionStateKind } from './sessionState';

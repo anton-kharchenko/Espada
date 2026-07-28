@@ -7,17 +7,16 @@ namespace Espada.Tests.Application.TestData.Builder
 {
     internal sealed class SourceBuilder
     {
+        private DateTimeOffset _createdAtUtc = TestDates.UtcNow;
         private SourceId _id = TestIds.SourceId;
-
-        private WorkspaceId _workspaceId = TestIds.DefaultWorkspaceId;
-
-        private SourceName _name = CreateName(TestValues.SourceName);
 
         private SourceLocator _locator = CreateLocator(TestValues.SourceLocator);
 
+        private SourceName _name = CreateName(TestValues.SourceName);
+
         private SourceType _type = SourceTypeTestData.Any;
 
-        private DateTimeOffset _createdAtUtc = TestDates.UtcNow;
+        private WorkspaceId _workspaceId = TestIds.DefaultWorkspaceId;
 
         public SourceBuilder WithId(SourceId id)
         {
@@ -55,13 +54,19 @@ namespace Espada.Tests.Application.TestData.Builder
             return this;
         }
 
-        public DomainResult<Source> BuildResult() => Source.Create(_id, _workspaceId, _name, _type, _locator, _createdAtUtc);
+        public DomainResult<Source> BuildResult()
+        {
+            return Source.Create(_id, _workspaceId, _name, _type, _locator, _createdAtUtc);
+        }
 
         public Source Build()
         {
             DomainResult<Source> result = BuildResult();
 
-            return result.IsFailure ? throw new InvalidOperationException($"SourceBuilder produced an invalid source: {result.Error.Code} — {result.Error.Description}") : result.Value;
+            return result.IsFailure
+                ? throw new InvalidOperationException(
+                    $"SourceBuilder produced an invalid source: {result.Error.Code} — {result.Error.Description}")
+                : result.Value;
         }
 
         public Source BuildWithoutPendingEvents()
@@ -77,14 +82,20 @@ namespace Espada.Tests.Application.TestData.Builder
         {
             DomainResult<SourceName> result = SourceName.Create(value);
 
-            return result.IsFailure ? throw new InvalidOperationException($"SourceBuilder received an invalid name: {result.Error.Code} — {result.Error.Description}") : result.Value;
+            return result.IsFailure
+                ? throw new InvalidOperationException(
+                    $"SourceBuilder received an invalid name: {result.Error.Code} — {result.Error.Description}")
+                : result.Value;
         }
 
         private static SourceLocator CreateLocator(string value)
         {
             DomainResult<SourceLocator> result = SourceLocator.Create(value);
 
-            return result.IsFailure ? throw new InvalidOperationException($"SourceBuilder received an invalid locator: {result.Error.Code} — {result.Error.Description}") : result.Value;
+            return result.IsFailure
+                ? throw new InvalidOperationException(
+                    $"SourceBuilder received an invalid locator: {result.Error.Code} — {result.Error.Description}")
+                : result.Value;
         }
 
         public Source BuildArchivedWithoutPendingEvents(DateTimeOffset? archivedAtUtc = null)
@@ -95,7 +106,8 @@ namespace Espada.Tests.Application.TestData.Builder
 
             if (archiveResult.IsFailure)
             {
-                throw new InvalidOperationException($"SourceBuilder could not archive source: {archiveResult.Error.Code} — {archiveResult.Error.Description}");
+                throw new InvalidOperationException(
+                    $"SourceBuilder could not archive source: {archiveResult.Error.Code} — {archiveResult.Error.Description}");
             }
 
             source.DequeueDomainEvents();

@@ -2,21 +2,17 @@ using Espada.Db.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Espada.Db.Database.EntityFrameworkConfigurations;
-
-internal sealed class UsageLedgerConfiguration : IEntityTypeConfiguration<UsageLedgerEntries>
+namespace Espada.Db.Database.EntityFrameworkConfigurations
 {
-    public void Configure(EntityTypeBuilder<UsageLedgerEntries> builder)
+    internal sealed class UsageLedgerConfiguration : IEntityTypeConfiguration<UsageLedgerEntries>
     {
-        builder.HasKey(entry => entry.EntryId);
-        builder.Property(entry => entry.EntryId).ValueGeneratedNever();
-        builder.Property(entry => entry.Metric).HasMaxLength(100).IsRequired();
-        builder.Property(entry => entry.IdempotencyKey).HasMaxLength(255).IsRequired();
-        builder.HasIndex(entry => new
+        public void Configure(EntityTypeBuilder<UsageLedgerEntries> builder)
         {
-            entry.WorkspaceId,
-            entry.Metric,
-            entry.IdempotencyKey
-        }).IsUnique();
+            builder.HasKey(entry => entry.EntryId);
+            builder.Property(entry => entry.EntryId).ValueGeneratedNever();
+            builder.Property(entry => entry.Metric).HasMaxLength(100).IsRequired();
+            builder.Property(entry => entry.IdempotencyKey).HasMaxLength(255).IsRequired();
+            builder.HasIndex(entry => new { entry.WorkspaceId, entry.Metric, entry.IdempotencyKey }).IsUnique();
+        }
     }
 }

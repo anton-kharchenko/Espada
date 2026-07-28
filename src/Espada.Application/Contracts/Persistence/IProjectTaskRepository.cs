@@ -17,5 +17,9 @@ namespace Espada.Application.Contracts.Persistence
             WorkspaceId workspaceId,
             ProjectId projectId,
             CancellationToken cancellationToken = default);
+
+        Task<IReadOnlyList<ProjectTask>> ListByWorkspaceIdAsync(
+            WorkspaceId workspaceId,
+            CancellationToken cancellationToken = default);
     }
 }

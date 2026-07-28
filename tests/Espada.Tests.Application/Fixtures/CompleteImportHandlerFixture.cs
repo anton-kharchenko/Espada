@@ -15,13 +15,16 @@ namespace Espada.Tests.Application.Fixtures
 
         public TestClockService ClockService { get; } = new(TestDates.ImportCompletedAtUtc);
 
-        public CompleteImportCommandHandler CreateHandler() => new(ImportJobRepository, UnitOfWork, ClockService);
+        public CompleteImportCommandHandler CreateHandler()
+        {
+            return new CompleteImportCommandHandler(ImportJobRepository, UnitOfWork, ClockService);
+        }
 
         public ImportJob GivenRunningImportExists(WorkspaceId? workspaceId = null)
         {
             ImportJob importJob = new ImportJobBuilder()
-                    .InWorkspace(workspaceId ?? TestIds.DefaultWorkspaceId)
-                    .BuildRunningWithoutPendingEvents();
+                .InWorkspace(workspaceId ?? TestIds.DefaultWorkspaceId)
+                .BuildRunningWithoutPendingEvents();
 
             ImportJobRepository.ImportJobToReturn = importJob;
 
@@ -31,8 +34,8 @@ namespace Espada.Tests.Application.Fixtures
         public ImportJob GivenRequestedImportExists(WorkspaceId? workspaceId = null)
         {
             ImportJob importJob = new ImportJobBuilder()
-                    .InWorkspace(workspaceId ?? TestIds.DefaultWorkspaceId)
-                    .BuildWithoutPendingEvents();
+                .InWorkspace(workspaceId ?? TestIds.DefaultWorkspaceId)
+                .BuildWithoutPendingEvents();
 
             ImportJobRepository.ImportJobToReturn = importJob;
 
@@ -42,14 +45,17 @@ namespace Espada.Tests.Application.Fixtures
         public ImportJob GivenSucceededImportExists(WorkspaceId? workspaceId = null)
         {
             ImportJob importJob = new ImportJobBuilder()
-                    .InWorkspace(workspaceId ?? TestIds.DefaultWorkspaceId)
-                    .BuildSucceededWithoutPendingEvents();
+                .InWorkspace(workspaceId ?? TestIds.DefaultWorkspaceId)
+                .BuildSucceededWithoutPendingEvents();
 
             ImportJobRepository.ImportJobToReturn = importJob;
 
             return importJob;
         }
 
-        public void GivenImportDoesNotExist() => ImportJobRepository.ImportJobToReturn = null;
+        public void GivenImportDoesNotExist()
+        {
+            ImportJobRepository.ImportJobToReturn = null;
+        }
     }
 }

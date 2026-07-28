@@ -4,9 +4,8 @@ namespace Espada.Tests.Application.TestData.Builder
 {
     internal sealed class GetImportByIdQueryBuilder
     {
-        private Guid _workspaceId = TestIds.DefaultWorkspaceId.Value;
-
         private Guid _importJobId = TestIds.DefaultImportJobId.Value;
+        private Guid _workspaceId = TestIds.DefaultWorkspaceId.Value;
 
         public GetImportByIdQueryBuilder InWorkspace(Guid workspaceId)
         {
@@ -20,9 +19,11 @@ namespace Espada.Tests.Application.TestData.Builder
             return this;
         }
 
-        public GetImportByIdQuery Build() =>
-            new(
+        public GetImportByIdQuery Build()
+        {
+            return new GetImportByIdQuery(
                 _workspaceId,
                 _importJobId);
+        }
     }
 }

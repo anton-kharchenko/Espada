@@ -8,11 +8,11 @@ namespace Espada.Tests.Application.TestData.Builder
     {
         private ImportJobId _id = TestIds.DefaultImportJobId;
 
-        private WorkspaceId _workspaceId = TestIds.DefaultWorkspaceId;
+        private DateTimeOffset _requestedAtUtc = TestDates.ImportRequestedAtUtc;
 
         private SourceId _sourceId = TestIds.SourceId;
 
-        private DateTimeOffset _requestedAtUtc = TestDates.ImportRequestedAtUtc;
+        private WorkspaceId _workspaceId = TestIds.DefaultWorkspaceId;
 
         public ImportJobBuilder WithId(ImportJobId id)
         {
@@ -38,13 +38,19 @@ namespace Espada.Tests.Application.TestData.Builder
             return this;
         }
 
-        public DomainResult<ImportJob> BuildResult() => ImportJob.Request(_id, _sourceId, _workspaceId, _requestedAtUtc);
+        public DomainResult<ImportJob> BuildResult()
+        {
+            return ImportJob.Request(_id, _sourceId, _workspaceId, _requestedAtUtc);
+        }
 
         public ImportJob Build()
         {
             DomainResult<ImportJob> result = BuildResult();
 
-            return result.IsFailure ? throw new InvalidOperationException($"ImportJobBuilder produced an invalid import job: {result.Error.Code} — {result.Error.Description}") : result.Value;
+            return result.IsFailure
+                ? throw new InvalidOperationException(
+                    $"ImportJobBuilder produced an invalid import job: {result.Error.Code} — {result.Error.Description}")
+                : result.Value;
         }
 
         public ImportJob BuildWithoutPendingEvents()
@@ -64,7 +70,8 @@ namespace Espada.Tests.Application.TestData.Builder
 
             if (startResult.IsFailure)
             {
-                throw new InvalidOperationException("ImportJobBuilder could not start import job: " + startResult.Error.Code);
+                throw new InvalidOperationException("ImportJobBuilder could not start import job: " +
+                                                    startResult.Error.Code);
             }
 
             importJob.DequeueDomainEvents();
@@ -72,15 +79,19 @@ namespace Espada.Tests.Application.TestData.Builder
             return importJob;
         }
 
-        public ImportJob BuildSucceededWithoutPendingEvents(DateTimeOffset? completedAtUtc = null, ArtifactId? artifactId = null, ArtifactRevisionId? artifactRevisionId = null)
+        public ImportJob BuildSucceededWithoutPendingEvents(DateTimeOffset? completedAtUtc = null,
+            ArtifactId? artifactId = null, ArtifactRevisionId? artifactRevisionId = null)
         {
             ImportJob importJob = BuildRunningWithoutPendingEvents();
 
-            DomainResult completeResult = importJob.Complete(artifactId ?? TestIds.DefaultArtifactId, artifactRevisionId ?? TestIds.DefaultArtifactRevisionId, completedAtUtc ?? TestDates.ImportCompletedAtUtc);
+            DomainResult completeResult = importJob.Complete(artifactId ?? TestIds.DefaultArtifactId,
+                artifactRevisionId ?? TestIds.DefaultArtifactRevisionId,
+                completedAtUtc ?? TestDates.ImportCompletedAtUtc);
 
             if (completeResult.IsFailure)
             {
-                throw new InvalidOperationException($"ImportJobBuilder could not complete import job: {completeResult.Error.Code} — {completeResult.Error.Description}");
+                throw new InvalidOperationException(
+                    $"ImportJobBuilder could not complete import job: {completeResult.Error.Code} — {completeResult.Error.Description}");
             }
 
             importJob.DequeueDomainEvents();
@@ -88,7 +99,8 @@ namespace Espada.Tests.Application.TestData.Builder
             return importJob;
         }
 
-        public ImportJob BuildFailedWithoutPendingEvents(string failureCode = TestValues.ImportFailureCode, string failureReason = TestValues.ImportFailureReason, DateTimeOffset? failedAtUtc = null)
+        public ImportJob BuildFailedWithoutPendingEvents(string failureCode = TestValues.ImportFailureCode,
+            string failureReason = TestValues.ImportFailureReason, DateTimeOffset? failedAtUtc = null)
         {
             ImportJob importJob = BuildRunningWithoutPendingEvents();
 
@@ -96,14 +108,16 @@ namespace Espada.Tests.Application.TestData.Builder
 
             if (failureResult.IsFailure)
             {
-                throw new InvalidOperationException($"ImportJobBuilder received an invalid failure: {failureResult.Error.Code} — {failureResult.Error.Description}");
+                throw new InvalidOperationException(
+                    $"ImportJobBuilder received an invalid failure: {failureResult.Error.Code} — {failureResult.Error.Description}");
             }
 
             DomainResult failResult = importJob.Fail(failureResult.Value, failedAtUtc ?? TestDates.ImportFailedAtUtc);
 
             if (failResult.IsFailure)
             {
-                throw new InvalidOperationException($"ImportJobBuilder could not fail import job: {failResult.Error.Code} — {failResult.Error.Description}");
+                throw new InvalidOperationException(
+                    $"ImportJobBuilder could not fail import job: {failResult.Error.Code} — {failResult.Error.Description}");
             }
 
             importJob.DequeueDomainEvents();
@@ -119,7 +133,8 @@ namespace Espada.Tests.Application.TestData.Builder
 
             if (cancelResult.IsFailure)
             {
-                throw new InvalidOperationException($"ImportJobBuilder could not cancel requested import job: {cancelResult.Error.Code} — {cancelResult.Error.Description}");
+                throw new InvalidOperationException(
+                    $"ImportJobBuilder could not cancel requested import job: {cancelResult.Error.Code} — {cancelResult.Error.Description}");
             }
 
             importJob.DequeueDomainEvents();
@@ -135,7 +150,8 @@ namespace Espada.Tests.Application.TestData.Builder
 
             if (cancelResult.IsFailure)
             {
-                throw new InvalidOperationException($"ImportJobBuilder could not cancel running import job: {cancelResult.Error.Code} — {cancelResult.Error.Description}");
+                throw new InvalidOperationException(
+                    $"ImportJobBuilder could not cancel running import job: {cancelResult.Error.Code} — {cancelResult.Error.Description}");
             }
 
             importJob.DequeueDomainEvents();

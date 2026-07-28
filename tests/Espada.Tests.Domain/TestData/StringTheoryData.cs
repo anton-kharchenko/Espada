@@ -1,14 +1,15 @@
-namespace Espada.Tests.Domain.TestData;
-
-public static class StringTheoryData
+namespace Espada.Tests.Domain.TestData
 {
-    public static TheoryData<string?> NullOrWhiteSpaceValues =>
-    [
-        null!,
-        string.Empty,
-        " ",
-        "    ",
-        "\t",
-        "\r\n"
-    ];
+    public static class StringTheoryData
+    {
+        public static TheoryData<string?> NullOrWhiteSpaceValues =>
+        [
+            null!,
+            string.Empty,
+            " ",
+            "    ",
+            "\t",
+            "\r\n"
+        ];
+    }
 }

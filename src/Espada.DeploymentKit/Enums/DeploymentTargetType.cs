@@ -1,7 +1,8 @@
-namespace Espada.DeploymentKit.Enums;
-
-public enum DeploymentTargetType
+namespace Espada.DeploymentKit.Enums
 {
-    Website,
-    All
+    public enum DeploymentTargetType
+    {
+        Website,
+        All
+    }
 }

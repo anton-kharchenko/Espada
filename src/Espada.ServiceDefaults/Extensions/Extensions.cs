@@ -11,75 +11,72 @@ using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
 
-namespace Espada.ServiceDefaults.Extensions;
-
-public static class Extensions
+namespace Espada.ServiceDefaults.Extensions
 {
-    public static void AddServiceDefaults<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
+    public static class Extensions
     {
-        builder.Logging.AddOpenTelemetry(logging =>
+        public static void AddServiceDefaults<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
         {
-            logging.IncludeFormattedMessage = true;
-            logging.IncludeScopes = true;
-        });
+            builder.Logging.AddOpenTelemetry(logging =>
+            {
+                logging.IncludeFormattedMessage = true;
+                logging.IncludeScopes = true;
+            });
 
-        OpenTelemetryBuilder openTelemetry = builder.Services.AddOpenTelemetry().WithMetrics(metrics => metrics.AddRuntimeInstrumentation());
+            OpenTelemetryBuilder openTelemetry = builder.Services.AddOpenTelemetry()
+                .WithMetrics(metrics => metrics.AddRuntimeInstrumentation());
 
-        switch (ResolveTelemetryExporter(builder.Configuration))
-        {
-            case TelemetryExporterType.AzureMonitor:
-                openTelemetry.UseAzureMonitor();
-                break;
-            case TelemetryExporterType.Otlp:
-                openTelemetry
-                    .WithTracing(tracing => tracing
-                        .AddAspNetCoreInstrumentation()
-                        .AddHttpClientInstrumentation())
-                    .WithMetrics(metrics => metrics
-                        .AddAspNetCoreInstrumentation()
-                        .AddHttpClientInstrumentation())
-                    .UseOtlpExporter();
-                break;
-            case TelemetryExporterType.None:
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
+            switch (ResolveTelemetryExporter(builder.Configuration))
+            {
+                case TelemetryExporterType.AzureMonitor:
+                    openTelemetry.UseAzureMonitor();
+                    break;
+                case TelemetryExporterType.Otlp:
+                    openTelemetry
+                        .WithTracing(tracing => tracing
+                            .AddAspNetCoreInstrumentation()
+                            .AddHttpClientInstrumentation())
+                        .WithMetrics(metrics => metrics
+                            .AddAspNetCoreInstrumentation()
+                            .AddHttpClientInstrumentation())
+                        .UseOtlpExporter();
+                    break;
+                case TelemetryExporterType.None:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            builder.Services.AddHealthChecks()
+                .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
+
+            builder.Services.AddServiceDiscovery();
+
+            builder.Services.ConfigureHttpClientDefaults(http =>
+            {
+                http.AddStandardResilienceHandler();
+                http.AddServiceDiscovery();
+            });
         }
 
-        builder.Services.AddHealthChecks()
-            .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
-
-        builder.Services.AddServiceDiscovery();
-
-        builder.Services.ConfigureHttpClientDefaults(http =>
+        private static TelemetryExporterType ResolveTelemetryExporter(IConfiguration configuration)
         {
-            http.AddStandardResilienceHandler();
-            http.AddServiceDiscovery();
-        });
-    }
+            if (!string.IsNullOrWhiteSpace(configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
+            {
+                return TelemetryExporterType.AzureMonitor;
+            }
 
-    private static TelemetryExporterType ResolveTelemetryExporter(IConfiguration configuration)
-    {
-        if (!string.IsNullOrWhiteSpace(configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
-        {
-            return TelemetryExporterType.AzureMonitor;
+            return !string.IsNullOrWhiteSpace(configuration["OTEL_EXPORTER_OTLP_ENDPOINT"])
+                ? TelemetryExporterType.Otlp
+                : TelemetryExporterType.None;
         }
 
-        return !string.IsNullOrWhiteSpace(configuration["OTEL_EXPORTER_OTLP_ENDPOINT"])
-            ? TelemetryExporterType.Otlp
-            : TelemetryExporterType.None;
-    }
-
-    public static void MapDefaultEndpoints(this WebApplication app)
-    {
-        app.MapHealthChecks("/health/live", new HealthCheckOptions
+        public static void MapDefaultEndpoints(this WebApplication app)
         {
-            Predicate = check => check.Tags.Contains("live")
-        });
+            app.MapHealthChecks("/health/live",
+                new HealthCheckOptions { Predicate = check => check.Tags.Contains("live") });
 
-        app.MapHealthChecks("/health/ready", new HealthCheckOptions
-        {
-            Predicate = _ => true
-        });
+            app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = _ => true });
+        }
     }
 }

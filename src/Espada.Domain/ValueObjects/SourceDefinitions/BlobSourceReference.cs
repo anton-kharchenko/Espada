@@ -1,21 +1,22 @@
-namespace Espada.Domain.ValueObjects.SourceDefinitions;
-
-public sealed record BlobSourceReference
+namespace Espada.Domain.ValueObjects.SourceDefinitions
 {
-    public BlobSourceReference(string blobHash, string fileName, string mediaType)
+    public sealed record BlobSourceReference
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(blobHash);
-        ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
-        ArgumentException.ThrowIfNullOrWhiteSpace(mediaType);
+        public BlobSourceReference(string blobHash, string fileName, string mediaType)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(blobHash);
+            ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
+            ArgumentException.ThrowIfNullOrWhiteSpace(mediaType);
 
-        BlobHash = blobHash;
-        FileName = fileName;
-        MediaType = mediaType;
+            BlobHash = blobHash;
+            FileName = fileName;
+            MediaType = mediaType;
+        }
+
+        public string BlobHash { get; init; }
+
+        public string FileName { get; init; }
+
+        public string MediaType { get; init; }
     }
-
-    public string BlobHash { get; init; }
-
-    public string FileName { get; init; }
-
-    public string MediaType { get; init; }
 }

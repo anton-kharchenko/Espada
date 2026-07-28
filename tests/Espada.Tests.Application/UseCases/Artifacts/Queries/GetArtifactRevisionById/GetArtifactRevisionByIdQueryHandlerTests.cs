@@ -86,8 +86,8 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Queries.GetArtifactRevisio
             GetArtifactRevisionByIdHandlerFixture fixture = new();
 
             (
-                Artifact requestedArtifact,
-                ArtifactRevision foreignRevision) =
+                    Artifact requestedArtifact,
+                    ArtifactRevision foreignRevision) =
                 fixture.GivenRevisionBelongsToAnotherArtifact();
 
             GetArtifactRevisionByIdQueryHandler handler =

@@ -1,5 +1,5 @@
 import type { ChangeEvent } from 'react';
-import { NavLink, Outlet, useLocation, useNavigate, useOutletContext, useParams } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate, useOutletContext, useParams } from 'react-router';
 import type { ConsoleSession } from 'entities/session';
 import type { WorkspaceOutletContext } from 'entities/workspace';
 import { ROUTES, getWorkspaceRoute, workspaceSections } from 'shared/config';

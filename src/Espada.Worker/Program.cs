@@ -1,5 +1,5 @@
+using Espada.Application.Contracts.Security;
 using Espada.Application.Extensions;
-using Espada.Billing;
 using Espada.Billing.Extensions;
 using Espada.Infrastructure.Extensions;
 using Espada.ServiceDefaults.Extensions;
@@ -10,6 +10,8 @@ builder.AddServiceDefaults();
 builder.Services
     .ConfigureApplicationLayer()
     .ConfigureInfrastructure(builder.Configuration);
+builder.Services.AddSingleton<IRequestPrincipalAccessor,
+    BackgroundRequestPrincipalAccessor>();
 builder.Services.AddEspadaBilling(builder.Configuration);
 builder.Services.AddHostedService<Worker>();
 

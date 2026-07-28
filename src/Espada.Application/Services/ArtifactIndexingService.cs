@@ -15,6 +15,7 @@ using Espada.Domain.SeedWork;
 using Espada.Domain.ValueObjects;
 using System.Security.Cryptography;
 using System.Text;
+using Espada.Application.Constants;
 
 namespace Espada.Application.Services
 {
@@ -29,6 +30,7 @@ namespace Espada.Application.Services
         IUsageMeterService usageMeterService)
     {
         private const int EmbeddingBatchSize = 64;
+
         private readonly IReadOnlyDictionary<string, IChunkingStrategy> _chunkingStrategies =
             chunkingStrategies.ToDictionary(
                 strategy => strategy.Name,
@@ -46,7 +48,7 @@ namespace Espada.Application.Services
             if (!_chunkingStrategies.TryGetValue(options.ChunkingStrategy, out IChunkingStrategy? strategy))
             {
                 throw Permanent(
-                    IngestionFailureCodes.UnsupportedChunkingStrategy,
+                    IngestionFailureCodeConstants.UnsupportedChunkingStrategy,
                     $"Chunking strategy '{options.ChunkingStrategy}' is not registered.");
             }
 
@@ -57,7 +59,7 @@ namespace Espada.Application.Services
             if (segments.Count == 0)
             {
                 throw Permanent(
-                    IngestionFailureCodes.EmptyChunkBatch,
+                    IngestionFailureCodeConstants.EmptyChunkBatch,
                     "Chunking produced no chunks.");
             }
 
@@ -65,9 +67,9 @@ namespace Espada.Application.Services
                 .GetAll<ChunkingStrategyType>()
                 .Single(value => value.Name.Equals(strategy.Name, StringComparison.OrdinalIgnoreCase));
             ChunkBatchId batchId = ChunkBatchId.Create(
-                DeterministicGuid(operationId, ImportPipelineDiscriminators.ChunkBatch));
+                DeterministicGuid(operationId, ImportPipelineDiscriminatorConstants.ChunkBatch));
             DomainResult<ChunkingVersion> version = ChunkingVersion.Create(
-                ImportPipelineDiscriminators.ChunkingVersion);
+                ImportPipelineDiscriminatorConstants.ChunkingVersion);
             EnsureSuccess(version);
             DomainResult<ChunkBatch> batchResult = ChunkBatch.Request(
                 batchId,
@@ -153,7 +155,7 @@ namespace Espada.Application.Services
             if (storedDimensions.Count > 1)
             {
                 throw Permanent(
-                    IngestionFailureCodes.EmbeddingDimensionMismatch,
+                    IngestionFailureCodeConstants.EmbeddingDimensionMismatch,
                     "Stored vectors for the configured model have inconsistent dimensions.");
             }
 
@@ -173,7 +175,7 @@ namespace Espada.Application.Services
                 {
                     throw new IngestionException(
                         JobFailureCategoryType.Transient,
-                        IngestionFailureCodes.EmbeddingCountMismatch,
+                        IngestionFailureCodeConstants.EmbeddingCountMismatch,
                         "Embedding provider returned a different number of vectors than inputs.");
                 }
 
@@ -185,16 +187,16 @@ namespace Espada.Application.Services
                     if (vector.Count == 0 || vector.Any(value => !float.IsFinite(value)))
                     {
                         throw Permanent(
-                            IngestionFailureCodes.InvalidEmbeddingVector,
+                            IngestionFailureCodeConstants.InvalidEmbeddingVector,
                             "Embedding vector is empty or non-finite.");
                     }
 
                     dimensions ??= vector.Count;
                     if (dimensions != vector.Count ||
-                        expectedDimensions is > 0 && expectedDimensions != vector.Count)
+                        (expectedDimensions is > 0 && expectedDimensions != vector.Count))
                     {
                         throw Permanent(
-                            IngestionFailureCodes.EmbeddingDimensionMismatch,
+                            IngestionFailureCodeConstants.EmbeddingDimensionMismatch,
                             "Embedding provider returned inconsistent dimensions.");
                     }
 
@@ -266,7 +268,7 @@ namespace Espada.Application.Services
             return parts.Length == 2 && parts.All(part => part.Length > 0)
                 ? (parts[0], parts[1])
                 : throw Permanent(
-                    IngestionFailureCodes.InvalidEmbeddingModel,
+                    IngestionFailureCodeConstants.InvalidEmbeddingModel,
                     "Embedding model must use 'identifier@version' format.");
         }
 

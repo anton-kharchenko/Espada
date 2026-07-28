@@ -1,8 +1,12 @@
 using Espada.Db.Enums;
 
-namespace Espada.Db.Extensions;
-
-internal static class DatabaseCommandExtensions
+namespace Espada.Db.Extensions
 {
-    public static bool RequiresForce(this DatabaseCommandType command) => command == DatabaseCommandType.Reset;
+    internal static class DatabaseCommandExtensions
+    {
+        public static bool RequiresForce(this DatabaseCommandType command)
+        {
+            return command == DatabaseCommandType.Reset;
+        }
+    }
 }

@@ -15,7 +15,8 @@ namespace Espada.Tests.Application.UseCases.Workspaces.Queries.GetWorkspaceById
             GetWorkspaceByIdQuery query = new(TestIds.DefaultWorkspaceId.Value);
 
             // Act
-            TestValidationResult<GetWorkspaceByIdQuery> result = await _validator.TestValidateAsync(query, cancellationToken: TestContext.Current.CancellationToken);
+            TestValidationResult<GetWorkspaceByIdQuery> result =
+                await _validator.TestValidateAsync(query, cancellationToken: TestContext.Current.CancellationToken);
 
             // Assert
             result.ShouldNotHaveAnyValidationErrors();
@@ -28,7 +29,8 @@ namespace Espada.Tests.Application.UseCases.Workspaces.Queries.GetWorkspaceById
             GetWorkspaceByIdQuery query = new(Guid.Empty);
 
             // Act
-            TestValidationResult<GetWorkspaceByIdQuery> result = await _validator.TestValidateAsync(query, cancellationToken: TestContext.Current.CancellationToken);
+            TestValidationResult<GetWorkspaceByIdQuery> result =
+                await _validator.TestValidateAsync(query, cancellationToken: TestContext.Current.CancellationToken);
 
             // Assert
             result.ShouldHaveValidationErrorFor(value => value.WorkspaceId);

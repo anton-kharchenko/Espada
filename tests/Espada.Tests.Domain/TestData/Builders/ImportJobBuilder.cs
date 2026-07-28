@@ -1,57 +1,61 @@
-namespace Espada.Tests.Domain.TestData.Builders;
-
-internal sealed class ImportJobBuilder
+namespace Espada.Tests.Domain.TestData.Builders
 {
-    private ImportJobId _id = TestIds.DefaultImportJobId;
-
-    private SourceId _sourceId = TestIds.DefaultSourceId;
-
-    private WorkspaceId _workspaceId = TestIds.DefaultWorkspaceId;
-
-    private DateTimeOffset _requestedAtUtc = TestDates.ImportRequestedAtUtc;
-
-    public ImportJobBuilder WithId(ImportJobId id)
+    internal sealed class ImportJobBuilder
     {
-        _id = id;
-        return this;
-    }
+        private ImportJobId _id = TestIds.DefaultImportJobId;
 
-    public ImportJobBuilder ForSource(SourceId sourceId)
-    {
-        _sourceId = sourceId;
-        return this;
-    }
+        private DateTimeOffset _requestedAtUtc = TestDates.ImportRequestedAtUtc;
 
-    public ImportJobBuilder InWorkspace(WorkspaceId workspaceId)
-    {
-        _workspaceId = workspaceId;
-        return this;
-    }
+        private SourceId _sourceId = TestIds.DefaultSourceId;
 
-    public ImportJobBuilder RequestedAt(
-        DateTimeOffset requestedAtUtc)
-    {
-        _requestedAtUtc = requestedAtUtc;
-        return this;
-    }
+        private WorkspaceId _workspaceId = TestIds.DefaultWorkspaceId;
 
-    public ImportJob BuildRequested() => ImportJob.Request(_id, _sourceId, _workspaceId, _requestedAtUtc).ShouldSucceed();
+        public ImportJobBuilder WithId(ImportJobId id)
+        {
+            _id = id;
+            return this;
+        }
 
-    public ImportJob BuildRequestedWithoutPendingEvents()
-    {
-        ImportJob importJob = BuildRequested();
-        importJob.DequeueDomainEvents();
+        public ImportJobBuilder ForSource(SourceId sourceId)
+        {
+            _sourceId = sourceId;
+            return this;
+        }
 
-        return importJob;
-    }
+        public ImportJobBuilder InWorkspace(WorkspaceId workspaceId)
+        {
+            _workspaceId = workspaceId;
+            return this;
+        }
 
-    public ImportJob BuildRunningWithoutPendingEvents()
-    {
-        ImportJob importJob = BuildRequestedWithoutPendingEvents();
+        public ImportJobBuilder RequestedAt(
+            DateTimeOffset requestedAtUtc)
+        {
+            _requestedAtUtc = requestedAtUtc;
+            return this;
+        }
 
-        importJob.Start(TestDates.ImportStartedAtUtc).ShouldSucceed();
-        importJob.DequeueDomainEvents();
+        public ImportJob BuildRequested()
+        {
+            return ImportJob.Request(_id, _sourceId, _workspaceId, _requestedAtUtc).ShouldSucceed();
+        }
 
-        return importJob;
+        public ImportJob BuildRequestedWithoutPendingEvents()
+        {
+            ImportJob importJob = BuildRequested();
+            importJob.DequeueDomainEvents();
+
+            return importJob;
+        }
+
+        public ImportJob BuildRunningWithoutPendingEvents()
+        {
+            ImportJob importJob = BuildRequestedWithoutPendingEvents();
+
+            importJob.Start(TestDates.ImportStartedAtUtc).ShouldSucceed();
+            importJob.DequeueDomainEvents();
+
+            return importJob;
+        }
     }
 }

@@ -1,20 +1,21 @@
 using Espada.Billing.Constants;
 using FluentValidation;
 
-namespace Espada.Billing.UseCases.Checkout;
-
-internal sealed class CreateCheckoutCommandValidator : AbstractValidator<CreateCheckoutCommand>
+namespace Espada.Billing.UseCases.Checkout
 {
-    public CreateCheckoutCommandValidator()
+    internal sealed class CreateCheckoutCommandValidator : AbstractValidator<CreateCheckoutCommand>
     {
-        RuleFor(command => command.WorkspaceId)
-            .NotEmpty();
+        public CreateCheckoutCommandValidator()
+        {
+            RuleFor(command => command.WorkspaceId)
+                .NotEmpty();
 
-        RuleFor(command => command.Plan)
-            .IsInEnum();
+            RuleFor(command => command.Plan)
+                .IsInEnum();
 
-        RuleFor(command => command.IdempotencyKey)
-            .NotEmpty()
-            .MaximumLength(BillingRequestLimitConstnts.MaximumIdempotencyKeyLength);
+            RuleFor(command => command.IdempotencyKey)
+                .NotEmpty()
+                .MaximumLength(BillingRequestLimitConstants.MaximumIdempotencyKeyLength);
+        }
     }
 }

@@ -2,105 +2,111 @@ using Espada.Application.UseCases.Imports.Commands.CompleteImport;
 using Espada.Tests.Application.TestData.Builder;
 using FluentValidation.TestHelper;
 
-namespace Espada.Tests.Application.UseCases.Imports.Commands.CompleteImport;
-
-public sealed class CompleteImportCommandValidatorTests
+namespace Espada.Tests.Application.UseCases.Imports.Commands.CompleteImport
 {
-    private readonly CompleteImportCommandValidator _validator =
-        new();
-
-    [Fact]
-    public async Task Validate_WithValidCommand_ShouldNotHaveErrors()
+    public sealed class CompleteImportCommandValidatorTests
     {
-        // Arrange
-        CompleteImportCommand command = new CompleteImportCommandBuilder().Build();
+        private readonly CompleteImportCommandValidator _validator =
+            new();
 
-        // Act
-        TestValidationResult<CompleteImportCommand> result = await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
+        [Fact]
+        public async Task Validate_WithValidCommand_ShouldNotHaveErrors()
+        {
+            // Arrange
+            CompleteImportCommand command = new CompleteImportCommandBuilder().Build();
 
-        // Assert
-        result.ShouldNotHaveAnyValidationErrors();
-    }
+            // Act
+            TestValidationResult<CompleteImportCommand> result =
+                await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
 
-    [Fact]
-    public async Task Validate_WithEmptyWorkspaceId_ShouldHaveError()
-    {
-        // Arrange
-        CompleteImportCommand command = new CompleteImportCommandBuilder().InWorkspace(Guid.Empty).Build();
+            // Assert
+            result.ShouldNotHaveAnyValidationErrors();
+        }
 
-        // Act
-        TestValidationResult<CompleteImportCommand> result = await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
+        [Fact]
+        public async Task Validate_WithEmptyWorkspaceId_ShouldHaveError()
+        {
+            // Arrange
+            CompleteImportCommand command = new CompleteImportCommandBuilder().InWorkspace(Guid.Empty).Build();
 
-        // Assert
-        result.ShouldHaveValidationErrorFor(value => value.WorkspaceId);
+            // Act
+            TestValidationResult<CompleteImportCommand> result =
+                await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
 
-        result.ShouldNotHaveValidationErrorFor(value => value.ImportJobId);
+            // Assert
+            result.ShouldHaveValidationErrorFor(value => value.WorkspaceId);
 
-        result.ShouldNotHaveValidationErrorFor(value => value.ArtifactId);
+            result.ShouldNotHaveValidationErrorFor(value => value.ImportJobId);
 
-        result.ShouldNotHaveValidationErrorFor(value => value.ArtifactRevisionId);
-    }
+            result.ShouldNotHaveValidationErrorFor(value => value.ArtifactId);
 
-    [Fact]
-    public async Task Validate_WithEmptyImportJobId_ShouldHaveError()
-    {
-        // Arrange
-        CompleteImportCommand command = new CompleteImportCommandBuilder()
+            result.ShouldNotHaveValidationErrorFor(value => value.ArtifactRevisionId);
+        }
+
+        [Fact]
+        public async Task Validate_WithEmptyImportJobId_ShouldHaveError()
+        {
+            // Arrange
+            CompleteImportCommand command = new CompleteImportCommandBuilder()
                 .ForImportJob(Guid.Empty)
                 .Build();
 
-        // Act
-        TestValidationResult<CompleteImportCommand> result = await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
+            // Act
+            TestValidationResult<CompleteImportCommand> result =
+                await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
 
-        // Assert
-        result.ShouldHaveValidationErrorFor(value => value.ImportJobId);
+            // Assert
+            result.ShouldHaveValidationErrorFor(value => value.ImportJobId);
 
-        result.ShouldNotHaveValidationErrorFor(value => value.WorkspaceId);
+            result.ShouldNotHaveValidationErrorFor(value => value.WorkspaceId);
 
-        result.ShouldNotHaveValidationErrorFor(value => value.ArtifactId);
+            result.ShouldNotHaveValidationErrorFor(value => value.ArtifactId);
 
-        result.ShouldNotHaveValidationErrorFor(value => value.ArtifactRevisionId);
-    }
+            result.ShouldNotHaveValidationErrorFor(value => value.ArtifactRevisionId);
+        }
 
-    [Fact]
-    public async Task Validate_WithEmptyArtifactId_ShouldHaveError()
-    {
-        // Arrange
-        CompleteImportCommand command = new CompleteImportCommandBuilder()
+        [Fact]
+        public async Task Validate_WithEmptyArtifactId_ShouldHaveError()
+        {
+            // Arrange
+            CompleteImportCommand command = new CompleteImportCommandBuilder()
                 .WithArtifact(Guid.Empty)
                 .Build();
 
-        // Act
-        TestValidationResult<CompleteImportCommand> result = await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
+            // Act
+            TestValidationResult<CompleteImportCommand> result =
+                await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
 
-        // Assert
-        result.ShouldHaveValidationErrorFor(value => value.ArtifactId);
+            // Assert
+            result.ShouldHaveValidationErrorFor(value => value.ArtifactId);
 
-        result.ShouldNotHaveValidationErrorFor(value => value.WorkspaceId);
+            result.ShouldNotHaveValidationErrorFor(value => value.WorkspaceId);
 
-        result.ShouldNotHaveValidationErrorFor(value => value.ImportJobId);
+            result.ShouldNotHaveValidationErrorFor(value => value.ImportJobId);
 
-        result.ShouldNotHaveValidationErrorFor(value => value.ArtifactRevisionId);
-    }
+            result.ShouldNotHaveValidationErrorFor(value => value.ArtifactRevisionId);
+        }
 
-    [Fact]
-    public async Task Validate_WithEmptyArtifactRevisionId_ShouldHaveError()
-    {
-        // Arrange
-        CompleteImportCommand command = new CompleteImportCommandBuilder()
+        [Fact]
+        public async Task Validate_WithEmptyArtifactRevisionId_ShouldHaveError()
+        {
+            // Arrange
+            CompleteImportCommand command = new CompleteImportCommandBuilder()
                 .WithArtifactRevision(Guid.Empty)
                 .Build();
 
-        // Act
-        TestValidationResult<CompleteImportCommand> result = await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
+            // Act
+            TestValidationResult<CompleteImportCommand> result =
+                await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
 
-        // Assert
-        result.ShouldHaveValidationErrorFor(value => value.ArtifactRevisionId);
+            // Assert
+            result.ShouldHaveValidationErrorFor(value => value.ArtifactRevisionId);
 
-        result.ShouldNotHaveValidationErrorFor(value => value.WorkspaceId);
+            result.ShouldNotHaveValidationErrorFor(value => value.WorkspaceId);
 
-        result.ShouldNotHaveValidationErrorFor(value => value.ImportJobId);
+            result.ShouldNotHaveValidationErrorFor(value => value.ImportJobId);
 
-        result.ShouldNotHaveValidationErrorFor(value => value.ArtifactId);
+            result.ShouldNotHaveValidationErrorFor(value => value.ArtifactId);
+        }
     }
 }

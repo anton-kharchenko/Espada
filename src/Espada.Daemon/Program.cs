@@ -1,3 +1,4 @@
-namespace Espada.Daemon;
-
-public partial class Program;
+namespace Espada.Daemon
+{
+    public class Program;
+}

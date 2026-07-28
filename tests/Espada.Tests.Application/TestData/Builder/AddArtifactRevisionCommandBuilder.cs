@@ -4,11 +4,10 @@ namespace Espada.Tests.Application.TestData.Builder
 {
     internal sealed class AddArtifactRevisionCommandBuilder
     {
-        private Guid _workspaceId = TestIds.DefaultWorkspaceId.Value;
-
         private Guid _artifactId = TestIds.DefaultArtifactId.Value;
 
         private string? _content = TestValues.AnotherArtifactContent;
+        private Guid _workspaceId = TestIds.DefaultWorkspaceId.Value;
 
         public AddArtifactRevisionCommandBuilder InWorkspace(Guid workspaceId)
         {
@@ -28,10 +27,12 @@ namespace Espada.Tests.Application.TestData.Builder
             return this;
         }
 
-        public AddArtifactRevisionCommand Build() =>
-            new(
+        public AddArtifactRevisionCommand Build()
+        {
+            return new AddArtifactRevisionCommand(
                 _workspaceId,
                 _artifactId,
                 _content!);
+        }
     }
 }

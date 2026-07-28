@@ -1,4 +1,3 @@
-using System.Text;
 using Espada.Application.ApplicationErrors;
 using Espada.Application.Models;
 using Espada.Application.Services;
@@ -6,6 +5,8 @@ using Espada.Domain.Aggregates;
 using Espada.Domain.Enums;
 using Espada.Domain.Rules;
 using Espada.Domain.ValueObjects;
+using System.Text;
+using Espada.Application.Constants;
 
 namespace Espada.Tests.Application.Services
 {
@@ -43,7 +44,7 @@ namespace Espada.Tests.Application.Services
                 task,
                 "src/app/file.cs",
                 "feature/context",
-                ContextAgentNames.Codex,
+                ContextAgentConstants.Codex,
                 4_096);
 
             ResolvedContext resolved = _resolver.Resolve(
@@ -73,7 +74,7 @@ namespace Espada.Tests.Application.Services
                 null,
                 "src/application/file.cs",
                 null,
-                ContextAgentNames.Codex,
+                ContextAgentConstants.Codex,
                 4_096);
 
             ResolvedContext resolved = _resolver.Resolve(
@@ -82,7 +83,7 @@ namespace Espada.Tests.Application.Services
 
             Assert.Empty(resolved.IncludedItems);
             ResolvedContextItem excluded = Assert.Single(resolved.ExcludedItems);
-            Assert.Equal(ContextDecisionCodes.SelectorMismatch, excluded.DecisionCode);
+            Assert.Equal(ContextDecisionCodeConstants.SelectorMismatch, excluded.DecisionCode);
             Assert.False(excluded.Selectors.Single(selector => selector.Selector == "path").Matched);
             Assert.Contains("path", excluded.Explanation, StringComparison.Ordinal);
         }
@@ -109,7 +110,7 @@ namespace Espada.Tests.Application.Services
                 null,
                 null,
                 null,
-                ContextAgentNames.Codex,
+                ContextAgentConstants.Codex,
                 4_096);
 
             ResolvedContext resolved = _resolver.Resolve(
@@ -120,7 +121,7 @@ namespace Espada.Tests.Application.Services
                 "Project-specific low priority.",
                 Assert.Single(resolved.IncludedItems).Content);
             Assert.Equal(
-                ContextDecisionCodes.OverriddenSoftRule,
+                ContextDecisionCodeConstants.OverriddenSoftRule,
                 Assert.Single(resolved.ExcludedItems).DecisionCode);
         }
 
@@ -148,7 +149,7 @@ namespace Espada.Tests.Application.Services
                 "Higher priority.",
                 Assert.Single(resolved.IncludedItems).Content);
             ContextConflict conflict = Assert.Single(resolved.Conflicts);
-            Assert.Equal(ContextDecisionCodes.AmbiguousSoftRule, conflict.ConflictCode);
+            Assert.Equal(ContextDecisionCodeConstants.AmbiguousSoftRule, conflict.ConflictCode);
             Assert.Equal(higher.Artifact.Id.Value, conflict.WinnerArtifactId);
         }
 
@@ -174,7 +175,7 @@ namespace Espada.Tests.Application.Services
                 hard.Artifact.Id,
                 Assert.Single(resolved.IncludedItems).Artifact.Id);
             Assert.Equal(
-                ContextDecisionCodes.BlockedByHardPolicy,
+                ContextDecisionCodeConstants.BlockedByHardPolicy,
                 Assert.Single(resolved.ExcludedItems).DecisionCode);
         }
 
@@ -199,7 +200,7 @@ namespace Espada.Tests.Application.Services
 
             Assert.Equal(2, resolved.IncludedItems.Count);
             Assert.Equal(
-                ContextDecisionCodes.HardPolicyConflict,
+                ContextDecisionCodeConstants.HardPolicyConflict,
                 Assert.Single(resolved.Conflicts).ConflictCode);
         }
 
@@ -224,17 +225,14 @@ namespace Espada.Tests.Application.Services
                 null,
                 null,
                 CreatedAtUtc).Value;
-            ContextCandidateRecord narrower = wider with
-            {
-                Binding = narrowerBinding
-            };
+            ContextCandidateRecord narrower = wider with { Binding = narrowerBinding };
             ContextResolutionRequest request = new(
                 workspace,
                 project,
                 null,
                 null,
                 null,
-                ContextAgentNames.Codex,
+                ContextAgentConstants.Codex,
                 4_096);
 
             ResolvedContext resolved = _resolver.Resolve(
@@ -245,7 +243,7 @@ namespace Espada.Tests.Application.Services
                 narrowerBinding.Id,
                 Assert.Single(resolved.IncludedItems).Binding.Id);
             Assert.Equal(
-                ContextDecisionCodes.RedundantBinding,
+                ContextDecisionCodeConstants.RedundantBinding,
                 Assert.Single(resolved.ExcludedItems).DecisionCode);
         }
 
@@ -287,15 +285,15 @@ namespace Espada.Tests.Application.Services
         {
             Workspace workspace = CreateWorkspace();
             ContextCandidateRecord memory = CreateMemoryCandidate(
-                workspace,
-                "Old memory.",
-                false,
-                0.5m,
-                "codex",
-                null) with
-            {
-                IsMemorySuperseded = true
-            };
+                    workspace,
+                    "Old memory.",
+                    false,
+                    0.5m,
+                    "codex",
+                    null) with
+                {
+                    IsMemorySuperseded = true
+                };
 
             ResolvedContext resolved = _resolver.Resolve(
                 CreateRequest(workspace),
@@ -303,7 +301,7 @@ namespace Espada.Tests.Application.Services
 
             Assert.Empty(resolved.IncludedItems);
             Assert.Equal(
-                ContextDecisionCodes.SupersededMemory,
+                ContextDecisionCodeConstants.SupersededMemory,
                 Assert.Single(resolved.ExcludedItems).DecisionCode);
         }
 
@@ -327,7 +325,7 @@ namespace Espada.Tests.Application.Services
             Assert.Equal(2, exact.Budget.UsedBytes);
             Assert.Empty(tooSmall.IncludedItems);
             ResolvedContextItem excluded = Assert.Single(tooSmall.ExcludedItems);
-            Assert.Equal(ContextDecisionCodes.BudgetExceeded, excluded.DecisionCode);
+            Assert.Equal(ContextDecisionCodeConstants.BudgetExceeded, excluded.DecisionCode);
             Assert.Equal("é", excluded.Content);
         }
 
@@ -376,7 +374,7 @@ namespace Espada.Tests.Application.Services
             Assert.Contains(
                 resolved.ExcludedItems,
                 item => item.Content == "This item is too large."
-                        && item.DecisionCode == ContextDecisionCodes.BudgetExceeded);
+                        && item.DecisionCode == ContextDecisionCodeConstants.BudgetExceeded);
         }
 
         [Fact]
@@ -441,36 +439,41 @@ namespace Espada.Tests.Application.Services
 
             Assert.Contains(
                 resolved.ExcludedItems,
-                item => item.DecisionCode == ContextDecisionCodes.InvalidTypedGraph);
+                item => item.DecisionCode == ContextDecisionCodeConstants.InvalidTypedGraph);
             Assert.Contains(
                 resolved.ExcludedItems,
-                item => item.DecisionCode == ContextDecisionCodes.ArtifactKindNotContextual);
+                item => item.DecisionCode == ContextDecisionCodeConstants.ArtifactKindNotContextual);
             Assert.Contains(
                 resolved.Conflicts,
-                conflict => conflict.ConflictCode == ContextDecisionCodes.InvalidTypedGraph);
+                conflict => conflict.ConflictCode == ContextDecisionCodeConstants.InvalidTypedGraph);
         }
 
         private static ContextResolutionRequest CreateRequest(
             Workspace workspace,
-            int budget = 4_096) =>
-            new(
+            int budget = 4_096)
+        {
+            return new ContextResolutionRequest(
                 workspace,
                 null,
                 null,
                 null,
                 null,
-                ContextAgentNames.Codex,
+                ContextAgentConstants.Codex,
                 budget);
+        }
 
-        private static Organization CreateOrganization() =>
-            Organization.Create(
+        private static Organization CreateOrganization()
+        {
+            return Organization.Create(
                 OrganizationId.New(),
                 "Espada",
                 CreatedAtUtc).Value;
+        }
 
         private static Workspace CreateWorkspace(
-            OrganizationId? organizationId = null) =>
-            Workspace.Create(
+            OrganizationId? organizationId = null)
+        {
+            return Workspace.Create(
                 WorkspaceId.New(),
                 WorkspaceName.Create("Resolver workspace").Value,
                 organizationId is null
@@ -478,15 +481,18 @@ namespace Espada.Tests.Application.Services
                     : WorkspaceType.Organization,
                 organizationId,
                 CreatedAtUtc).Value;
+        }
 
-        private static Project CreateProject(Workspace workspace) =>
-            Project.Create(
+        private static Project CreateProject(Workspace workspace)
+        {
+            return Project.Create(
                 ProjectId.New(),
                 workspace.Id,
                 "Espada",
                 $"https://example.test/{Guid.NewGuid():N}.git",
                 [],
                 CreatedAtUtc).Value;
+        }
 
         private static ContextCandidateRecord CreateInstructionCandidate(
             Workspace workspace,
@@ -637,11 +643,13 @@ namespace Espada.Tests.Application.Services
 
         private static ArtifactRevision CreateRevision(
             Artifact artifact,
-            string content) =>
-            artifact.CreateRevision(
+            string content)
+        {
+            return artifact.CreateRevision(
                 ArtifactRevisionId.New(),
                 ArtifactContent.Create(content).Value,
                 CreatedAtUtc).Value;
+        }
 
         private static Binding CreateBinding(
             Workspace workspace,
@@ -653,8 +661,9 @@ namespace Espada.Tests.Application.Services
             string? path = null,
             string? branch = null,
             ProjectTask? task = null,
-            string? agent = null) =>
-            artifact.CreateBinding(
+            string? agent = null)
+        {
+            return artifact.CreateBinding(
                 BindingId.New(),
                 revision,
                 workspace,
@@ -666,10 +675,12 @@ namespace Espada.Tests.Application.Services
                 task,
                 agent,
                 CreatedAtUtc).Value;
+        }
 
         private static string[] ItemIdentities(
-            IEnumerable<ResolvedContextItem> items) =>
-            items
+            IEnumerable<ResolvedContextItem> items)
+        {
+            return items
                 .Select(item => string.Join(
                     ':',
                     item.Binding.Id.Value,
@@ -678,5 +689,6 @@ namespace Espada.Tests.Application.Services
                     item.RuleKey,
                     item.DecisionCode))
                 .ToArray();
+        }
     }
 }

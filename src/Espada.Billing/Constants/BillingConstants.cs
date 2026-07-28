@@ -1,8 +1,9 @@
-namespace Espada.Billing.Constants;
-
-public static class BillingConstants
+namespace Espada.Billing.Constants
 {
-    public const string SectionName = "Billing";
+    public static class BillingConstants
+    {
+        public const string SectionName = "Billing";
 
-    public const string RequiredStripeApiVersion = "2026-06-24.dahlia";
+        public const string RequiredStripeApiVersion = "2026-06-24.dahlia";
+    }
 }

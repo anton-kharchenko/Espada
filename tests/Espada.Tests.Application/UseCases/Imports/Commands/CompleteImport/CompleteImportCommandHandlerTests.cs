@@ -215,7 +215,8 @@ namespace Espada.Tests.Application.UseCases.Imports.Commands.CompleteImport
             DomainResult result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
             // Assert
-            result.ShouldFailWith(ImportJobApplicationErrors.NotFoundInWorkspace(importJob.Id.Value, requestedWorkspaceId));
+            result.ShouldFailWith(
+                ImportJobApplicationErrors.NotFoundInWorkspace(importJob.Id.Value, requestedWorkspaceId));
 
             fixture.UnitOfWork
                 .SaveChangesCallCount

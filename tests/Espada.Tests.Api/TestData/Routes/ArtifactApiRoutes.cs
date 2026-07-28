@@ -1,8 +1,15 @@
-namespace Espada.Tests.Api.TestData.Routes;
-
-internal static class ArtifactApiRoutes
+namespace Espada.Tests.Api.TestData.Routes
 {
-    public static string Create(Guid workspaceId) => $"{ApiRouteConstants.ApiV1}/workspaces/{workspaceId}/artifacts";
+    internal static class ArtifactApiRoutes
+    {
+        public static string Create(Guid workspaceId)
+        {
+            return $"{ApiRouteConstants.ApiV1}/workspaces/{workspaceId}/artifacts";
+        }
 
-    public static string Rename(Guid workspaceId, Guid artifactId) => $"{ApiRouteConstants.ApiV1}/workspaces/{workspaceId}/artifacts/{artifactId}/rename";
+        public static string Rename(Guid workspaceId, Guid artifactId)
+        {
+            return $"{ApiRouteConstants.ApiV1}/workspaces/{workspaceId}/artifacts/{artifactId}/rename";
+        }
+    }
 }

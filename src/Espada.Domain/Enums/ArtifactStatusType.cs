@@ -1,10 +1,11 @@
 using Espada.Domain.SeedWork;
 
-namespace Espada.Domain.Enums;
-
-public sealed class ArtifactStatusType(int id, string name) : Enumeration(id, name)
+namespace Espada.Domain.Enums
 {
-    public static readonly ArtifactStatusType Active = new(1, nameof(Active));
+    public sealed class ArtifactStatusType(int id, string name) : Enumeration(id, name)
+    {
+        public static readonly ArtifactStatusType Active = new(1, nameof(Active));
 
-    public static readonly ArtifactStatusType Archived = new(2, nameof(Archived));
+        public static readonly ArtifactStatusType Archived = new(2, nameof(Archived));
+    }
 }

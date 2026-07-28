@@ -1,6 +1,7 @@
-namespace Espada.Domain.Constants;
-
-public static class ConversationSourceDefinitionConstants
+namespace Espada.Domain.Constants
 {
-    public const int MaximumMessages = 5000;
+    public static class ConversationSourceDefinitionConstants
+    {
+        public const int MaximumMessages = 5000;
+    }
 }

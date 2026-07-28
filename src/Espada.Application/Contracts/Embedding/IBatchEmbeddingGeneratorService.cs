@@ -1,12 +1,13 @@
 using Espada.Application.Models;
 
-namespace Espada.Application.Contracts.Embedding;
-
-public interface IBatchEmbeddingGeneratorService
+namespace Espada.Application.Contracts.Embedding
 {
-    Task<IReadOnlyList<GeneratedEmbedding>> GenerateBatchAsync(
-        string modelIdentifier,
-        string modelVersion,
-        IReadOnlyList<string> inputs,
-        CancellationToken cancellationToken = default);
+    public interface IBatchEmbeddingGeneratorService
+    {
+        Task<IReadOnlyList<GeneratedEmbedding>> GenerateBatchAsync(
+            string modelIdentifier,
+            string modelVersion,
+            IReadOnlyList<string> inputs,
+            CancellationToken cancellationToken = default);
+    }
 }

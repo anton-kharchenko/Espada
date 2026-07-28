@@ -2,53 +2,59 @@ using Espada.Domain.Errors;
 using Espada.Domain.Rules;
 using Espada.Domain.SeedWork;
 
-namespace Espada.Domain.ValueObjects;
-
-public sealed class ImportFailure : ValueObject
+namespace Espada.Domain.ValueObjects
 {
-    public const int CodeMaxLength = 100;
-    public const int ReasonMaxLength = 1000;
-
-    private ImportFailure(
-        string code,
-        string reason)
+    public sealed class ImportFailure : ValueObject
     {
-        Code = code;
-        Reason = reason;
-    }
+        public const int CodeMaxLength = 100;
+        public const int ReasonMaxLength = 1000;
 
-    public string Code { get; }
-
-    public string Reason { get; }
-
-    public static DomainResult<ImportFailure> Create(string? code, string? reason)
-    {
-        if (string.IsNullOrWhiteSpace(code))
+        private ImportFailure(
+            string code,
+            string reason)
         {
-            return DomainResult<ImportFailure>.Failure(ImportJobErrors.FailureCodeEmpty);
+            Code = code;
+            Reason = reason;
         }
 
-        if (string.IsNullOrWhiteSpace(reason))
+        public string Code { get; }
+
+        public string Reason { get; }
+
+        public static DomainResult<ImportFailure> Create(string? code, string? reason)
         {
-            return DomainResult<ImportFailure>.Failure(ImportJobErrors.FailureReasonEmpty);
+            if (string.IsNullOrWhiteSpace(code))
+            {
+                return DomainResult<ImportFailure>.Failure(ImportJobErrors.FailureCodeEmpty);
+            }
+
+            if (string.IsNullOrWhiteSpace(reason))
+            {
+                return DomainResult<ImportFailure>.Failure(ImportJobErrors.FailureReasonEmpty);
+            }
+
+            string normalizedCode = code.Trim();
+            string normalizedReason = reason.Trim();
+
+            if (normalizedCode.Length > CodeMaxLength)
+            {
+                return DomainResult<ImportFailure>.Failure(ImportJobErrors.FailureCodeTooLong);
+            }
+
+            return normalizedReason.Length > ReasonMaxLength
+                ? DomainResult<ImportFailure>.Failure(ImportJobErrors.FailureReasonTooLong)
+                : DomainResult<ImportFailure>.Success(new ImportFailure(normalizedCode, normalizedReason));
         }
 
-        string normalizedCode = code.Trim();
-        string normalizedReason = reason.Trim();
-
-        if (normalizedCode.Length > CodeMaxLength)
+        protected override IEnumerable<object> GetEqualityComponents()
         {
-            return DomainResult<ImportFailure>.Failure(ImportJobErrors.FailureCodeTooLong);
+            yield return Code;
+            yield return Reason;
         }
 
-        return normalizedReason.Length > ReasonMaxLength ? DomainResult<ImportFailure>.Failure(ImportJobErrors.FailureReasonTooLong) : DomainResult<ImportFailure>.Success(new ImportFailure(normalizedCode, normalizedReason));
+        public override string ToString()
+        {
+            return $"{Code}: {Reason}";
+        }
     }
-
-    protected override IEnumerable<object> GetEqualityComponents()
-    {
-        yield return Code;
-        yield return Reason;
-    }
-
-    public override string ToString() => $"{Code}: {Reason}";
 }

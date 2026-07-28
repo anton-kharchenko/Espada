@@ -15,7 +15,8 @@ namespace Espada.Tests.Application.UseCases.Sources.Queries.GetSourceById
             GetSourceByIdQuery query = new(TestIds.DefaultWorkspaceId.Value, TestIds.SourceId.Value);
 
             // Act
-            TestValidationResult<GetSourceByIdQuery> result = await _validator.TestValidateAsync(query, cancellationToken: TestContext.Current.CancellationToken);
+            TestValidationResult<GetSourceByIdQuery> result =
+                await _validator.TestValidateAsync(query, cancellationToken: TestContext.Current.CancellationToken);
 
             // Assert
             result.ShouldNotHaveAnyValidationErrors();
@@ -28,11 +29,11 @@ namespace Espada.Tests.Application.UseCases.Sources.Queries.GetSourceById
             GetSourceByIdQuery query = new(Guid.Empty, TestIds.SourceId.Value);
 
             // Act
-            TestValidationResult<GetSourceByIdQuery> result = await _validator.TestValidateAsync(query, cancellationToken: TestContext.Current.CancellationToken);
+            TestValidationResult<GetSourceByIdQuery> result =
+                await _validator.TestValidateAsync(query, cancellationToken: TestContext.Current.CancellationToken);
 
             // Assert
-            result.ShouldHaveValidationErrorFor(
-                value => value.WorkspaceId);
+            result.ShouldHaveValidationErrorFor(value => value.WorkspaceId);
         }
 
         [Fact]
@@ -42,7 +43,8 @@ namespace Espada.Tests.Application.UseCases.Sources.Queries.GetSourceById
             GetSourceByIdQuery query = new(TestIds.DefaultWorkspaceId.Value, Guid.Empty);
 
             // Act
-            TestValidationResult<GetSourceByIdQuery> result = await _validator.TestValidateAsync(query, cancellationToken: TestContext.Current.CancellationToken);
+            TestValidationResult<GetSourceByIdQuery> result =
+                await _validator.TestValidateAsync(query, cancellationToken: TestContext.Current.CancellationToken);
 
             // Assert
             result.ShouldHaveValidationErrorFor(value => value.SourceId);

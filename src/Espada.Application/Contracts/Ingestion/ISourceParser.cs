@@ -1,10 +1,11 @@
-namespace Espada.Application.Contracts.Ingestion;
-
-public interface ISourceParser
+namespace Espada.Application.Contracts.Ingestion
 {
-    Task<string> ParseAsync(
-        Stream content,
-        string fileName,
-        string mediaType,
-        CancellationToken cancellationToken = default);
+    public interface ISourceParser
+    {
+        Task<string> ParseAsync(
+            Stream content,
+            string fileName,
+            string mediaType,
+            CancellationToken cancellationToken = default);
+    }
 }

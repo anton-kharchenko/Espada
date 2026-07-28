@@ -1,15 +1,18 @@
 using Espada.Billing.Constants;
 
-namespace Espada.Billing.Helpers;
-
-internal static class BillingErrorSanitizerHelper
+namespace Espada.Billing.Helpers
 {
-    public static string Sanitize(string value)
+    internal static class BillingErrorSanitizerHelper
     {
-        ArgumentNullException.ThrowIfNull(value);
+        public static string Sanitize(string value)
+        {
+            ArgumentNullException.ThrowIfNull(value);
 
-        string sanitized = value.Replace('\r', ' ').Replace('\n', ' ').Trim();
+            string sanitized = value.Replace('\r', ' ').Replace('\n', ' ').Trim();
 
-        return sanitized.Length <= BillingProcessingConstnts.MaximumSanitizedErrorLength ? sanitized : sanitized[..BillingProcessingConstnts.MaximumSanitizedErrorLength];
+            return sanitized.Length <= BillingProcessingConstants.MaximumSanitizedErrorLength
+                ? sanitized
+                : sanitized[..BillingProcessingConstants.MaximumSanitizedErrorLength];
+        }
     }
 }

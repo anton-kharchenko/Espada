@@ -1,34 +1,38 @@
-namespace Espada.Domain.SeedWork;
-
-public abstract class AggregateRoot<TId> : Entity<TId>, IHasDomainEvents where TId : notnull
+namespace Espada.Domain.SeedWork
 {
-    private readonly List<IDomainEvent> _domainEvents = [];
-
-    protected AggregateRoot()
+    public abstract class AggregateRoot<TId> : Entity<TId>, IHasDomainEvents where TId : notnull
     {
-    }
+        private readonly List<IDomainEvent> _domainEvents = [];
 
-    protected AggregateRoot(TId id) : base(id)
-    {
-    }
+        protected AggregateRoot()
+        {
+        }
 
-    public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
+        protected AggregateRoot(TId id) : base(id)
+        {
+        }
 
-    protected void RaiseDomainEvent(IDomainEvent domainEvent)
-    {
-        ArgumentNullException.ThrowIfNull(domainEvent);
+        public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
 
-        _domainEvents.Add(domainEvent);
-    }
+        public IReadOnlyCollection<IDomainEvent> DequeueDomainEvents()
+        {
+            if (_domainEvents.Count == 0)
+            {
+                return [];
+            }
 
-    public IReadOnlyCollection<IDomainEvent> DequeueDomainEvents()
-    {
-        if (_domainEvents.Count == 0) return [];
+            IDomainEvent[] events = _domainEvents.ToArray();
 
-        IDomainEvent[] events = _domainEvents.ToArray();
+            _domainEvents.Clear();
 
-        _domainEvents.Clear();
+            return events;
+        }
 
-        return events;
+        protected void RaiseDomainEvent(IDomainEvent domainEvent)
+        {
+            ArgumentNullException.ThrowIfNull(domainEvent);
+
+            _domainEvents.Add(domainEvent);
+        }
     }
 }

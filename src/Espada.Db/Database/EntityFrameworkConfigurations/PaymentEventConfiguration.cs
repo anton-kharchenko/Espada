@@ -3,24 +3,24 @@ using Espada.Db.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Espada.Db.Database.EntityFrameworkConfigurations;
-
-internal sealed class PaymentEventConfiguration : IEntityTypeConfiguration<PaymentEvents>
+namespace Espada.Db.Database.EntityFrameworkConfigurations
 {
-    public void Configure(EntityTypeBuilder<PaymentEvents> builder)
+    internal sealed class PaymentEventConfiguration : IEntityTypeConfiguration<PaymentEvents>
     {
-        builder.HasKey(paymentEvent => paymentEvent.ProviderEventId);
-        builder.Property(paymentEvent => paymentEvent.ProviderEventId).HasMaxLength(255).ValueGeneratedNever();
-        builder.Property(paymentEvent => paymentEvent.EventType).HasMaxLength(200).IsRequired();
-        builder.Property(paymentEvent => paymentEvent.ApiVersion).HasMaxLength(50).IsRequired();
-        builder.Property(paymentEvent => paymentEvent.PayloadJson).HasColumnType(DbJsonColumnTypeConstants.Jsonb).IsRequired();
-        builder.Property(paymentEvent => paymentEvent.LeaseOwner).HasMaxLength(200);
-        builder.Property(paymentEvent => paymentEvent.SanitizedError).HasMaxLength(1000);
-        builder.HasIndex(paymentEvent => new
+        public void Configure(EntityTypeBuilder<PaymentEvents> builder)
         {
-            paymentEvent.Status,
-            paymentEvent.AvailableAtUtc,
-            paymentEvent.LeaseExpiresAtUtc
-        });
+            builder.HasKey(paymentEvent => paymentEvent.ProviderEventId);
+            builder.Property(paymentEvent => paymentEvent.ProviderEventId).HasMaxLength(255).ValueGeneratedNever();
+            builder.Property(paymentEvent => paymentEvent.EventType).HasMaxLength(200).IsRequired();
+            builder.Property(paymentEvent => paymentEvent.ApiVersion).HasMaxLength(50).IsRequired();
+            builder.Property(paymentEvent => paymentEvent.PayloadJson).HasColumnType(DbJsonColumnTypeConstants.Jsonb)
+                .IsRequired();
+            builder.Property(paymentEvent => paymentEvent.LeaseOwner).HasMaxLength(200);
+            builder.Property(paymentEvent => paymentEvent.SanitizedError).HasMaxLength(1000);
+            builder.HasIndex(paymentEvent => new
+            {
+                paymentEvent.Status, paymentEvent.AvailableAtUtc, paymentEvent.LeaseExpiresAtUtc
+            });
+        }
     }
 }

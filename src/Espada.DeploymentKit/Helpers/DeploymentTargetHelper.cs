@@ -1,18 +1,19 @@
 using Espada.DeploymentKit.Enums;
 
-namespace Espada.DeploymentKit.Helpers;
-
-public static class DeploymentTargetHelper
+namespace Espada.DeploymentKit.Helpers
 {
-    public static DeploymentTargetType Parse(string value)
+    public static class DeploymentTargetHelper
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(value);
-
-        return value.Trim().ToLowerInvariant() switch
+        public static DeploymentTargetType Parse(string value)
         {
-            "website" => DeploymentTargetType.Website,
-            "all" => DeploymentTargetType.All,
-            _ => throw new ArgumentException("Target must be website or all.", nameof(value))
-        };
+            ArgumentException.ThrowIfNullOrWhiteSpace(value);
+
+            return value.Trim().ToLowerInvariant() switch
+            {
+                "website" => DeploymentTargetType.Website,
+                "all" => DeploymentTargetType.All,
+                _ => throw new ArgumentException("Target must be website or all.", nameof(value))
+            };
+        }
     }
 }

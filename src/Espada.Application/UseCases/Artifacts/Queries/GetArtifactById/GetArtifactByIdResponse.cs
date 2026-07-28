@@ -1,9 +1,13 @@
+using Espada.Application.UseCases.Artifacts.Common;
+
 namespace Espada.Application.UseCases.Artifacts.Queries.GetArtifactById
 {
     public sealed record GetArtifactByIdResponse(
         Guid Id,
         Guid WorkspaceId,
         string Title,
+        int KindTypeId,
+        string KindTypeName,
         int TypeId,
         string TypeName,
         int StatusId,
@@ -14,5 +18,8 @@ namespace Espada.Application.UseCases.Artifacts.Queries.GetArtifactById
         int RevisionCount,
         DateTimeOffset CreatedAtUtc,
         DateTimeOffset UpdatedAtUtc,
-        DateTimeOffset? ArchivedAtUtc);
+        DateTimeOffset? ArchivedAtUtc,
+        CurrentArtifactRevisionResponse? CurrentRevision,
+        IReadOnlyList<InstructionRuleResponse> InstructionRules,
+        IReadOnlyList<PolicyRuleResponse> PolicyRules);
 }

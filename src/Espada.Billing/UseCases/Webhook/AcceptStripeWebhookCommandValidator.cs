@@ -1,18 +1,19 @@
 using Espada.Billing.Constants;
 using FluentValidation;
 
-namespace Espada.Billing.UseCases.Webhook;
-
-internal sealed class AcceptStripeWebhookCommandValidator : AbstractValidator<AcceptStripeWebhookCommand>
+namespace Espada.Billing.UseCases.Webhook
 {
-    public AcceptStripeWebhookCommandValidator()
+    internal sealed class AcceptStripeWebhookCommandValidator : AbstractValidator<AcceptStripeWebhookCommand>
     {
-        RuleFor(command => command.Payload)
-            .NotEmpty()
-            .MaximumLength(BillingRequestLimitConstnts.MaximumWebhookPayloadBytes);
+        public AcceptStripeWebhookCommandValidator()
+        {
+            RuleFor(command => command.Payload)
+                .NotEmpty()
+                .MaximumLength(BillingRequestLimitConstants.MaximumWebhookPayloadBytes);
 
-        RuleFor(command => command.Signature)
-            .NotEmpty()
-            .MaximumLength(BillingRequestLimitConstnts.MaximumWebhookSignatureLength);
+            RuleFor(command => command.Signature)
+                .NotEmpty()
+                .MaximumLength(BillingRequestLimitConstants.MaximumWebhookSignatureLength);
+        }
     }
 }

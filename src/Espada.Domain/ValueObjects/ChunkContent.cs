@@ -3,32 +3,40 @@ using Espada.Domain.Rules;
 using Espada.Domain.SeedWork;
 using System.Text;
 
-namespace Espada.Domain.ValueObjects;
-
-public sealed class ChunkContent : ValueObject
+namespace Espada.Domain.ValueObjects
 {
-    private ChunkContent(string value)
+    public sealed class ChunkContent : ValueObject
     {
-        Value = value;
-        SizeInBytes = Encoding.UTF8.GetByteCount(value);
-        Hash = ContentHash.FromUtf8(value);
+        private ChunkContent(string value)
+        {
+            Value = value;
+            SizeInBytes = Encoding.UTF8.GetByteCount(value);
+            Hash = ContentHash.FromUtf8(value);
+        }
+
+        public string Value { get; }
+
+        public int SizeInBytes { get; }
+
+        public ContentHash Hash { get; }
+
+        public int CharacterCount => Value.Length;
+
+        public static DomainResult<ChunkContent> Create(string? value)
+        {
+            return string.IsNullOrWhiteSpace(value)
+                ? DomainResult<ChunkContent>.Failure(ChunkErrors.ContentEmpty)
+                : DomainResult<ChunkContent>.Success(new ChunkContent(value));
+        }
+
+        protected override IEnumerable<object> GetEqualityComponents()
+        {
+            yield return Value;
+        }
+
+        public override string ToString()
+        {
+            return Value;
+        }
     }
-
-    public string Value { get; }
-
-    public int SizeInBytes { get; }
-
-    public ContentHash Hash { get; }
-
-    public int CharacterCount => Value.Length;
-
-    public static DomainResult<ChunkContent> Create(string? value) =>
-        string.IsNullOrWhiteSpace(value) ? DomainResult<ChunkContent>.Failure(ChunkErrors.ContentEmpty) : DomainResult<ChunkContent>.Success(new ChunkContent(value));
-
-    protected override IEnumerable<object> GetEqualityComponents()
-    {
-        yield return Value;
-    }
-
-    public override string ToString() => Value;
 }

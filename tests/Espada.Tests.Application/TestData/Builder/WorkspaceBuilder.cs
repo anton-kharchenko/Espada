@@ -6,13 +6,14 @@ namespace Espada.Tests.Application.TestData.Builder
 {
     internal sealed class WorkspaceBuilder
     {
+        private DateTimeOffset _createdAtUtc = TestDates.UtcNow;
         private WorkspaceId _id = TestIds.DefaultWorkspaceId;
 
         private WorkspaceName _name = WorkspaceName.Create(TestValues.WorkspaceName).ShouldSucceed();
 
-        private WorkspaceType _type = WorkspaceTypeTestData.Any;
+        private OrganizationId? _organizationId;
 
-        private DateTimeOffset _createdAtUtc = TestDates.UtcNow;
+        private WorkspaceType _type = WorkspaceTypeTestData.Any;
 
         public WorkspaceBuilder WithId(WorkspaceId id)
         {
@@ -39,7 +40,21 @@ namespace Espada.Tests.Application.TestData.Builder
             return this;
         }
 
-        public Workspace Build() => Workspace.Create(_id, _name, _type, _createdAtUtc).ShouldSucceed();
+        public WorkspaceBuilder WithOrganizationId(OrganizationId organizationId)
+        {
+            _organizationId = organizationId;
+            return this;
+        }
+
+        public Workspace Build()
+        {
+            return Workspace.Create(
+                _id,
+                _name,
+                _type,
+                _organizationId,
+                _createdAtUtc).ShouldSucceed();
+        }
 
         public Workspace BuildWithoutPendingEvents()
         {

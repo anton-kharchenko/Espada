@@ -2,33 +2,37 @@ using Espada.Db.Constants;
 using Espada.Db.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Espada.Infrastructure.Database;
-
-internal sealed class WorkspaceContextSearchDbContext(DbContextOptions<WorkspaceContextSearchDbContext> options) : DbContext(options)
+namespace Espada.Infrastructure.Database
 {
-    public DbSet<ChunkEmbeddingVectors> EmbeddingVectors => Set<ChunkEmbeddingVectors>();
-
-    public DbSet<ChunkEmbeddings> ChunkEmbeddings => Set<ChunkEmbeddings>();
-
-    public DbSet<Chunks> Chunks => Set<Chunks>();
-
-    public DbSet<Artifacts> Artifacts => Set<Artifacts>();
-
-    public DbSet<ImportJobs> ImportJobs => Set<ImportJobs>();
-
-    public DbSet<Sources> Sources => Set<Sources>();
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    internal sealed class WorkspaceContextSearchDbContext(DbContextOptions<WorkspaceContextSearchDbContext> options)
+        : DbContext(options)
     {
-        modelBuilder.HasDefaultSchema(DbConstants.SchemaName);
-        modelBuilder.HasPostgresExtension(DbExtensionConstants.Vector);
+        public DbSet<ChunkEmbeddingVectors> EmbeddingVectors => Set<ChunkEmbeddingVectors>();
 
-        modelBuilder.Entity<Chunks>().OwnsOne(chunk => chunk.SourceSpan, span =>
+        public DbSet<ChunkEmbeddings> ChunkEmbeddings => Set<ChunkEmbeddings>();
+
+        public DbSet<Chunks> Chunks => Set<Chunks>();
+
+        public DbSet<Artifacts> Artifacts => Set<Artifacts>();
+
+        public DbSet<ImportJobs> ImportJobs => Set<ImportJobs>();
+
+        public DbSet<Sources> Sources => Set<Sources>();
+
+        public DbSet<MemoryMetadataRecords> MemoryMetadata => Set<MemoryMetadataRecords>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            span.Property(sourceSpan => sourceSpan.Start).HasColumnName("SourceStart");
-            span.Property(sourceSpan => sourceSpan.Length).HasColumnName("SourceLength");
-        });
+            modelBuilder.HasDefaultSchema(DbConstants.SchemaName);
+            modelBuilder.HasPostgresExtension(DbExtensionConstants.Vector);
 
-        base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Chunks>().OwnsOne(chunk => chunk.SourceSpan, span =>
+            {
+                span.Property(sourceSpan => sourceSpan.Start).HasColumnName("SourceStart");
+                span.Property(sourceSpan => sourceSpan.Length).HasColumnName("SourceLength");
+            });
+
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }

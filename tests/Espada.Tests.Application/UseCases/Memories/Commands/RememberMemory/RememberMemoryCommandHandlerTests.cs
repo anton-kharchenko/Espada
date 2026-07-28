@@ -78,6 +78,7 @@ namespace Espada.Tests.Application.UseCases.Memories.Commands.RememberMemory
             fixture.ChunkEmbeddingRepository.AddedEmbedding.Should().BeNull();
             fixture.UnitOfWork.SaveChangesCallCount.Should().Be(1);
         }
+
         private static RememberMemoryCommand CreateCommand(Guid workspaceId)
         {
             return new RememberMemoryCommand(

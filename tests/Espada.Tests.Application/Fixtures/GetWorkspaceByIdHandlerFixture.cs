@@ -10,11 +10,16 @@ namespace Espada.Tests.Application.Fixtures
 {
     internal sealed class GetWorkspaceByIdHandlerFixture
     {
-        private readonly IMapper _mapper = new MapperConfiguration(options => options.AddProfile<ApplicationMappingProfile>(), NullLoggerFactory.Instance).CreateMapper();
+        private readonly IMapper _mapper =
+            new MapperConfiguration(options => options.AddProfile<ApplicationMappingProfile>(),
+                NullLoggerFactory.Instance).CreateMapper();
 
         public WorkspaceRepositorySpy WorkspaceRepository { get; } = new();
 
-        public GetWorkspaceByIdQueryHandler CreateHandler() => new(WorkspaceRepository, _mapper);
+        public GetWorkspaceByIdQueryHandler CreateHandler()
+        {
+            return new GetWorkspaceByIdQueryHandler(WorkspaceRepository, _mapper);
+        }
 
         public Workspace GivenWorkspaceExists()
         {
@@ -25,6 +30,9 @@ namespace Espada.Tests.Application.Fixtures
             return workspace;
         }
 
-        public void GivenWorkspaceDoesNotExist() => WorkspaceRepository.WorkspaceToReturn = null;
+        public void GivenWorkspaceDoesNotExist()
+        {
+            WorkspaceRepository.WorkspaceToReturn = null;
+        }
     }
 }

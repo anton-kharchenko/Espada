@@ -16,9 +16,9 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Queries.ListArtifactRevisi
             ListArtifactRevisionsHandlerFixture fixture = new();
 
             (
-                Artifact artifact,
-                ArtifactRevision firstRevision,
-                ArtifactRevision secondRevision) =
+                    Artifact artifact,
+                    ArtifactRevision firstRevision,
+                    ArtifactRevision secondRevision) =
                 fixture.GivenArtifactWithTwoRevisions();
 
             ListArtifactRevisionsQueryHandler handler =
@@ -118,9 +118,9 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Queries.ListArtifactRevisi
             ListArtifactRevisionsHandlerFixture fixture = new();
 
             (
-                Artifact artifact,
-                ArtifactRevision _,
-                ArtifactRevision _) =
+                    Artifact artifact,
+                    ArtifactRevision _,
+                    ArtifactRevision _) =
                 fixture.GivenArtifactWithTwoRevisions(
                     TestIds.AnotherWorkspaceId);
 
@@ -158,9 +158,9 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Queries.ListArtifactRevisi
             ListArtifactRevisionsHandlerFixture fixture = new();
 
             (
-                Artifact artifact,
-                ArtifactRevision _,
-                ArtifactRevision _) =
+                    Artifact artifact,
+                    ArtifactRevision _,
+                    ArtifactRevision _) =
                 fixture.GivenArtifactWithTwoRevisions();
 
             ListArtifactRevisionsQueryHandler handler =

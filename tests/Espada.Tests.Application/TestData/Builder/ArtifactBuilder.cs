@@ -7,11 +7,11 @@ namespace Espada.Tests.Application.TestData.Builder
 {
     internal sealed class ArtifactBuilder
     {
+        private DateTimeOffset _createdAtUtc =
+            TestDates.ArtifactCreatedAtUtc;
+
         private ArtifactId _id =
             TestIds.DefaultArtifactId;
-
-        private WorkspaceId _workspaceId =
-            TestIds.DefaultWorkspaceId;
 
         private string? _title =
             TestValues.ArtifactTitle;
@@ -19,8 +19,8 @@ namespace Espada.Tests.Application.TestData.Builder
         private ArtifactType _type =
             ArtifactType.Markdown;
 
-        private DateTimeOffset _createdAtUtc =
-            TestDates.ArtifactCreatedAtUtc;
+        private WorkspaceId _workspaceId =
+            TestIds.DefaultWorkspaceId;
 
         public ArtifactBuilder WithId(ArtifactId id)
         {

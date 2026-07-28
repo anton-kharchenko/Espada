@@ -1,36 +1,37 @@
-namespace Espada.DeploymentKit.Helpers;
-
-/// <summary>
-/// Identifies configuration keys whose values must be stored as Pulumi secrets.
-/// </summary>
-public static class SensitiveConfigurationKeyClassifierHelper
+namespace Espada.DeploymentKit.Helpers
 {
-    private static readonly string[] SensitiveMarkers =
-    [
-        "password",
-        "secret",
-        "token",
-        "apikey",
-        "accesskey",
-        "connectionstring",
-        "clientsecret",
-        "privatekey"
-    ];
-
-    public static bool IsSensitive(string? key)
+    /// <summary>
+    ///     Identifies configuration keys whose values must be stored as Pulumi secrets.
+    /// </summary>
+    public static class SensitiveConfigurationKeyClassifierHelper
     {
-        if (string.IsNullOrWhiteSpace(key))
+        private static readonly string[] SensitiveMarkers =
+        [
+            "password",
+            "secret",
+            "token",
+            "apikey",
+            "accesskey",
+            "connectionstring",
+            "clientsecret",
+            "privatekey"
+        ];
+
+        public static bool IsSensitive(string? key)
         {
-            return false;
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                return false;
+            }
+
+            string normalizedKey = key
+                .Replace(":", string.Empty, StringComparison.Ordinal)
+                .Replace("_", string.Empty, StringComparison.Ordinal)
+                .Replace(".", string.Empty, StringComparison.Ordinal)
+                .Replace("-", string.Empty, StringComparison.Ordinal)
+                .ToLowerInvariant();
+
+            return SensitiveMarkers.Any(marker => normalizedKey.Contains(marker, StringComparison.Ordinal));
         }
-
-        string normalizedKey = key
-            .Replace(":", string.Empty, StringComparison.Ordinal)
-            .Replace("_", string.Empty, StringComparison.Ordinal)
-            .Replace(".", string.Empty, StringComparison.Ordinal)
-            .Replace("-", string.Empty, StringComparison.Ordinal)
-            .ToLowerInvariant();
-
-        return SensitiveMarkers.Any(marker => normalizedKey.Contains(marker, StringComparison.Ordinal));
     }
 }

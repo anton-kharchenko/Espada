@@ -10,9 +10,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentAssertions" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" />
-        <PackageReference Include="xunit.v3" />
+        <PackageReference Include="FluentAssertions"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+        <PackageReference Include="xunit.v3"/>
 
         <PackageReference Include="xunit.runner.visualstudio">
             <PrivateAssets>all</PrivateAssets>
@@ -40,9 +40,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Espada.Tests.Common\Espada.Tests.Common.csproj" />
-        <ProjectReference Include="..\..\src\Espada.Application\Espada.Application.csproj" />
-        <ProjectReference Include="..\..\src\Espada.Domain\Espada.Domain.csproj" />
+        <ProjectReference Include="..\Espada.Tests.Common\Espada.Tests.Common.csproj"/>
+        <ProjectReference Include="..\..\src\Espada.Application\Espada.Application.csproj"/>
+        <ProjectReference Include="..\..\src\Espada.Domain\Espada.Domain.csproj"/>
     </ItemGroup>
 
 </Project>

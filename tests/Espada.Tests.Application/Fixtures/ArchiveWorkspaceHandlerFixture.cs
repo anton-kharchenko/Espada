@@ -14,7 +14,10 @@ namespace Espada.Tests.Application.Fixtures
 
         public TestClockService ClockService { get; } = new(TestDates.WorkspaceArchivedAtUtc);
 
-        public ArchiveWorkspaceCommandHandler CreateHandler() => new(WorkspaceRepository, UnitOfWork, ClockService);
+        public ArchiveWorkspaceCommandHandler CreateHandler()
+        {
+            return new ArchiveWorkspaceCommandHandler(WorkspaceRepository, UnitOfWork, ClockService);
+        }
 
         public Workspace GivenActiveWorkspaceExists()
         {

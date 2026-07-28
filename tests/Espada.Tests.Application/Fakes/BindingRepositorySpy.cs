@@ -24,7 +24,8 @@ namespace Espada.Tests.Application.Fakes
             return Task.FromResult(BindingToReturn);
         }
 
-        public Task<IReadOnlyList<Binding>> ListByWorkspaceIdAsync(WorkspaceId workspaceId, CancellationToken cancellationToken = default)
+        public Task<IReadOnlyList<Binding>> ListByWorkspaceIdAsync(WorkspaceId workspaceId,
+            CancellationToken cancellationToken = default)
         {
             return Task.FromResult(BindingsToReturn);
         }

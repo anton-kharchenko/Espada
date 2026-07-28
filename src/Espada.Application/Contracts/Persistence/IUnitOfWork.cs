@@ -1,6 +1,7 @@
-namespace Espada.Application.Contracts.Persistence;
-
-public interface IUnitOfWork
+namespace Espada.Application.Contracts.Persistence
 {
-    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+    public interface IUnitOfWork
+    {
+        Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+    }
 }

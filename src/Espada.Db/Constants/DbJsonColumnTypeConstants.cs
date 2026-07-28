@@ -1,6 +1,7 @@
-namespace Espada.Db.Constants;
-
-public static class DbJsonColumnTypeConstants
+namespace Espada.Db.Constants
 {
-    public const string Jsonb = "jsonb";
+    public static class DbJsonColumnTypeConstants
+    {
+        public const string Jsonb = "jsonb";
+    }
 }

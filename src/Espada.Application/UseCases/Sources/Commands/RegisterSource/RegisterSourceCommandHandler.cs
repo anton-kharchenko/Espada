@@ -6,57 +6,61 @@ using Espada.Domain.Aggregates;
 using Espada.Domain.Rules;
 using Espada.Domain.ValueObjects;
 
-namespace Espada.Application.UseCases.Sources.Commands.RegisterSource;
-
-internal sealed class RegisterSourceCommandHandler(
-    IWorkspaceRepository workspaceRepository,
-    ISourceRepository sourceRepository,
-    IUnitOfWork unitOfWork,
-    IClockService clockService)
-    : ICommandHandler<RegisterSourceCommand, RegisterSourceResponse>
+namespace Espada.Application.UseCases.Sources.Commands.RegisterSource
 {
-    public async Task<DomainResult<RegisterSourceResponse>> Handle(RegisterSourceCommand request, CancellationToken cancellationToken)
+    internal sealed class RegisterSourceCommandHandler(
+        IWorkspaceRepository workspaceRepository,
+        ISourceRepository sourceRepository,
+        IUnitOfWork unitOfWork,
+        IClockService clockService)
+        : ICommandHandler<RegisterSourceCommand, RegisterSourceResponse>
     {
-        if (request.WorkspaceId == Guid.Empty)
+        public async Task<DomainResult<RegisterSourceResponse>> Handle(RegisterSourceCommand request,
+            CancellationToken cancellationToken)
         {
-            return DomainResult.Failure<RegisterSourceResponse>(WorkspaceApplicationErrors.InvalidId);
+            if (request.WorkspaceId == Guid.Empty)
+            {
+                return DomainResult.Failure<RegisterSourceResponse>(WorkspaceApplicationErrors.InvalidId);
+            }
+
+            if (request.Definition is null)
+            {
+                return DomainResult.Failure<RegisterSourceResponse>(SourceApplicationErrors.InvalidDefinition);
+            }
+
+            WorkspaceId workspaceId = WorkspaceId.Create(request.WorkspaceId);
+            Workspace? workspace = await workspaceRepository.GetByIdAsync(workspaceId, cancellationToken);
+
+            if (workspace is null)
+            {
+                return DomainResult.Failure<RegisterSourceResponse>(
+                    WorkspaceApplicationErrors.NotFound(request.WorkspaceId));
+            }
+
+            DomainResult<SourceName> nameResult = SourceName.Create(request.Name);
+
+            if (nameResult.IsFailure)
+            {
+                return DomainResult.Failure<RegisterSourceResponse>(nameResult.Error);
+            }
+
+            DomainResult<Source> sourceResult = Source.Create(SourceId.New(), workspaceId, nameResult.Value,
+                request.Definition, clockService.UtcNow);
+
+            if (sourceResult.IsFailure)
+            {
+                return DomainResult.Failure<RegisterSourceResponse>(sourceResult.Error);
+            }
+
+            Source source = sourceResult.Value;
+
+            await sourceRepository.AddAsync(source, cancellationToken);
+
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+
+            RegisterSourceResponse response = new(source.Id.Value);
+
+            return DomainResult.Success(response);
         }
-
-        if (request.Definition is null)
-        {
-            return DomainResult.Failure<RegisterSourceResponse>(SourceApplicationErrors.InvalidDefinition);
-        }
-
-        WorkspaceId workspaceId = WorkspaceId.Create(request.WorkspaceId);
-        Workspace? workspace = await workspaceRepository.GetByIdAsync(workspaceId, cancellationToken);
-
-        if (workspace is null)
-        {
-            return DomainResult.Failure<RegisterSourceResponse>(WorkspaceApplicationErrors.NotFound(request.WorkspaceId));
-        }
-
-        DomainResult<SourceName> nameResult = SourceName.Create(request.Name);
-
-        if (nameResult.IsFailure)
-        {
-            return DomainResult.Failure<RegisterSourceResponse>(nameResult.Error);
-        }
-
-        DomainResult<Source> sourceResult = Source.Create(SourceId.New(), workspaceId, nameResult.Value, request.Definition, clockService.UtcNow);
-
-        if (sourceResult.IsFailure)
-        {
-            return DomainResult.Failure<RegisterSourceResponse>(sourceResult.Error);
-        }
-
-        Source source = sourceResult.Value;
-
-        await sourceRepository.AddAsync(source, cancellationToken);
-
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-
-        RegisterSourceResponse response = new(source.Id.Value);
-
-        return DomainResult.Success(response);
     }
 }

@@ -12,6 +12,11 @@ namespace Espada.Application.ApplicationErrors
             "Artifact.Memory.RequiresRememberCommand",
             "Memory artifacts must be created through remember-memory.");
 
+        public static readonly DomainError PolicyMutationRequiresAdministrator =
+            new(
+                "Artifact.Policy.RequiresAdministrator",
+                "Policy artifacts may be created or revised only by an administrator.");
+
         public static DomainError UnsupportedType(int typeId)
         {
             return new DomainError(
@@ -24,6 +29,15 @@ namespace Espada.Application.ApplicationErrors
             return new DomainError(
                 "Artifact.KindType.Unsupported",
                 $"Artifact kind type with ID '{kindTypeId}' is not supported.");
+        }
+
+        public static DomainError KindTypeMismatch(
+            Guid artifactId,
+            int kindTypeId)
+        {
+            return new DomainError(
+                "Artifact.KindType.Mismatch",
+                $"Artifact with ID '{artifactId:D}' is not of kind type '{kindTypeId}'.");
         }
 
         public static DomainError NotFound(Guid artifactId)

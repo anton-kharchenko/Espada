@@ -1,53 +1,50 @@
 using Espada.Comms.Core.Pagination;
 
-namespace Espada.Tests.Comms.Core.Pagination;
-
-public sealed class CursorCodecTests
+namespace Espada.Tests.Comms.Core.Pagination
 {
-    public static TheoryData<string> RoundTripValues =>
-        new()
-        {
-            "workspace:42",
-            "revision/Привет"
-        };
-
-    public static TheoryData<string?> InvalidCursors =>
-        new()
-        {
-            null!,
-            string.Empty,
-            " ",
-            "a",
-            "%%%",
-            "____"
-        };
-
-    [Theory]
-    [MemberData(nameof(RoundTripValues))]
-    public void Encode_ThenDecode_ReturnsOriginalValue(
-        string value)
+    public sealed class CursorCodecTests
     {
-        string cursor = CursorCodec.Encode(value);
+        public static TheoryData<string> RoundTripValues =>
+            new() { "workspace:42", "revision/Привет" };
 
-        bool decoded = CursorCodec.TryDecode(
-            cursor,
-            out string? decodedValue);
+        public static TheoryData<string?> InvalidCursors =>
+            new()
+            {
+                null!,
+                string.Empty,
+                " ",
+                "a",
+                "%%%",
+                "____"
+            };
 
-        Assert.True(decoded);
-        Assert.Equal(value, decodedValue);
-        Assert.DoesNotContain("=", cursor, StringComparison.Ordinal);
-    }
+        [Theory]
+        [MemberData(nameof(RoundTripValues))]
+        public void Encode_ThenDecode_ReturnsOriginalValue(
+            string value)
+        {
+            string cursor = CursorCodec.Encode(value);
 
-    [Theory]
-    [MemberData(nameof(InvalidCursors))]
-    public void TryDecode_WithInvalidCursor_ReturnsFalse(
-        string? cursor)
-    {
-        bool decoded = CursorCodec.TryDecode(
-            cursor,
-            out string? value);
+            bool decoded = CursorCodec.TryDecode(
+                cursor,
+                out string? decodedValue);
 
-        Assert.False(decoded);
-        Assert.Null(value);
+            Assert.True(decoded);
+            Assert.Equal(value, decodedValue);
+            Assert.DoesNotContain("=", cursor, StringComparison.Ordinal);
+        }
+
+        [Theory]
+        [MemberData(nameof(InvalidCursors))]
+        public void TryDecode_WithInvalidCursor_ReturnsFalse(
+            string? cursor)
+        {
+            bool decoded = CursorCodec.TryDecode(
+                cursor,
+                out string? value);
+
+            Assert.False(decoded);
+            Assert.Null(value);
+        }
     }
 }

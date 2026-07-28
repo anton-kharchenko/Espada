@@ -9,11 +9,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Espada.Domain\Espada.Domain.csproj" />
+        <ProjectReference Include="..\Espada.Domain\Espada.Domain.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
 
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
             <PrivateAssets>all</PrivateAssets>
@@ -25,12 +25,12 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
 
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
-  <PackageReference Include="Npgsql" />
-  <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
-  <PackageReference Include="OpenIddict.EntityFrameworkCore" />
-  <PackageReference Include="Pgvector" />
-  <PackageReference Include="Pgvector.EntityFrameworkCore" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational"/>
+        <PackageReference Include="Npgsql"/>
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL"/>
+        <PackageReference Include="OpenIddict.EntityFrameworkCore"/>
+        <PackageReference Include="Pgvector"/>
+        <PackageReference Include="Pgvector.EntityFrameworkCore"/>
     </ItemGroup>
 
     <ItemGroup>

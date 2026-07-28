@@ -1,10 +1,11 @@
 using Espada.Domain.Aggregates;
 using Espada.Domain.ValueObjects;
 
-namespace Espada.Application.Contracts.Persistence;
-
-public interface IChunkBatchRepository
+namespace Espada.Application.Contracts.Persistence
 {
-    Task AddAsync(ChunkBatch chunkBatch, CancellationToken cancellationToken = default);
-    Task<ChunkBatch?> GetByIdAsync(ChunkBatchId chunkBatchId, CancellationToken cancellationToken = default);
+    public interface IChunkBatchRepository
+    {
+        Task AddAsync(ChunkBatch chunkBatch, CancellationToken cancellationToken = default);
+        Task<ChunkBatch?> GetByIdAsync(ChunkBatchId chunkBatchId, CancellationToken cancellationToken = default);
+    }
 }

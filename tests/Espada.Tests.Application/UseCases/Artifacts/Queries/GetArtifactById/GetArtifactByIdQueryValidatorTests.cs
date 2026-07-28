@@ -18,7 +18,7 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Queries.GetArtifactById
                 await _validator.TestValidateAsync(
                     query,
                     cancellationToken:
-                        TestContext.Current.CancellationToken);
+                    TestContext.Current.CancellationToken);
 
             result.ShouldNotHaveAnyValidationErrors();
         }
@@ -35,10 +35,9 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Queries.GetArtifactById
                 await _validator.TestValidateAsync(
                     query,
                     cancellationToken:
-                        TestContext.Current.CancellationToken);
+                    TestContext.Current.CancellationToken);
 
-            result.ShouldHaveValidationErrorFor(
-                query => query.WorkspaceId);
+            result.ShouldHaveValidationErrorFor(query => query.WorkspaceId);
         }
 
         [Fact]
@@ -53,10 +52,9 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Queries.GetArtifactById
                 await _validator.TestValidateAsync(
                     query,
                     cancellationToken:
-                        TestContext.Current.CancellationToken);
+                    TestContext.Current.CancellationToken);
 
-            result.ShouldHaveValidationErrorFor(
-                query => query.ArtifactId);
+            result.ShouldHaveValidationErrorFor(query => query.ArtifactId);
         }
     }
 }

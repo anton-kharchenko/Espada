@@ -1,26 +1,26 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Espada.Api.Filters;
-
-internal sealed class ValidationFilter : IAsyncActionFilter, IOrderedFilter
+namespace Espada.Api.Filters
 {
-    public int Order => -2000;
-
-    public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+    internal sealed class ValidationFilter : IAsyncActionFilter, IOrderedFilter
     {
-        if (!context.ModelState.IsValid)
+        public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            ValidationProblemDetails problemDetails = new(context.ModelState)
+            if (!context.ModelState.IsValid)
             {
-                Status = StatusCodes.Status400BadRequest,
-                Title = "One or more validation errors occurred."
-            };
+                ValidationProblemDetails problemDetails = new(context.ModelState)
+                {
+                    Status = StatusCodes.Status400BadRequest, Title = "One or more validation errors occurred."
+                };
 
-            context.Result = new BadRequestObjectResult(problemDetails);
-            return;
+                context.Result = new BadRequestObjectResult(problemDetails);
+                return;
+            }
+
+            await next();
         }
 
-        await next();
+        public int Order => -2000;
     }
 }

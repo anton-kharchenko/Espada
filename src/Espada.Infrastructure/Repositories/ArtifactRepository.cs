@@ -22,7 +22,8 @@ namespace Espada.Infrastructure.Repositories
             return await dbContext.Artifacts.FindAsync([artifactId], cancellationToken);
         }
 
-        public async Task<IReadOnlyList<Artifact>> ListByWorkspaceIdAsync(WorkspaceId workspaceId, CancellationToken cancellationToken = default)
+        public async Task<IReadOnlyList<Artifact>> ListByWorkspaceIdAsync(WorkspaceId workspaceId,
+            CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(workspaceId);
 

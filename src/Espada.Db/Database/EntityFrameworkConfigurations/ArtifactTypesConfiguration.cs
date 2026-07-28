@@ -5,14 +5,16 @@ using Espada.Domain.SeedWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Espada.Db.Database.EntityFrameworkConfigurations;
-
-internal sealed class ArtifactTypesConfiguration : IEntityTypeConfiguration<ArtifactTypes>
+namespace Espada.Db.Database.EntityFrameworkConfigurations
 {
-    public void Configure(EntityTypeBuilder<ArtifactTypes> builder)
+    internal sealed class ArtifactTypesConfiguration : IEntityTypeConfiguration<ArtifactTypes>
     {
-        builder.Property(model => model.ArtifactTypeId).ValueGeneratedNever();
-        builder.HasIndex(model => model.Name).IsUnique().HasDatabaseName(DbIndexConstants.ArtifactTypeName);
-        builder.HasData(Enumeration.GetAll<ArtifactType>().Select(value => new ArtifactTypes { ArtifactTypeId = value.Id, Name = value.Name }));
+        public void Configure(EntityTypeBuilder<ArtifactTypes> builder)
+        {
+            builder.Property(model => model.ArtifactTypeId).ValueGeneratedNever();
+            builder.HasIndex(model => model.Name).IsUnique().HasDatabaseName(DbIndexConstants.ArtifactTypeName);
+            builder.HasData(Enumeration.GetAll<ArtifactType>()
+                .Select(value => new ArtifactTypes { ArtifactTypeId = value.Id, Name = value.Name }));
+        }
     }
 }

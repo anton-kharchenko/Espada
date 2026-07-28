@@ -1,29 +1,33 @@
 using Espada.Infrastructure.Options;
 
-namespace Espada.Tests.Infrastructure.TestData;
-
-internal static class EmbeddingTestData
+namespace Espada.Tests.Infrastructure.TestData
 {
-    public const string BaseUrl = "http://localhost:11434";
-    public const string ApiKey = "secret";
-    public const string ModelIdentifier = "local-model";
-    public const string ModelVersion = "1";
-    public const string ProviderModel = "provider-model";
-    public const string Input = "query";
-
-    public static EmbeddingGenerationOptions CreateOptions(int dimensions) => new()
+    internal static class EmbeddingTestData
     {
-        BaseUrl = BaseUrl,
-        ApiKey = ApiKey,
-        Models =
-        [
-            new EmbeddingModelOptions
+        public const string BaseUrl = "http://localhost:11434";
+        public const string ApiKey = "secret";
+        public const string ModelIdentifier = "local-model";
+        public const string ModelVersion = "1";
+        public const string ProviderModel = "provider-model";
+        public const string Input = "query";
+
+        public static EmbeddingGenerationOptions CreateOptions(int dimensions)
+        {
+            return new EmbeddingGenerationOptions
             {
-                Identifier = ModelIdentifier,
-                Version = ModelVersion,
-                ProviderModel = ProviderModel,
-                Dimensions = dimensions
-            }
-        ]
-    };
+                BaseUrl = BaseUrl,
+                ApiKey = ApiKey,
+                Models =
+                [
+                    new EmbeddingModelOptions
+                    {
+                        Identifier = ModelIdentifier,
+                        Version = ModelVersion,
+                        ProviderModel = ProviderModel,
+                        Dimensions = dimensions
+                    }
+                ]
+            };
+        }
+    }
 }

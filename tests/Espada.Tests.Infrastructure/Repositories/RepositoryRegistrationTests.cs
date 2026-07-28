@@ -10,7 +10,8 @@ namespace Espada.Tests.Infrastructure.Repositories
 {
     public sealed class RepositoryRegistrationTests
     {
-        private const string ConnectionString = "Host=localhost;Port=5432;Database=espada_registration_tests;Username=postgres;Password=postgres";
+        private const string ConnectionString =
+            "Host=localhost;Port=5432;Database=espada_registration_tests;Username=postgres;Password=postgres";
 
         [Fact]
         public void AddInfrastructure_ShouldRegisterRepositories()
@@ -42,8 +43,10 @@ namespace Espada.Tests.Infrastructure.Repositories
             Assert.IsType<ProjectTaskRepository>(scopedServices.GetRequiredService<IProjectTaskRepository>());
             Assert.IsType<BindingRepository>(scopedServices.GetRequiredService<IBindingRepository>());
             Assert.IsType<OrganizationRepository>(scopedServices.GetRequiredService<IOrganizationRepository>());
-            Assert.IsType<OrganizationMembershipRepository>(scopedServices.GetRequiredService<IOrganizationMembershipRepository>());
-            Assert.IsType<WorkspaceContextSearchStore>(scopedServices.GetRequiredService<IWorkspaceContextSearchStore>());
+            Assert.IsType<OrganizationMembershipRepository>(scopedServices
+                .GetRequiredService<IOrganizationMembershipRepository>());
+            Assert.IsType<WorkspaceContextSearchStore>(
+                scopedServices.GetRequiredService<IWorkspaceContextSearchStore>());
         }
 
         [Fact]
@@ -90,9 +93,11 @@ namespace Espada.Tests.Infrastructure.Repositories
 
             IArtifactRepository firstRepository = firstScope.ServiceProvider.GetRequiredService<IArtifactRepository>();
 
-            IArtifactRepository sameScopeRepository = firstScope.ServiceProvider.GetRequiredService<IArtifactRepository>();
+            IArtifactRepository sameScopeRepository =
+                firstScope.ServiceProvider.GetRequiredService<IArtifactRepository>();
 
-            IArtifactRepository secondRepository = secondScope.ServiceProvider.GetRequiredService<IArtifactRepository>();
+            IArtifactRepository secondRepository =
+                secondScope.ServiceProvider.GetRequiredService<IArtifactRepository>();
 
             Assert.Same(firstRepository, sameScopeRepository);
             Assert.NotSame(firstRepository, secondRepository);

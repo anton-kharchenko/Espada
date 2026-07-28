@@ -1,20 +1,21 @@
 using Espada.Application.Contracts.Persistence;
 
-namespace Espada.Tests.Application.Fakes;
-
-internal sealed class UnitOfWorkSpy : IUnitOfWork
+namespace Espada.Tests.Application.Fakes
 {
-    public int SaveChangesCallCount { get; private set; }
-
-    public CancellationToken ReceivedCancellationToken { get; private set; }
-
-    public int SaveChangesResult { get; set; } = 1;
-
-    public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    internal sealed class UnitOfWorkSpy : IUnitOfWork
     {
-        SaveChangesCallCount++;
-        ReceivedCancellationToken = cancellationToken;
+        public int SaveChangesCallCount { get; private set; }
 
-        return Task.FromResult(SaveChangesResult);
+        public CancellationToken ReceivedCancellationToken { get; private set; }
+
+        public int SaveChangesResult { get; set; } = 1;
+
+        public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            SaveChangesCallCount++;
+            ReceivedCancellationToken = cancellationToken;
+
+            return Task.FromResult(SaveChangesResult);
+        }
     }
 }

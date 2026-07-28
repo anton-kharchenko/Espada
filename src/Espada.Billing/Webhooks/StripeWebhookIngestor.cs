@@ -5,14 +5,19 @@ using Espada.Billing.Options;
 using Microsoft.Extensions.Options;
 using Stripe;
 
-namespace Espada.Billing.Webhooks;
-
-internal sealed class StripeWebhookIngestor(IBillingStoreService storeService, IOptions<BillingOptions> options) : IStripeWebhookIngestor
+namespace Espada.Billing.Webhooks
 {
-    public Task<bool> AcceptAsync(string payload, string signature, CancellationToken cancellationToken = default)
+    internal sealed class StripeWebhookIngestor(IBillingStoreService storeService, IOptions<BillingOptions> options)
+        : IStripeWebhookIngestor
     {
-        Event stripeEvent = EventUtility.ConstructEvent(payload, signature, options.Value.StripeWebhookSecret, tolerance: 300, throwOnApiVersionMismatch: true);
-        PaymentEventEnvelope envelope = new(stripeEvent.Id, stripeEvent.Type, stripeEvent.ApiVersion ?? BillingConstants.RequiredStripeApiVersion, payload, stripeEvent.Created, DateTimeOffset.UtcNow);
-        return storeService.AddPaymentEventAsync(envelope, cancellationToken);
+        public Task<bool> AcceptAsync(string payload, string signature, CancellationToken cancellationToken = default)
+        {
+            Event stripeEvent =
+                EventUtility.ConstructEvent(payload, signature, options.Value.StripeWebhookSecret);
+            PaymentEventEnvelope envelope = new(stripeEvent.Id, stripeEvent.Type,
+                stripeEvent.ApiVersion ?? BillingConstants.RequiredStripeApiVersion, payload, stripeEvent.Created,
+                DateTimeOffset.UtcNow);
+            return storeService.AddPaymentEventAsync(envelope, cancellationToken);
+        }
     }
 }

@@ -15,11 +15,13 @@ namespace Espada.Tests.Application.Fixtures
         private readonly IMapper _mapper = new MapperConfiguration(
             options => options.AddProfile<ApplicationMappingProfile>(),
             NullLoggerFactory.Instance).CreateMapper();
+
         public ArtifactRepositorySpy ArtifactRepository { get; } = new();
         public ArtifactRevisionRepositorySpy ArtifactRevisionRepository { get; } = new();
         public InstructionRuleRepositorySpy InstructionRuleRepository { get; } = new();
         public PolicyRuleRepositorySpy PolicyRuleRepository { get; } = new();
         public UnitOfWorkSpy UnitOfWork { get; } = new();
+
         public TestClockService ClockService { get; } =
             new(TestDates.ArtifactSecondRevisionCreatedAtUtc);
 

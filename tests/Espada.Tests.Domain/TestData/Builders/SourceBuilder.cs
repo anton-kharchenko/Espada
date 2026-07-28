@@ -1,62 +1,65 @@
-namespace Espada.Tests.Domain.TestData.Builders;
-
-internal sealed class SourceBuilder
+namespace Espada.Tests.Domain.TestData.Builders
 {
-    private SourceId _id = TestIds.DefaultSourceId;
-
-    private WorkspaceId _workspaceId = TestIds.DefaultWorkspaceId;
-
-    private SourceName _name = SourceName.Create("Espada documentation").ShouldSucceed();
-
-    private SourceType _type = SourceType.WebPage;
-
-    private SourceLocator _locator = SourceLocator.Create("https://example.com/docs").ShouldSucceed();
-
-    private DateTimeOffset _createdAtUtc = TestDates.SourceCreatedAtUtc;
-
-    public SourceBuilder WithId(SourceId id)
+    internal sealed class SourceBuilder
     {
-        _id = id;
-        return this;
-    }
+        private DateTimeOffset _createdAtUtc = TestDates.SourceCreatedAtUtc;
+        private SourceId _id = TestIds.DefaultSourceId;
 
-    public SourceBuilder InWorkspace(WorkspaceId workspaceId)
-    {
-        _workspaceId = workspaceId;
-        return this;
-    }
+        private SourceLocator _locator = SourceLocator.Create("https://example.com/docs").ShouldSucceed();
 
-    public SourceBuilder WithName(string name)
-    {
-        _name = SourceName.Create(name).ShouldSucceed();
-        return this;
-    }
+        private SourceName _name = SourceName.Create("Espada documentation").ShouldSucceed();
 
-    public SourceBuilder WithType(SourceType type)
-    {
-        _type = type;
-        return this;
-    }
+        private SourceType _type = SourceType.WebPage;
 
-    public SourceBuilder WithLocator(string locator)
-    {
-        _locator = SourceLocator.Create(locator).ShouldSucceed();
-        return this;
-    }
+        private WorkspaceId _workspaceId = TestIds.DefaultWorkspaceId;
 
-    public SourceBuilder CreatedAt(DateTimeOffset createdAtUtc)
-    {
-        _createdAtUtc = createdAtUtc;
-        return this;
-    }
+        public SourceBuilder WithId(SourceId id)
+        {
+            _id = id;
+            return this;
+        }
 
-    public Source Build() => Source.Create(_id, _workspaceId, _name, _type, _locator, _createdAtUtc).ShouldSucceed();
+        public SourceBuilder InWorkspace(WorkspaceId workspaceId)
+        {
+            _workspaceId = workspaceId;
+            return this;
+        }
 
-    public Source BuildWithoutPendingEvents()
-    {
-        Source source = Build();
-        source.DequeueDomainEvents();
+        public SourceBuilder WithName(string name)
+        {
+            _name = SourceName.Create(name).ShouldSucceed();
+            return this;
+        }
 
-        return source;
+        public SourceBuilder WithType(SourceType type)
+        {
+            _type = type;
+            return this;
+        }
+
+        public SourceBuilder WithLocator(string locator)
+        {
+            _locator = SourceLocator.Create(locator).ShouldSucceed();
+            return this;
+        }
+
+        public SourceBuilder CreatedAt(DateTimeOffset createdAtUtc)
+        {
+            _createdAtUtc = createdAtUtc;
+            return this;
+        }
+
+        public Source Build()
+        {
+            return Source.Create(_id, _workspaceId, _name, _type, _locator, _createdAtUtc).ShouldSucceed();
+        }
+
+        public Source BuildWithoutPendingEvents()
+        {
+            Source source = Build();
+            source.DequeueDomainEvents();
+
+            return source;
+        }
     }
 }

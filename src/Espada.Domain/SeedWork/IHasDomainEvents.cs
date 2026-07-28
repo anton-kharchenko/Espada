@@ -1,8 +1,9 @@
-namespace Espada.Domain.SeedWork;
-
-public interface IHasDomainEvents
+namespace Espada.Domain.SeedWork
 {
-    IReadOnlyCollection<IDomainEvent> DomainEvents { get; }
+    public interface IHasDomainEvents
+    {
+        IReadOnlyCollection<IDomainEvent> DomainEvents { get; }
 
-    IReadOnlyCollection<IDomainEvent> DequeueDomainEvents();
+        IReadOnlyCollection<IDomainEvent> DequeueDomainEvents();
+    }
 }

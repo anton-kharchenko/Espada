@@ -1,20 +1,14 @@
-import { Navigate, useOutletContext } from 'react-router-dom';
+import { Navigate, useOutletContext } from 'react-router';
 import type { ConsoleSession } from 'entities/session';
+import { WorkspaceStartPage } from 'pages/workspace';
 import { getWorkspaceRoute } from 'shared/config';
-import { PageState } from 'shared/ui';
 
 export const WorkspaceRedirect = () => {
   const session = useOutletContext<ConsoleSession>();
   const workspace = session.workspaces[0];
 
   if (!workspace) {
-    return (
-      <PageState
-        kind="empty"
-        title="No workspaces yet"
-        description="Create a workspace with the Espada CLI, then reopen the console."
-      />
-    );
+    return <WorkspaceStartPage mode={session.mode} />;
   }
 
   return <Navigate to={getWorkspaceRoute(workspace.id)} replace />;

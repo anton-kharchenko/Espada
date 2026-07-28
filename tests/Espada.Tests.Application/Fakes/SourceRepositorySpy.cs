@@ -10,6 +10,8 @@ namespace Espada.Tests.Application.Fakes
 
         public Source? SourceToReturn { get; set; }
 
+        public IReadOnlyList<Source> SourcesToReturn { get; set; } = [];
+
         public int AddCallCount { get; private set; }
 
         public int GetByIdCallCount { get; private set; }
@@ -40,6 +42,13 @@ namespace Espada.Tests.Application.Fakes
             GetByIdCancellationToken = cancellationToken;
 
             return Task.FromResult(SourceToReturn);
+        }
+
+        public Task<IReadOnlyList<Source>> ListByWorkspaceIdAsync(
+            WorkspaceId workspaceId,
+            CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(SourcesToReturn);
         }
     }
 }

@@ -1,12 +1,13 @@
 using FluentValidation;
 
-namespace Espada.Application.UseCases.Chunks.Queries.GetChunkById;
-
-internal sealed class GetChunkByIdQueryValidator : AbstractValidator<GetChunkByIdQuery>
+namespace Espada.Application.UseCases.Chunks.Queries.GetChunkById
 {
-    public GetChunkByIdQueryValidator()
+    internal sealed class GetChunkByIdQueryValidator : AbstractValidator<GetChunkByIdQuery>
     {
-        RuleFor(query => query.WorkspaceId).NotEmpty();
-        RuleFor(query => query.ChunkId).NotEmpty();
+        public GetChunkByIdQueryValidator()
+        {
+            RuleFor(query => query.WorkspaceId).NotEmpty();
+            RuleFor(query => query.ChunkId).NotEmpty();
+        }
     }
 }

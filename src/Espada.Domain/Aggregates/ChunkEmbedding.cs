@@ -31,17 +31,17 @@ namespace Espada.Domain.Aggregates
             CreatedAtUtc = createdAtUtc;
         }
 
-        public WorkspaceId WorkspaceId { get; private set; } = null!;
+        public WorkspaceId WorkspaceId { get; } = null!;
 
-        public ChunkId ChunkId { get; private set; } = null!;
+        public ChunkId ChunkId { get; } = null!;
 
-        public ContentHash ChunkContentHash { get; private set; } = null!;
+        public ContentHash ChunkContentHash { get; } = null!;
 
         public EmbeddingModel Model => EmbeddingModel.Create(_modelIdentifier, _modelVersion).Value!;
 
-        public EmbeddingDimensions Dimensions { get; private set; } = null!;
+        public EmbeddingDimensions Dimensions { get; } = null!;
 
-        public DateTimeOffset CreatedAtUtc { get; private set; }
+        public DateTimeOffset CreatedAtUtc { get; }
 
         public static DomainResult<ChunkEmbedding> Create(
             ChunkEmbeddingId id,
@@ -61,7 +61,9 @@ namespace Espada.Domain.Aggregates
 
             ChunkEmbedding embedding = new(id, workspaceId, chunkId, chunkContentHash, model, dimensions, createdAtUtc);
 
-            embedding.RaiseDomainEvent(new ChunkEmbeddingCreatedDomainEvent(embedding.Id, embedding.WorkspaceId, embedding.ChunkId, embedding.ChunkContentHash.Value, embedding.Model.Identifier, embedding.Model.Version, embedding.Dimensions.Value, embedding.CreatedAtUtc));
+            embedding.RaiseDomainEvent(new ChunkEmbeddingCreatedDomainEvent(embedding.Id, embedding.WorkspaceId,
+                embedding.ChunkId, embedding.ChunkContentHash.Value, embedding.Model.Identifier,
+                embedding.Model.Version, embedding.Dimensions.Value, embedding.CreatedAtUtc));
 
             return DomainResult<ChunkEmbedding>.Success(embedding);
         }

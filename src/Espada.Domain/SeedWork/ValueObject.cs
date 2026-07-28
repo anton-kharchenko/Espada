@@ -1,42 +1,45 @@
-namespace Espada.Domain.SeedWork;
-
-public abstract class ValueObject
+namespace Espada.Domain.SeedWork
 {
-    private static bool EqualOperator(ValueObject? left, ValueObject? right)
+    public abstract class ValueObject
     {
-        return (ReferenceEquals(left, null) ^ ReferenceEquals(right, null)) switch
+        private static bool EqualOperator(ValueObject? left, ValueObject? right)
         {
-            true => false,
-            _ => ReferenceEquals(left, right) || left!.Equals(right)
-        };
-    }
-
-    protected abstract IEnumerable<object> GetEqualityComponents();
-
-    public override bool Equals(object? obj)
-    {
-        if (obj == null || obj.GetType() != GetType())
-        {
-            return false;
+            return (ReferenceEquals(left, null) ^ ReferenceEquals(right, null)) switch
+            {
+                true => false,
+                _ => ReferenceEquals(left, right) || left!.Equals(right)
+            };
         }
 
-        var other = (ValueObject)obj;
+        protected abstract IEnumerable<object> GetEqualityComponents();
 
-        return GetEqualityComponents().SequenceEqual(other.GetEqualityComponents());
-    }
+        public override bool Equals(object? obj)
+        {
+            if (obj == null || obj.GetType() != GetType())
+            {
+                return false;
+            }
 
-    public override int GetHashCode() =>
-        GetEqualityComponents()
-            .Select(x => x.GetHashCode())
-            .Aggregate((x, y) => x ^ y);
+            ValueObject other = (ValueObject)obj;
 
-    public static bool operator ==(ValueObject? one, ValueObject? two)
-    {
-        return EqualOperator(one, two);
-    }
+            return GetEqualityComponents().SequenceEqual(other.GetEqualityComponents());
+        }
 
-    public static bool operator !=(ValueObject? one, ValueObject? two)
-    {
-        return !EqualOperator(one, two);
+        public override int GetHashCode()
+        {
+            return GetEqualityComponents()
+                .Select(x => x.GetHashCode())
+                .Aggregate((x, y) => x ^ y);
+        }
+
+        public static bool operator ==(ValueObject? one, ValueObject? two)
+        {
+            return EqualOperator(one, two);
+        }
+
+        public static bool operator !=(ValueObject? one, ValueObject? two)
+        {
+            return !EqualOperator(one, two);
+        }
     }
 }

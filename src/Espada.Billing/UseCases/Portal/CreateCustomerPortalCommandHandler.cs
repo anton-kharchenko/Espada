@@ -6,25 +6,32 @@ using Espada.Billing.Options;
 using Espada.Domain.Rules;
 using Microsoft.Extensions.Options;
 
-namespace Espada.Billing.UseCases.Portal;
-
-internal sealed class CreateCustomerPortalCommandHandler(IEnumerable<IStripeBillingProvider> billingProviders, IBillingStoreService storeService, IOptions<BillingOptions> options) : ICommandHandler<CreateCustomerPortalCommand, HostedBillingSession>
+namespace Espada.Billing.UseCases.Portal
 {
-    public async Task<DomainResult<HostedBillingSession>> Handle(CreateCustomerPortalCommand request, CancellationToken cancellationToken)
+    internal sealed class CreateCustomerPortalCommandHandler(
+        IEnumerable<IStripeBillingProvider> billingProviders,
+        IBillingStoreService storeService,
+        IOptions<BillingOptions> options) : ICommandHandler<CreateCustomerPortalCommand, HostedBillingSession>
     {
-        IStripeBillingProvider? provider = billingProviders.SingleOrDefault();
-        if (!options.Value.Enabled || provider is null)
+        public async Task<DomainResult<HostedBillingSession>> Handle(CreateCustomerPortalCommand request,
+            CancellationToken cancellationToken)
         {
-            return DomainResult.Failure<HostedBillingSession>(BillingApplicationErrors.Unavailable);
-        }
+            IStripeBillingProvider? provider = billingProviders.SingleOrDefault();
+            if (!options.Value.Enabled || provider is null)
+            {
+                return DomainResult.Failure<HostedBillingSession>(BillingApplicationErrors.Unavailable);
+            }
 
-        BillingCustomerSnapshot? customer = await storeService.GetCustomerByWorkspaceAsync(request.WorkspaceId, cancellationToken);
-        if (customer is null)
-        {
-            return DomainResult.Failure<HostedBillingSession>(BillingApplicationErrors.CustomerNotFound);
-        }
+            BillingCustomerSnapshot? customer =
+                await storeService.GetCustomerByWorkspaceAsync(request.WorkspaceId, cancellationToken);
+            if (customer is null)
+            {
+                return DomainResult.Failure<HostedBillingSession>(BillingApplicationErrors.CustomerNotFound);
+            }
 
-        HostedBillingSession session = await provider.CreateCustomerPortalAsync(customer.ProviderCustomerId, request.IdempotencyKey, cancellationToken);
-        return DomainResult.Success(session);
+            HostedBillingSession session = await provider.CreateCustomerPortalAsync(customer.ProviderCustomerId,
+                request.IdempotencyKey, cancellationToken);
+            return DomainResult.Success(session);
+        }
     }
 }

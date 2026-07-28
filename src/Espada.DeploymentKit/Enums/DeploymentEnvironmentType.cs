@@ -1,8 +1,9 @@
-namespace Espada.DeploymentKit.Enums;
-
-public enum DeploymentEnvironmentType
+namespace Espada.DeploymentKit.Enums
 {
-    Development,
-    Staging,
-    Production
+    public enum DeploymentEnvironmentType
+    {
+        Development,
+        Staging,
+        Production
+    }
 }

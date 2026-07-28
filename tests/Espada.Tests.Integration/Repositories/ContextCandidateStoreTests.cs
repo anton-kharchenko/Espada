@@ -154,9 +154,8 @@ namespace Espada.Tests.Integration.Repositories
                     TestContext.Current.CancellationToken);
 
             Assert.Equal(3, candidates.Count);
-            ContextCandidateRecord instructionCandidate = candidates.Single(
-                candidate => candidate.Binding.Id.Equals(
-                    instructionBinding.Id));
+            ContextCandidateRecord instructionCandidate = candidates.Single(candidate => candidate.Binding.Id.Equals(
+                instructionBinding.Id));
             Assert.Equal(firstRevision.Id, instructionCandidate.Revision.Id);
             Assert.Equal(
                 "instruction.first",
@@ -166,14 +165,14 @@ namespace Espada.Tests.Integration.Repositories
                 instructionCandidate.InstructionRules,
                 rule => rule.RuleKey.Value == "instruction.current");
 
-            ContextCandidateRecord documentCandidate = candidates.Single(
-                candidate => candidate.Binding.Id.Equals(documentBinding.Id));
+            ContextCandidateRecord documentCandidate =
+                candidates.Single(candidate => candidate.Binding.Id.Equals(documentBinding.Id));
             Assert.Equal(
                 ArtifactStatusType.Archived,
                 documentCandidate.Artifact.Status);
 
-            ContextCandidateRecord memoryCandidate = candidates.Single(
-                candidate => candidate.Binding.Id.Equals(memoryBinding.Id));
+            ContextCandidateRecord memoryCandidate =
+                candidates.Single(candidate => candidate.Binding.Id.Equals(memoryBinding.Id));
             Assert.Equal(oldMetadata.Id, memoryCandidate.MemoryMetadata!.Id);
             Assert.True(memoryCandidate.IsMemorySuperseded);
             Assert.DoesNotContain(
@@ -193,45 +192,51 @@ namespace Espada.Tests.Integration.Repositories
             using CancellationTokenSource source = new();
             source.Cancel();
 
-            await Assert.ThrowsAnyAsync<OperationCanceledException>(
-                async () => await store.LoadByWorkspaceIdAsync(
-                    WorkspaceId.New(),
-                    source.Token));
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await store.LoadByWorkspaceIdAsync(
+                WorkspaceId.New(),
+                source.Token));
         }
 
-        private static Workspace CreateWorkspace(string name) =>
-            Workspace.Create(
+        private static Workspace CreateWorkspace(string name)
+        {
+            return Workspace.Create(
                 WorkspaceId.New(),
                 WorkspaceName.Create(name).Value,
                 WorkspaceType.Personal,
                 null,
                 CreatedAtUtc).Value;
+        }
 
         private static Artifact CreateArtifact(
             Workspace workspace,
             ArtifactKindType kindType,
-            string title) =>
-            Artifact.Create(
+            string title)
+        {
+            return Artifact.Create(
                 ArtifactId.New(),
                 workspace.Id,
                 ArtifactTitle.Create(title).Value,
                 kindType,
                 ArtifactType.Markdown,
                 CreatedAtUtc).Value;
+        }
 
         private static ArtifactRevision CreateRevision(
             Artifact artifact,
-            string content) =>
-            artifact.CreateRevision(
+            string content)
+        {
+            return artifact.CreateRevision(
                 ArtifactRevisionId.New(),
                 ArtifactContent.Create(content).Value,
                 CreatedAtUtc).Value;
+        }
 
         private static Binding CreateBinding(
             Workspace workspace,
             Artifact artifact,
-            ArtifactRevision revision) =>
-            artifact.CreateBinding(
+            ArtifactRevision revision)
+        {
+            return artifact.CreateBinding(
                 BindingId.New(),
                 revision,
                 workspace,
@@ -243,5 +248,6 @@ namespace Espada.Tests.Integration.Repositories
                 null,
                 null,
                 CreatedAtUtc).Value;
+        }
     }
 }

@@ -1,13 +1,14 @@
 using AutoMapper;
 using Espada.Application.ApplicationErrors;
-using Espada.Application.Models;
 using Espada.Application.Contracts.Messaging;
 using Espada.Application.Contracts.Persistence;
 using Espada.Application.Contracts.Time;
-using Espada.Application.UseCases.Artifacts.Common;
+using Espada.Application.Models;
 using Espada.Domain.Aggregates;
+using Espada.Domain.Enums;
 using Espada.Domain.Rules;
 using Espada.Domain.ValueObjects;
+using Espada.Application.Rules;
 
 namespace Espada.Application.UseCases.Artifacts.Commands.AddArtifactRevision
 {
@@ -58,6 +59,24 @@ namespace Espada.Application.UseCases.Artifacts.Commands.AddArtifactRevision
                     ArtifactApplicationErrors.NotFoundInWorkspace(
                         request.ArtifactId,
                         request.WorkspaceId));
+            }
+
+            if (request.RequiredKindTypeId.HasValue
+                && artifact.KindType.Id
+                != request.RequiredKindTypeId.Value)
+            {
+                return DomainResult.Failure<AddArtifactRevisionResponse>(
+                    ArtifactApplicationErrors.KindTypeMismatch(
+                        request.ArtifactId,
+                        request.RequiredKindTypeId.Value));
+            }
+
+            if (artifact.KindType.Equals(ArtifactKindType.Policy)
+                && !request.AllowPolicyMutation)
+            {
+                return DomainResult.Failure<AddArtifactRevisionResponse>(
+                    ArtifactApplicationErrors
+                        .PolicyMutationRequiresAdministrator);
             }
 
             DateTimeOffset createdAtUtc = clockService.UtcNow;

@@ -11,15 +11,26 @@ namespace Espada.Domain.ValueObjects
 
         public Guid Value { get; }
 
-        public static ChunkEmbeddingId New() => new(Guid.NewGuid());
+        public static ChunkEmbeddingId New()
+        {
+            return new ChunkEmbeddingId(Guid.NewGuid());
+        }
 
-        public static ChunkEmbeddingId Create(Guid value) => value == Guid.Empty ? throw new ArgumentException("Chunk embedding ID cannot be empty.", nameof(value)) : new ChunkEmbeddingId(value);
+        public static ChunkEmbeddingId Create(Guid value)
+        {
+            return value == Guid.Empty
+                ? throw new ArgumentException("Chunk embedding ID cannot be empty.", nameof(value))
+                : new ChunkEmbeddingId(value);
+        }
 
         protected override IEnumerable<object> GetEqualityComponents()
         {
             yield return Value;
         }
 
-        public override string ToString() => Value.ToString("D");
+        public override string ToString()
+        {
+            return Value.ToString("D");
+        }
     }
 }

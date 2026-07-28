@@ -1,8 +1,9 @@
 using Espada.Application.Contracts.Embedding;
 
-namespace Espada.Tests.Application.Fakes;
-
-internal sealed class TestEmbeddingModelDefaults : IEmbeddingModelDefaults
+namespace Espada.Tests.Application.Fakes
 {
-    public string? DefaultModel { get; set; }
+    internal sealed class TestEmbeddingModelDefaults : IEmbeddingModelDefaults
+    {
+        public string? DefaultModel { get; set; }
+    }
 }

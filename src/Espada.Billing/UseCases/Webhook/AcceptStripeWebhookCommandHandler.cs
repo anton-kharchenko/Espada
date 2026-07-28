@@ -7,26 +7,30 @@ using Espada.Domain.Rules;
 using Microsoft.Extensions.Options;
 using Stripe;
 
-namespace Espada.Billing.UseCases.Webhook;
-
-internal sealed class AcceptStripeWebhookCommandHandler(IEnumerable<IStripeWebhookIngestor> webhookIngestors, IOptions<BillingOptions> options) : ICommandHandler<AcceptStripeWebhookCommand, StripeWebhookReceipt>
+namespace Espada.Billing.UseCases.Webhook
 {
-    public async Task<DomainResult<StripeWebhookReceipt>> Handle(AcceptStripeWebhookCommand request, CancellationToken cancellationToken)
+    internal sealed class AcceptStripeWebhookCommandHandler(
+        IEnumerable<IStripeWebhookIngestor> webhookIngestors,
+        IOptions<BillingOptions> options) : ICommandHandler<AcceptStripeWebhookCommand, StripeWebhookReceipt>
     {
-        IStripeWebhookIngestor? ingestor = webhookIngestors.SingleOrDefault();
-        if (!options.Value.Enabled || ingestor is null)
+        public async Task<DomainResult<StripeWebhookReceipt>> Handle(AcceptStripeWebhookCommand request,
+            CancellationToken cancellationToken)
         {
-            return DomainResult.Failure<StripeWebhookReceipt>(BillingApplicationErrors.Unavailable);
-        }
+            IStripeWebhookIngestor? ingestor = webhookIngestors.SingleOrDefault();
+            if (!options.Value.Enabled || ingestor is null)
+            {
+                return DomainResult.Failure<StripeWebhookReceipt>(BillingApplicationErrors.Unavailable);
+            }
 
-        try
-        {
-            bool inserted = await ingestor.AcceptAsync(request.Payload, request.Signature, cancellationToken);
-            return DomainResult.Success(new StripeWebhookReceipt(Received: true, Duplicate: !inserted));
-        }
-        catch (StripeException)
-        {
-            return DomainResult.Failure<StripeWebhookReceipt>(BillingApplicationErrors.InvalidWebhook);
+            try
+            {
+                bool inserted = await ingestor.AcceptAsync(request.Payload, request.Signature, cancellationToken);
+                return DomainResult.Success(new StripeWebhookReceipt(true, !inserted));
+            }
+            catch (StripeException)
+            {
+                return DomainResult.Failure<StripeWebhookReceipt>(BillingApplicationErrors.InvalidWebhook);
+            }
         }
     }
 }

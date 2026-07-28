@@ -15,7 +15,10 @@ namespace Espada.Tests.Application.Fixtures
 
         public TestClockService ClockService { get; } = new(TestDates.ImportFailedAtUtc);
 
-        public FailImportCommandHandler CreateHandler() => new(ImportJobRepository, UnitOfWork, ClockService);
+        public FailImportCommandHandler CreateHandler()
+        {
+            return new FailImportCommandHandler(ImportJobRepository, UnitOfWork, ClockService);
+        }
 
         public ImportJob GivenRunningImportExists(WorkspaceId? workspaceId = null)
         {
@@ -48,6 +51,9 @@ namespace Espada.Tests.Application.Fixtures
             return importJob;
         }
 
-        public void GivenImportDoesNotExist() => ImportJobRepository.ImportJobToReturn = null;
+        public void GivenImportDoesNotExist()
+        {
+            ImportJobRepository.ImportJobToReturn = null;
+        }
     }
 }

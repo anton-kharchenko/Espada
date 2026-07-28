@@ -1,6 +1,7 @@
-namespace Espada.Api.Contracts.Constants;
-
-public static class ApiVersionConstants
+namespace Espada.Api.Contracts.Constants
 {
-    public const string V1 = "1.0";
+    public static class ApiVersionConstants
+    {
+        public const string V1 = "1.0";
+    }
 }

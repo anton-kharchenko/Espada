@@ -4,11 +4,11 @@ namespace Espada.Tests.Application.TestData.Builder
 {
     internal sealed class GetArtifactByIdQueryBuilder
     {
-        private Guid _workspaceId =
-            TestIds.DefaultWorkspaceId.Value;
-
         private Guid _artifactId =
             TestIds.DefaultArtifactId.Value;
+
+        private Guid _workspaceId =
+            TestIds.DefaultWorkspaceId.Value;
 
         public GetArtifactByIdQueryBuilder InWorkspace(Guid workspaceId)
         {

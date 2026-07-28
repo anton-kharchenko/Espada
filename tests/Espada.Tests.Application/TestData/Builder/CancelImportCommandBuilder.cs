@@ -4,9 +4,8 @@ namespace Espada.Tests.Application.TestData.Builder
 {
     internal sealed class CancelImportCommandBuilder
     {
-        private Guid _workspaceId = TestIds.DefaultWorkspaceId.Value;
-
         private Guid _importJobId = TestIds.DefaultImportJobId.Value;
+        private Guid _workspaceId = TestIds.DefaultWorkspaceId.Value;
 
         public CancelImportCommandBuilder InWorkspace(Guid workspaceId)
         {
@@ -20,9 +19,11 @@ namespace Espada.Tests.Application.TestData.Builder
             return this;
         }
 
-        public CancelImportCommand Build() =>
-            new(
+        public CancelImportCommand Build()
+        {
+            return new CancelImportCommand(
                 _workspaceId,
                 _importJobId);
+        }
     }
 }

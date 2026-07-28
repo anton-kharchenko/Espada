@@ -1,8 +1,9 @@
-namespace Espada.Billing.Contracts;
-
-public interface IUsageReconciliationProcessor
+namespace Espada.Billing.Contracts
 {
-    Task<bool> ProcessNextAsync(
-        string workerId,
-        CancellationToken cancellationToken = default);
+    public interface IUsageReconciliationProcessor
+    {
+        Task<bool> ProcessNextAsync(
+            string workerId,
+            CancellationToken cancellationToken = default);
+    }
 }

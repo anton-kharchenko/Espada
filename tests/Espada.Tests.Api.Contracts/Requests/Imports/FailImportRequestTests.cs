@@ -3,79 +3,77 @@ using Espada.Tests.Api.Contracts.TestData;
 using Espada.Tests.Api.Contracts.Validation;
 using System.ComponentModel.DataAnnotations;
 
-namespace Espada.Tests.Api.Contracts.Requests.Imports;
-
-public sealed class FailImportRequestTests
+namespace Espada.Tests.Api.Contracts.Requests.Imports
 {
-    [Fact]
-    public void Validate_WithValidRequest_ShouldNotReturnErrors()
+    public sealed class FailImportRequestTests
     {
-        FailImportRequest request = new()
+        [Fact]
+        public void Validate_WithValidRequest_ShouldNotReturnErrors()
         {
-            FailureCode = TestValues.ImportFailureCode,
-            FailureReason = TestValues.ImportFailureReason
-        };
+            FailImportRequest request = new()
+            {
+                FailureCode = TestValues.ImportFailureCode, FailureReason = TestValues.ImportFailureReason
+            };
 
-        IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
+            IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
 
-        Assert.Empty(results);
-    }
+            Assert.Empty(results);
+        }
 
-    [Theory]
-    [MemberData(nameof(StringTheoryData.NullOrWhiteSpaceValues), MemberType = typeof(StringTheoryData))]
-    public void Validate_WithEmptyFailureCode_ShouldReturnFailureCodeError(string? failureCode)
-    {
-        FailImportRequest request = new()
+        [Theory]
+        [MemberData(nameof(StringTheoryData.NullOrWhiteSpaceValues), MemberType = typeof(StringTheoryData))]
+        public void Validate_WithEmptyFailureCode_ShouldReturnFailureCodeError(string? failureCode)
         {
-            FailureCode = failureCode!,
-            FailureReason = TestValues.ImportFailureReason
-        };
+            FailImportRequest request = new()
+            {
+                FailureCode = failureCode!, FailureReason = TestValues.ImportFailureReason
+            };
 
-        IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
+            IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
 
-        Assert.True(results.HasErrorFor(nameof(FailImportRequest.FailureCode)));
-    }
+            Assert.True(results.HasErrorFor(nameof(FailImportRequest.FailureCode)));
+        }
 
-    [Theory]
-    [MemberData(nameof(StringTheoryData.NullOrWhiteSpaceValues), MemberType = typeof(StringTheoryData))]
-    public void Validate_WithEmptyFailureReason_ShouldReturnFailureReasonError(string? failureReason)
-    {
-        FailImportRequest request = new()
+        [Theory]
+        [MemberData(nameof(StringTheoryData.NullOrWhiteSpaceValues), MemberType = typeof(StringTheoryData))]
+        public void Validate_WithEmptyFailureReason_ShouldReturnFailureReasonError(string? failureReason)
         {
-            FailureCode = TestValues.ImportFailureCode,
-            FailureReason = failureReason!
-        };
+            FailImportRequest request = new()
+            {
+                FailureCode = TestValues.ImportFailureCode, FailureReason = failureReason!
+            };
 
-        IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
+            IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
 
-        Assert.True(results.HasErrorFor(nameof(FailImportRequest.FailureReason)));
-    }
+            Assert.True(results.HasErrorFor(nameof(FailImportRequest.FailureReason)));
+        }
 
-    [Fact]
-    public void Validate_WithFailureCodeTooLong_ShouldReturnFailureCodeError()
-    {
-        FailImportRequest request = new()
+        [Fact]
+        public void Validate_WithFailureCodeTooLong_ShouldReturnFailureCodeError()
         {
-            FailureCode = new string('a', FailImportRequest.FailureCodeMaxLength + 1),
-            FailureReason = TestValues.ImportFailureReason
-        };
+            FailImportRequest request = new()
+            {
+                FailureCode = new string('a', FailImportRequest.FailureCodeMaxLength + 1),
+                FailureReason = TestValues.ImportFailureReason
+            };
 
-        IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
+            IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
 
-        Assert.True(results.HasErrorFor(nameof(FailImportRequest.FailureCode)));
-    }
+            Assert.True(results.HasErrorFor(nameof(FailImportRequest.FailureCode)));
+        }
 
-    [Fact]
-    public void Validate_WithFailureReasonTooLong_ShouldReturnFailureReasonError()
-    {
-        FailImportRequest request = new()
+        [Fact]
+        public void Validate_WithFailureReasonTooLong_ShouldReturnFailureReasonError()
         {
-            FailureCode = TestValues.ImportFailureCode,
-            FailureReason = new string('a', FailImportRequest.FailureReasonMaxLength + 1)
-        };
+            FailImportRequest request = new()
+            {
+                FailureCode = TestValues.ImportFailureCode,
+                FailureReason = new string('a', FailImportRequest.FailureReasonMaxLength + 1)
+            };
 
-        IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
+            IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
 
-        Assert.True(results.HasErrorFor(nameof(FailImportRequest.FailureReason)));
+            Assert.True(results.HasErrorFor(nameof(FailImportRequest.FailureReason)));
+        }
     }
 }

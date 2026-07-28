@@ -1,6 +1,7 @@
-namespace Espada.Application.Contracts.Jobs;
-
-public interface IOutboxPublisher
+namespace Espada.Application.Contracts.Jobs
 {
-    Task<bool> PublishNextAsync(string leaseOwner, CancellationToken cancellationToken = default);
+    public interface IOutboxPublisher
+    {
+        Task<bool> PublishNextAsync(string leaseOwner, CancellationToken cancellationToken = default);
+    }
 }

@@ -1,21 +1,23 @@
 using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 
-namespace Espada.Tests.Infrastructure.Database;
-
-internal static class PostgreSqlDbContextOptions
+namespace Espada.Tests.Infrastructure.Database
 {
-    public static DbContextOptions<TContext> Create<TContext>(string connectionString, Action<NpgsqlDbContextOptionsBuilder>? configure = null) where TContext : DbContext
+    internal static class PostgreSqlDbContextOptions
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
-
-        DbContextOptionsBuilder<TContext> options = new();
-        options.UseNpgsql(connectionString, npgsql =>
+        public static DbContextOptions<TContext> Create<TContext>(string connectionString,
+            Action<NpgsqlDbContextOptionsBuilder>? configure = null) where TContext : DbContext
         {
-            npgsql.UseVector();
-            configure?.Invoke(npgsql);
-        });
+            ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
 
-        return options.Options;
+            DbContextOptionsBuilder<TContext> options = new();
+            options.UseNpgsql(connectionString, npgsql =>
+            {
+                npgsql.UseVector();
+                configure?.Invoke(npgsql);
+            });
+
+            return options.Options;
+        }
     }
 }

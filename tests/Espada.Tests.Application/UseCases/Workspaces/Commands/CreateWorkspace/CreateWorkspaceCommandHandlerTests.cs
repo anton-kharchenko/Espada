@@ -8,216 +8,217 @@ using Espada.Tests.Application.Fixtures;
 using Espada.Tests.Application.TestData;
 using Espada.Tests.Application.TestData.Builder;
 
-namespace Espada.Tests.Application.UseCases.Workspaces.Commands.CreateWorkspace;
-
-public sealed class CreateWorkspaceCommandHandlerTests
+namespace Espada.Tests.Application.UseCases.Workspaces.Commands.CreateWorkspace
 {
-    [Fact]
-    public async Task Handle_WithValidCommand_ShouldReturnCreatedWorkspaceId()
+    public sealed class CreateWorkspaceCommandHandlerTests
     {
-        // Arrange
-        CreateWorkspaceHandlerFixture fixture = new();
+        [Fact]
+        public async Task Handle_WithValidCommand_ShouldReturnCreatedWorkspaceId()
+        {
+            // Arrange
+            CreateWorkspaceHandlerFixture fixture = new();
 
-        CreateWorkspaceCommandHandler handler = fixture.CreateHandler();
+            CreateWorkspaceCommandHandler handler = fixture.CreateHandler();
 
-        CreateWorkspaceCommand command = new CreateWorkspaceCommandBuilder().Build();
+            CreateWorkspaceCommand command = new CreateWorkspaceCommandBuilder().Build();
 
-        // Act
-        DomainResult<CreateWorkspaceResponse> result = await handler.Handle(command, CancellationToken.None);
+            // Act
+            DomainResult<CreateWorkspaceResponse> result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
-        CreateWorkspaceResponse response = result.ShouldSucceed();
+            // Assert
+            CreateWorkspaceResponse response = result.ShouldSucceed();
 
-        fixture.WorkspaceRepository.AddedWorkspace.Should().NotBeNull();
-        Workspace workspace = fixture.WorkspaceRepository.AddedWorkspace!;
+            fixture.WorkspaceRepository.AddedWorkspace.Should().NotBeNull();
+            Workspace workspace = fixture.WorkspaceRepository.AddedWorkspace!;
 
-        response.WorkspaceId.Should().Be(workspace.Id.Value);
-    }
+            response.WorkspaceId.Should().Be(workspace.Id.Value);
+        }
 
-    [Fact]
-    public async Task Handle_WithValidCommand_ShouldPersistWorkspace()
-    {
-        // Arrange
-        CreateWorkspaceHandlerFixture fixture = new();
+        [Fact]
+        public async Task Handle_WithValidCommand_ShouldPersistWorkspace()
+        {
+            // Arrange
+            CreateWorkspaceHandlerFixture fixture = new();
 
-        CreateWorkspaceCommandHandler handler = fixture.CreateHandler();
+            CreateWorkspaceCommandHandler handler = fixture.CreateHandler();
 
-        WorkspaceType workspaceType = WorkspaceTypeTestData.Any;
+            WorkspaceType workspaceType = WorkspaceTypeTestData.Any;
 
-        CreateWorkspaceCommand command = new CreateWorkspaceCommandBuilder()
+            CreateWorkspaceCommand command = new CreateWorkspaceCommandBuilder()
                 .WithName(TestValues.WorkspaceName)
                 .WithType(workspaceType)
                 .Build();
 
-        // Act
-        DomainResult<CreateWorkspaceResponse> result = await handler.Handle(command, CancellationToken.None);
+            // Act
+            DomainResult<CreateWorkspaceResponse> result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
-        result.ShouldSucceed();
+            // Assert
+            result.ShouldSucceed();
 
-        fixture.WorkspaceRepository
-            .AddCallCount
-            .Should()
-            .Be(1);
+            fixture.WorkspaceRepository
+                .AddCallCount
+                .Should()
+                .Be(1);
 
-        fixture.WorkspaceRepository.AddedWorkspace.Should().NotBeNull();
-        Workspace workspace = fixture.WorkspaceRepository.AddedWorkspace!;
+            fixture.WorkspaceRepository.AddedWorkspace.Should().NotBeNull();
+            Workspace workspace = fixture.WorkspaceRepository.AddedWorkspace!;
 
-        workspace.Name.Value.Should().Be(TestValues.WorkspaceName);
+            workspace.Name.Value.Should().Be(TestValues.WorkspaceName);
 
-        workspace.Type.Should().Be(workspaceType);
-    }
+            workspace.Type.Should().Be(workspaceType);
+        }
 
-    [Fact]
-    public async Task Handle_WithOrganization_ShouldPersistWorkspaceOwnership()
-    {
-        // Arrange
-        CreateWorkspaceHandlerFixture fixture = new();
-        Organization organization = Organization.Create(
-            OrganizationId.New(),
-            "Espada",
-            TestDates.UtcNow).Value;
-        fixture.OrganizationRepository.OrganizationToReturn = organization;
-        CreateWorkspaceCommandHandler handler = fixture.CreateHandler();
-        CreateWorkspaceCommand command = new CreateWorkspaceCommandBuilder()
-            .WithOrganizationId(organization.Id.Value)
-            .Build();
+        [Fact]
+        public async Task Handle_WithOrganization_ShouldPersistWorkspaceOwnership()
+        {
+            // Arrange
+            CreateWorkspaceHandlerFixture fixture = new();
+            Organization organization = Organization.Create(
+                OrganizationId.New(),
+                "Espada",
+                TestDates.UtcNow).Value;
+            fixture.OrganizationRepository.OrganizationToReturn = organization;
+            CreateWorkspaceCommandHandler handler = fixture.CreateHandler();
+            CreateWorkspaceCommand command = new CreateWorkspaceCommandBuilder()
+                .WithOrganizationId(organization.Id.Value)
+                .Build();
 
-        // Act
-        DomainResult<CreateWorkspaceResponse> result = await handler.Handle(
-            command,
-            TestContext.Current.CancellationToken);
+            // Act
+            DomainResult<CreateWorkspaceResponse> result = await handler.Handle(
+                command,
+                TestContext.Current.CancellationToken);
 
-        // Assert
-        CreateWorkspaceResponse response = result.ShouldSucceed();
-        response.OrganizationId.Should().Be(organization.Id.Value);
-        fixture.WorkspaceRepository.AddedWorkspace!
-            .OrganizationId
-            .Should()
-            .Be(organization.Id);
-    }
+            // Assert
+            CreateWorkspaceResponse response = result.ShouldSucceed();
+            response.OrganizationId.Should().Be(organization.Id.Value);
+            fixture.WorkspaceRepository.AddedWorkspace!
+                .OrganizationId
+                .Should()
+                .Be(organization.Id);
+        }
 
-    [Fact]
-    public async Task Handle_WithValidCommand_ShouldUseCurrentClockTime()
-    {
-        // Arrange
-        CreateWorkspaceHandlerFixture fixture = new() { ClockService = { UtcNow = TestDates.LaterUtc } };
+        [Fact]
+        public async Task Handle_WithValidCommand_ShouldUseCurrentClockTime()
+        {
+            // Arrange
+            CreateWorkspaceHandlerFixture fixture = new() { ClockService = { UtcNow = TestDates.LaterUtc } };
 
-        CreateWorkspaceCommandHandler handler = fixture.CreateHandler();
+            CreateWorkspaceCommandHandler handler = fixture.CreateHandler();
 
-        CreateWorkspaceCommand command = new CreateWorkspaceCommandBuilder().Build();
+            CreateWorkspaceCommand command = new CreateWorkspaceCommandBuilder().Build();
 
-        // Act
-        DomainResult<CreateWorkspaceResponse> result = await handler.Handle(command, CancellationToken.None);
+            // Act
+            DomainResult<CreateWorkspaceResponse> result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
-        result.ShouldSucceed();
+            // Assert
+            result.ShouldSucceed();
 
-        fixture.WorkspaceRepository.AddedWorkspace.Should().NotBeNull();
-        Workspace workspace = fixture.WorkspaceRepository.AddedWorkspace!;
+            fixture.WorkspaceRepository.AddedWorkspace.Should().NotBeNull();
+            Workspace workspace = fixture.WorkspaceRepository.AddedWorkspace!;
 
-        workspace.CreatedAtUtc.Should().Be(TestDates.LaterUtc);
-    }
+            workspace.CreatedAtUtc.Should().Be(TestDates.LaterUtc);
+        }
 
-    [Fact]
-    public async Task Handle_WithValidCommand_ShouldSaveChangesOnce()
-    {
-        // Arrange
-        CreateWorkspaceHandlerFixture fixture = new();
+        [Fact]
+        public async Task Handle_WithValidCommand_ShouldSaveChangesOnce()
+        {
+            // Arrange
+            CreateWorkspaceHandlerFixture fixture = new();
 
-        CreateWorkspaceCommandHandler handler = fixture.CreateHandler();
+            CreateWorkspaceCommandHandler handler = fixture.CreateHandler();
 
-        CreateWorkspaceCommand command = new CreateWorkspaceCommandBuilder().Build();
+            CreateWorkspaceCommand command = new CreateWorkspaceCommandBuilder().Build();
 
-        // Act
-        DomainResult<CreateWorkspaceResponse> result = await handler.Handle(command, CancellationToken.None);
+            // Act
+            DomainResult<CreateWorkspaceResponse> result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
-        result.ShouldSucceed();
+            // Assert
+            result.ShouldSucceed();
 
-        fixture.UnitOfWork
-            .SaveChangesCallCount
-            .Should()
-            .Be(1);
-    }
+            fixture.UnitOfWork
+                .SaveChangesCallCount
+                .Should()
+                .Be(1);
+        }
 
-    [Fact]
-    public async Task Handle_ShouldForwardCancellationToken()
-    {
-        // Arrange
-        CreateWorkspaceHandlerFixture fixture = new();
+        [Fact]
+        public async Task Handle_ShouldForwardCancellationToken()
+        {
+            // Arrange
+            CreateWorkspaceHandlerFixture fixture = new();
 
-        CreateWorkspaceCommandHandler handler = fixture.CreateHandler();
+            CreateWorkspaceCommandHandler handler = fixture.CreateHandler();
 
-        CreateWorkspaceCommand command = new CreateWorkspaceCommandBuilder().Build();
+            CreateWorkspaceCommand command = new CreateWorkspaceCommandBuilder().Build();
 
-        using CancellationTokenSource source = new();
+            using CancellationTokenSource source = new();
 
-        CancellationToken cancellationToken = source.Token;
+            CancellationToken cancellationToken = source.Token;
 
-        // Act
-        DomainResult<CreateWorkspaceResponse> result = await handler.Handle(command, cancellationToken);
+            // Act
+            DomainResult<CreateWorkspaceResponse> result = await handler.Handle(command, cancellationToken);
 
-        // Assert
-        result.ShouldSucceed();
+            // Assert
+            result.ShouldSucceed();
 
-        fixture.WorkspaceRepository
-            .ReceivedCancellationToken
-            .Should()
-            .Be(cancellationToken);
+            fixture.WorkspaceRepository
+                .ReceivedCancellationToken
+                .Should()
+                .Be(cancellationToken);
 
-        fixture.UnitOfWork
-            .ReceivedCancellationToken
-            .Should()
-            .Be(cancellationToken);
-    }
+            fixture.UnitOfWork
+                .ReceivedCancellationToken
+                .Should()
+                .Be(cancellationToken);
+        }
 
-    [Fact]
-    public async Task Handle_WithInvalidName_ShouldReturnDomainFailure()
-    {
-        // Arrange
-        CreateWorkspaceHandlerFixture fixture = new();
+        [Fact]
+        public async Task Handle_WithInvalidName_ShouldReturnDomainFailure()
+        {
+            // Arrange
+            CreateWorkspaceHandlerFixture fixture = new();
 
-        CreateWorkspaceCommandHandler handler = fixture.CreateHandler();
+            CreateWorkspaceCommandHandler handler = fixture.CreateHandler();
 
-        CreateWorkspaceCommand command = new CreateWorkspaceCommandBuilder().WithName(" ").Build();
+            CreateWorkspaceCommand command = new CreateWorkspaceCommandBuilder().WithName(" ").Build();
 
-        // Act
-        DomainResult<CreateWorkspaceResponse> result = await handler.Handle(command, CancellationToken.None);
+            // Act
+            DomainResult<CreateWorkspaceResponse> result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
-        result.ShouldFailWith(WorkspaceErrors.NameEmpty);
-    }
+            // Assert
+            result.ShouldFailWith(WorkspaceErrors.NameEmpty);
+        }
 
-    [Fact]
-    public async Task Handle_WithInvalidName_ShouldNotPersistAnything()
-    {
-        // Arrange
-        CreateWorkspaceHandlerFixture fixture = new();
+        [Fact]
+        public async Task Handle_WithInvalidName_ShouldNotPersistAnything()
+        {
+            // Arrange
+            CreateWorkspaceHandlerFixture fixture = new();
 
-        CreateWorkspaceCommandHandler handler = fixture.CreateHandler();
+            CreateWorkspaceCommandHandler handler = fixture.CreateHandler();
 
-        CreateWorkspaceCommand command = new CreateWorkspaceCommandBuilder().WithName(string.Empty).Build();
+            CreateWorkspaceCommand command = new CreateWorkspaceCommandBuilder().WithName(string.Empty).Build();
 
-        // Act
-        DomainResult<CreateWorkspaceResponse> result = await handler.Handle(command, CancellationToken.None);
+            // Act
+            DomainResult<CreateWorkspaceResponse> result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
-        result.IsFailure.Should().BeTrue();
+            // Assert
+            result.IsFailure.Should().BeTrue();
 
-        fixture.WorkspaceRepository
-            .AddCallCount
-            .Should()
-            .Be(0);
+            fixture.WorkspaceRepository
+                .AddCallCount
+                .Should()
+                .Be(0);
 
-        fixture.WorkspaceRepository
-            .AddedWorkspace
-            .Should()
-            .BeNull();
+            fixture.WorkspaceRepository
+                .AddedWorkspace
+                .Should()
+                .BeNull();
 
-        fixture.UnitOfWork
-            .SaveChangesCallCount
-            .Should()
-            .Be(0);
+            fixture.UnitOfWork
+                .SaveChangesCallCount
+                .Should()
+                .Be(0);
+        }
     }
 }

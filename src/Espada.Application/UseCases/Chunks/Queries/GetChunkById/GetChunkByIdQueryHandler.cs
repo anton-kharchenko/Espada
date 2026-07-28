@@ -5,35 +5,43 @@ using Espada.Domain.Aggregates;
 using Espada.Domain.Rules;
 using Espada.Domain.ValueObjects;
 
-namespace Espada.Application.UseCases.Chunks.Queries.GetChunkById;
-
-internal sealed class GetChunkByIdQueryHandler(IChunkRepository chunkRepository) : IQueryHandler<GetChunkByIdQuery, GetChunkByIdResponse>
+namespace Espada.Application.UseCases.Chunks.Queries.GetChunkById
 {
-    public async Task<DomainResult<GetChunkByIdResponse>> Handle(GetChunkByIdQuery request, CancellationToken cancellationToken)
+    internal sealed class GetChunkByIdQueryHandler(IChunkRepository chunkRepository)
+        : IQueryHandler<GetChunkByIdQuery, GetChunkByIdResponse>
     {
-        if (request.WorkspaceId == Guid.Empty)
+        public async Task<DomainResult<GetChunkByIdResponse>> Handle(GetChunkByIdQuery request,
+            CancellationToken cancellationToken)
         {
-            return DomainResult<GetChunkByIdResponse>.Failure(WorkspaceApplicationErrors.InvalidId);
+            if (request.WorkspaceId == Guid.Empty)
+            {
+                return DomainResult<GetChunkByIdResponse>.Failure(WorkspaceApplicationErrors.InvalidId);
+            }
+
+            if (request.ChunkId == Guid.Empty)
+            {
+                return DomainResult<GetChunkByIdResponse>.Failure(ChunkApplicationErrors.InvalidId);
+            }
+
+            Chunk? chunk = await chunkRepository.GetByIdAsync(ChunkId.Create(request.ChunkId), cancellationToken);
+
+            if (chunk is null)
+            {
+                return DomainResult<GetChunkByIdResponse>.Failure(ChunkApplicationErrors.NotFound(request.ChunkId));
+            }
+
+            if (chunk.WorkspaceId.Value != request.WorkspaceId)
+            {
+                return DomainResult<GetChunkByIdResponse>.Failure(
+                    ChunkApplicationErrors.NotFoundInWorkspace(request.ChunkId, request.WorkspaceId));
+            }
+
+            GetChunkByIdResponse response = new(chunk.Id.Value, chunk.BatchId.Value, chunk.WorkspaceId.Value,
+                chunk.ArtifactId.Value, chunk.ArtifactRevisionId.Value, chunk.Number.Value, chunk.Content.Value,
+                chunk.ContentHash.Value, chunk.SizeInBytes, chunk.CharacterCount, chunk.SourceSpan?.Start,
+                chunk.SourceSpan?.Length, chunk.Strategy.Id, chunk.Strategy.Name, chunk.StrategyVersion.Value,
+                chunk.CreatedAtUtc);
+            return DomainResult<GetChunkByIdResponse>.Success(response);
         }
-
-        if (request.ChunkId == Guid.Empty)
-        {
-            return DomainResult<GetChunkByIdResponse>.Failure(ChunkApplicationErrors.InvalidId);
-        }
-
-        Chunk? chunk = await chunkRepository.GetByIdAsync(ChunkId.Create(request.ChunkId), cancellationToken);
-
-        if (chunk is null)
-        {
-            return DomainResult<GetChunkByIdResponse>.Failure(ChunkApplicationErrors.NotFound(request.ChunkId));
-        }
-
-        if (chunk.WorkspaceId.Value != request.WorkspaceId)
-        {
-            return DomainResult<GetChunkByIdResponse>.Failure(ChunkApplicationErrors.NotFoundInWorkspace(request.ChunkId, request.WorkspaceId));
-        }
-
-        GetChunkByIdResponse response = new(chunk.Id.Value, chunk.BatchId.Value, chunk.WorkspaceId.Value, chunk.ArtifactId.Value, chunk.ArtifactRevisionId.Value, chunk.Number.Value, chunk.Content.Value, chunk.ContentHash.Value, chunk.SizeInBytes, chunk.CharacterCount, chunk.SourceSpan?.Start, chunk.SourceSpan?.Length, chunk.Strategy.Id, chunk.Strategy.Name, chunk.StrategyVersion.Value, chunk.CreatedAtUtc);
-        return DomainResult<GetChunkByIdResponse>.Success(response);
     }
 }

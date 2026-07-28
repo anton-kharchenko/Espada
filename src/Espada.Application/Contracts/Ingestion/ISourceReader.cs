@@ -1,11 +1,12 @@
 using Espada.Application.Models;
 using Espada.Domain.ValueObjects.SourceDefinitions;
 
-namespace Espada.Application.Contracts.Ingestion;
-
-public interface ISourceReader
+namespace Espada.Application.Contracts.Ingestion
 {
-    Task<SourceReadResult> ReadAsync(
-        SourceDefinition definition,
-        CancellationToken cancellationToken = default);
+    public interface ISourceReader
+    {
+        Task<SourceReadResult> ReadAsync(
+            SourceDefinition definition,
+            CancellationToken cancellationToken = default);
+    }
 }

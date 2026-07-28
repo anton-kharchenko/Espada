@@ -1,16 +1,17 @@
 using FluentValidation;
 
-namespace Espada.Application.UseCases.Imports.Commands.StartImport;
-
-internal sealed class StartImportCommandValidator
-    : AbstractValidator<StartImportCommand>
+namespace Espada.Application.UseCases.Imports.Commands.StartImport
 {
-    public StartImportCommandValidator()
+    internal sealed class StartImportCommandValidator
+        : AbstractValidator<StartImportCommand>
     {
-        RuleFor(command => command.WorkspaceId)
-            .NotEmpty();
+        public StartImportCommandValidator()
+        {
+            RuleFor(command => command.WorkspaceId)
+                .NotEmpty();
 
-        RuleFor(command => command.ImportJobId)
-            .NotEmpty();
+            RuleFor(command => command.ImportJobId)
+                .NotEmpty();
+        }
     }
 }

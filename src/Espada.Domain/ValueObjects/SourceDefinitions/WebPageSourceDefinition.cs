@@ -1,23 +1,25 @@
 using Espada.Domain.Enums;
 
-namespace Espada.Domain.ValueObjects.SourceDefinitions;
-
-public sealed record WebPageSourceDefinition : SourceDefinition
+namespace Espada.Domain.ValueObjects.SourceDefinitions
 {
-    public WebPageSourceDefinition(Uri uri)
+    public sealed record WebPageSourceDefinition : SourceDefinition
     {
-        ArgumentNullException.ThrowIfNull(uri);
-        if (!uri.IsAbsoluteUri || !string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+        public WebPageSourceDefinition(Uri uri)
         {
-            throw new ArgumentException("Web page source must use an absolute HTTPS URI.", nameof(uri));
+            ArgumentNullException.ThrowIfNull(uri);
+            if (!uri.IsAbsoluteUri ||
+                !string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ArgumentException("Web page source must use an absolute HTTPS URI.", nameof(uri));
+            }
+
+            Uri = uri;
         }
 
-        Uri = uri;
+        public Uri Uri { get; init; }
+
+        public override SourceType SourceType => SourceType.WebPage;
+
+        public override string CanonicalLocator => Uri.AbsoluteUri.TrimEnd('/');
     }
-
-    public Uri Uri { get; init; }
-
-    public override SourceType SourceType => SourceType.WebPage;
-
-    public override string CanonicalLocator => Uri.AbsoluteUri.TrimEnd('/');
 }

@@ -1,114 +1,115 @@
 using Espada.Domain.Errors;
 
-namespace Espada.Tests.Domain.ValueObjects;
-
-public sealed class SourceTextSpanTests
+namespace Espada.Tests.Domain.ValueObjects
 {
-    public static TheoryData<int> NegativeValues => new() { -1, -100 };
-
-    public static TheoryData<int> NonPositiveValues => new() { 0, -1, -100 };
-
-    [Fact]
-    public void Create_WithValidValues_ShouldCreateSpan()
+    public sealed class SourceTextSpanTests
     {
-        // Act
-        SourceTextSpan span = SourceTextSpan.Create(10, 25).ShouldSucceed();
+        public static TheoryData<int> NegativeValues => new() { -1, -100 };
 
-        // Assert
-        span.Start.Should().Be(10);
-        span.Length.Should().Be(25);
-        span.EndExclusive.Should().Be(35);
-    }
+        public static TheoryData<int> NonPositiveValues => new() { 0, -1, -100 };
 
-    [Fact]
-    public void Create_WithZeroStart_ShouldSucceed()
-    {
-        // Act
-        SourceTextSpan span = SourceTextSpan.Create(0, 10).ShouldSucceed();
+        [Fact]
+        public void Create_WithValidValues_ShouldCreateSpan()
+        {
+            // Act
+            SourceTextSpan span = SourceTextSpan.Create(10, 25).ShouldSucceed();
 
-        // Assert
-        span.Start.Should().Be(0);
-        span.EndExclusive.Should().Be(10);
-    }
+            // Assert
+            span.Start.Should().Be(10);
+            span.Length.Should().Be(25);
+            span.EndExclusive.Should().Be(35);
+        }
 
-    [Theory]
-    [MemberData(nameof(NegativeValues))]
-    public void Create_WithNegativeStart_ShouldReturnExpectedError(int start)
-    {
-        // Act
-        DomainResult<SourceTextSpan> result = SourceTextSpan.Create(start, 10);
+        [Fact]
+        public void Create_WithZeroStart_ShouldSucceed()
+        {
+            // Act
+            SourceTextSpan span = SourceTextSpan.Create(0, 10).ShouldSucceed();
 
-        // Assert
-        result.ShouldFailWith(ChunkErrors.SourceSpanStartInvalid);
-    }
+            // Assert
+            span.Start.Should().Be(0);
+            span.EndExclusive.Should().Be(10);
+        }
 
-    [Theory]
-    [MemberData(nameof(NonPositiveValues))]
-    public void Create_WithNonPositiveLength_ShouldReturnExpectedError(int length)
-    {
-        // Act
-        DomainResult<SourceTextSpan> result = SourceTextSpan.Create(0, length);
+        [Theory]
+        [MemberData(nameof(NegativeValues))]
+        public void Create_WithNegativeStart_ShouldReturnExpectedError(int start)
+        {
+            // Act
+            DomainResult<SourceTextSpan> result = SourceTextSpan.Create(start, 10);
 
-        // Assert
-        result.ShouldFailWith(ChunkErrors.SourceSpanLengthInvalid);
-    }
+            // Assert
+            result.ShouldFailWith(ChunkErrors.SourceSpanStartInvalid);
+        }
 
-    [Fact]
-    public void Create_WhenEndWouldOverflow_ShouldReturnExpectedError()
-    {
-        // Act
-        DomainResult<SourceTextSpan> result = SourceTextSpan.Create(int.MaxValue, 1);
+        [Theory]
+        [MemberData(nameof(NonPositiveValues))]
+        public void Create_WithNonPositiveLength_ShouldReturnExpectedError(int length)
+        {
+            // Act
+            DomainResult<SourceTextSpan> result = SourceTextSpan.Create(0, length);
 
-        // Assert
-        result.ShouldFailWith(ChunkErrors.SourceSpanOverflow);
-    }
+            // Assert
+            result.ShouldFailWith(ChunkErrors.SourceSpanLengthInvalid);
+        }
 
-    [Fact]
-    public void Create_WhenEndEqualsMaximumInteger_ShouldSucceed()
-    {
-        // Act
-        SourceTextSpan span = SourceTextSpan.Create(int.MaxValue - 10, 10).ShouldSucceed();
+        [Fact]
+        public void Create_WhenEndWouldOverflow_ShouldReturnExpectedError()
+        {
+            // Act
+            DomainResult<SourceTextSpan> result = SourceTextSpan.Create(int.MaxValue, 1);
 
-        // Assert
-        span.EndExclusive.Should().Be(int.MaxValue);
-    }
+            // Assert
+            result.ShouldFailWith(ChunkErrors.SourceSpanOverflow);
+        }
 
-    [Fact]
-    public void SpansWithSameValues_ShouldBeEqual()
-    {
-        // Arrange
-        SourceTextSpan first = SourceTextSpan.Create(10, 20).ShouldSucceed();
+        [Fact]
+        public void Create_WhenEndEqualsMaximumInteger_ShouldSucceed()
+        {
+            // Act
+            SourceTextSpan span = SourceTextSpan.Create(int.MaxValue - 10, 10).ShouldSucceed();
 
-        SourceTextSpan second = SourceTextSpan.Create(10, 20).ShouldSucceed();
+            // Assert
+            span.EndExclusive.Should().Be(int.MaxValue);
+        }
 
-        // Assert
-        first.Should().Be(second);
+        [Fact]
+        public void SpansWithSameValues_ShouldBeEqual()
+        {
+            // Arrange
+            SourceTextSpan first = SourceTextSpan.Create(10, 20).ShouldSucceed();
 
-        first.GetHashCode().Should().Be(second.GetHashCode());
-    }
+            SourceTextSpan second = SourceTextSpan.Create(10, 20).ShouldSucceed();
 
-    [Fact]
-    public void SpansWithDifferentValues_ShouldNotBeEqual()
-    {
-        // Arrange
-        SourceTextSpan first = SourceTextSpan.Create(10, 20).ShouldSucceed();
+            // Assert
+            first.Should().Be(second);
 
-        SourceTextSpan second = SourceTextSpan.Create(11, 20).ShouldSucceed();
+            first.GetHashCode().Should().Be(second.GetHashCode());
+        }
 
-        // Assert
-        first.Should().NotBe(second);
-    }
+        [Fact]
+        public void SpansWithDifferentValues_ShouldNotBeEqual()
+        {
+            // Arrange
+            SourceTextSpan first = SourceTextSpan.Create(10, 20).ShouldSucceed();
 
-    [Fact]
-    public void ToString_ShouldUseHalfOpenRangeNotation()
-    {
-        // Arrange
-        SourceTextSpan span = SourceTextSpan.Create(10, 20).ShouldSucceed();
+            SourceTextSpan second = SourceTextSpan.Create(11, 20).ShouldSucceed();
 
-        // Act
-        string value = span.ToString();
+            // Assert
+            first.Should().NotBe(second);
+        }
 
-        // Assert
-        value.Should().Be("[10..30)");
+        [Fact]
+        public void ToString_ShouldUseHalfOpenRangeNotation()
+        {
+            // Arrange
+            SourceTextSpan span = SourceTextSpan.Create(10, 20).ShouldSucceed();
+
+            // Act
+            string value = span.ToString();
+
+            // Assert
+            value.Should().Be("[10..30)");
+        }
     }
 }

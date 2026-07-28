@@ -1,15 +1,18 @@
 using Espada.Domain.ValueObjects.SourceDefinitions;
 using Espada.Infrastructure.Database;
 
-namespace Espada.Tests.Infrastructure.Database;
-
-public sealed class SourceDefinitionSerializerTests
+namespace Espada.Tests.Infrastructure.Database
 {
-    [Fact]
-    public void Serialize_ShouldPersistStableTypeDiscriminator()
+    public sealed class SourceDefinitionSerializerTests
     {
-        string json = SourceDefinitionSerializer.Serialize(new WebPageSourceDefinition(new Uri("https://example.com/source")));
-        Assert.Contains("\"type\":\"webPage\"", json, StringComparison.Ordinal);
-        Assert.IsType<WebPageSourceDefinition>(SourceDefinitionSerializer.Deserialize(json));
+        [Fact]
+        public void Serialize_ShouldPersistStableTypeDiscriminator()
+        {
+            string json =
+                SourceDefinitionSerializer.Serialize(
+                    new WebPageSourceDefinition(new Uri("https://example.com/source")));
+            Assert.Contains("\"type\":\"webPage\"", json, StringComparison.Ordinal);
+            Assert.IsType<WebPageSourceDefinition>(SourceDefinitionSerializer.Deserialize(json));
+        }
     }
 }

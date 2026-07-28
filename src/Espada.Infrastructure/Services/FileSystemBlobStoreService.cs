@@ -2,95 +2,102 @@ using Espada.Application.Contracts.Blobs;
 using Espada.Application.Models;
 using System.Security.Cryptography;
 
-namespace Espada.Infrastructure.Services;
-
-internal sealed class FileSystemBlobStoreService : IBlobStoreService
+namespace Espada.Infrastructure.Services
 {
-    private readonly string _root;
-    private readonly string _temporaryRoot;
-
-    public FileSystemBlobStoreService(string root)
+    internal sealed class FileSystemBlobStoreService : IBlobStoreService
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(root);
-        _root = Path.GetFullPath(root);
-        _temporaryRoot = Path.Join(_root, ".tmp");
-        Directory.CreateDirectory(_temporaryRoot);
-    }
+        private readonly string _root;
+        private readonly string _temporaryRoot;
 
-    public async Task<BlobDescriptor> PutAsync(Stream content, BlobWriteOptions options, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(content);
-        ArgumentNullException.ThrowIfNull(options);
-        ArgumentException.ThrowIfNullOrWhiteSpace(options.MediaType);
-
-        string temporaryPath = Path.Join(_temporaryRoot, Guid.NewGuid().ToString("N"));
-        long length = 0;
-        using IncrementalHash hasher = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-        try
+        public FileSystemBlobStoreService(string root)
         {
-            await using (FileStream destination = new(temporaryPath, FileMode.CreateNew, FileAccess.Write, FileShare.None, 81920, FileOptions.Asynchronous | FileOptions.SequentialScan))
-            {
-                byte[] buffer = new byte[81920];
-                int read;
-                while ((read = await content.ReadAsync(buffer, cancellationToken)) > 0)
-                {
-                    hasher.AppendData(buffer, 0, read);
-                    await destination.WriteAsync(buffer.AsMemory(0, read), cancellationToken);
-                    length += read;
-                }
+            ArgumentException.ThrowIfNullOrWhiteSpace(root);
+            _root = Path.GetFullPath(root);
+            _temporaryRoot = Path.Join(_root, ".tmp");
+            Directory.CreateDirectory(_temporaryRoot);
+        }
 
-                await destination.FlushAsync(cancellationToken);
-            }
+        public async Task<BlobDescriptor> PutAsync(Stream content, BlobWriteOptions options,
+            CancellationToken cancellationToken)
+        {
+            ArgumentNullException.ThrowIfNull(content);
+            ArgumentNullException.ThrowIfNull(options);
+            ArgumentException.ThrowIfNullOrWhiteSpace(options.MediaType);
 
-            BlobHash hash = new(Convert.ToHexStringLower(hasher.GetHashAndReset()));
-            string destinationPath = ResolvePath(hash);
-            Directory.CreateDirectory(Path.GetDirectoryName(destinationPath)!);
+            string temporaryPath = Path.Join(_temporaryRoot, Guid.NewGuid().ToString("N"));
+            long length = 0;
+            using IncrementalHash hasher = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
             try
             {
-                File.Move(temporaryPath, destinationPath, overwrite: false);
+                await using (FileStream destination = new(temporaryPath, FileMode.CreateNew, FileAccess.Write,
+                                 FileShare.None, 81920, FileOptions.Asynchronous | FileOptions.SequentialScan))
+                {
+                    byte[] buffer = new byte[81920];
+                    int read;
+                    while ((read = await content.ReadAsync(buffer, cancellationToken)) > 0)
+                    {
+                        hasher.AppendData(buffer, 0, read);
+                        await destination.WriteAsync(buffer.AsMemory(0, read), cancellationToken);
+                        length += read;
+                    }
+
+                    await destination.FlushAsync(cancellationToken);
+                }
+
+                BlobHash hash = new(Convert.ToHexStringLower(hasher.GetHashAndReset()));
+                string destinationPath = ResolvePath(hash);
+                Directory.CreateDirectory(Path.GetDirectoryName(destinationPath)!);
+                try
+                {
+                    File.Move(temporaryPath, destinationPath, false);
+                }
+                catch (IOException) when (File.Exists(destinationPath))
+                {
+                    File.Delete(temporaryPath);
+                }
+
+                return new BlobDescriptor(hash, length, options.MediaType);
             }
-            catch (IOException) when (File.Exists(destinationPath))
+            catch
             {
-                File.Delete(temporaryPath);
-            }
+                if (File.Exists(temporaryPath))
+                {
+                    File.Delete(temporaryPath);
+                }
 
-            return new BlobDescriptor(hash, length, options.MediaType);
+                throw;
+            }
         }
-        catch
+
+        public Task<Stream> OpenReadAsync(BlobHash hash, CancellationToken cancellationToken)
         {
-            if (File.Exists(temporaryPath))
+            cancellationToken.ThrowIfCancellationRequested();
+            Stream stream = new FileStream(ResolvePath(hash), FileMode.Open, FileAccess.Read, FileShare.Read, 81920,
+                FileOptions.Asynchronous | FileOptions.SequentialScan);
+            return Task.FromResult(stream);
+        }
+
+        public Task DeleteAsync(BlobHash hash, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            string path = ResolvePath(hash);
+            if (File.Exists(path))
             {
-                File.Delete(temporaryPath);
+                File.Delete(path);
             }
 
-            throw;
+            return Task.CompletedTask;
         }
-    }
 
-    public Task<Stream> OpenReadAsync(BlobHash hash, CancellationToken cancellationToken)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-        Stream stream = new FileStream(ResolvePath(hash), FileMode.Open, FileAccess.Read, FileShare.Read, 81920, FileOptions.Asynchronous | FileOptions.SequentialScan);
-        return Task.FromResult(stream);
-    }
-
-    public Task<bool> ExistsAsync(BlobHash hash, CancellationToken cancellationToken)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-        return Task.FromResult(File.Exists(ResolvePath(hash)));
-    }
-
-    public Task DeleteAsync(BlobHash hash, CancellationToken cancellationToken)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-        string path = ResolvePath(hash);
-        if (File.Exists(path))
+        public Task<bool> ExistsAsync(BlobHash hash, CancellationToken cancellationToken)
         {
-            File.Delete(path);
+            cancellationToken.ThrowIfCancellationRequested();
+            return Task.FromResult(File.Exists(ResolvePath(hash)));
         }
 
-        return Task.CompletedTask;
+        private string ResolvePath(BlobHash hash)
+        {
+            return Path.Join(_root, hash.Value[..2], hash.Value[2..4], hash.Value);
+        }
     }
-
-    private string ResolvePath(BlobHash hash) => Path.Join(_root, hash.Value[..2], hash.Value[2..4], hash.Value);
 }

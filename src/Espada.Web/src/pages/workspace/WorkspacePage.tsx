@@ -1,7 +1,16 @@
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext } from 'react-router';
 import type { WorkspaceOutletContext } from 'entities/workspace';
 import type { WorkspaceSection } from 'shared/config';
-import { PageState } from 'shared/ui';
+import { PageState, WorkspacePageHeader } from 'shared/ui';
+import { ArtifactCollectionPage } from './ArtifactCollectionPage';
+import { BindingsPage } from './BindingsPage';
+import { ContextPage } from './ContextPage';
+import { ImportsPage } from './ImportsPage';
+import { MemoriesPage } from './MemoriesPage';
+import { OverviewPage } from './OverviewPage';
+import { ProjectsPage } from './ProjectsPage';
+import { SourcesPage } from './SourcesPage';
+import { TasksPage } from './TasksPage';
 
 interface WorkspacePageProps {
   section: WorkspaceSection;
@@ -20,43 +29,39 @@ export const WorkspacePage = ({ section }: WorkspacePageProps) => {
     );
   }
 
+  const content = (() => {
+    switch (section.key) {
+      case 'overview':
+        return <OverviewPage workspaceId={workspace.id} mode={session.mode} readOnly={session.readOnly} />;
+      case 'projects':
+        return <ProjectsPage workspaceId={workspace.id} readOnly={session.readOnly} />;
+      case 'tasks':
+        return <TasksPage workspaceId={workspace.id} readOnly={session.readOnly} />;
+      case 'instructions':
+        return <ArtifactCollectionPage workspaceId={workspace.id} area="instructions" readOnly={session.readOnly} />;
+      case 'policies':
+        return <ArtifactCollectionPage workspaceId={workspace.id} area="policies" readOnly={session.readOnly} />;
+      case 'bindings':
+        return <BindingsPage workspaceId={workspace.id} readOnly={session.readOnly} />;
+      case 'context-preview':
+        return <ContextPage workspaceId={workspace.id} view="preview" />;
+      case 'context-explain':
+        return <ContextPage workspaceId={workspace.id} view="explain" />;
+      case 'memories':
+        return <MemoriesPage workspaceId={workspace.id} readOnly={session.readOnly} />;
+      case 'sources':
+        return <SourcesPage workspaceId={workspace.id} readOnly={session.readOnly} />;
+      case 'imports':
+        return <ImportsPage workspaceId={workspace.id} readOnly={session.readOnly} />;
+      case 'artifacts':
+        return <ArtifactCollectionPage workspaceId={workspace.id} area="artifacts" readOnly={session.readOnly} />;
+    }
+  })();
+
   return (
     <div className="console-page">
-      <header className="console-page-header">
-        <p>{workspace.name}</p>
-        <h1>{section.title}</h1>
-        <span>{section.description}</span>
-      </header>
-      {section.key === 'overview' ? (
-        <section className="workspace-overview" aria-label="Workspace summary">
-          <dl>
-            <div>
-              <dt>Workspace ID</dt>
-              <dd>{workspace.id}</dd>
-            </div>
-            <div>
-              <dt>Runtime</dt>
-              <dd>{session.mode === 'local' ? 'Local' : 'Cloud'}</dd>
-            </div>
-            <div>
-              <dt>Access</dt>
-              <dd>{session.readOnly ? 'Read only' : 'Read and write'}</dd>
-            </div>
-          </dl>
-          <PageState
-            kind="empty"
-            compact
-            title="Workspace data is not connected yet"
-            description="The console session is active. Resource views will load when their same-origin BFF contracts are available."
-          />
-        </section>
-      ) : (
-        <PageState
-          kind="empty"
-          title={`No ${section.title.toLowerCase()} available`}
-          description="This view is ready for its same-origin BFF contract and does not fabricate workspace records."
-        />
-      )}
+      <WorkspacePageHeader workspaceName={workspace.name} title={section.title} description={section.description} />
+      {content}
     </div>
   );
 };

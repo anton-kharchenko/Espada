@@ -1,7 +1,8 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router';
 import { ProtectedConsoleRoute } from 'features/session';
 import { AccountPage } from 'pages/account';
 import { LandingPage } from 'pages/landing';
+import { PricingPage } from 'pages/pricing';
 import { WorkspacePage } from 'pages/workspace';
 import { APP_ROUTE_PATHS, DEFAULT_WORKSPACE_SECTION_PATH, ROUTES, workspaceSections } from 'shared/config';
 import { ConsoleShell } from 'widgets';
@@ -11,6 +12,7 @@ export const AppRoutes = () => {
   return (
     <Routes>
       <Route path={ROUTES.home} element={<LandingPage />} />
+      <Route path={ROUTES.pricing} element={<PricingPage />} />
       <Route path={ROUTES.app} element={<ProtectedConsoleRoute />}>
         <Route index element={<WorkspaceRedirect />} />
         <Route element={<ConsoleShell />}>

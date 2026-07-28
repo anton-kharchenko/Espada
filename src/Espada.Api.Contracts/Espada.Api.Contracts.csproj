@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <ItemGroup>
-      <ProjectReference Include="..\Espada.Domain\Espada.Domain.csproj" />
+        <ProjectReference Include="..\Espada.Domain\Espada.Domain.csproj"/>
     </ItemGroup>
 
     <PropertyGroup>

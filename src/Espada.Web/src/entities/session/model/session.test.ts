@@ -7,7 +7,7 @@ describe('parseConsoleSession', () => {
       parseConsoleSession({
         authenticated: true,
         mode: 'local',
-        user: { displayName: 'Anton' },
+        user: { displayName: 'Anton', email: null },
         workspaces: [{ id: 'workspace-one', name: 'Espada' }],
         readOnly: false,
       }),

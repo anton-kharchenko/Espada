@@ -1,10 +1,11 @@
-namespace Espada.Db.Enums;
-
-internal enum DatabaseCommandType
+namespace Espada.Db.Enums
 {
-    Migrate,
-    Seed,
-    Reset,
-    Status,
-    Help
+    internal enum DatabaseCommandType
+    {
+        Migrate,
+        Seed,
+        Reset,
+        Status,
+        Help
+    }
 }

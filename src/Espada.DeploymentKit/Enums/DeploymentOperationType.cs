@@ -1,7 +1,8 @@
-namespace Espada.DeploymentKit.Enums;
-
-public enum DeploymentOperationType
+namespace Espada.DeploymentKit.Enums
 {
-    Preview,
-    Deploy
+    public enum DeploymentOperationType
+    {
+        Preview,
+        Deploy
+    }
 }

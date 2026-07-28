@@ -1,3 +1,4 @@
-namespace Espada.Application.Models;
-
-public sealed record BlobWriteOptions(string MediaType);
+namespace Espada.Application.Models
+{
+    public sealed record BlobWriteOptions(string MediaType);
+}

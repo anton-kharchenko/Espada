@@ -7,69 +7,71 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Testcontainers.PostgreSql;
 
-namespace Espada.Tests.Integration.Fixtures;
-
-public sealed class PostgreSqlDatabaseFixture : IAsyncLifetime
+namespace Espada.Tests.Integration.Fixtures
 {
-    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("pgvector/pgvector:0.8.2-pg17")
-        .WithDatabase("espada_integration_tests")
-        .WithUsername("postgres")
-        .WithPassword("postgres")
-        .Build();
-
-    private string ConnectionString => _container.GetConnectionString();
-
-    public async ValueTask InitializeAsync()
+    public sealed class PostgreSqlDatabaseFixture : IAsyncLifetime
     {
-        await _container.StartAsync();
+        private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("pgvector/pgvector:0.8.2-pg17")
+            .WithDatabase("espada_integration_tests")
+            .WithUsername("postgres")
+            .WithPassword("postgres")
+            .Build();
 
-        await using SetupDbContext dbContext = CreateSetupDbContext();
-        await dbContext.Database.MigrateAsync();
+        private string ConnectionString => _container.GetConnectionString();
 
-        string[] pendingMigrations = (await dbContext.Database.GetPendingMigrationsAsync()).ToArray();
-        if (pendingMigrations.Length > 0)
+        public async ValueTask InitializeAsync()
         {
-            throw new InvalidOperationException($"Pending migrations remain after fixture initialization: {string.Join(", ", pendingMigrations)}");
+            await _container.StartAsync();
+
+            await using SetupDbContext dbContext = CreateSetupDbContext();
+            await dbContext.Database.MigrateAsync();
+
+            string[] pendingMigrations = (await dbContext.Database.GetPendingMigrationsAsync()).ToArray();
+            if (pendingMigrations.Length > 0)
+            {
+                throw new InvalidOperationException(
+                    $"Pending migrations remain after fixture initialization: {string.Join(", ", pendingMigrations)}");
+            }
         }
-    }
 
-    public SetupDbContext CreateSetupDbContext()
-    {
-        return new SetupDbContext(
-            PostgreSqlDbContextOptions.Create<SetupDbContext>(
-                ConnectionString,
-                npgsql =>
-                {
-                    npgsql.MigrationsAssembly(typeof(SetupDbContext).Assembly.FullName);
-                    npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "Espada");
-                }));
-    }
+        public async ValueTask DisposeAsync()
+        {
+            await _container.DisposeAsync();
+        }
 
-    public EspadaDbContext CreateDbContext()
-    {
-        return new EspadaDbContext(
-            PostgreSqlDbContextOptions.Create<EspadaDbContext>(ConnectionString));
-    }
+        public SetupDbContext CreateSetupDbContext()
+        {
+            return new SetupDbContext(
+                PostgreSqlDbContextOptions.Create<SetupDbContext>(
+                    ConnectionString,
+                    npgsql =>
+                    {
+                        npgsql.MigrationsAssembly(typeof(SetupDbContext).Assembly.FullName);
+                        npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "Espada");
+                    }));
+        }
 
-    public ServiceProvider CreateServiceProvider(
-        IConfiguration? configuration = null,
-        Action<IServiceCollection>? configureServices = null)
-    {
-        ServiceCollection services = new();
-        services.ConfigureApplicationLayer();
-        services.AddInfrastructure(ConnectionString, configuration);
-        configureServices?.Invoke(services);
-        return services.BuildServiceProvider();
-    }
+        public EspadaDbContext CreateDbContext()
+        {
+            return new EspadaDbContext(
+                PostgreSqlDbContextOptions.Create<EspadaDbContext>(ConnectionString));
+        }
 
-    public async Task ResetDatabaseAsync()
-    {
-        await using SetupDbContext dbContext = CreateSetupDbContext();
-        await PostgreSqlDatabaseCleaner.ResetAsync(dbContext);
-    }
+        public ServiceProvider CreateServiceProvider(
+            IConfiguration? configuration = null,
+            Action<IServiceCollection>? configureServices = null)
+        {
+            ServiceCollection services = new();
+            services.ConfigureApplicationLayer();
+            services.AddInfrastructure(ConnectionString, configuration);
+            configureServices?.Invoke(services);
+            return services.BuildServiceProvider();
+        }
 
-    public async ValueTask DisposeAsync()
-    {
-        await _container.DisposeAsync();
+        public async Task ResetDatabaseAsync()
+        {
+            await using SetupDbContext dbContext = CreateSetupDbContext();
+            await PostgreSqlDatabaseCleaner.ResetAsync(dbContext);
+        }
     }
 }

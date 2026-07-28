@@ -1,15 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Espada.AgentAdapters\Espada.AgentAdapters.csproj" />
-    <ProjectReference Include="..\Espada.Application\Espada.Application.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="AutoMapper" />
-    <PackageReference Include="ModelContextProtocol.Core" />
-  </ItemGroup>
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Espada.AgentAdapters\Espada.AgentAdapters.csproj"/>
+        <ProjectReference Include="..\Espada.Application\Espada.Application.csproj"/>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="AutoMapper"/>
+        <PackageReference Include="ModelContextProtocol.Core"/>
+    </ItemGroup>
 </Project>

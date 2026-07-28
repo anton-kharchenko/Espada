@@ -1,7 +1,8 @@
-namespace Espada.Db.Constants;
-
-public static class DbDateTimeColumnTypeConstants
+namespace Espada.Db.Constants
 {
-    public const string TimestampTz = "timestamptz";
-    public const string TimestampWithTimeZone = "timestamp with time zone";
+    public static class DbDateTimeColumnTypeConstants
+    {
+        public const string TimestampTz = "timestamptz";
+        public const string TimestampWithTimeZone = "timestamp with time zone";
+    }
 }

@@ -1,8 +1,9 @@
 using Espada.Application.Contracts.Jobs;
 
-namespace Espada.Application.Contracts.Ingestion;
-
-public interface IImportPipelineStageExecutorService
+namespace Espada.Application.Contracts.Ingestion
 {
-    Task ExecuteAsync(IngestionJob job, CancellationToken cancellationToken = default);
+    public interface IImportPipelineStageExecutorService
+    {
+        Task ExecuteAsync(IngestionJob job, CancellationToken cancellationToken = default);
+    }
 }

@@ -15,11 +15,15 @@ namespace Espada.Tests.Application.Fixtures
 
         public TestClockService ClockService { get; } = new(TestDates.SourceArchivedAtUtc);
 
-        public ArchiveSourceCommandHandler CreateHandler() => new(SourceRepository, UnitOfWork, ClockService);
+        public ArchiveSourceCommandHandler CreateHandler()
+        {
+            return new ArchiveSourceCommandHandler(SourceRepository, UnitOfWork, ClockService);
+        }
 
         public Source GivenActiveSourceExists(WorkspaceId? workspaceId = null)
         {
-            Source source = new SourceBuilder().InWorkspace(workspaceId ?? TestIds.DefaultWorkspaceId).BuildWithoutPendingEvents();
+            Source source = new SourceBuilder().InWorkspace(workspaceId ?? TestIds.DefaultWorkspaceId)
+                .BuildWithoutPendingEvents();
 
             SourceRepository.SourceToReturn = source;
 
@@ -35,6 +39,9 @@ namespace Espada.Tests.Application.Fixtures
             return source;
         }
 
-        public void GivenSourceDoesNotExist() => SourceRepository.SourceToReturn = null;
+        public void GivenSourceDoesNotExist()
+        {
+            SourceRepository.SourceToReturn = null;
+        }
     }
 }

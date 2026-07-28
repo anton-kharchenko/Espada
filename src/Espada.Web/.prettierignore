@@ -1,2 +1,3 @@
 src/app.css
+src/shared/api/generated
 src/vite-env.d.ts

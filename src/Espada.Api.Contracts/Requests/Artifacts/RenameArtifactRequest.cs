@@ -1,17 +1,17 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Espada.Api.Contracts.Requests.Artifacts;
-
-public sealed class RenameArtifactRequest : IValidatableObject
+namespace Espada.Api.Contracts.Requests.Artifacts
 {
-    [Required]
-    public string Title { get; init; } = string.Empty;
-
-    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    public sealed class RenameArtifactRequest : IValidatableObject
     {
-        if (string.IsNullOrWhiteSpace(Title))
+        [Required] public string Title { get; init; } = string.Empty;
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            yield return new ValidationResult("Title cannot be empty.", new[] { nameof(Title) });
+            if (string.IsNullOrWhiteSpace(Title))
+            {
+                yield return new ValidationResult("Title cannot be empty.", new[] { nameof(Title) });
+            }
         }
     }
 }

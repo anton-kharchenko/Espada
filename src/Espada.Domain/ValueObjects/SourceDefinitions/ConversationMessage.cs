@@ -1,23 +1,24 @@
-namespace Espada.Domain.ValueObjects.SourceDefinitions;
-
-public sealed record ConversationMessage
+namespace Espada.Domain.ValueObjects.SourceDefinitions
 {
-    public ConversationMessage(string role, string? author, string content, DateTimeOffset? timestamp)
+    public sealed record ConversationMessage
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(role);
-        ArgumentException.ThrowIfNullOrWhiteSpace(content);
+        public ConversationMessage(string role, string? author, string content, DateTimeOffset? timestamp)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(role);
+            ArgumentException.ThrowIfNullOrWhiteSpace(content);
 
-        Role = role;
-        Author = author;
-        Content = content;
-        Timestamp = timestamp;
+            Role = role;
+            Author = author;
+            Content = content;
+            Timestamp = timestamp;
+        }
+
+        public string Role { get; init; }
+
+        public string? Author { get; init; }
+
+        public string Content { get; init; }
+
+        public DateTimeOffset? Timestamp { get; init; }
     }
-
-    public string Role { get; init; }
-
-    public string? Author { get; init; }
-
-    public string Content { get; init; }
-
-    public DateTimeOffset? Timestamp { get; init; }
 }

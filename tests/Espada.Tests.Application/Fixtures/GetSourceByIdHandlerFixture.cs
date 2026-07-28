@@ -12,21 +12,30 @@ namespace Espada.Tests.Application.Fixtures
 {
     internal sealed class GetSourceByIdHandlerFixture
     {
-        private readonly IMapper _mapper = new MapperConfiguration(options => options.AddProfile<ApplicationMappingProfile>(), NullLoggerFactory.Instance).CreateMapper();
+        private readonly IMapper _mapper =
+            new MapperConfiguration(options => options.AddProfile<ApplicationMappingProfile>(),
+                NullLoggerFactory.Instance).CreateMapper();
 
         public SourceRepositorySpy SourceRepository { get; } = new();
 
-        public GetSourceByIdQueryHandler CreateHandler() => new(SourceRepository, _mapper);
+        public GetSourceByIdQueryHandler CreateHandler()
+        {
+            return new GetSourceByIdQueryHandler(SourceRepository, _mapper);
+        }
 
         public Source GivenSourceExists(WorkspaceId? workspaceId = null)
         {
-            Source source = new SourceBuilder().InWorkspace(workspaceId ?? TestIds.DefaultWorkspaceId).BuildWithoutPendingEvents();
+            Source source = new SourceBuilder().InWorkspace(workspaceId ?? TestIds.DefaultWorkspaceId)
+                .BuildWithoutPendingEvents();
 
             SourceRepository.SourceToReturn = source;
 
             return source;
         }
 
-        public void GivenSourceDoesNotExist() => SourceRepository.SourceToReturn = null;
+        public void GivenSourceDoesNotExist()
+        {
+            SourceRepository.SourceToReturn = null;
+        }
     }
 }

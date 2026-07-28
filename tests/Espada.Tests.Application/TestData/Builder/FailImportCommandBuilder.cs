@@ -4,13 +4,12 @@ namespace Espada.Tests.Application.TestData.Builder
 {
     internal sealed class FailImportCommandBuilder
     {
-        private Guid _workspaceId = TestIds.DefaultWorkspaceId.Value;
-
-        private Guid _importJobId = TestIds.DefaultImportJobId.Value;
-
         private string? _failureCode = TestValues.ImportFailureCode;
 
         private string? _failureReason = TestValues.ImportFailureReason;
+
+        private Guid _importJobId = TestIds.DefaultImportJobId.Value;
+        private Guid _workspaceId = TestIds.DefaultWorkspaceId.Value;
 
         public FailImportCommandBuilder InWorkspace(Guid workspaceId)
         {
@@ -36,6 +35,9 @@ namespace Espada.Tests.Application.TestData.Builder
             return this;
         }
 
-        public FailImportCommand Build() => new(_workspaceId, _importJobId, _failureCode!, _failureReason!);
+        public FailImportCommand Build()
+        {
+            return new FailImportCommand(_workspaceId, _importJobId, _failureCode!, _failureReason!);
+        }
     }
 }

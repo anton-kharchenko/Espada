@@ -14,7 +14,8 @@ namespace Espada.Infrastructure.Repositories
             await dbContext.ChunkBatches.AddAsync(chunkBatch, cancellationToken);
         }
 
-        public async Task<ChunkBatch?> GetByIdAsync(ChunkBatchId chunkBatchId, CancellationToken cancellationToken = default)
+        public async Task<ChunkBatch?> GetByIdAsync(ChunkBatchId chunkBatchId,
+            CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(chunkBatchId);
 

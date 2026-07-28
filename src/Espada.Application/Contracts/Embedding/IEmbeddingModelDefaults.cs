@@ -1,6 +1,7 @@
-namespace Espada.Application.Contracts.Embedding;
-
-public interface IEmbeddingModelDefaults
+namespace Espada.Application.Contracts.Embedding
 {
-    string? DefaultModel { get; }
+    public interface IEmbeddingModelDefaults
+    {
+        string? DefaultModel { get; }
+    }
 }

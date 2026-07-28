@@ -7,80 +7,81 @@ using Microsoft.Extensions.Options;
 using Stripe;
 using Stripe.Checkout;
 
-namespace Espada.Billing;
-
-internal sealed class StripeBillingProvider(
-    StripeClient client,
-    IOptions<BillingOptions> options) : IStripeBillingProvider
+namespace Espada.Billing
 {
-    private readonly BillingOptions _options = options.Value;
-
-    public async Task<HostedBillingSession> CreateCheckoutAsync(
-        Guid workspaceId,
-        string? customerId,
-        CloudBillingPlanType plan,
-        string idempotencyKey,
-        CancellationToken cancellationToken = default)
+    internal sealed class StripeBillingProvider(
+        StripeClient client,
+        IOptions<BillingOptions> options) : IStripeBillingProvider
     {
-        if (customerId is not null)
-        {
-            ArgumentException.ThrowIfNullOrWhiteSpace(customerId);
-        }
+        private readonly BillingOptions _options = options.Value;
 
-        ArgumentException.ThrowIfNullOrWhiteSpace(idempotencyKey);
-        string priceId = plan switch
+        public async Task<HostedBillingSession> CreateCheckoutAsync(
+            Guid workspaceId,
+            string? customerId,
+            CloudBillingPlanType plan,
+            string idempotencyKey,
+            CancellationToken cancellationToken = default)
         {
-            CloudBillingPlanType.Solo => _options.Solo.PriceId,
-            CloudBillingPlanType.Team => _options.Team.PriceId,
-            _ => throw new ArgumentOutOfRangeException(nameof(plan))
-        };
-
-        Session session = await client.V1.Checkout.Sessions.CreateAsync(
-            new SessionCreateOptions
+            if (customerId is not null)
             {
-                Mode = StripeCheckoutModeConstants.Subscription,
-                Customer = customerId,
-                ClientReferenceId = workspaceId.ToString(BillingProcessingConstnts.DefaultGuidFormat),
-                SuccessUrl = _options.CheckoutSuccessUrl!.AbsoluteUri,
-                CancelUrl = _options.CheckoutCancelUrl!.AbsoluteUri,
-                LineItems =
-                [
-                    new SessionLineItemOptions { Price = priceId, Quantity = 1 }
-                ],
-                SubscriptionData = new SessionSubscriptionDataOptions
-                {
-                    Metadata = new Dictionary<string, string>
-                    {
-                        [StripeMetadataKeyContants.WorkspaceId] = workspaceId.ToString(BillingProcessingConstnts.DefaultGuidFormat),
-                        [StripeMetadataKeyContants.Plan] = plan.ToString()
-                    }
-                }
-            },
-            new RequestOptions { IdempotencyKey = idempotencyKey },
-            cancellationToken);
+                ArgumentException.ThrowIfNullOrWhiteSpace(customerId);
+            }
 
-        return new HostedBillingSession(
-            session.Id,
-            new Uri(session.Url, UriKind.Absolute));
-    }
+            ArgumentException.ThrowIfNullOrWhiteSpace(idempotencyKey);
+            string priceId = plan switch
+            {
+                CloudBillingPlanType.Solo => _options.Solo.PriceId,
+                CloudBillingPlanType.Team => _options.Team.PriceId,
+                _ => throw new ArgumentOutOfRangeException(nameof(plan))
+            };
 
-    public async Task<HostedBillingSession> CreateCustomerPortalAsync(
-        string customerId,
-        string idempotencyKey,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(customerId);
-        ArgumentException.ThrowIfNullOrWhiteSpace(idempotencyKey);
-        Stripe.BillingPortal.Session session = await client.V1.BillingPortal.Sessions.CreateAsync(
-                new Stripe.BillingPortal.SessionCreateOptions
+            Session session = await client.V1.Checkout.Sessions.CreateAsync(
+                new SessionCreateOptions
                 {
+                    Mode = StripeCheckoutModeConstants.Subscription,
                     Customer = customerId,
-                    ReturnUrl = _options.PortalReturnUrl!.AbsoluteUri
+                    ClientReferenceId = workspaceId.ToString(BillingProcessingConstants.DefaultGuidFormat),
+                    SuccessUrl = _options.CheckoutSuccessUrl!.AbsoluteUri,
+                    CancelUrl = _options.CheckoutCancelUrl!.AbsoluteUri,
+                    LineItems =
+                    [
+                        new SessionLineItemOptions { Price = priceId, Quantity = 1 }
+                    ],
+                    SubscriptionData = new SessionSubscriptionDataOptions
+                    {
+                        Metadata = new Dictionary<string, string>
+                        {
+                            [StripeMetadataKeyConstants.WorkspaceId] =
+                                workspaceId.ToString(BillingProcessingConstants.DefaultGuidFormat),
+                            [StripeMetadataKeyConstants.Plan] = plan.ToString()
+                        }
+                    }
                 },
                 new RequestOptions { IdempotencyKey = idempotencyKey },
                 cancellationToken);
-        return new HostedBillingSession(
-            session.Id,
-            new Uri(session.Url, UriKind.Absolute));
+
+            return new HostedBillingSession(
+                session.Id,
+                new Uri(session.Url, UriKind.Absolute));
+        }
+
+        public async Task<HostedBillingSession> CreateCustomerPortalAsync(
+            string customerId,
+            string idempotencyKey,
+            CancellationToken cancellationToken = default)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(customerId);
+            ArgumentException.ThrowIfNullOrWhiteSpace(idempotencyKey);
+            Stripe.BillingPortal.Session session = await client.V1.BillingPortal.Sessions.CreateAsync(
+                new Stripe.BillingPortal.SessionCreateOptions
+                {
+                    Customer = customerId, ReturnUrl = _options.PortalReturnUrl!.AbsoluteUri
+                },
+                new RequestOptions { IdempotencyKey = idempotencyKey },
+                cancellationToken);
+            return new HostedBillingSession(
+                session.Id,
+                new Uri(session.Url, UriKind.Absolute));
+        }
     }
 }

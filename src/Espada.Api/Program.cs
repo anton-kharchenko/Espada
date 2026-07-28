@@ -1,3 +1,4 @@
-namespace Espada.Api;
-
-public partial class Program;
+namespace Espada.Api
+{
+    public class Program;
+}

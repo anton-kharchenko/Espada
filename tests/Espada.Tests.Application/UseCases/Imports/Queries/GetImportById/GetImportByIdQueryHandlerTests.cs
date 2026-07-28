@@ -27,7 +27,8 @@ namespace Espada.Tests.Application.UseCases.Imports.Queries.GetImportById
                 .Build();
 
             // Act
-            DomainResult<GetImportByIdResponse> result = await handler.Handle(query, TestContext.Current.CancellationToken);
+            DomainResult<GetImportByIdResponse> result =
+                await handler.Handle(query, TestContext.Current.CancellationToken);
 
             // Assert
             GetImportByIdResponse response = result.ShouldSucceed();
@@ -67,7 +68,8 @@ namespace Espada.Tests.Application.UseCases.Imports.Queries.GetImportById
                 .Build();
 
             // Act
-            DomainResult<GetImportByIdResponse> result = await handler.Handle(query, TestContext.Current.CancellationToken);
+            DomainResult<GetImportByIdResponse> result =
+                await handler.Handle(query, TestContext.Current.CancellationToken);
 
             // Assert
             GetImportByIdResponse response = result.ShouldSucceed();
@@ -99,7 +101,8 @@ namespace Espada.Tests.Application.UseCases.Imports.Queries.GetImportById
                 .Build();
 
             // Act
-            DomainResult<GetImportByIdResponse> result = await handler.Handle(query, TestContext.Current.CancellationToken);
+            DomainResult<GetImportByIdResponse> result =
+                await handler.Handle(query, TestContext.Current.CancellationToken);
 
             // Assert
             GetImportByIdResponse response = result.ShouldSucceed();
@@ -130,7 +133,8 @@ namespace Espada.Tests.Application.UseCases.Imports.Queries.GetImportById
                 .Build();
 
             // Act
-            DomainResult<GetImportByIdResponse> result = await handler.Handle(query, TestContext.Current.CancellationToken);
+            DomainResult<GetImportByIdResponse> result =
+                await handler.Handle(query, TestContext.Current.CancellationToken);
 
             // Assert
             result.ShouldSucceed();
@@ -220,10 +224,12 @@ namespace Espada.Tests.Application.UseCases.Imports.Queries.GetImportById
                 .Build();
 
             // Act
-            DomainResult<GetImportByIdResponse> result = await handler.Handle(query, TestContext.Current.CancellationToken);
+            DomainResult<GetImportByIdResponse> result =
+                await handler.Handle(query, TestContext.Current.CancellationToken);
 
             // Assert
-            result.ShouldFailWith(ImportJobApplicationErrors.NotFoundInWorkspace(importJob.Id.Value, requestedWorkspaceId));
+            result.ShouldFailWith(
+                ImportJobApplicationErrors.NotFoundInWorkspace(importJob.Id.Value, requestedWorkspaceId));
         }
 
         [Fact]
@@ -239,7 +245,8 @@ namespace Espada.Tests.Application.UseCases.Imports.Queries.GetImportById
                 .Build();
 
             // Act
-            DomainResult<GetImportByIdResponse> result = await handler.Handle(query, TestContext.Current.CancellationToken);
+            DomainResult<GetImportByIdResponse> result =
+                await handler.Handle(query, TestContext.Current.CancellationToken);
 
             // Assert
             result.ShouldFailWith(WorkspaceApplicationErrors.InvalidId);
@@ -263,7 +270,8 @@ namespace Espada.Tests.Application.UseCases.Imports.Queries.GetImportById
                 .Build();
 
             // Act
-            DomainResult<GetImportByIdResponse> result = await handler.Handle(query, TestContext.Current.CancellationToken);
+            DomainResult<GetImportByIdResponse> result =
+                await handler.Handle(query, TestContext.Current.CancellationToken);
 
             // Assert
             result.ShouldFailWith(ImportJobApplicationErrors.InvalidId);
