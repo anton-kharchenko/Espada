@@ -22,4 +22,5 @@ public static class DbTextColumnTypeConstants
     public const string CharacterVarying4000 = "character varying(4000)";
 
     public const string TextType = "text";
+    public const string TextArray = "text[]";
 }

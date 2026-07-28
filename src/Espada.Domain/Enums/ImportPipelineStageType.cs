@@ -10,17 +10,11 @@ public sealed class ImportPipelineStageType(int id, string name) : Enumeration(i
 
     public static readonly ImportPipelineStageType Parse = new(3, nameof(Parse));
 
-    public static readonly ImportPipelineStageType MaterializeArtifact =
-        new(4, nameof(MaterializeArtifact));
+    public static readonly ImportPipelineStageType MaterializeArtifact = new(4, nameof(MaterializeArtifact));
 
     public static readonly ImportPipelineStageType Chunk = new(5, nameof(Chunk));
 
-    public static readonly ImportPipelineStageType EmbedAndIndex =
-        new(6, nameof(EmbedAndIndex));
+    public static readonly ImportPipelineStageType EmbedAndIndex = new(6, nameof(EmbedAndIndex));
 
     public static readonly ImportPipelineStageType Complete = new(7, nameof(Complete));
-
-    public override bool Equals(object? obj) => base.Equals(obj);
-
-    public override int GetHashCode() => base.GetHashCode();
 }

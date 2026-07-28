@@ -13,8 +13,4 @@ public sealed class ImportStatusType(int id, string name) : Enumeration(id, name
     public static readonly ImportStatusType Failed = new(4, nameof(Failed));
 
     public static readonly ImportStatusType Cancelled = new(5, nameof(Cancelled));
-
-    public override bool Equals(object? obj) => base.Equals(obj);
-
-    public override int GetHashCode() => base.GetHashCode();
 }

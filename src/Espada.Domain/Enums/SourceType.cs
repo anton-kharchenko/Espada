@@ -4,7 +4,6 @@ namespace Espada.Domain.Enums;
 
 public sealed class SourceType(int id, string name) : Enumeration(id, name)
 {
-
     public static readonly SourceType File = new(1, nameof(File));
 
     public static readonly SourceType WebPage = new(2, nameof(WebPage));
@@ -14,8 +13,4 @@ public sealed class SourceType(int id, string name) : Enumeration(id, name)
     public static readonly SourceType Conversation = new(4, nameof(Conversation));
 
     public static readonly SourceType Connector = new(5, nameof(Connector));
-
-    public override bool Equals(object? obj) => base.Equals(obj);
-
-    public override int GetHashCode() => base.GetHashCode();
 }
