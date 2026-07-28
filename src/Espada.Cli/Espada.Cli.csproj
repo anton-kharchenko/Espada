@@ -6,11 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Espada.Comms.Core\Espada.Comms.Core.csproj" />
-    <ProjectReference Include="..\Espada.Protocol.Mcp\Espada.Protocol.Mcp.csproj" />
+    <ProjectReference Include="..\Espada.Mcp\Espada.Mcp.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="ModelContextProtocol" />
     <PackageReference Include="System.CommandLine" />
   </ItemGroup>
 </Project>

@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="ModelContextProtocol" />
     <PackageReference Include="xunit.v3" />
     <PackageReference Include="xunit.runner.visualstudio">
       <PrivateAssets>all</PrivateAssets>
@@ -16,7 +17,8 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Espada.Daemon\Espada.Daemon.csproj" />
+    <ProjectReference Include="..\..\src\Espada.Mcp\Espada.Mcp.csproj" />
+    <ProjectReference Include="..\..\src\Espada.Protocol.Mcp\Espada.Protocol.Mcp.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="appsettings.Testing.json" CopyToOutputDirectory="PreserveNewest" />
