@@ -12,6 +12,8 @@ namespace Espada.Api.Contracts.Requests.Artifacts
 
         [Required] public string Content { get; init; } = string.Empty;
 
+        public bool IsDraft { get; init; }
+
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (string.IsNullOrWhiteSpace(Title))

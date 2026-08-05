@@ -1,6 +1,7 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState, type FormEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
+import { consoleSessionQueryOptions } from 'entities/session';
 import { getWorkspaceRoute } from 'shared/config';
 import { PageState } from 'shared/ui';
 import { commitSetup, getSetupPreview } from './setupApi';
@@ -36,6 +37,7 @@ export const SetupWizard = () => {
 
 const SetupForm = ({ preview }: { preview: SetupPreview }) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [workspaceName, setWorkspaceName] = useState(preview.workspaceName);
   const [projectName, setProjectName] = useState(preview.projectName);
   const [initialInstruction, setInitialInstruction] = useState(
@@ -51,7 +53,10 @@ const SetupForm = ({ preview }: { preview: SetupPreview }) => {
   const [postgresPort, setPostgresPort] = useState(preview.ports.postgreSql);
   const commit = useMutation({
     mutationFn: commitSetup,
-    onSuccess: (result) => navigate(getWorkspaceRoute(result.workspaceId), { replace: true }),
+    onSuccess: async (result) => {
+      await queryClient.invalidateQueries({ queryKey: consoleSessionQueryOptions.queryKey });
+      navigate(getWorkspaceRoute(result.workspaceId), { replace: true });
+    },
   });
 
   const submit = (event: FormEvent<HTMLFormElement>) => {

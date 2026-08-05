@@ -7,6 +7,7 @@ namespace Espada.Application.Contracts.Ingestion
     {
         Task<SourceReadResult> ReadAsync(
             SourceDefinition definition,
+            RepositoryFileImportOptions? repositoryFile = null,
             CancellationToken cancellationToken = default);
     }
 }

@@ -13,6 +13,17 @@ namespace Espada.Tests.Integration.Fixtures
             await using IDbContextTransaction transaction =
                 await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
+            await dbContext.SyncConflicts.ExecuteDeleteAsync(cancellationToken);
+            await dbContext.SyncCursors.ExecuteDeleteAsync(cancellationToken);
+            await dbContext.AgentApprovals.ExecuteDeleteAsync(cancellationToken);
+            await dbContext.AgentSessionEvents.ExecuteDeleteAsync(cancellationToken);
+            await dbContext.AgentSessions.ExecuteDeleteAsync(cancellationToken);
+            await dbContext.SyncEvents.ExecuteDeleteAsync(cancellationToken);
+            await dbContext.SyncDeviceRegistrations.ExecuteDeleteAsync(cancellationToken);
+            await dbContext.AgentInstallations.ExecuteDeleteAsync(cancellationToken);
+            await dbContext.RepositoryManifestEntries.ExecuteDeleteAsync(cancellationToken);
+            await dbContext.AgentProfiles.ExecuteDeleteAsync(cancellationToken);
+            await dbContext.Devices.ExecuteDeleteAsync(cancellationToken);
             await dbContext.OneTimeBootstrapCodes.ExecuteDeleteAsync(cancellationToken);
             await dbContext.UsageReconciliationOutbox.ExecuteDeleteAsync(cancellationToken);
             await dbContext.UsageLedgerEntries.ExecuteDeleteAsync(cancellationToken);

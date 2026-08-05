@@ -10,10 +10,13 @@ namespace Espada.Cli.Infrastructure
                 : Path.GetFullPath(configuredRoot);
             StateFile = Path.Join(Root, "runtime-state.json");
             ApiKeyFile = Path.Join(Root, "secrets", "local-api-key");
+            PasswordFile = Path.Join(Root, "secrets", "postgres-password");
         }
 
         public string Root { get; }
         public string StateFile { get; }
         public string ApiKeyFile { get; }
+
+        public string PasswordFile { get; }
     }
 }

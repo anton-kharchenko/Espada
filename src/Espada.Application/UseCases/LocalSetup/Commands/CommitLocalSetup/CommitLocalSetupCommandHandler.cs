@@ -63,8 +63,7 @@ namespace Espada.Application.UseCases.LocalSetup.Commands.CommitLocalSetup
                 return DomainResult.Failure<CommitLocalSetupResponse>(sourceName.Error);
             }
 
-            string repositoryIdentity = request.CanonicalRemoteUri ?? $"local:{request.SetupId:N}";
-            RepositorySourceDefinition definition = new(repositoryIdentity, request.CanonicalRemoteUri,
+            RepositorySourceDefinition definition = new(projectId.Value.ToString("D"), request.CanonicalRemoteUri,
                 new RepositoryScanPolicy());
             DomainResult<Source> sourceResult = Source.Create(sourceId, workspaceId, sourceName.Value, definition,
                 createdAtUtc);

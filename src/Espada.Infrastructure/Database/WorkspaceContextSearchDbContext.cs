@@ -1,5 +1,6 @@
 using Espada.Db.Constants;
 using Espada.Db.Models;
+using Espada.Infrastructure.Database.EntityFrameworkConfigurations;
 using Microsoft.EntityFrameworkCore;
 
 namespace Espada.Infrastructure.Database
@@ -27,6 +28,8 @@ namespace Espada.Infrastructure.Database
         {
             modelBuilder.HasDefaultSchema(DbConstants.SchemaName);
             modelBuilder.HasPostgresExtension(DbExtensionConstants.Vector);
+
+            new ImportJobConfiguration().Configure(modelBuilder.Entity<ImportJobs>());
 
             modelBuilder.Entity<Chunks>().OwnsOne(chunk => chunk.SourceSpan, span =>
             {

@@ -35,6 +35,7 @@ namespace Espada.Db.Constants
         public const string AgentSessionEventSequence = "UX_AgentSessionEvents_AgentSessionId_Sequence";
         public const string AgentApprovalRequestEvent = "UX_AgentApprovals_RequestEventId";
         public const string SyncEventDeviceSequence = "UX_SyncEvents_DeviceId_Sequence";
+        public const string SyncEventServerSequence = "UX_SyncEvents_ServerSequence";
         public const string SyncCursorDeviceWorkspace = "UX_SyncCursors_DeviceId_WorkspaceId";
         public const string SyncConflictEvents = "UX_SyncConflicts_LocalEventId_RemoteEventId";
     }

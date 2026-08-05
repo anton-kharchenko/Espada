@@ -4,9 +4,13 @@ namespace Espada.Daemon.Runtime
     {
         public LocalRuntimePaths(string? configuredRoot)
         {
-            Root = string.IsNullOrWhiteSpace(configuredRoot)
+            string? environmentRoot = Environment.GetEnvironmentVariable("ESPADA_DATA_ROOT");
+            string? root = string.IsNullOrWhiteSpace(configuredRoot)
+                ? environmentRoot
+                : configuredRoot;
+            Root = string.IsNullOrWhiteSpace(root)
                 ? Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Espada")
-                : Path.GetFullPath(configuredRoot);
+                : Path.GetFullPath(root);
             LockFile = Path.Join(Root, "daemon.lock");
             PidFile = Path.Join(Root, "daemon.pid");
             StateFile = Path.Join(Root, "runtime-state.json");

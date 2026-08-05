@@ -19,7 +19,7 @@ namespace Espada.Tests.Daemon.Endpoints
                     }));
             using HttpClient client = application.CreateClient();
 
-            using HttpResponseMessage response = await client.GetAsync("/health");
+            using HttpResponseMessage response = await client.GetAsync("/health", TestContext.Current.CancellationToken);
 
             response.EnsureSuccessStatusCode();
         }

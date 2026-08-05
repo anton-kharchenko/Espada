@@ -14,6 +14,15 @@ namespace Espada.Infrastructure.Repositories
             await dbContext.AgentInstallations.AddAsync(installation, cancellationToken);
         }
 
+        public async Task<AgentInstallation?> GetByDeviceAndVendorAsync(DeviceId deviceId, int vendorId,
+            CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(deviceId);
+            return await dbContext.AgentInstallations
+                .SingleOrDefaultAsync(installation => installation.DeviceId == deviceId
+                                                      && installation.Vendor.Id == vendorId,
+                    cancellationToken);
+        }
         public async Task<IReadOnlyList<AgentInstallation>> ListByDeviceIdAsync(DeviceId deviceId,
             CancellationToken cancellationToken = default)
         {

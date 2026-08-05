@@ -48,7 +48,9 @@ namespace Espada.Db.Constants
         public const string AgentSessionEvents = "AgentSessionEvents";
         public const string AgentApprovals = "AgentApprovals";
         public const string SyncEvents = "SyncEvents";
+        public const string SyncDeviceRegistrations = "SyncDeviceRegistrations";
         public const string SyncCursors = "SyncCursors";
         public const string SyncConflicts = "SyncConflicts";
+        public const string RepositoryManifestEntries = "RepositoryManifestEntries";
     }
 }

@@ -14,7 +14,7 @@ namespace Espada.Db
         {
             IConfiguration configuration = new ConfigurationBuilder()
                 .SetBasePath(AppContext.BaseDirectory)
-                .AddJsonFile("appsettings.json", false)
+                .AddJsonFile("appsettings.json", true)
                 .AddJsonFile(
                     $"appsettings.{Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Development"}.json",
                     true)

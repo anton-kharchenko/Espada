@@ -2,6 +2,7 @@ import { useOutletContext } from 'react-router';
 import type { WorkspaceOutletContext } from 'entities/workspace';
 import type { WorkspaceSection } from 'shared/config';
 import { PageState, WorkspacePageHeader } from 'shared/ui';
+import { AgentSessionsPage } from './AgentSessionsPage';
 import { ArtifactCollectionPage } from './ArtifactCollectionPage';
 import { BindingsPage } from './BindingsPage';
 import { ContextPage } from './ContextPage';
@@ -35,6 +36,8 @@ export const WorkspacePage = ({ section }: WorkspacePageProps) => {
         return <OverviewPage workspaceId={workspace.id} mode={session.mode} readOnly={session.readOnly} />;
       case 'projects':
         return <ProjectsPage workspaceId={workspace.id} readOnly={session.readOnly} />;
+      case 'agent-sessions':
+        return <AgentSessionsPage workspaceId={workspace.id} readOnly={session.readOnly} />;
       case 'tasks':
         return <TasksPage workspaceId={workspace.id} readOnly={session.readOnly} />;
       case 'instructions':

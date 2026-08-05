@@ -88,6 +88,5 @@ namespace Espada.Application.UseCases.Search.Queries.UnifiedSearch
                 record.SourceSpanStart, record.SourceSpanLength, record.Score, record.Provenance)).ToArray();
             return DomainResult.Success(new UnifiedSearchResponse(items));
         }
-
     }
 }

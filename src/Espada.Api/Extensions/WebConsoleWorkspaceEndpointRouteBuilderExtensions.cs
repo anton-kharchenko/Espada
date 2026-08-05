@@ -5,9 +5,11 @@ using Espada.Api.Authentication.Constants;
 using Espada.Api.Contracts.Models;
 using Espada.Api.Contracts.Requests.Imports;
 using Espada.Api.Contracts.Requests.Sources;
+using Espada.Api.Contracts.Requests.WebConsole;
 using Espada.Api.Contracts.Requests.Workspaces;
-using Espada.Api.WebConsole;
-using Espada.Api.WebConsole.Mappings;
+using Espada.Api.Contracts.Responses.WebConsole;
+using Espada.Api.Mappings.WebConsole;
+using Espada.Api.Models.WebConsole;
 using Espada.Application.UseCases.Artifacts.Commands.AddArtifactRevision;
 using Espada.Application.UseCases.Artifacts.Commands.CreateArtifact;
 using Espada.Application.UseCases.Artifacts.Queries.GetArtifactById;
@@ -38,20 +40,6 @@ using Espada.Domain.Rules;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using ConsoleBuildContextRequest =
-    Espada.Api.WebConsole.Requests.ConsoleBuildContextRequest;
-using ConsoleCreateArtifactRequest =
-    Espada.Api.WebConsole.Requests.ConsoleCreateArtifactRequest;
-using ConsoleCreateProjectRequest =
-    Espada.Api.WebConsole.Requests.ConsoleCreateProjectRequest;
-using ConsoleCreateProjectTaskRequest =
-    Espada.Api.WebConsole.Requests.ConsoleCreateProjectTaskRequest;
-using ConsoleRememberMemoryRequest =
-    Espada.Api.WebConsole.Requests.ConsoleRememberMemoryRequest;
-using ConsoleReviseArtifactRequest =
-    Espada.Api.WebConsole.Requests.ConsoleReviseArtifactRequest;
-using ConsoleSetBindingRequest =
-    Espada.Api.WebConsole.Requests.ConsoleSetBindingRequest;
 
 namespace Espada.Api.Extensions
 {
@@ -72,6 +60,8 @@ namespace Espada.Api.Extensions
             RouteGroupBuilder workspace = protectedBff
                 .MapGroup("/workspaces/{workspaceId:guid}")
                 .AddEndpointFilter<WebConsoleWorkspaceFilter>();
+
+            workspace.MapAgentSessionEndpoints();
 
             workspace.MapGet("/projects", ListProjectsAsync)
                 .Produces<ListProjectsResponse>();

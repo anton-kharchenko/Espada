@@ -30,6 +30,7 @@
         <ProjectReference Include="..\..\src\Espada.Db\Espada.Db.csproj"/>
         <ProjectReference Include="..\..\src\Espada.Domain\Espada.Domain.csproj"/>
         <ProjectReference Include="..\..\src\Espada.Infrastructure\Espada.Infrastructure.csproj"/>
+        <ProjectReference Include="..\..\src\Espada.Protocol.Sync\Espada.Protocol.Sync.csproj"/>
     </ItemGroup>
 
 </Project>

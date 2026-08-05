@@ -11,7 +11,8 @@ namespace Espada.Cli.Commands.Runtime
         {
             Argument<string?> pathArgument = new("path")
             {
-                Description = "Repository path. Defaults to the current directory."
+                Description = "Repository path. Defaults to the current directory.",
+                DefaultValueFactory = _ => null
             };
             Option<bool> noOpenOption = new("--no-open")
             {
@@ -37,7 +38,7 @@ namespace Espada.Cli.Commands.Runtime
                         .CreateSetupLinkAsync(path, cancellationToken);
                     if (parseResult.GetValue(jsonOption))
                     {
-                        CliJson.Write(new { setupUrl = link.Url, link.ExpiresInSeconds });
+                        CliJson.Write(new { setupUrl = link.Url, expiresInSeconds = link.ExpiresIn });
                     }
                     else
                     {

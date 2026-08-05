@@ -1,7 +1,7 @@
 namespace Espada.Cli.Models
 {
     internal sealed record LocalRuntimeState(
-        int DaemonProcessId,
+        int ProcessId,
         string Status,
         DateTimeOffset StartedAtUtc,
         int ApiPort,

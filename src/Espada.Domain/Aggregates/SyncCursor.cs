@@ -23,6 +23,7 @@ namespace Espada.Domain.Aggregates
         public DeviceId DeviceId { get; private set; } = null!;
         public WorkspaceId WorkspaceId { get; private set; } = null!;
         public string ServerCursor { get; private set; } = string.Empty;
+        public long LastPushedSequence { get; private set; }
         public DateTimeOffset UpdatedAtUtc { get; private set; }
         public uint Version { get; private set; }
 
@@ -36,6 +37,18 @@ namespace Espada.Domain.Aggregates
                 ? DomainResult<SyncCursor>.Failure(SyncCursorErrors.ServerCursorEmpty)
                 : DomainResult<SyncCursor>.Success(new SyncCursor(id, deviceId, workspaceId, serverCursor.Trim(),
                     updatedAtUtc));
+        }
+
+        public DomainResult AdvancePush(long sequence, DateTimeOffset updatedAtUtc)
+        {
+            if (sequence < LastPushedSequence)
+            {
+                return DomainResult.Failure(SyncCursorErrors.PushSequenceCannotMoveBackward);
+            }
+
+            LastPushedSequence = sequence;
+            UpdatedAtUtc = updatedAtUtc;
+            return DomainResult.Success();
         }
 
         public DomainResult Advance(string? serverCursor, DateTimeOffset updatedAtUtc)

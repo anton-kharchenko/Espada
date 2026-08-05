@@ -1,8 +1,7 @@
 using AutoMapper;
 using Espada.Api.Authentication;
 using Espada.Api.Authentication.Constants;
-using Espada.Api.LocalSetup;
-using Espada.Api.WebConsole;
+using Espada.Api.Contracts.Responses.WebConsole;
 using Espada.Application.Contracts.Time;
 using Espada.Application.UseCases.Workspaces.Queries.ListAccessibleWorkspaces;
 using Espada.Domain.Rules;

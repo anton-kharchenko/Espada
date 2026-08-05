@@ -12,6 +12,8 @@
         <ProjectReference Include="..\Espada.Comms.Core\Espada.Comms.Core.csproj"/>
         <ProjectReference Include="..\Espada.Domain\Espada.Domain.csproj"/>
         <ProjectReference Include="..\Espada.Infrastructure\Espada.Infrastructure.csproj"/>
+        <ProjectReference Include="..\Espada.LocalSetup\Espada.LocalSetup.csproj"/>
+        <ProjectReference Include="..\Espada.Protocol.Sync\Espada.Protocol.Sync.csproj"/>
         <ProjectReference Include="..\Espada.ServiceDefaults\Espada.ServiceDefaults.csproj"/>
         <ProjectReference Include="..\Espada.Api.Contracts\Espada.Api.Contracts.csproj"/>
     </ItemGroup>

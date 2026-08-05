@@ -13,6 +13,7 @@ namespace Espada.Infrastructure.Database.EntityFrameworkConfigurations
         {
             builder.ToTable(DbTableConstants.SyncEvents, DbConstants.SchemaName);
             builder.HasKey(entity => entity.Id);
+            builder.Property<long>("ServerSequence").UseIdentityAlwaysColumn();
             builder.Property(entity => entity.Id).HasColumnName("EventId")
                 .HasConversion(id => id.Value, value => SyncEventId.Create(value)).ValueGeneratedNever();
             builder.Property(entity => entity.DeviceId)
@@ -28,6 +29,8 @@ namespace Espada.Infrastructure.Database.EntityFrameworkConfigurations
                 .OnDelete(DeleteBehavior.Restrict);
             builder.HasOne<Workspace>().WithMany().HasForeignKey(entity => entity.WorkspaceId)
                 .OnDelete(DeleteBehavior.Restrict);
+            builder.HasIndex("ServerSequence").IsUnique()
+                .HasDatabaseName(DbIndexConstants.SyncEventServerSequence);
             builder.HasIndex(entity => new { entity.DeviceId, entity.Sequence }).IsUnique()
                 .HasDatabaseName(DbIndexConstants.SyncEventDeviceSequence);
             builder.HasIndex(entity => new { entity.WorkspaceId, entity.EntityType, entity.EntityId });

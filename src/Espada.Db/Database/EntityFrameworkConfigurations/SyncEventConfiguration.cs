@@ -10,10 +10,13 @@ namespace Espada.Db.Database.EntityFrameworkConfigurations
         public void Configure(EntityTypeBuilder<SyncEvents> builder)
         {
             builder.Property(entity => entity.EventId).ValueGeneratedNever();
+            builder.Property(entity => entity.ServerSequence).UseIdentityAlwaysColumn();
             builder.HasOne<Devices>().WithMany().HasForeignKey(entity => entity.DeviceId)
                 .OnDelete(DeleteBehavior.Restrict);
             builder.HasOne<Workspaces>().WithMany().HasForeignKey(entity => entity.WorkspaceId)
                 .OnDelete(DeleteBehavior.Restrict);
+            builder.HasIndex(entity => entity.ServerSequence).IsUnique()
+                .HasDatabaseName(DbIndexConstants.SyncEventServerSequence);
             builder.HasIndex(entity => new { entity.DeviceId, entity.Sequence }).IsUnique()
                 .HasDatabaseName(DbIndexConstants.SyncEventDeviceSequence);
             builder.HasIndex(entity => new { entity.WorkspaceId, entity.EntityType, entity.EntityId });

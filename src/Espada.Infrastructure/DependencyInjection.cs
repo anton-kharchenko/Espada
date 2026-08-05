@@ -1,22 +1,28 @@
+using Espada.Application.Contracts.Agents;
 using Espada.Application.Contracts.Billing;
 using Espada.Application.Contracts.Blobs;
 using Espada.Application.Contracts.Embedding;
 using Espada.Application.Contracts.Ingestion;
 using Espada.Application.Contracts.Jobs;
 using Espada.Application.Contracts.Persistence;
+using Espada.Application.Contracts.Repositories;
 using Espada.Application.Contracts.Time;
 using Espada.Billing.Contracts;
 using Espada.Db.Constants;
 using Espada.Domain.SeedWork;
+using Espada.Infrastructure.Agents;
 using Espada.Infrastructure.Constants;
 using Espada.Infrastructure.Database;
+using Espada.Infrastructure.Devices;
 using Espada.Infrastructure.Extensions;
 using Espada.Infrastructure.Ingestion;
 using Espada.Infrastructure.Ingestion.Chunking.Strategy;
 using Espada.Infrastructure.Options;
 using Espada.Infrastructure.Repositories;
+using Espada.Infrastructure.Repositories.Scanning;
 using Espada.Infrastructure.Security;
 using Espada.Infrastructure.Services;
+using Espada.Infrastructure.Sync;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,6 +42,10 @@ namespace Espada.Infrastructure
             ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
 
             services.AddSingleton<IClockService, SystemClockService>();
+            services.AddSingleton<IAgentApprovalGateway, AgentApprovalGateway>();
+            services.AddSingleton<SyncChangeSignal>();
+            services.AddSingleton<LocalDeviceIdentityStore>();
+            services.AddSingleton<SyncOutboxSaveChangesInterceptor>();
             services.AddSingleton(_ =>
             {
                 NpgsqlDataSourceBuilder dataSourceBuilder = new(connectionString);
@@ -52,7 +62,9 @@ namespace Espada.Infrastructure
                             "__EFMigrationsHistory",
                             DbConstants.SchemaName);
                         npgsqlOptions.UseVector();
-                    }));
+                    })
+                    .AddInterceptors(serviceProvider.GetRequiredService<
+                        SyncOutboxSaveChangesInterceptor>()));
             services.AddDbContext<WorkspaceContextSearchDbContext>((serviceProvider, options) =>
                 options.UseNpgsql(
                         serviceProvider.GetRequiredService<NpgsqlDataSource>(),
@@ -66,6 +78,10 @@ namespace Espada.Infrastructure
                 IWorkspaceContextSearchStore,
                 WorkspaceContextSearchStore>();
             services.AddScoped<IMemorySearchStore, MemorySearchStore>();
+            services.AddScoped<IUnifiedSearchMetadataStore, UnifiedSearchMetadataStore>();
+            services.AddScoped<IRepositoryManifestStore, RepositoryManifestStore>();
+            services.AddScoped<IRepositoryWatchRegistrationStore, RepositoryWatchRegistrationStore>();
+            services.AddScoped<IRepositoryScanner, GitRepositoryScanner>();
             services.AddScoped<IContextCandidateStore, ContextCandidateStore>();
 
             services.AddScoped<IJobQueue, PostgreSqlJobQueue>();

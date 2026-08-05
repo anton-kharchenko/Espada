@@ -102,7 +102,9 @@ namespace Espada.Application.Services
         {
             Source source = await GetSourceAsync(importJob, cancellationToken);
             Stopwatch stopwatch = Stopwatch.StartNew();
-            SourceReadResult read = await sourceReader.ReadAsync(source.Definition, cancellationToken);
+            ImportOptions options = ParseOptions(importJob.OptionsJson);
+            SourceReadResult read = await sourceReader.ReadAsync(source.Definition, options.RepositoryFile,
+                cancellationToken);
             await using (read.Content)
             {
                 BlobDescriptor raw = await blobStoreService.PutAsync(read.Content, new BlobWriteOptions(read.MediaType),
@@ -128,7 +130,8 @@ namespace Espada.Application.Services
             Stopwatch stopwatch = Stopwatch.StartNew();
             BlobHash rawHash = ParseBlobHash(importJob.RawBlobHash, ImportPipelineDiscriminatorConstants.RawBlob);
             await using Stream raw = await blobStoreService.OpenReadAsync(rawHash, cancellationToken);
-            (string fileName, string mediaType) = GetSourceMetadata(source.Definition);
+            ImportOptions options = ParseOptions(importJob.OptionsJson);
+            (string fileName, string mediaType) = GetSourceMetadata(source.Definition, options.RepositoryFile);
             string text = await sourceParser.ParseAsync(raw, fileName, mediaType, cancellationToken);
             if (string.IsNullOrWhiteSpace(text))
             {
@@ -157,23 +160,14 @@ namespace Espada.Application.Services
             ArtifactRevisionId revisionId =
                 ArtifactRevisionId.Create(DeterministicGuid(importJob.Id, ImportPipelineDiscriminatorConstants.Revision));
 
-            DomainResult<ArtifactTitle> title = ArtifactTitle.Create(source.Name.Value);
+            ImportOptions options = ParseOptions(importJob.OptionsJson);
+            DomainResult<ArtifactTitle> title = ArtifactTitle.Create(
+                options.RepositoryFile?.RelativePath ?? source.Name.Value);
             DomainResult<ArtifactContent> artifactContent = ArtifactContent.Create(content);
             EnsureSuccess(title);
             EnsureSuccess(artifactContent);
 
-            ArtifactType artifactType = source.Type.Equals(SourceType.WebPage)
-                ? ArtifactType.WebPage
-                : source.Type.Equals(SourceType.Conversation)
-                    ? ArtifactType.Conversation
-                    : source.Definition is FileSourceDefinition file &&
-                      (file.MediaType.Equals(IngestionMediaTypeConstants.Markdown, StringComparison.OrdinalIgnoreCase) ||
-                       Path.GetExtension(file.FileName).Equals(IngestionFileExtensionConstants.Markdown,
-                           StringComparison.OrdinalIgnoreCase))
-                        ? ArtifactType.Markdown
-                        : source.Type.Equals(SourceType.PlainText)
-                            ? ArtifactType.Text
-                            : ArtifactType.File;
+            ArtifactType artifactType = GetArtifactType(source, options.RepositoryFile);
 
             DomainResult<Artifact> artifactResult = Artifact.Create(artifactId, importJob.WorkspaceId, title.Value,
                 ArtifactKindType.Document, artifactType, clock.UtcNow);
@@ -223,13 +217,16 @@ namespace Espada.Application.Services
                 IngestionFailureCodeConstants.MissingRevisionReference,
                 "Import has no revision reference.");
 
-            await artifactIndexingService.EmbedAndIndexAsync(
-                importJob.Id.Value,
-                importJob.WorkspaceId,
-                revisionId,
-                options.EmbeddingModel ?? string.Empty,
-                $"{importJob.Id.Value:N}:embedding-input",
-                cancellationToken);
+            if (!string.IsNullOrWhiteSpace(options.EmbeddingModel))
+            {
+                await artifactIndexingService.EmbedAndIndexAsync(
+                    importJob.Id.Value,
+                    importJob.WorkspaceId,
+                    revisionId,
+                    options.EmbeddingModel,
+                    $"{importJob.Id.Value:N}:embedding-input",
+                    cancellationToken);
+            }
             CompleteStage(importJob, ImportPipelineStageType.EmbedAndIndex);
         }
 
@@ -269,16 +266,44 @@ namespace Espada.Application.Services
             return await reader.ReadToEndAsync(cancellationToken);
         }
 
-        private static (string FileName, string MediaType) GetSourceMetadata(SourceDefinition definition)
+        private static (string FileName, string MediaType) GetSourceMetadata(SourceDefinition definition,
+            RepositoryFileImportOptions? repositoryFile)
         {
-            return definition switch
+            return repositoryFile is not null
+                ? (repositoryFile.FileName, repositoryFile.MediaType)
+                : definition switch
+                {
+                    FileSourceDefinition file => (file.FileName, file.MediaType),
+                    WebPageSourceDefinition => ("page.html", IngestionMediaTypeConstants.Html),
+                    PlainTextSourceDefinition text => (text.Title, IngestionMediaTypeConstants.PlainText),
+                    ConversationSourceDefinition conversation =>
+                        (conversation.Title, IngestionMediaTypeConstants.PlainText),
+                    _ => ("source.txt", IngestionMediaTypeConstants.PlainText)
+                };
+        }
+
+        private static ArtifactType GetArtifactType(Source source, RepositoryFileImportOptions? repositoryFile)
+        {
+            string? fileName = repositoryFile?.FileName;
+            string? mediaType = repositoryFile?.MediaType;
+            if (source.Definition is FileSourceDefinition file)
             {
-                FileSourceDefinition file => (file.FileName, file.MediaType),
-                WebPageSourceDefinition => ("page.html", IngestionMediaTypeConstants.Html),
-                PlainTextSourceDefinition text => (text.Title, IngestionMediaTypeConstants.PlainText),
-                ConversationSourceDefinition conversation => (conversation.Title, IngestionMediaTypeConstants.PlainText),
-                _ => ("source.txt", IngestionMediaTypeConstants.PlainText)
-            };
+                fileName = file.FileName;
+                mediaType = file.MediaType;
+            }
+
+            if (mediaType?.Equals(IngestionMediaTypeConstants.Markdown, StringComparison.OrdinalIgnoreCase) == true ||
+                string.Equals(Path.GetExtension(fileName), IngestionFileExtensionConstants.Markdown,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return ArtifactType.Markdown;
+            }
+
+            return source.Type.Equals(SourceType.WebPage)
+                ? ArtifactType.WebPage
+                : source.Type.Equals(SourceType.Conversation)
+                    ? ArtifactType.Conversation
+                    : source.Type.Equals(SourceType.PlainText) ? ArtifactType.Text : ArtifactType.File;
         }
 
         private static ImportOptions ParseOptions(string json)
@@ -302,6 +327,8 @@ namespace Espada.Application.Services
         private static Guid DeterministicGuid(ImportJobId importJobId, string discriminator)
         {
             byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{importJobId.Value:N}:{discriminator}"));
+            hash[7] = (byte)((hash[7] & 0x0F) | 0x50);
+            hash[8] = (byte)((hash[8] & 0x3F) | 0x80);
             return new Guid(hash.AsSpan(0, 16));
         }
 

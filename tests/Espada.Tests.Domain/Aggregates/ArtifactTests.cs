@@ -34,6 +34,17 @@ namespace Espada.Tests.Domain.Aggregates
         }
 
         [Fact]
+        public void CreateDraft_WithValidArguments_ShouldCreateDraftArtifact()
+        {
+            Artifact artifact = Artifact.CreateDraft(TestIds.DefaultArtifactId, TestIds.DefaultWorkspaceId,
+                ArtifactTitle.Create("Agent response").ShouldSucceed(), ArtifactKindType.Document,
+                ArtifactType.Markdown, TestDates.ArtifactCreatedAtUtc).ShouldSucceed();
+
+            artifact.Status.Should().Be(ArtifactStatusType.Draft);
+            artifact.ShouldHaveSingleDomainEvent<ArtifactCreatedDomainEvent>();
+        }
+
+        [Fact]
         public void SetPriority_WhenActive_ShouldUpdatePriorityAndRaiseEvent()
         {
             Artifact artifact = CreateArtifactWithoutPendingEvents();

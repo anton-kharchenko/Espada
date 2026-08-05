@@ -42,25 +42,33 @@ namespace Espada.Cli.Commands.Imports
                     }
 
                     using JsonDocument document = JsonDocument.Parse(result.Content);
-                    Guid importJobId = document.RootElement.GetProperty("importJobId").GetGuid();
-                    while (true)
+                    Guid[] workItemIds = document.RootElement.GetProperty("workItemIds")
+                        .EnumerateArray()
+                        .Select(item => item.GetGuid())
+                        .ToArray();
+                    foreach (Guid importJobId in workItemIds)
                     {
-                        CliHttpResult status = await api.SendAsync(HttpMethod.Get,
-                            $"/api/v1.0/workspaces/{workspaceId:D}/imports/{importJobId:D}", null, null,
-                            cancellationToken);
-                        if (!status.IsSuccess)
+                        while (true)
                         {
-                            return CliHttpOutput.Write(status, parseResult.GetValue(jsonOption));
-                        }
+                            CliHttpResult status = await api.SendAsync(HttpMethod.Get,
+                                $"/api/v1.0/workspaces/{workspaceId:D}/imports/{importJobId:D}", null, null,
+                                cancellationToken);
+                            if (!status.IsSuccess)
+                            {
+                                return CliHttpOutput.Write(status, parseResult.GetValue(jsonOption));
+                            }
 
-                        using JsonDocument statusDocument = JsonDocument.Parse(status.Content);
-                        if (statusDocument.RootElement.GetProperty("isTerminal").GetBoolean())
-                        {
-                            return CliHttpOutput.Write(status, parseResult.GetValue(jsonOption));
-                        }
+                            using JsonDocument statusDocument = JsonDocument.Parse(status.Content);
+                            if (statusDocument.RootElement.GetProperty("isTerminal").GetBoolean())
+                            {
+                                break;
+                            }
 
-                        await Task.Delay(TimeSpan.FromMilliseconds(500), cancellationToken);
+                            await Task.Delay(TimeSpan.FromMilliseconds(500), cancellationToken);
+                        }
                     }
+
+                    return CliHttpOutput.Write(result, parseResult.GetValue(jsonOption));
                 }
                 catch (HttpRequestException exception)
                 {

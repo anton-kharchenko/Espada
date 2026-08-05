@@ -4,7 +4,7 @@ namespace Espada.Application.UseCases.Projects.Common
         Guid Id,
         Guid WorkspaceId,
         string Name,
-        string CanonicalRemoteUri,
+        string? CanonicalRemoteUri,
         IReadOnlyList<string> LocalAliases,
         DateTimeOffset CreatedAtUtc,
         DateTimeOffset UpdatedAtUtc);

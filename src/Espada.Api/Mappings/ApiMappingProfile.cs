@@ -1,12 +1,14 @@
 using AutoMapper;
 using Espada.Api.Contracts.Models;
 using Espada.Api.Contracts.Requests.Imports;
+using Espada.Api.Contracts.Requests.WebConsole;
 using Espada.Api.Contracts.Responses.Billing;
+using Espada.Api.Contracts.Responses.WebConsole;
 using Espada.Api.Extensions;
-using Espada.Api.WebConsole;
-using Espada.Api.WebConsole.Mappings;
+using Espada.Api.Mappings.WebConsole;
 using Espada.Application.UseCases.Artifacts.Commands.AddArtifactRevision;
 using Espada.Application.UseCases.Artifacts.Commands.CreateArtifact;
+using Espada.Application.UseCases.Artifacts.Common;
 using Espada.Application.UseCases.Bindings.Commands.SetBinding;
 using Espada.Application.UseCases.Context.Queries.BuildContext;
 using Espada.Application.UseCases.Imports.Commands.RequestImport;
@@ -20,14 +22,7 @@ using Espada.Billing.Enums;
 using Espada.Billing.Models;
 using Espada.Billing.UseCases.Checkout;
 using Espada.Domain.Enums;
-using ConsoleBuildContextRequest =
-    Espada.Api.WebConsole.Requests.ConsoleBuildContextRequest;
-using ConsoleCreateProjectRequest =
-    Espada.Api.WebConsole.Requests.ConsoleCreateProjectRequest;
-using ConsoleCreateProjectTaskRequest =
-    Espada.Api.WebConsole.Requests.ConsoleCreateProjectTaskRequest;
-using ConsoleSetBindingRequest =
-    Espada.Api.WebConsole.Requests.ConsoleSetBindingRequest;
+using ConsoleBuildContextRequest = Espada.Api.Contracts.Requests.WebConsole.ConsoleBuildContextRequest;
 
 namespace Espada.Api.Mappings
 {
@@ -175,6 +170,8 @@ namespace Espada.Api.Mappings
                     options => options.MapFrom(source =>
                         source.Request.TokenBudget));
 
+            CreateMap<ConsoleInstructionRuleRequest, InstructionRuleInput>();
+            CreateMap<ConsolePolicyRuleRequest, PolicyRuleInput>();
             CreateMap<CreateArtifactMappingSource, CreateArtifactCommand>()
                 .ForCtorParam(
                     nameof(CreateArtifactCommand.WorkspaceId),
@@ -203,6 +200,10 @@ namespace Espada.Api.Mappings
                     nameof(CreateArtifactCommand.PolicyRules),
                     options => options.MapFrom(source =>
                         source.Request.PolicyRules))
+                .ForCtorParam(
+                    nameof(CreateArtifactCommand.IsDraft),
+                    options => options.MapFrom(source =>
+                        source.Request.IsDraft))
                 .ForCtorParam(
                     nameof(CreateArtifactCommand.AllowPolicyMutation),
                     options => options.MapFrom(source =>

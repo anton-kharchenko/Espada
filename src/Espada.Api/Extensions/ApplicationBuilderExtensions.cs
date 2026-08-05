@@ -39,6 +39,7 @@ namespace Espada.Api.Extensions
             app.UseAuthorization();
             app.MapControllers();
             app.MapWebConsoleEndpoints();
+            app.MapLocalSyncEndpoints();
 
             if (!app.Environment.IsProduction())
             {

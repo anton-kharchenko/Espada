@@ -1,3 +1,4 @@
+using Espada.AgentAdapters;
 using Espada.Api.Extensions;
 using Espada.Application.Extensions;
 using Espada.Billing.Extensions;
@@ -15,6 +16,7 @@ builder
     .ConfigureApplicationLayer()
     .ConfigureInfrastructure(builder.Configuration);
 builder.Services.AddEspadaBilling(builder.Configuration);
+builder.Services.AddAgentAdapters();
 
 WebApplication app = builder.Build();
 

@@ -77,6 +77,14 @@ namespace Espada.Tests.Integration.Repositories
             Assert.Equal(-0.25d, hit.SourcePriorityScore, 6);
             Assert.InRange(hit.Score, 0d, 1d);
 
+            IUnifiedSearchMetadataStore metadataStore =
+                readScope.ServiceProvider.GetRequiredService<IUnifiedSearchMetadataStore>();
+            UnifiedSearchRecord record = Assert.Single(await metadataStore.LoadAsync(
+                graph.Workspace.Id,
+                [hit],
+                TestContext.Current.CancellationToken));
+            Assert.Equal(graph.Source.Id.Value, record.SourceId);
+
             IReadOnlyList<WorkspaceContextSearchHit> filtered =
                 await store.SearchAsync(search with { MinimumArtifactPriority = 51 },
                     TestContext.Current.CancellationToken);

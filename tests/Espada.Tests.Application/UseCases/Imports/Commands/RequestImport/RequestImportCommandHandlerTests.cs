@@ -1,8 +1,11 @@
 using Espada.Application.ApplicationErrors;
+using Espada.Application.Models;
 using Espada.Application.UseCases.Imports.Commands.RequestImport;
 using Espada.Domain.Aggregates;
 using Espada.Domain.Enums;
 using Espada.Domain.Rules;
+using Espada.Domain.ValueObjects;
+using Espada.Domain.ValueObjects.SourceDefinitions;
 using Espada.Tests.Application.Fixtures;
 using Espada.Tests.Application.TestData;
 using Espada.Tests.Application.TestData.Builder;
@@ -328,6 +331,37 @@ namespace Espada.Tests.Application.UseCases.Imports.Commands.RequestImport
                 .Be(0);
         }
 
+        [Fact]
+        public async Task Handle_RepositorySource_ShouldCreatePerFileWorkItemAndReplaceManifest()
+        {
+            RequestImportHandlerFixture fixture = new();
+            WorkspaceId workspaceId = TestIds.DefaultWorkspaceId;
+            Project project = Project.Create(ProjectId.New(), workspaceId, "Repository", null,
+                ["C:\\repository"], TestDates.UtcNow).ShouldSucceed();
+            fixture.ProjectRepository.ProjectToReturn = project;
+            RepositorySourceDefinition definition = new(project.Id.Value.ToString("D"), null,
+                new RepositoryScanPolicy());
+            Source source = Source.Create(SourceId.New(), workspaceId, SourceName.Create("Repository").ShouldSucceed(),
+                definition, TestDates.UtcNow).ShouldSucceed();
+            source.DequeueDomainEvents();
+            fixture.SourceRepository.SourceToReturn = source;
+            RepositoryFileRecord file = new("src/Program.cs", new string('a', 64), "Program.cs",
+                "text/plain", 42);
+            fixture.RepositoryScanner.ResultToReturn =
+                DomainResult.Success(new RepositoryScanResult("C:\\repository", [file]));
+            RequestImportCommand command = new(workspaceId.Value, source.Id.Value, "repository-import",
+                new ImportOptions("test-model@1"));
+
+            DomainResult<RequestImportResponse> result = await fixture.CreateHandler().Handle(command,
+                TestContext.Current.CancellationToken);
+
+            RequestImportResponse response = result.ShouldSucceed();
+            response.WorkItemIds.Should().ContainSingle();
+            fixture.ImportJobRepository.AddCallCount.Should().Be(1);
+            fixture.ImportJobRepository.AddedImportJob!.OptionsJson.Should().Contain("src/Program.cs");
+            fixture.RepositoryManifestStore.ReplacedFiles.Should().Equal(file);
+        }
+
         private static ImportJob GetAddedImportJob(RequestImportHandlerFixture fixture)
         {
             fixture.ImportJobRepository
@@ -359,7 +393,7 @@ namespace Espada.Tests.Application.UseCases.Imports.Commands.RequestImport
         }
 
         [Fact]
-        public async Task Handle_WithoutAnyEmbeddingModel_ShouldRejectBeforeEnqueue()
+        public async Task Handle_WithoutAnyEmbeddingModel_ShouldEnqueueLexicalImport()
         {
             RequestImportHandlerFixture fixture = new();
             fixture.GivenSourceExists();
@@ -370,9 +404,10 @@ namespace Espada.Tests.Application.UseCases.Imports.Commands.RequestImport
             DomainResult<RequestImportResponse> result = await fixture.CreateHandler()
                 .Handle(command, TestContext.Current.CancellationToken);
 
-            result.ShouldFailWith(ImportJobApplicationErrors.EmbeddingModelRequired);
-            fixture.ImportJobRepository.AddCallCount.Should().Be(0);
-            fixture.UnitOfWork.SaveChangesCallCount.Should().Be(0);
+            result.ShouldSucceed();
+            fixture.ImportJobRepository.AddCallCount.Should().Be(1);
+            fixture.ImportJobRepository.AddedImportJob!.OptionsJson.Should().Contain("\"embeddingModel\":null");
+            fixture.UnitOfWork.SaveChangesCallCount.Should().Be(1);
         }
     }
 }

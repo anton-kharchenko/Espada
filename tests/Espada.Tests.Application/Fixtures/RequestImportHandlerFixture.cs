@@ -12,7 +12,13 @@ namespace Espada.Tests.Application.Fixtures
     {
         public SourceRepositorySpy SourceRepository { get; } = new();
 
+        public ProjectRepositorySpy ProjectRepository { get; } = new();
+
         public ImportJobRepositorySpy ImportJobRepository { get; } = new();
+
+        public RepositoryScannerStub RepositoryScanner { get; } = new();
+
+        public RepositoryManifestStoreSpy RepositoryManifestStore { get; } = new();
 
         public UnitOfWorkSpy UnitOfWork { get; } = new();
 
@@ -24,7 +30,10 @@ namespace Espada.Tests.Application.Fixtures
         {
             return new RequestImportCommandHandler(
                 SourceRepository,
+                ProjectRepository,
                 ImportJobRepository,
+                RepositoryScanner,
+                RepositoryManifestStore,
                 UnitOfWork,
                 ClockService,
                 new AllowImportAdmissionPolicy(),

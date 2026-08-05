@@ -99,9 +99,17 @@ namespace Espada.Daemon.Runtime
             }
 
             ProcessResult port = await RunDockerAsync(
-                ["port", _options.PostgresContainerName, "5432/tcp"], cancellationToken);
-            if (!port.Succeeded || !port.StandardOutput.Trim().EndsWith(
-                    $":{_options.PostgresPort}", StringComparison.Ordinal))
+                [
+                    "container", "inspect", "--format",
+                    "{{(index (index .HostConfig.PortBindings \"5432/tcp\") 0).HostPort}}",
+                    _options.PostgresContainerName
+                ],
+                cancellationToken);
+            if (!port.Succeeded
+                || !string.Equals(
+                    port.StandardOutput.Trim(),
+                    _options.PostgresPort.ToString(CultureInfo.InvariantCulture),
+                    StringComparison.Ordinal))
             {
                 throw new InvalidOperationException(
                     $"Container {_options.PostgresContainerName} is not mapped to configured port " +

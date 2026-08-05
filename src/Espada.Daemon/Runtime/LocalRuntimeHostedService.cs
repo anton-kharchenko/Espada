@@ -52,6 +52,7 @@ namespace Espada.Daemon.Runtime
                     status.Set("unhealthy");
                     stateStore.Write(CreateState("unhealthy", startedAtUtc, children.ProcessIds));
                     logger.LogError("Required child process {ChildName} exited unexpectedly.", exitedChild);
+                    Environment.ExitCode = 1;
                     applicationLifetime.StopApplication();
                 }
             }
@@ -63,6 +64,7 @@ namespace Espada.Daemon.Runtime
                 status.Set("unhealthy");
                 stateStore?.Write(CreateState("unhealthy", startedAtUtc, children.ProcessIds));
                 logger.LogCritical(exception, "Espada local runtime failed.");
+                Environment.ExitCode = 1;
                 applicationLifetime.StopApplication();
             }
             finally

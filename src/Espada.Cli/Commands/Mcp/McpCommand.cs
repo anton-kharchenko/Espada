@@ -1,3 +1,4 @@
+using Espada.Cli.Infrastructure;
 using Espada.Mcp;
 using System.CommandLine;
 using System.Globalization;
@@ -23,7 +24,10 @@ namespace Espada.Cli.Commands.Mcp
             stdio.Options.Add(ceilingOption);
             stdio.SetAction(async (parseResult, cancellationToken) =>
             {
+                LocalRuntimeClient runtime = new();
+                await runtime.StartAsync(cancellationToken);
                 List<string> arguments = [];
+                Add(arguments, "ConnectionStrings:Espada", runtime.CreateConnectionString());
                 Add(arguments, "Mcp:TrustedLocal:WorkspaceId",
                     parseResult.GetValue(workspaceOption)?.ToString("D"));
                 Add(arguments, "Mcp:TrustedLocal:ClientId", parseResult.GetValue(clientOption));

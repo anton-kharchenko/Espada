@@ -14,6 +14,12 @@ namespace Espada.Infrastructure.Repositories
             await dbContext.AgentProfiles.AddAsync(profile, cancellationToken);
         }
 
+        public async Task<AgentProfile?> GetByIdAsync(AgentProfileId profileId,
+            CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(profileId);
+            return await dbContext.AgentProfiles.FindAsync([profileId], cancellationToken);
+        }
         public async Task<IReadOnlyList<AgentProfile>> ListByWorkspaceIdAsync(WorkspaceId workspaceId,
             CancellationToken cancellationToken = default)
         {

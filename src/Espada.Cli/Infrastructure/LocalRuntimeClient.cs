@@ -84,6 +84,22 @@ namespace Espada.Cli.Infrastructure
                 : throw new InvalidOperationException("The local API key is unavailable. Start Espada first.");
         }
 
+        public string CreateConnectionString()
+        {
+            LocalRuntimeState state = ReadState()
+                                      ?? throw new InvalidOperationException("The local runtime state is unavailable. Start Espada first.");
+            if (!File.Exists(_paths.PasswordFile))
+            {
+                throw new InvalidOperationException("The local PostgreSQL password is unavailable. Start Espada first.");
+            }
+
+            string password = File.ReadAllText(_paths.PasswordFile).Trim();
+            return string.IsNullOrWhiteSpace(password)
+                ? throw new InvalidOperationException("The local PostgreSQL password file is empty.")
+                : $"Host=127.0.0.1;Port={state.PostgresPort};Database=Espada;Username=espada;"
+                  + $"Password={password};Include Error Detail=false";
+        }
+
         private static string ResolveDaemonExecutable()
         {
             string? configuredPath = Environment.GetEnvironmentVariable("ESPADA_DAEMON_PATH");

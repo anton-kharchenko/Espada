@@ -7,6 +7,7 @@ using Espada.Infrastructure.Options;
 using Espada.Infrastructure.Services;
 using Espada.Tests.Infrastructure.Ingestion.Fakes;
 using Microsoft.Extensions.Options;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Espada.Tests.Infrastructure.Ingestion
@@ -28,7 +29,7 @@ namespace Espada.Tests.Infrastructure.Ingestion
                     "text/plain");
 
                 IngestionException exception = await Assert.ThrowsAsync<IngestionException>(() =>
-                    reader.ReadAsync(definition, TestContext.Current.CancellationToken));
+                    reader.ReadAsync(definition, cancellationToken: TestContext.Current.CancellationToken));
 
                 Assert.Equal(JobFailureCategoryType.Permanent, exception.Category);
                 Assert.Equal("file_path_not_allowed", exception.Code);
@@ -51,7 +52,7 @@ namespace Espada.Tests.Infrastructure.Ingestion
 
                 IngestionException exception = await Assert.ThrowsAsync<IngestionException>(() => reader.ReadAsync(
                     new WebPageSourceDefinition(new Uri("https://127.0.0.1/private")),
-                    TestContext.Current.CancellationToken));
+                    cancellationToken: TestContext.Current.CancellationToken));
 
                 Assert.Equal("web_address_not_public", exception.Code);
             }
@@ -78,19 +79,51 @@ namespace Espada.Tests.Infrastructure.Ingestion
                 SourceReader reader = CreateReader(allowedRoot, blobRoot);
                 SourceReadResult result = await reader.ReadAsync(
                     new FileSourceDefinition(path, null, "source.txt", "text/plain"),
-                    TestContext.Current.CancellationToken);
+                    cancellationToken: TestContext.Current.CancellationToken);
                 await using (result.Content)
                 using (StreamReader streamReader = new(result.Content))
                 {
                     Assert.Equal(
                         "safe content",
                         await streamReader.ReadToEndAsync(
-                            TestContext.Current.CancellationToken));
+                            cancellationToken: TestContext.Current.CancellationToken));
                 }
             }
             finally
             {
                 DeleteTemporaryDirectory(allowedRoot);
+                DeleteTemporaryDirectory(blobRoot);
+            }
+        }
+
+        [Fact]
+        public async Task ReadRepositoryFile_WithMatchingManifest_ShouldReturnContent()
+        {
+            string root = CreateTemporaryDirectory();
+            string blobRoot = CreateTemporaryDirectory();
+            byte[] content = Encoding.UTF8.GetBytes("tracked content");
+            await File.WriteAllBytesAsync(Path.Join(root, "tracked.txt"), content,
+                TestContext.Current.CancellationToken);
+            try
+            {
+                RepositoryFileImportOptions file = new(root, "tracked.txt",
+                    Convert.ToHexStringLower(SHA256.HashData(content)), "tracked.txt", "text/plain", content.Length);
+                RepositorySourceDefinition definition = new(Guid.NewGuid().ToString("D"), null,
+                    new RepositoryScanPolicy());
+
+                SourceReadResult result = await CreateReader(root, blobRoot).ReadAsync(definition, file,
+                    TestContext.Current.CancellationToken);
+
+                await using (result.Content)
+                using (StreamReader reader = new(result.Content))
+                {
+                    Assert.Equal("tracked content", await reader.ReadToEndAsync(
+                        TestContext.Current.CancellationToken));
+                }
+            }
+            finally
+            {
+                DeleteTemporaryDirectory(root);
                 DeleteTemporaryDirectory(blobRoot);
             }
         }

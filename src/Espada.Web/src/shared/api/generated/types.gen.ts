@@ -122,11 +122,12 @@ export type ConsoleCreateArtifactRequest = {
     kindTypeId: number | string;
     instructionRules?: null | Array<InstructionRuleInput>;
     policyRules?: null | Array<PolicyRuleInput>;
+    isDraft?: boolean;
 };
 
 export type ConsoleCreateProjectRequest = {
     name: string;
-    canonicalRemoteUri: string;
+    canonicalRemoteUri: null | string;
     localAliases?: null | Array<string>;
 };
 
@@ -147,6 +148,7 @@ export type ConsoleReviseArtifactRequest = {
     content: string;
     instructionRules?: null | Array<InstructionRuleInput>;
     policyRules?: null | Array<PolicyRuleInput>;
+    isDraft?: boolean;
 };
 
 export type ConsoleSetBindingRequest = {
@@ -533,7 +535,7 @@ export type ProjectResponse = {
     id: string;
     workspaceId: string;
     name: string;
-    canonicalRemoteUri: string;
+    canonicalRemoteUri: null | string;
     localAliases: Array<string>;
     createdAtUtc: string;
     updatedAtUtc: string;

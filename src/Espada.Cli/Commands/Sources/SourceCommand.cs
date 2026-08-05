@@ -17,6 +17,7 @@ namespace Espada.Cli.Commands.Sources
             Option<string?> titleOption = new("--title") { Description = "Plain-text or conversation title." };
             Option<string?> mediaTypeOption = new("--media-type") { Description = "File media type." };
             Option<string?> remoteOption = new("--remote") { Description = "Canonical repository remote URI." };
+            Option<Guid> projectOption = new("--project-id") { Description = "Repository project ID." };
             Option<string?> jsonDefinitionOption = new("--definition-json")
             {
                 Description = "Typed source definition JSON for conversation or connector sources."
@@ -29,6 +30,7 @@ namespace Espada.Cli.Commands.Sources
             add.Options.Add(titleOption);
             add.Options.Add(mediaTypeOption);
             add.Options.Add(remoteOption);
+            add.Options.Add(projectOption);
             add.Options.Add(jsonDefinitionOption);
             add.SetAction(async (parseResult, cancellationToken) =>
             {
@@ -46,7 +48,8 @@ namespace Espada.Cli.Commands.Sources
                 {
                     definition = CreateDefinition(type, parseResult.GetValue(valueOption),
                         parseResult.GetValue(titleOption), parseResult.GetValue(mediaTypeOption),
-                        parseResult.GetValue(remoteOption), parseResult.GetValue(jsonDefinitionOption));
+                        parseResult.GetValue(remoteOption), parseResult.GetValue(projectOption),
+                        parseResult.GetValue(jsonDefinitionOption));
                 }
                 catch (Exception exception) when (exception is ArgumentException or JsonException)
                 {
@@ -75,7 +78,7 @@ namespace Espada.Cli.Commands.Sources
         }
 
         private static object CreateDefinition(string type, string? value, string? title, string? mediaType,
-            string? remote, string? definitionJson)
+            string? remote, Guid projectId, string? definitionJson)
         {
             if (!string.IsNullOrWhiteSpace(definitionJson))
             {
@@ -84,10 +87,10 @@ namespace Espada.Cli.Commands.Sources
 
             return type.ToLowerInvariant() switch
             {
-                "repository" when !string.IsNullOrWhiteSpace(value) => new
+                "repository" when projectId != Guid.Empty => new
                 {
                     type = "repository",
-                    repositoryIdentity = Path.GetFullPath(value),
+                    repositoryIdentity = projectId.ToString("D"),
                     canonicalRemoteUri = remote,
                     scanPolicy = new { trackedFilesOnly = true, maximumFileSizeBytes = 5_242_880 }
                 },
@@ -112,7 +115,8 @@ namespace Espada.Cli.Commands.Sources
                 },
                 "conversation" or "connector" => throw new ArgumentException(
                     "--definition-json is required for conversation and connector sources."),
-                _ => throw new ArgumentException("The source type or --value is invalid.")
+                _ => throw new ArgumentException(
+                    "The source type or required --value/--project-id option is invalid.")
             };
         }
     }

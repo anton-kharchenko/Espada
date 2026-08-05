@@ -20,9 +20,13 @@ namespace Espada.Application.ApplicationErrors
             "ImportJob.Idempotency.Conflict",
             "The idempotency key was already used with a different request payload.");
 
-        public static readonly DomainError EmbeddingModelRequired = new(
-            "ImportJob.EmbeddingModel.Required",
-            "An embedding model must be configured by the request or deployment.");
+        public static readonly DomainError RepositoryIdentityInvalid = new(
+            "ImportJob.Repository.IdentityInvalid",
+            "Repository source identity must contain its project ID.");
+
+        public static readonly DomainError RepositoryRootUnavailable = new(
+            "ImportJob.Repository.RootUnavailable",
+            "No accessible local path is registered for the repository project.");
 
         public static DomainError NotFound(Guid importJobId)
         {

@@ -7,7 +7,10 @@ import { MutationFeedback, PageState, ResourceQueryState } from 'shared/ui';
 
 const projectFormSchema = z.object({
   name: z.string().trim().min(1, 'Project name is required.').max(200),
-  canonicalRemoteUri: z.string().trim().url('Enter an absolute repository URL.'),
+  canonicalRemoteUri: z
+    .string()
+    .trim()
+    .refine((value) => value.length === 0 || z.url().safeParse(value).success, 'Enter an absolute repository URL.'),
   localAliases: z.string(),
 });
 
@@ -39,7 +42,7 @@ export const ProjectsPage = ({ workspaceId, readOnly }: ProjectsPageProps) => {
     try {
       await createProject.mutateAsync({
         name: values.name,
-        canonicalRemoteUri: values.canonicalRemoteUri,
+        canonicalRemoteUri: values.canonicalRemoteUri || null,
         localAliases: values.localAliases
           .split(/\r?\n/)
           .map((value) => value.trim())
@@ -85,7 +88,7 @@ export const ProjectsPage = ({ workspaceId, readOnly }: ProjectsPageProps) => {
               <article className="resource-card" key={project.id}>
                 <div>
                   <h3>{project.name}</h3>
-                  <p className="resource-mono">{project.canonicalRemoteUri}</p>
+                  <p className="resource-mono">{project.canonicalRemoteUri ?? 'Local-only project'}</p>
                 </div>
                 <dl className="resource-meta">
                   <div>
@@ -120,7 +123,7 @@ export const ProjectsPage = ({ workspaceId, readOnly }: ProjectsPageProps) => {
             {errors.name && <span className="field-error">{errors.name.message}</span>}
           </label>
           <label>
-            Canonical remote URI
+            Canonical remote URI (optional)
             <input
               {...register('canonicalRemoteUri')}
               aria-invalid={Boolean(errors.canonicalRemoteUri)}

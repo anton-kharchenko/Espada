@@ -20,7 +20,7 @@ const projectSchema = z.object({
   id: z.string(),
   workspaceId: z.string(),
   name: z.string(),
-  canonicalRemoteUri: z.string(),
+  canonicalRemoteUri: z.string().nullable(),
   localAliases: z.array(z.string()),
   createdAtUtc: z.string(),
   updatedAtUtc: z.string(),

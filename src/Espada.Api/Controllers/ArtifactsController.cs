@@ -23,7 +23,8 @@ namespace Espada.Api.Controllers
             CancellationToken cancellationToken)
         {
             DomainResult<CreateArtifactResponse> result = await mediator.Send(
-                new CreateArtifactCommand(workspaceId, request.Title, request.TypeId, request.Content),
+                new CreateArtifactCommand(workspaceId, request.Title, request.TypeId, request.Content,
+                    IsDraft: request.IsDraft),
                 cancellationToken);
 
             return result.IsFailure

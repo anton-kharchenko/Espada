@@ -33,12 +33,17 @@ namespace Espada.Tests.Architecture
                 ["Espada.Application"] = ["Espada.Domain"],
                 ["Espada.AgentAdapters"] = ["Espada.Application"],
                 ["Espada.Billing"] = ["Espada.Application", "Espada.Domain"],
-                ["Espada.Infrastructure"] = ["Espada.Application", "Espada.Billing", "Espada.Db", "Espada.Domain"],
+                ["Espada.Infrastructure"] =
+                [
+                    "Espada.Application", "Espada.Billing", "Espada.Db", "Espada.Domain", "Espada.Protocol.Sync"
+                ],
                 ["Espada.Db"] = ["Espada.Domain"],
                 ["Espada.DeploymentKit"] = [],
                 ["Espada.Deployment"] = ["Espada.DeploymentKit"],
                 ["Espada.Api.Contracts"] = ["Espada.Domain"],
                 ["Espada.Protocol.Mcp"] = ["Espada.AgentAdapters", "Espada.Application"],
+                ["Espada.Protocol.Sync"] = ["Espada.Application", "Espada.Domain"],
+                ["Espada.LocalSetup"] = ["Espada.Application", "Espada.Domain", "Espada.Infrastructure"],
                 ["Espada.Mcp"] =
                 [
                     "Espada.Application", "Espada.Infrastructure", "Espada.Protocol.Mcp", "Espada.ServiceDefaults"
@@ -54,6 +59,8 @@ namespace Espada.Tests.Architecture
                     "Espada.Comms.Core",
                     "Espada.Domain",
                     "Espada.Infrastructure",
+                    "Espada.LocalSetup",
+                    "Espada.Protocol.Sync",
                     "Espada.ServiceDefaults"
                 ],
                 ["Espada.Worker"] =

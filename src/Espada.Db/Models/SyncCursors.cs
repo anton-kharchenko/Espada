@@ -22,6 +22,9 @@ namespace Espada.Db.Models
         [Column(TypeName = DbTextColumnTypeConstants.CharacterVarying500)]
         public string ServerCursor { get; set; } = string.Empty;
 
+        [Column(TypeName = DbNumericColumnTypeConstants.BigInt)]
+        public long LastPushedSequence { get; set; }
+
         [Column(TypeName = DbDateTimeColumnTypeConstants.TimestampWithTimeZone)]
         public DateTimeOffset UpdatedAtUtc { get; set; }
 

@@ -16,7 +16,8 @@ namespace Espada.Cli
         {
             Option<bool> jsonOption = new("--json")
             {
-                Description = "Write machine-readable JSON output."
+                Description = "Write machine-readable JSON output.",
+                Recursive = true
             };
             RootCommand root = new("Espada command-line interface");
             root.Options.Add(jsonOption);

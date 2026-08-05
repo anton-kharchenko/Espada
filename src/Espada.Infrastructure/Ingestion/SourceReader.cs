@@ -9,6 +9,7 @@ using Espada.Infrastructure.Options;
 using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Espada.Infrastructure.Ingestion
@@ -22,6 +23,7 @@ namespace Espada.Infrastructure.Ingestion
         private readonly IngestionOptions _options = options.Value;
 
         public async Task<SourceReadResult> ReadAsync(SourceDefinition definition,
+            RepositoryFileImportOptions? repositoryFile = null,
             CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(definition);
@@ -41,6 +43,11 @@ namespace Espada.Infrastructure.Ingestion
                     ConnectorSourceDefinition connector => FromUtf8(
                         await connectorSourceClient.ReadAsync(connector, timeout.Token),
                         $"{connector.PluginId}-{connector.Resource}.txt", IngestionMediaTypeConstants.PlainText),
+                    RepositorySourceDefinition when repositoryFile is not null =>
+                        await ReadRepositoryFileAsync(repositoryFile, timeout.Token),
+                    RepositorySourceDefinition => throw new IngestionException(JobFailureCategoryType.Poison,
+                        IngestionFailureCodeConstants.RepositoryFileInvalid,
+                        "Repository imports require a manifest file context."),
                     LegacySourceDefinition => throw new IngestionException(JobFailureCategoryType.Permanent,
                         IngestionFailureCodeConstants.LegacySourceUnsupported,
                         "Legacy source definitions must be registered again."),
@@ -72,6 +79,37 @@ namespace Espada.Infrastructure.Ingestion
             }
 
             return result;
+        }
+
+        private async Task<SourceReadResult> ReadRepositoryFileAsync(RepositoryFileImportOptions file,
+            CancellationToken cancellationToken)
+        {
+            string? path = RepositoryPathResolver.Resolve(file.RepositoryRoot, file.RelativePath);
+            if (path is null || !File.Exists(path))
+            {
+                throw new IngestionException(JobFailureCategoryType.Permanent,
+                    IngestionFailureCodeConstants.RepositoryFileInvalid,
+                    "Repository file is missing or outside its registered root.");
+            }
+
+            FileInfo info = new(path);
+            if (info.Length != file.SizeInBytes || info.Length > _options.MaximumRawBytes)
+            {
+                throw new IngestionException(JobFailureCategoryType.Transient,
+                    IngestionFailureCodeConstants.RepositoryFileChanged,
+                    "Repository file changed after manifest reconciliation.");
+            }
+
+            byte[] content = await File.ReadAllBytesAsync(path, cancellationToken);
+            string hash = Convert.ToHexStringLower(SHA256.HashData(content));
+            if (!string.Equals(hash, file.ContentHash, StringComparison.Ordinal))
+            {
+                throw new IngestionException(JobFailureCategoryType.Transient,
+                    IngestionFailureCodeConstants.RepositoryFileChanged,
+                    "Repository file changed after manifest reconciliation.");
+            }
+
+            return new SourceReadResult(new MemoryStream(content, false), file.FileName, file.MediaType);
         }
 
         private async Task<SourceReadResult> ReadFileAsync(FileSourceDefinition definition,

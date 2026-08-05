@@ -23,6 +23,8 @@ namespace Espada.Application.Constants
         public const string FileNotFound = "file_not_found";
         public const string FilePathNotAllowed = "file_path_not_allowed";
         public const string FileReparsePointRejected = "file_reparse_point_rejected";
+        public const string RepositoryFileChanged = "repository_file_changed";
+        public const string RepositoryFileInvalid = "repository_file_invalid";
         public const string InsecureRedirect = "insecure_redirect";
         public const string InvalidRedirect = "invalid_redirect";
         public const string LegacySourceUnsupported = "legacy_source_unsupported";

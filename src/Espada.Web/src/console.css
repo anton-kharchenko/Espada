@@ -995,3 +995,133 @@
     grid-template-columns: 1fr;
   }
 }
+
+.agent-session-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.72fr) minmax(0, 1.65fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+.agent-prompt-panel {
+  position: sticky;
+  top: 84px;
+}
+.agent-options {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.agent-options legend {
+  margin-bottom: 0.55rem;
+  font-weight: 700;
+}
+.agent-options label {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.55rem;
+  align-items: center;
+  margin: 0;
+  padding: 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.agent-options small {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+.agent-session-dashboard {
+  min-width: 0;
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.agent-session-tabs {
+  display: flex;
+  gap: 0.55rem;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+.agent-session-tabs button {
+  min-width: 130px;
+  padding: 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: inherit;
+  background: transparent;
+  text-align: left;
+}
+.agent-session-tabs button[aria-selected='true'] {
+  border-color: var(--accent);
+  background: var(--surface-strong);
+}
+.agent-session-tabs span {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.agent-session-actions,
+.approval-card > div:last-child {
+  display: flex;
+  gap: 0.55rem;
+  align-items: center;
+}
+.agent-session-actions {
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+.agent-session-actions code {
+  min-width: 0;
+  margin-right: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.approval-card {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--warning);
+  border-radius: 10px;
+  background: var(--surface-strong);
+}
+.agent-timeline {
+  display: grid;
+  gap: 0.75rem;
+}
+.agent-event {
+  padding: 0.9rem;
+  border-left: 3px solid var(--line-strong);
+  background: var(--surface-strong);
+}
+.agent-event header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.agent-event time {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.agent-event pre,
+.approval-card pre {
+  max-height: 320px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.event-approvalrequest {
+  border-left-color: var(--warning);
+}
+.event-error {
+  border-left-color: var(--danger);
+}
+@media (max-width: 860px) {
+  .agent-session-layout {
+    grid-template-columns: 1fr;
+  }
+  .agent-prompt-panel {
+    position: static;
+  }
+}

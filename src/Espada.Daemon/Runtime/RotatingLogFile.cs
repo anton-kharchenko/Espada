@@ -17,7 +17,8 @@ namespace Espada.Daemon.Runtime
             }
 
             return new StreamWriter(new FileStream(path, FileMode.Append, FileAccess.Write, FileShare.Read),
-                new UTF8Encoding(false)) { AutoFlush = true };
+                new UTF8Encoding(false))
+            { AutoFlush = true };
         }
 
         private static void Rotate(string path)

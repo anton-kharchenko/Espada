@@ -38,6 +38,8 @@ namespace Espada.Infrastructure.Database
 
         public DbSet<SyncEvent> SyncEvents => Set<SyncEvent>();
 
+        internal DbSet<SyncDeviceRegistrations> SyncDeviceRegistrations => Set<SyncDeviceRegistrations>();
+
         public DbSet<SyncCursor> SyncCursors => Set<SyncCursor>();
 
         public DbSet<SyncConflict> SyncConflicts => Set<SyncConflict>();
@@ -57,6 +59,8 @@ namespace Espada.Infrastructure.Database
         public DbSet<ChunkEmbedding> ChunkEmbeddings => Set<ChunkEmbedding>();
 
         internal DbSet<EmbeddingVectorRecord> EmbeddingVectors => Set<EmbeddingVectorRecord>();
+
+        internal DbSet<RepositoryManifestEntries> RepositoryManifestEntries => Set<RepositoryManifestEntries>();
 
         internal DbSet<OutboxMessageRecord> OutboxMessages => Set<OutboxMessageRecord>();
 
@@ -139,6 +143,7 @@ namespace Espada.Infrastructure.Database
             modelBuilder.ApplyConfiguration(new AgentSessionEventConfiguration());
             modelBuilder.ApplyConfiguration(new AgentApprovalConfiguration());
             modelBuilder.ApplyConfiguration(new SyncEventConfiguration());
+            modelBuilder.ApplyConfiguration(new SyncDeviceRegistrationConfiguration());
             modelBuilder.ApplyConfiguration(new SyncCursorConfiguration());
             modelBuilder.ApplyConfiguration(new SyncConflictConfiguration());
             modelBuilder.ApplyConfiguration<Source>(new SourceConfiguration());
@@ -149,6 +154,7 @@ namespace Espada.Infrastructure.Database
             modelBuilder.ApplyConfiguration<Chunk>(new ChunkConfiguration());
             modelBuilder.ApplyConfiguration<ChunkEmbedding>(new ChunkEmbeddingConfiguration());
             modelBuilder.ApplyConfiguration<EmbeddingVectorRecord>(new EmbeddingVectorRecordConfiguration());
+            modelBuilder.ApplyConfiguration(new RepositoryManifestEntryConfiguration());
             modelBuilder.ApplyConfiguration(new IngestionJobConfiguration());
             modelBuilder.ApplyConfiguration<OutboxMessageRecord>(new OutboxMessageConfiguration());
             modelBuilder.ApplyConfiguration(new BillingCustomerConfiguration());

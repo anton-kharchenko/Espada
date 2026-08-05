@@ -85,6 +85,23 @@ namespace Espada.Domain.Aggregates
             return DomainResult<Artifact>.Success(artifact);
         }
 
+        public static DomainResult<Artifact> CreateDraft(
+            ArtifactId id,
+            WorkspaceId workspaceId,
+            ArtifactTitle title,
+            ArtifactKindType kindType,
+            ArtifactType type,
+            DateTimeOffset createdAtUtc)
+        {
+            DomainResult<Artifact> result = Create(id, workspaceId, title, kindType, type, createdAtUtc);
+            if (result.IsSuccess)
+            {
+                result.Value.Status = ArtifactStatusType.Draft;
+            }
+
+            return result;
+        }
+
         public DomainResult Rename(ArtifactTitle title, DateTimeOffset renamedAtUtc)
         {
             ArgumentNullException.ThrowIfNull(title);

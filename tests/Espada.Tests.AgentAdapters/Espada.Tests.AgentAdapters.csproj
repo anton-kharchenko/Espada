@@ -20,6 +20,7 @@
     <ItemGroup>
         <ProjectReference Include="..\..\src\Espada.AgentAdapters\Espada.AgentAdapters.csproj"/>
         <ProjectReference Include="..\..\src\Espada.Application\Espada.Application.csproj"/>
+        <ProjectReference Include="..\..\src\Espada.Domain\Espada.Domain.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

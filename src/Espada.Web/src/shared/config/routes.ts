@@ -26,6 +26,7 @@ export const APP_ROUTE_PATHS = {
 export type WorkspaceSectionKey =
   | 'overview'
   | 'projects'
+  | 'agent-sessions'
   | 'tasks'
   | 'instructions'
   | 'policies'

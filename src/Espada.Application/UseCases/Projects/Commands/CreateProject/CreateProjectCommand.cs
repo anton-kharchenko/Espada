@@ -6,6 +6,6 @@ namespace Espada.Application.UseCases.Projects.Commands.CreateProject
     public sealed record CreateProjectCommand(
         Guid WorkspaceId,
         string Name,
-        string CanonicalRemoteUri,
+        string? CanonicalRemoteUri,
         IReadOnlyList<string>? LocalAliases = null) : ICommand<ProjectResponse>;
 }

@@ -78,13 +78,21 @@ namespace Espada.Application.UseCases.Artifacts.Commands.CreateArtifact
             }
 
             DateTimeOffset createdAtUtc = clockService.UtcNow;
-            DomainResult<Artifact> artifactResult = Artifact.Create(
-                ArtifactId.Create(Guid.NewGuid()),
-                workspace.Id,
-                titleResult.Value,
-                kindType,
-                artifactType,
-                createdAtUtc);
+            DomainResult<Artifact> artifactResult = request.IsDraft
+                ? Artifact.CreateDraft(
+                    ArtifactId.Create(Guid.NewGuid()),
+                    workspace.Id,
+                    titleResult.Value,
+                    kindType,
+                    artifactType,
+                    createdAtUtc)
+                : Artifact.Create(
+                    ArtifactId.Create(Guid.NewGuid()),
+                    workspace.Id,
+                    titleResult.Value,
+                    kindType,
+                    artifactType,
+                    createdAtUtc);
             if (artifactResult.IsFailure)
             {
                 return DomainResult.Failure<CreateArtifactResponse>(artifactResult.Error);

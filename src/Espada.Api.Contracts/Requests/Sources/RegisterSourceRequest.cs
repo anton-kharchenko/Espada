@@ -1,4 +1,4 @@
-using Espada.Api.Contracts.Serialization;
+using Espada.Api.Contracts.Convertors;
 using Espada.Domain.ValueObjects.SourceDefinitions;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;

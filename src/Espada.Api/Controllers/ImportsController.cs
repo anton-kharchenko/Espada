@@ -30,12 +30,20 @@ namespace Espada.Api.Controllers
                 mapper.Map<RequestImportCommand>(new RequestImportMappingSource(workspaceId, idempotencyKey, request));
             DomainResult<RequestImportResponse> result = await mediator.Send(command, cancellationToken);
 
-            return result.IsFailure
-                ? HandleError(result.Error)
-                : AcceptedAtAction(
-                    nameof(GetById),
-                    new { workspaceId, importJobId = result.Value.ImportJobId, version = ApiVersionConstants.V1 },
-                    result.Value);
+            if (result.IsFailure)
+            {
+                return HandleError(result.Error);
+            }
+
+            return result.Value.ImportJobId.HasValue
+                ? AcceptedAtAction(nameof(GetById),
+                    new
+                    {
+                        workspaceId,
+                        importJobId = result.Value.ImportJobId.Value,
+                        version = ApiVersionConstants.V1
+                    }, result.Value)
+                : Accepted(result.Value);
         }
 
         [HttpPost("{importJobId:guid}/cancel")]

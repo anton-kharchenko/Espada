@@ -6,6 +6,8 @@ namespace Espada.Application.Contracts.Persistence
     public interface IAgentInstallationRepository
     {
         Task AddAsync(AgentInstallation installation, CancellationToken cancellationToken = default);
+        Task<AgentInstallation?> GetByDeviceAndVendorAsync(DeviceId deviceId, int vendorId,
+            CancellationToken cancellationToken = default);
         Task<IReadOnlyList<AgentInstallation>> ListByDeviceIdAsync(DeviceId deviceId,
             CancellationToken cancellationToken = default);
     }

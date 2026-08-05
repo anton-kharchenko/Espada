@@ -38,12 +38,14 @@ namespace Espada.Daemon.Runtime
             {
                 SecurityIdentifier currentUser = WindowsIdentity.GetCurrent().User
                     ?? throw new InvalidOperationException("Current Windows user SID is unavailable.");
-                FileSecurity security = new();
-                security.SetOwner(currentUser);
+                FileInfo file = new(path);
+                FileSecurity security = file.GetAccessControl();
                 security.SetAccessRuleProtection(true, false);
-                security.AddAccessRule(new FileSystemAccessRule(currentUser, FileSystemRights.FullControl,
+                security.SetAccessRule(new FileSystemAccessRule(
+                    currentUser,
+                    FileSystemRights.FullControl,
                     AccessControlType.Allow));
-                new FileInfo(path).SetAccessControl(security);
+                file.SetAccessControl(security);
                 return;
             }
 

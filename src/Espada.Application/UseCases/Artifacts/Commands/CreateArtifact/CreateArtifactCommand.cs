@@ -11,5 +11,6 @@ namespace Espada.Application.UseCases.Artifacts.Commands.CreateArtifact
         int KindTypeId = 1,
         IReadOnlyList<InstructionRuleInput>? InstructionRules = null,
         IReadOnlyList<PolicyRuleInput>? PolicyRules = null,
-        bool AllowPolicyMutation = false) : ICommand<CreateArtifactResponse>;
+        bool AllowPolicyMutation = false,
+        bool IsDraft = false) : ICommand<CreateArtifactResponse>;
 }

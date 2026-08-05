@@ -42,8 +42,10 @@ namespace Espada.Db.Database
         public DbSet<AgentSessionEvents> AgentSessionEvents => Set<AgentSessionEvents>();
         public DbSet<AgentApprovals> AgentApprovals => Set<AgentApprovals>();
         public DbSet<SyncEvents> SyncEvents => Set<SyncEvents>();
+        public DbSet<SyncDeviceRegistrations> SyncDeviceRegistrations => Set<SyncDeviceRegistrations>();
         public DbSet<SyncCursors> SyncCursors => Set<SyncCursors>();
         public DbSet<SyncConflicts> SyncConflicts => Set<SyncConflicts>();
+        public DbSet<RepositoryManifestEntries> RepositoryManifestEntries => Set<RepositoryManifestEntries>();
         public DbSet<AgentVendorTypes> AgentVendorTypes => Set<AgentVendorTypes>();
         public DbSet<AgentSessionStatusTypes> AgentSessionStatusTypes => Set<AgentSessionStatusTypes>();
         public DbSet<AgentSessionEventTypes> AgentSessionEventTypes => Set<AgentSessionEventTypes>();

@@ -11,6 +11,7 @@
         <ProjectReference Include="..\Espada.Application\Espada.Application.csproj"/>
         <ProjectReference Include="..\Espada.Db\Espada.Db.csproj"/>
         <ProjectReference Include="..\Espada.Domain\Espada.Domain.csproj"/>
+        <ProjectReference Include="..\Espada.Protocol.Sync\Espada.Protocol.Sync.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -30,6 +31,7 @@
         <PackageReference Include="OpenIddict.EntityFrameworkCore"/>
         <PackageReference Include="Pgvector"/>
         <PackageReference Include="Pgvector.EntityFrameworkCore"/>
+        <PackageReference Include="System.Security.Cryptography.ProtectedData"/>
         <PackageReference Include="Microsoft.Extensions.Http"/>
         <PackageReference Include="ModelContextProtocol"/>
         <PackageReference Include="Microsoft.Extensions.Options"/>

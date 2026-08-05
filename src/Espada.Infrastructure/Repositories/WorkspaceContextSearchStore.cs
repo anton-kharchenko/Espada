@@ -153,9 +153,9 @@ namespace Espada.Infrastructure.Repositories
                             NpgsqlTsRankingNormalization.DivideByItselfPlusOne),
                     artifact.Priority,
                     sourcePriority);
-            query = query.Concat(revisionQuery);
-
-            SearchCandidate[] candidates = await query.ToArrayAsync(cancellationToken);
+            SearchCandidate[] chunkCandidates = await query.ToArrayAsync(cancellationToken);
+            SearchCandidate[] revisionCandidates = await revisionQuery.ToArrayAsync(cancellationToken);
+            SearchCandidate[] candidates = [.. chunkCandidates, .. revisionCandidates];
             Dictionary<Guid, double> similaritiesByChunkId = [];
             if (hasQueryVector && candidates.Length > 0)
             {

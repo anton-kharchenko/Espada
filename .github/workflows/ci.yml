@@ -79,3 +79,51 @@ jobs:
           path: artifacts/test-results
           if-no-files-found: warn
           retention-days: 14
+
+  package-local-runtime:
+    name: Package ${{ matrix.rid }}
+    needs: build-and-test
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            rid: win-x64
+          - os: ubuntu-latest
+            rid: linux-x64
+          - os: macos-13
+            rid: osx-x64
+          - os: macos-14
+            rid: osx-arm64
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: src/Espada.Web/package-lock.json
+
+      - name: Build local runtime package
+        shell: pwsh
+        run: ./eng/Publish-LocalRuntime.ps1 -RuntimeIdentifier ${{ matrix.rid }}
+
+      - name: Upload local runtime package
+        uses: actions/upload-artifact@v7
+        with:
+          name: espada-${{ matrix.rid }}
+          path: |
+            artifacts/packages/espada-${{ matrix.rid }}.zip
+            artifacts/packages/espada-${{ matrix.rid }}.tar.gz
+          if-no-files-found: error
+          retention-days: 14

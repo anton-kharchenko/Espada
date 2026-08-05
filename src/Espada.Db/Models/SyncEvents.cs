@@ -11,6 +11,9 @@ namespace Espada.Db.Models
         [Column(TypeName = DbIdentifierColumnTypeConstants.Uuid)]
         public Guid EventId { get; set; }
 
+        [Column(TypeName = DbNumericColumnTypeConstants.BigInt)]
+        public long ServerSequence { get; set; }
+
         [Column(TypeName = DbIdentifierColumnTypeConstants.Uuid)]
         public Guid DeviceId { get; set; }
 

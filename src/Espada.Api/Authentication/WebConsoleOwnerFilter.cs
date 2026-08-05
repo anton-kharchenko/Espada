@@ -1,5 +1,5 @@
 using Espada.Api.Authentication.Constants;
-using Espada.Api.WebConsole;
+using Espada.Api.Extensions;
 using Espada.Application.Contracts.Persistence;
 using Espada.Domain.ValueObjects;
 using System.Security.Claims;

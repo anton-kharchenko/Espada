@@ -76,6 +76,7 @@ namespace Espada.Tests.E2E.Api
             Assert.Equal(-25, source.Priority);
 
             RequestImportResponse requestedImport = await RequestImportAsync(client, workspace.Id, source.Id);
+            Guid importJobId = Assert.IsType<Guid>(requestedImport.ImportJobId);
 
             CreateArtifactResponse createdArtifact =
                 await http.PostAsync<CreateArtifactRequest, CreateArtifactResponse>(
@@ -92,11 +93,11 @@ namespace Espada.Tests.E2E.Api
                 TestContext.Current.CancellationToken), HttpStatusCode.NoContent);
 
             GetImportByIdResponse pendingImport = await http.GetAsync<GetImportByIdResponse>(
-                E2ERoutes.Import(workspace.Id, requestedImport.ImportJobId));
+                E2ERoutes.Import(workspace.Id, importJobId));
             Assert.Equal(ImportStatusType.Requested.Id, pendingImport.StatusId);
             await http.AssertStatusAsync(
                 await client.PostAsync(
-                    E2ERoutes.CancelImport(workspace.Id, requestedImport.ImportJobId),
+                    E2ERoutes.CancelImport(workspace.Id, importJobId),
                     null,
                     TestContext.Current.CancellationToken),
                 HttpStatusCode.NoContent);
@@ -241,11 +242,12 @@ namespace Espada.Tests.E2E.Api
 
             RequestImportResponse requestedImport =
                 await RequestImportAsync(client, firstWorkspace.WorkspaceId, source.SourceId);
+            Guid importJobId = Assert.IsType<Guid>(requestedImport.ImportJobId);
             await http.AssertStatusAsync(
                 await client.PostAsync(
                     E2ERoutes.CancelImport(
                         firstWorkspace.WorkspaceId,
-                        requestedImport.ImportJobId),
+                        importJobId),
                     null,
                     TestContext.Current.CancellationToken),
                 HttpStatusCode.NoContent);
@@ -253,7 +255,7 @@ namespace Espada.Tests.E2E.Api
                 await client.PostAsync(
                     E2ERoutes.CancelImport(
                         firstWorkspace.WorkspaceId,
-                        requestedImport.ImportJobId),
+                        importJobId),
                     null,
                     TestContext.Current.CancellationToken),
                 HttpStatusCode.Conflict);
