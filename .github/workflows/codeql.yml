@@ -31,10 +31,20 @@ jobs:
     timeout-minutes: 30
 
     steps:
+      # SARIF upload requires a public repository or GitHub Advanced Security on private repos.
+      # Without that, analyze fails at upload even when extraction succeeds.
+      - name: Skip when code scanning cannot upload results
+        if: ${{ github.event.repository.private }}
+        run: |
+          echo "Skipping CodeQL: private repositories need GitHub Advanced Security to upload code scanning results."
+          echo "Make the repository public or enable Advanced Security, then re-run this workflow."
+
       - name: Checkout repository
+        if: ${{ !github.event.repository.private }}
         uses: actions/checkout@v7
 
       - name: Setup .NET
+        if: ${{ !github.event.repository.private }}
         uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
@@ -44,6 +54,7 @@ jobs:
             **/packages.lock.json
 
       - name: Initialize CodeQL
+        if: ${{ !github.event.repository.private }}
         uses: github/codeql-action/init@v4
         with:
           languages: csharp
@@ -51,8 +62,8 @@ jobs:
           config-file: ./.github/codeql/codeql-config.yml
           queries: security-and-quality
 
-
       - name: Perform CodeQL analysis
+        if: ${{ !github.event.repository.private }}
         uses: github/codeql-action/analyze@v4
         with:
           category: "/language:csharp"
