@@ -17,5 +17,14 @@ namespace Espada.Domain.Enums
         public static readonly MemoryCategoryType Observation = new(6, nameof(Observation));
 
         public static readonly MemoryCategoryType Warning = new(7, nameof(Warning));
+        public override bool Equals(object? obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }

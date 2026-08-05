@@ -17,5 +17,14 @@ namespace Espada.Domain.Enums
         public static readonly ImportPipelineStageType EmbedAndIndex = new(6, nameof(EmbedAndIndex));
 
         public static readonly ImportPipelineStageType Complete = new(7, nameof(Complete));
+        public override bool Equals(object? obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }

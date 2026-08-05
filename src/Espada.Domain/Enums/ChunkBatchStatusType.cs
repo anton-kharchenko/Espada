@@ -11,5 +11,14 @@ namespace Espada.Domain.Enums
         public static readonly ChunkBatchStatusType Succeeded = new(3, nameof(Succeeded));
 
         public static readonly ChunkBatchStatusType Failed = new(4, nameof(Failed));
+        public override bool Equals(object? obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }

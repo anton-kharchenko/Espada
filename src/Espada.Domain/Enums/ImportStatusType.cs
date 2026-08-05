@@ -13,5 +13,14 @@ namespace Espada.Domain.Enums
         public static readonly ImportStatusType Failed = new(4, nameof(Failed));
 
         public static readonly ImportStatusType Cancelled = new(5, nameof(Cancelled));
+        public override bool Equals(object? obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }

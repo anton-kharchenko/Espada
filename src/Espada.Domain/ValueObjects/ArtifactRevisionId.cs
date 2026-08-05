@@ -28,6 +28,16 @@ namespace Espada.Domain.ValueObjects
             yield return Value;
         }
 
+        public override bool Equals(object? obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
         public override string ToString()
         {
             return Value.ToString("D");

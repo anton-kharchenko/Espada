@@ -9,5 +9,14 @@ namespace Espada.Domain.Enums
         public static readonly TaskStatusType Completed = new(2, "completed");
 
         public static readonly TaskStatusType Archived = new(3, "archived");
+        public override bool Equals(object? obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }
