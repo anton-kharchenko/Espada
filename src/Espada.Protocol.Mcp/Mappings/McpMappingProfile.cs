@@ -124,6 +124,8 @@ namespace Espada.Protocol.Mcp.Mappings
                     Deserialize<PlainTextSourceDefinition>(json),
                 SourceDefinitionDiscriminatorConstants.Conversation =>
                     Deserialize<ConversationSourceDefinition>(json),
+                SourceDefinitionDiscriminatorConstants.Repository =>
+                    Deserialize<RepositorySourceDefinition>(json),
                 SourceDefinitionDiscriminatorConstants.Connector =>
                     Deserialize<ConnectorSourceDefinition>(json),
                 _ => throw new JsonException(

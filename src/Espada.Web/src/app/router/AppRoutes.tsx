@@ -3,6 +3,7 @@ import { ProtectedConsoleRoute } from 'features/session';
 import { AccountPage } from 'pages/account';
 import { LandingPage } from 'pages/landing';
 import { PricingPage } from 'pages/pricing';
+import { SetupPage } from 'pages/setup';
 import { WorkspacePage } from 'pages/workspace';
 import { APP_ROUTE_PATHS, DEFAULT_WORKSPACE_SECTION_PATH, ROUTES, workspaceSections } from 'shared/config';
 import { ConsoleShell } from 'widgets';
@@ -13,6 +14,9 @@ export const AppRoutes = () => {
     <Routes>
       <Route path={ROUTES.home} element={<LandingPage />} />
       <Route path={ROUTES.pricing} element={<PricingPage />} />
+      <Route path={ROUTES.setup} element={<ProtectedConsoleRoute />}>
+        <Route index element={<SetupPage />} />
+      </Route>
       <Route path={ROUTES.app} element={<ProtectedConsoleRoute />}>
         <Route index element={<WorkspaceRedirect />} />
         <Route element={<ConsoleShell />}>

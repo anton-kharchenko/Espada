@@ -2,6 +2,7 @@ using Espada.Application.Contracts.Persistence;
 using Espada.Db.Constants;
 using Espada.Db.Models;
 using Espada.Domain.Aggregates;
+using Espada.Domain.Entities;
 using Espada.Domain.Rules;
 using Espada.Domain.SeedWork;
 using Espada.Infrastructure.Database.EntityFrameworkConfigurations;
@@ -22,6 +23,24 @@ namespace Espada.Infrastructure.Database
         public DbSet<PolicyRule> PolicyRules => Set<PolicyRule>();
         public DbSet<MemoryMetadata> MemoryMetadata => Set<MemoryMetadata>();
         public DbSet<WorkspaceMembership> WorkspaceMemberships => Set<WorkspaceMembership>();
+
+        public DbSet<AgentProfile> AgentProfiles => Set<AgentProfile>();
+
+        public DbSet<AgentInstallation> AgentInstallations => Set<AgentInstallation>();
+
+        public DbSet<Device> Devices => Set<Device>();
+
+        public DbSet<AgentSession> AgentSessions => Set<AgentSession>();
+
+        public DbSet<AgentSessionEvent> AgentSessionEvents => Set<AgentSessionEvent>();
+
+        public DbSet<AgentApproval> AgentApprovals => Set<AgentApproval>();
+
+        public DbSet<SyncEvent> SyncEvents => Set<SyncEvent>();
+
+        public DbSet<SyncCursor> SyncCursors => Set<SyncCursor>();
+
+        public DbSet<SyncConflict> SyncConflicts => Set<SyncConflict>();
 
         public DbSet<Source> Sources => Set<Source>();
 
@@ -113,6 +132,15 @@ namespace Espada.Infrastructure.Database
             modelBuilder.ApplyConfiguration(new PolicyRuleConfiguration());
             modelBuilder.ApplyConfiguration(new MemoryMetadataConfiguration());
             modelBuilder.ApplyConfiguration<WorkspaceMembership>(new WorkspaceMembershipConfiguration());
+            modelBuilder.ApplyConfiguration(new AgentProfileConfiguration());
+            modelBuilder.ApplyConfiguration(new AgentInstallationConfiguration());
+            modelBuilder.ApplyConfiguration(new DeviceConfiguration());
+            modelBuilder.ApplyConfiguration(new AgentSessionConfiguration());
+            modelBuilder.ApplyConfiguration(new AgentSessionEventConfiguration());
+            modelBuilder.ApplyConfiguration(new AgentApprovalConfiguration());
+            modelBuilder.ApplyConfiguration(new SyncEventConfiguration());
+            modelBuilder.ApplyConfiguration(new SyncCursorConfiguration());
+            modelBuilder.ApplyConfiguration(new SyncConflictConfiguration());
             modelBuilder.ApplyConfiguration<Source>(new SourceConfiguration());
             modelBuilder.ApplyConfiguration<ImportJob>(new ImportJobConfiguration());
             modelBuilder.ApplyConfiguration<Artifact>(new ArtifactConfiguration());

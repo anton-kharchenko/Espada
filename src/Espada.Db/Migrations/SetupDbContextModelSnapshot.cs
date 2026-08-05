@@ -25,6 +25,425 @@ namespace Espada.Db.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "vector");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Espada.Db.Models.AgentApprovalStatusTypes", b =>
+                {
+                    b.Property<int>("AgentApprovalStatusTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.HasKey("AgentApprovalStatusTypeId");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("UX_AgentApprovalStatusTypes_Name");
+
+                    b.ToTable("AgentApprovalStatusTypes", "Espada");
+
+                    b.HasData(
+                        new
+                        {
+                            AgentApprovalStatusTypeId = 1,
+                            Name = "Pending"
+                        },
+                        new
+                        {
+                            AgentApprovalStatusTypeId = 2,
+                            Name = "Approved"
+                        },
+                        new
+                        {
+                            AgentApprovalStatusTypeId = 3,
+                            Name = "Denied"
+                        });
+                });
+
+            modelBuilder.Entity("Espada.Db.Models.AgentApprovals", b =>
+                {
+                    b.Property<Guid>("AgentApprovalId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AgentSessionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ArgumentsJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTimeOffset?>("DecidedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("RequestEventId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("RequestedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("StatusId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ToolName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("AgentApprovalId");
+
+                    b.HasIndex("AgentSessionId");
+
+                    b.HasIndex("RequestEventId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_AgentApprovals_RequestEventId");
+
+                    b.HasIndex("StatusId");
+
+                    b.ToTable("AgentApprovals", "Espada");
+                });
+
+            modelBuilder.Entity("Espada.Db.Models.AgentInstallations", b =>
+                {
+                    b.Property<Guid>("AgentInstallationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("DetectedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DetectedVersion")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("DeviceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ExecutablePath")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
+                    b.Property<bool>("IsAuthenticated")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("VendorTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("AgentInstallationId");
+
+                    b.HasIndex("VendorTypeId");
+
+                    b.HasIndex("DeviceId", "VendorTypeId", "ExecutablePath")
+                        .IsUnique()
+                        .HasDatabaseName("UX_AgentInstallations_DeviceId_Vendor_ExecutablePath");
+
+                    b.ToTable("AgentInstallations", "Espada");
+                });
+
+            modelBuilder.Entity("Espada.Db.Models.AgentProfiles", b =>
+                {
+                    b.Property<Guid>("AgentProfileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("SettingsJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("VendorTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<Guid>("WorkspaceId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("AgentProfileId");
+
+                    b.HasIndex("VendorTypeId");
+
+                    b.HasIndex("WorkspaceId", "VendorTypeId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("UX_AgentProfiles_WorkspaceId_Vendor_Name");
+
+                    b.ToTable("AgentProfiles", "Espada");
+                });
+
+            modelBuilder.Entity("Espada.Db.Models.AgentSessionEventTypes", b =>
+                {
+                    b.Property<int>("AgentSessionEventTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.HasKey("AgentSessionEventTypeId");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("UX_AgentSessionEventTypes_Name");
+
+                    b.ToTable("AgentSessionEventTypes", "Espada");
+
+                    b.HasData(
+                        new
+                        {
+                            AgentSessionEventTypeId = 1,
+                            Name = "AssistantOutput"
+                        },
+                        new
+                        {
+                            AgentSessionEventTypeId = 2,
+                            Name = "ToolRequest"
+                        },
+                        new
+                        {
+                            AgentSessionEventTypeId = 3,
+                            Name = "ToolResult"
+                        },
+                        new
+                        {
+                            AgentSessionEventTypeId = 4,
+                            Name = "ApprovalRequest"
+                        },
+                        new
+                        {
+                            AgentSessionEventTypeId = 5,
+                            Name = "Status"
+                        },
+                        new
+                        {
+                            AgentSessionEventTypeId = 6,
+                            Name = "Usage"
+                        },
+                        new
+                        {
+                            AgentSessionEventTypeId = 7,
+                            Name = "Error"
+                        },
+                        new
+                        {
+                            AgentSessionEventTypeId = 8,
+                            Name = "DiffUpdate"
+                        });
+                });
+
+            modelBuilder.Entity("Espada.Db.Models.AgentSessionEvents", b =>
+                {
+                    b.Property<Guid>("AgentSessionEventId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AgentSessionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("OccurredAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PayloadJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<long>("Sequence")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("TypeId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("AgentSessionEventId");
+
+                    b.HasIndex("TypeId");
+
+                    b.HasIndex("AgentSessionId", "Sequence")
+                        .IsUnique()
+                        .HasDatabaseName("UX_AgentSessionEvents_AgentSessionId_Sequence");
+
+                    b.ToTable("AgentSessionEvents", "Espada");
+                });
+
+            modelBuilder.Entity("Espada.Db.Models.AgentSessionStatusTypes", b =>
+                {
+                    b.Property<int>("AgentSessionStatusTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.HasKey("AgentSessionStatusTypeId");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("UX_AgentSessionStatusTypes_Name");
+
+                    b.ToTable("AgentSessionStatusTypes", "Espada");
+
+                    b.HasData(
+                        new
+                        {
+                            AgentSessionStatusTypeId = 1,
+                            Name = "Created"
+                        },
+                        new
+                        {
+                            AgentSessionStatusTypeId = 2,
+                            Name = "Running"
+                        },
+                        new
+                        {
+                            AgentSessionStatusTypeId = 3,
+                            Name = "WaitingForApproval"
+                        },
+                        new
+                        {
+                            AgentSessionStatusTypeId = 4,
+                            Name = "Completed"
+                        },
+                        new
+                        {
+                            AgentSessionStatusTypeId = 5,
+                            Name = "Failed"
+                        },
+                        new
+                        {
+                            AgentSessionStatusTypeId = 6,
+                            Name = "Cancelled"
+                        });
+                });
+
+            modelBuilder.Entity("Espada.Db.Models.AgentSessions", b =>
+                {
+                    b.Property<Guid>("AgentSessionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AgentProfileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BranchName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("DeviceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("FinishedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Prompt")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("StatusId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<Guid>("WorkspaceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("WorktreePath")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
+                    b.HasKey("AgentSessionId");
+
+                    b.HasIndex("AgentProfileId");
+
+                    b.HasIndex("DeviceId");
+
+                    b.HasIndex("StatusId");
+
+                    b.HasIndex("ProjectId", "WorkspaceId");
+
+                    b.HasIndex("WorkspaceId", "CreatedAtUtc");
+
+                    b.ToTable("AgentSessions", "Espada");
+                });
+
+            modelBuilder.Entity("Espada.Db.Models.AgentVendorTypes", b =>
+                {
+                    b.Property<int>("AgentVendorTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.HasKey("AgentVendorTypeId");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("UX_AgentVendorTypes_Name");
+
+                    b.ToTable("AgentVendorTypes", "Espada");
+
+                    b.HasData(
+                        new
+                        {
+                            AgentVendorTypeId = 1,
+                            Name = "Codex"
+                        },
+                        new
+                        {
+                            AgentVendorTypeId = 2,
+                            Name = "Claude"
+                        },
+                        new
+                        {
+                            AgentVendorTypeId = 3,
+                            Name = "Gemini"
+                        },
+                        new
+                        {
+                            AgentVendorTypeId = 4,
+                            Name = "Grok"
+                        });
+                });
+
             modelBuilder.Entity("Espada.Db.Models.ArtifactRevisions", b =>
                 {
                     b.Property<Guid>("ArtifactRevisionId")
@@ -581,6 +1000,33 @@ namespace Espada.Db.Migrations
                     b.ToTable("Chunks", "Espada");
                 });
 
+            modelBuilder.Entity("Espada.Db.Models.Devices", b =>
+                {
+                    b.Property<Guid>("DeviceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("LastSeenAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("DeviceId");
+
+                    b.ToTable("Devices", "Espada");
+                });
+
             modelBuilder.Entity("Espada.Db.Models.ImportJobs", b =>
                 {
                     b.Property<Guid>("ImportJobId")
@@ -1120,7 +1566,6 @@ namespace Espada.Db.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("CanonicalRemoteUri")
-                        .IsRequired()
                         .HasMaxLength(2048)
                         .HasColumnType("varchar(2048)");
 
@@ -1231,6 +1676,11 @@ namespace Espada.Db.Migrations
                         {
                             SourceTypeId = 5,
                             Name = "Connector"
+                        },
+                        new
+                        {
+                            SourceTypeId = 6,
+                            Name = "Repository"
                         });
                 });
 
@@ -1296,6 +1746,187 @@ namespace Espada.Db.Migrations
                         .HasDatabaseName("UX_Sources_WorkspaceId_Locator");
 
                     b.ToTable("Sources", "Espada");
+                });
+
+            modelBuilder.Entity("Espada.Db.Models.SyncConflictStatusTypes", b =>
+                {
+                    b.Property<int>("SyncConflictStatusTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.HasKey("SyncConflictStatusTypeId");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("UX_SyncConflictStatusTypes_Name");
+
+                    b.ToTable("SyncConflictStatusTypes", "Espada");
+
+                    b.HasData(
+                        new
+                        {
+                            SyncConflictStatusTypeId = 1,
+                            Name = "Open"
+                        },
+                        new
+                        {
+                            SyncConflictStatusTypeId = 2,
+                            Name = "Resolved"
+                        });
+                });
+
+            modelBuilder.Entity("Espada.Db.Models.SyncConflicts", b =>
+                {
+                    b.Property<Guid>("SyncConflictId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DetailsJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<Guid>("EntityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("LocalEventId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("RemoteEventId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ResolvedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("StatusId")
+                        .HasColumnType("integer");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<Guid>("WorkspaceId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("SyncConflictId");
+
+                    b.HasIndex("RemoteEventId");
+
+                    b.HasIndex("StatusId");
+
+                    b.HasIndex("WorkspaceId");
+
+                    b.HasIndex("LocalEventId", "RemoteEventId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_SyncConflicts_LocalEventId_RemoteEventId");
+
+                    b.ToTable("SyncConflicts", "Espada");
+                });
+
+            modelBuilder.Entity("Espada.Db.Models.SyncCursors", b =>
+                {
+                    b.Property<Guid>("SyncCursorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("DeviceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ServerCursor")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<Guid>("WorkspaceId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("SyncCursorId");
+
+                    b.HasIndex("WorkspaceId");
+
+                    b.HasIndex("DeviceId", "WorkspaceId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_SyncCursors_DeviceId_WorkspaceId");
+
+                    b.ToTable("SyncCursors", "Espada");
+                });
+
+            modelBuilder.Entity("Espada.Db.Models.SyncEvents", b =>
+                {
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long?>("BaseVersion")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("DeviceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("EntityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("OccurredAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Operation")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("PayloadHash")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("PayloadJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("PayloadType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<long>("Sequence")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("WorkspaceId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("EventId");
+
+                    b.HasIndex("DeviceId", "Sequence")
+                        .IsUnique()
+                        .HasDatabaseName("UX_SyncEvents_DeviceId_Sequence");
+
+                    b.HasIndex("WorkspaceId", "EntityType", "EntityId");
+
+                    b.ToTable("SyncEvents", "Espada");
                 });
 
             modelBuilder.Entity("Espada.Db.Models.Tasks", b =>
@@ -1774,6 +2405,106 @@ namespace Espada.Db.Migrations
                     b.ToTable("OpenIddictTokens", "Espada");
                 });
 
+            modelBuilder.Entity("Espada.Db.Models.AgentApprovals", b =>
+                {
+                    b.HasOne("Espada.Db.Models.AgentSessions", null)
+                        .WithMany()
+                        .HasForeignKey("AgentSessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Espada.Db.Models.AgentSessionEvents", null)
+                        .WithMany()
+                        .HasForeignKey("RequestEventId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Espada.Db.Models.AgentApprovalStatusTypes", null)
+                        .WithMany()
+                        .HasForeignKey("StatusId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Espada.Db.Models.AgentInstallations", b =>
+                {
+                    b.HasOne("Espada.Db.Models.Devices", null)
+                        .WithMany()
+                        .HasForeignKey("DeviceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Espada.Db.Models.AgentVendorTypes", null)
+                        .WithMany()
+                        .HasForeignKey("VendorTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Espada.Db.Models.AgentProfiles", b =>
+                {
+                    b.HasOne("Espada.Db.Models.AgentVendorTypes", null)
+                        .WithMany()
+                        .HasForeignKey("VendorTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Espada.Db.Models.Workspaces", null)
+                        .WithMany()
+                        .HasForeignKey("WorkspaceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Espada.Db.Models.AgentSessionEvents", b =>
+                {
+                    b.HasOne("Espada.Db.Models.AgentSessions", null)
+                        .WithMany()
+                        .HasForeignKey("AgentSessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Espada.Db.Models.AgentSessionEventTypes", null)
+                        .WithMany()
+                        .HasForeignKey("TypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Espada.Db.Models.AgentSessions", b =>
+                {
+                    b.HasOne("Espada.Db.Models.AgentProfiles", null)
+                        .WithMany()
+                        .HasForeignKey("AgentProfileId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Espada.Db.Models.Devices", null)
+                        .WithMany()
+                        .HasForeignKey("DeviceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Espada.Db.Models.AgentSessionStatusTypes", null)
+                        .WithMany()
+                        .HasForeignKey("StatusId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Espada.Db.Models.Workspaces", null)
+                        .WithMany()
+                        .HasForeignKey("WorkspaceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Espada.Db.Models.Projects", null)
+                        .WithMany()
+                        .HasForeignKey("ProjectId", "WorkspaceId")
+                        .HasPrincipalKey("ProjectId", "WorkspaceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Espada.Db.Models.ArtifactRevisions", b =>
                 {
                     b.HasOne("Espada.Db.Models.Artifacts", null)
@@ -2055,6 +2786,63 @@ namespace Espada.Db.Migrations
                     b.HasOne("Espada.Db.Models.SourceTypes", null)
                         .WithMany()
                         .HasForeignKey("TypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Espada.Db.Models.Workspaces", null)
+                        .WithMany()
+                        .HasForeignKey("WorkspaceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Espada.Db.Models.SyncConflicts", b =>
+                {
+                    b.HasOne("Espada.Db.Models.SyncEvents", null)
+                        .WithMany()
+                        .HasForeignKey("LocalEventId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Espada.Db.Models.SyncEvents", null)
+                        .WithMany()
+                        .HasForeignKey("RemoteEventId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Espada.Db.Models.SyncConflictStatusTypes", null)
+                        .WithMany()
+                        .HasForeignKey("StatusId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Espada.Db.Models.Workspaces", null)
+                        .WithMany()
+                        .HasForeignKey("WorkspaceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Espada.Db.Models.SyncCursors", b =>
+                {
+                    b.HasOne("Espada.Db.Models.Devices", null)
+                        .WithMany()
+                        .HasForeignKey("DeviceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Espada.Db.Models.Workspaces", null)
+                        .WithMany()
+                        .HasForeignKey("WorkspaceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Espada.Db.Models.SyncEvents", b =>
+                {
+                    b.HasOne("Espada.Db.Models.Devices", null)
+                        .WithMany()
+                        .HasForeignKey("DeviceId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 

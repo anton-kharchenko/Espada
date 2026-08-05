@@ -29,4 +29,10 @@
         <PackageReference Include="Scalar.AspNetCore"/>
         <PackageReference Include="Microsoft.OpenApi"/>
     </ItemGroup>
+    <ItemGroup>
+        <Content Include="..\Espada.Web\dist\**\*"
+                 Link="wwwroot\%(RecursiveDir)%(Filename)%(Extension)"
+                 CopyToOutputDirectory="PreserveNewest"
+                 CopyToPublishDirectory="PreserveNewest"/>
+    </ItemGroup>
 </Project>

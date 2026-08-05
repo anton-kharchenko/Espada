@@ -12,6 +12,7 @@ export const ROUTES = {
   home: '/',
   pricing: '/pricing',
   app: `/${routeSegments.app}`,
+  setup: '/setup',
   billing: `/${routeSegments.app}/${routeSegments.billing}`,
   settings: `/${routeSegments.app}/${routeSegments.settings}`,
 } as const;

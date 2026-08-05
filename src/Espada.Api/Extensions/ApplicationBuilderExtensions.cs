@@ -1,6 +1,5 @@
 using Espada.Api.Authentication;
 using Espada.ServiceDefaults.Extensions;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Options;
 using Scalar.AspNetCore;
 
@@ -34,6 +33,8 @@ namespace Espada.Api.Extensions
             {
                 app.UseHttpsRedirection();
             }
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
@@ -46,6 +47,7 @@ namespace Espada.Api.Extensions
             }
 
             app.MapDefaultEndpoints();
+            app.MapFallbackToFile("index.html");
 
             return app;
         }

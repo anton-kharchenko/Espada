@@ -14,7 +14,7 @@ namespace Espada.Domain.Aggregates
         {
         }
 
-        private Project(ProjectId id, WorkspaceId workspaceId, string name, string canonicalRemoteUri,
+        private Project(ProjectId id, WorkspaceId workspaceId, string name, string? canonicalRemoteUri,
             string[] localAliases, DateTimeOffset createdAtUtc) : base(id)
         {
             WorkspaceId = workspaceId;
@@ -27,7 +27,7 @@ namespace Espada.Domain.Aggregates
 
         public WorkspaceId WorkspaceId { get; private set; } = null!;
         public string Name { get; private set; } = string.Empty;
-        public string CanonicalRemoteUri { get; private set; } = string.Empty;
+        public string? CanonicalRemoteUri { get; private set; }
         public string[] LocalAliases { get; private set; } = [];
         public DateTimeOffset CreatedAtUtc { get; private set; }
         public DateTimeOffset UpdatedAtUtc { get; private set; }
@@ -49,13 +49,10 @@ namespace Espada.Domain.Aggregates
                 return DomainResult<Project>.Failure(ProjectErrors.NameTooLong);
             }
 
-            if (string.IsNullOrWhiteSpace(canonicalRemoteUri))
-            {
-                return DomainResult<Project>.Failure(ProjectErrors.CanonicalRemoteUriEmpty);
-            }
-
-            string normalizedRemoteUri = canonicalRemoteUri.Trim();
-            if (normalizedRemoteUri.Length > CanonicalRemoteUriMaxLength)
+            string? normalizedRemoteUri = string.IsNullOrWhiteSpace(canonicalRemoteUri)
+                ? null
+                : canonicalRemoteUri.Trim();
+            if (normalizedRemoteUri?.Length > CanonicalRemoteUriMaxLength)
             {
                 return DomainResult<Project>.Failure(ProjectErrors.CanonicalRemoteUriTooLong);
             }

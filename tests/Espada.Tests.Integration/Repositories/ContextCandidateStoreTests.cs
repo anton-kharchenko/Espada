@@ -190,7 +190,7 @@ namespace Espada.Tests.Integration.Repositories
             IContextCandidateStore store = scope.ServiceProvider
                 .GetRequiredService<IContextCandidateStore>();
             using CancellationTokenSource source = new();
-            source.Cancel();
+            await source.CancelAsync();
 
             await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await store.LoadByWorkspaceIdAsync(
                 WorkspaceId.New(),

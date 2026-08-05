@@ -3,6 +3,7 @@ using Espada.Api.Authentication;
 using Espada.Api.Authentication.Constants;
 using Espada.Api.Filters;
 using Espada.Api.Mappings;
+using Espada.Api.LocalSetup.Services;
 using Espada.Api.Middlewares;
 using Espada.Api.OpenApi;
 using Espada.Application.Contracts.Security;
@@ -10,7 +11,6 @@ using Espada.Comms.Core.Constants;
 using Espada.Comms.Core.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
@@ -48,6 +48,13 @@ namespace Espada.Api.Extensions
             services.AddScoped<WebConsoleWorkspaceFilter>();
             services.AddScoped<WebConsoleOwnerFilter>();
             services.AddHttpContextAccessor();
+            services.AddSingleton<GitRepositoryInspector>();
+            services.AddSingleton<AgentDiscoveryService>();
+            services.AddSingleton<McpConfigurationPreviewService>();
+            services.AddSingleton<ManagedMcpConfigurationWriter>();
+            services.AddSingleton<LocalRuntimeConfigurationWriter>();
+            services.AddSingleton<LocalDeviceIdentityStore>();
+            services.AddScoped<LocalSetupService>();
             services.AddScoped<
                 IRequestPrincipalAccessor,
                 ApiRequestPrincipalAccessor>();

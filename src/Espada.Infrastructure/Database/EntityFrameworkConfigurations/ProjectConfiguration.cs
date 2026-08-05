@@ -20,7 +20,7 @@ namespace Espada.Infrastructure.Database.EntityFrameworkConfigurations
             builder.Property(entity => entity.Name).HasColumnType(DbTextColumnTypeConstants.Varchar200)
                 .HasMaxLength(DbMaxLengthConstants.L200).IsRequired();
             builder.Property(entity => entity.CanonicalRemoteUri).HasColumnType(DbTextColumnTypeConstants.Varchar2048)
-                .HasMaxLength(DbMaxLengthConstants.L2048).IsRequired();
+                .HasMaxLength(DbMaxLengthConstants.L2048).IsRequired(false);
             builder.Property(entity => entity.LocalAliases).HasColumnType(DbTextColumnTypeConstants.TextArray)
                 .IsRequired();
             builder.Property(entity => entity.CreatedAtUtc).HasColumnType(DbDateTimeColumnTypeConstants.TimestampTz)

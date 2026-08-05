@@ -1,5 +1,6 @@
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Espada.ServiceDefaults.Enums;
+using Espada.ServiceDefaults.Hosting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Configuration;
@@ -49,6 +50,8 @@ namespace Espada.ServiceDefaults.Extensions
 
             builder.Services.AddHealthChecks()
                 .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
+
+            builder.Services.AddHostedService<ShutdownFileHostedService>();
 
             builder.Services.AddServiceDiscovery();
 

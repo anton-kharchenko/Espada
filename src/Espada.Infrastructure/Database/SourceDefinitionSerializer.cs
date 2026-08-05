@@ -18,6 +18,7 @@ namespace Espada.Infrastructure.Database
                 PlainTextSourceDefinition => SourceDefinitionDiscriminatorConstants.PlainText,
                 ConversationSourceDefinition => SourceDefinitionDiscriminatorConstants.Conversation,
                 ConnectorSourceDefinition => SourceDefinitionDiscriminatorConstants.Connector,
+                RepositorySourceDefinition => SourceDefinitionDiscriminatorConstants.Repository,
                 LegacySourceDefinition => SourceDefinitionDiscriminatorConstants.Legacy,
                 _ => throw new JsonException("Source definition type is not supported.")
             };
@@ -44,6 +45,7 @@ namespace Espada.Infrastructure.Database
                 SourceDefinitionDiscriminatorConstants.PlainText => Deserialize<PlainTextSourceDefinition>(json),
                 SourceDefinitionDiscriminatorConstants.Conversation => Deserialize<ConversationSourceDefinition>(json),
                 SourceDefinitionDiscriminatorConstants.Connector => Deserialize<ConnectorSourceDefinition>(json),
+                SourceDefinitionDiscriminatorConstants.Repository => Deserialize<RepositorySourceDefinition>(json),
                 SourceDefinitionDiscriminatorConstants.Legacy => Deserialize<LegacySourceDefinition>(json),
                 _ => throw new JsonException("Source definition type is not supported.")
             };

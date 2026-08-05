@@ -57,6 +57,31 @@ namespace Espada.Db.Seeding
                 model => model.ChunkBatchStatusTypeId, model => model.Name, (model, name) => model.Name = name,
                 cancellationToken);
 
+            await UpsertAsync(dbContext.AgentVendorTypes,
+                Enumeration.GetAll<AgentVendorType>().Select(value =>
+                    new AgentVendorTypes { AgentVendorTypeId = value.Id, Name = value.Name }),
+                model => model.AgentVendorTypeId, model => model.Name, (model, name) => model.Name = name,
+                cancellationToken);
+            await UpsertAsync(dbContext.AgentSessionStatusTypes,
+                Enumeration.GetAll<AgentSessionStatusType>().Select(value =>
+                    new AgentSessionStatusTypes { AgentSessionStatusTypeId = value.Id, Name = value.Name }),
+                model => model.AgentSessionStatusTypeId, model => model.Name, (model, name) => model.Name = name,
+                cancellationToken);
+            await UpsertAsync(dbContext.AgentSessionEventTypes,
+                Enumeration.GetAll<AgentSessionEventType>().Select(value =>
+                    new AgentSessionEventTypes { AgentSessionEventTypeId = value.Id, Name = value.Name }),
+                model => model.AgentSessionEventTypeId, model => model.Name, (model, name) => model.Name = name,
+                cancellationToken);
+            await UpsertAsync(dbContext.AgentApprovalStatusTypes,
+                Enumeration.GetAll<AgentApprovalStatusType>().Select(value =>
+                    new AgentApprovalStatusTypes { AgentApprovalStatusTypeId = value.Id, Name = value.Name }),
+                model => model.AgentApprovalStatusTypeId, model => model.Name, (model, name) => model.Name = name,
+                cancellationToken);
+            await UpsertAsync(dbContext.SyncConflictStatusTypes,
+                Enumeration.GetAll<SyncConflictStatusType>().Select(value =>
+                    new SyncConflictStatusTypes { SyncConflictStatusTypeId = value.Id, Name = value.Name }),
+                model => model.SyncConflictStatusTypeId, model => model.Name, (model, name) => model.Name = name,
+                cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
         }
 

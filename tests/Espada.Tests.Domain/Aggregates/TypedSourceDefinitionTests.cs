@@ -46,5 +46,25 @@ namespace Espada.Tests.Domain.Aggregates
 
             create.Should().Throw<ArgumentOutOfRangeException>();
         }
+        [Fact]
+        public void RepositoryDefinition_ShouldKeepIdentityAndTrackedOnlyPolicy()
+        {
+            RepositorySourceDefinition definition = new(
+                "11111111-1111-1111-1111-111111111111",
+                null,
+                new RepositoryScanPolicy());
+
+            Source source = Source.Create(
+                TestIds.DefaultSourceId,
+                TestIds.DefaultWorkspaceId,
+                SourceName.Create("Local repository").ShouldSucceed(),
+                definition,
+                TestDates.SourceCreatedAtUtc).ShouldSucceed();
+
+            source.Type.Should().Be(SourceType.Repository);
+            source.Locator.Value.Should().Be("repository:11111111-1111-1111-1111-111111111111");
+            definition.ScanPolicy.TrackedFilesOnly.Should().BeTrue();
+        }
+
     }
 }

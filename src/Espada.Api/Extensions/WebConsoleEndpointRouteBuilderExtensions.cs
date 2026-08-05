@@ -1,6 +1,7 @@
 using AutoMapper;
 using Espada.Api.Authentication;
 using Espada.Api.Authentication.Constants;
+using Espada.Api.LocalSetup;
 using Espada.Api.WebConsole;
 using Espada.Application.Contracts.Time;
 using Espada.Application.UseCases.Workspaces.Queries.ListAccessibleWorkspaces;
@@ -63,6 +64,7 @@ namespace Espada.Api.Extensions
             protectedBff.MapPost(
                 "/session/logout",
                 LogoutAsync);
+            protectedBff.MapLocalSetupEndpoints();
             protectedBff.MapWebConsoleWorkspaceEndpoints();
 
             return endpoints;

@@ -8,6 +8,7 @@ namespace Espada.Domain.Constants
         public const string PlainText = "plainText";
         public const string Conversation = "conversation";
         public const string Connector = "connector";
+        public const string Repository = "repository";
         public const string Legacy = "legacy";
     }
 }

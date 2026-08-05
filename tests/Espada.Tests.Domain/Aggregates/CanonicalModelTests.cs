@@ -243,5 +243,19 @@ namespace Espada.Tests.Domain.Aggregates
                 organizationId,
                 DateTimeOffset.UtcNow).Value;
         }
+        [Fact]
+        public void Project_Create_WithoutRemote_ShouldCreateLocalOnlyProject()
+        {
+            Project project = Project.Create(
+                ProjectId.New(),
+                WorkspaceId.New(),
+                "Local project",
+                null,
+                ["C:\\src\\local"],
+                DateTimeOffset.UtcNow).ShouldSucceed();
+
+            Assert.Null(project.CanonicalRemoteUri);
+        }
+
     }
 }

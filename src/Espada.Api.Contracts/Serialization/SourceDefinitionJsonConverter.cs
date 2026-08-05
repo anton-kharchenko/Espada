@@ -26,6 +26,7 @@ namespace Espada.Api.Contracts.Serialization
                     options),
                 SourceDefinitionDiscriminatorConstants.Conversation => Deserialize<ConversationSourceDefinition>(json,
                     options),
+                SourceDefinitionDiscriminatorConstants.Repository => Deserialize<RepositorySourceDefinition>(json, options),
                 SourceDefinitionDiscriminatorConstants.Connector => Deserialize<ConnectorSourceDefinition>(json,
                     options),
                 _ => throw new JsonException("Source definition type is not supported.")
@@ -41,6 +42,7 @@ namespace Espada.Api.Contracts.Serialization
                 PlainTextSourceDefinition => SourceDefinitionDiscriminatorConstants.PlainText,
                 ConversationSourceDefinition => SourceDefinitionDiscriminatorConstants.Conversation,
                 ConnectorSourceDefinition => SourceDefinitionDiscriminatorConstants.Connector,
+                RepositorySourceDefinition => SourceDefinitionDiscriminatorConstants.Repository,
                 _ => throw new JsonException("Source definition type is not supported.")
             };
             JsonElement element = JsonSerializer.SerializeToElement(value, value.GetType(), options);

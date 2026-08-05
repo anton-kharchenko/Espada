@@ -5,9 +5,6 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
     <ItemGroup>
-        <ProjectReference Include="..\Espada.Application\Espada.Application.csproj"/>
-        <ProjectReference Include="..\Espada.Comms.Core\Espada.Comms.Core.csproj"/>
-        <ProjectReference Include="..\Espada.Infrastructure\Espada.Infrastructure.csproj"/>
         <ProjectReference Include="..\Espada.ServiceDefaults\Espada.ServiceDefaults.csproj"/>
     </ItemGroup>
 </Project>

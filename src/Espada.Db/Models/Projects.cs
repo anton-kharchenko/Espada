@@ -19,10 +19,9 @@ namespace Espada.Db.Models
         [Column(TypeName = DbTextColumnTypeConstants.Varchar200)]
         public string Name { get; set; } = string.Empty;
 
-        [Required]
         [MaxLength(DbMaxLengthConstants.L2048)]
         [Column(TypeName = DbTextColumnTypeConstants.Varchar2048)]
-        public string CanonicalRemoteUri { get; set; } = string.Empty;
+        public string? CanonicalRemoteUri { get; set; }
 
         [Column(TypeName = DbTextColumnTypeConstants.TextArray)]
         public string[] LocalAliases { get; set; } = [];

@@ -79,6 +79,7 @@ namespace Aspire.Hosting.Espada
                     .WithReference(database)
                     .WithEnvironment(EspadaConfigurationKeyConstants.ApiKey, apiKey)
                     .WithEnvironment(EspadaConfigurationKeyConstants.BlobRoot, blobRoot)
+                    .WithEnvironment(EspadaConfigurationKeyConstants.LocalRuntimeEnabled, "false")
                     .WaitForCompletion(migrations);
 
                 builder

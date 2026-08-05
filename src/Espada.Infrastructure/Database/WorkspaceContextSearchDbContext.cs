@@ -15,6 +15,8 @@ namespace Espada.Infrastructure.Database
 
         public DbSet<Artifacts> Artifacts => Set<Artifacts>();
 
+        public DbSet<ArtifactRevisions> ArtifactRevisions => Set<ArtifactRevisions>();
+
         public DbSet<ImportJobs> ImportJobs => Set<ImportJobs>();
 
         public DbSet<Sources> Sources => Set<Sources>();

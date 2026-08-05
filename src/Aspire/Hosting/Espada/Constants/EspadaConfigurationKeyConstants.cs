@@ -12,5 +12,6 @@ namespace Aspire.Hosting.Espada.Constants
         public const string BillingStripeSecretKey = "Billing__StripeSecretKey";
         public const string BillingStripeWebhookSecret = "Billing__StripeWebhookSecret";
         public const string AppHostDisableStripe = "AppHost:DisableStripe";
+        public const string LocalRuntimeEnabled = "Espada__LocalRuntime__Enabled";
     }
 }

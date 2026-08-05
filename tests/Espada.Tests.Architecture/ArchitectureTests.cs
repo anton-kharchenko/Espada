@@ -44,10 +44,7 @@ namespace Espada.Tests.Architecture
                     "Espada.Application", "Espada.Infrastructure", "Espada.Protocol.Mcp", "Espada.ServiceDefaults"
                 ],
                 ["Espada.Cli"] = ["Espada.Mcp"],
-                ["Espada.Daemon"] =
-                [
-                    "Espada.Application", "Espada.Comms.Core", "Espada.Infrastructure", "Espada.ServiceDefaults"
-                ],
+                ["Espada.Daemon"] = ["Espada.ServiceDefaults"],
                 ["Espada.Api"] =
                 [
                     "Espada.AgentAdapters",

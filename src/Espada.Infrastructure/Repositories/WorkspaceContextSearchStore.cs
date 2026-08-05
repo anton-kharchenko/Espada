@@ -37,14 +37,6 @@ namespace Espada.Infrastructure.Repositories
             int activeSourceStatus = SourceStatusType.Active.Id;
             int succeededImportStatus = ImportStatusType.Succeeded.Id;
             string memoryKind = ArtifactKindType.Memory.Name;
-
-            IQueryable<Guid?> activeSourceRevisionIds =
-                from importJob in dbContext.ImportJobs.AsNoTracking()
-                join source in dbContext.Sources.AsNoTracking()
-                    on importJob.SourceId equals source.SourceId
-                where importJob.StatusId == succeededImportStatus &&
-                      source.StatusId == activeSourceStatus
-                select importJob.ArtifactRevisionId;
             IQueryable<Guid?> selectedSourceRevisionIds =
                 from importJob in dbContext.ImportJobs.AsNoTracking()
                 join source in dbContext.Sources.AsNoTracking()
@@ -77,16 +69,15 @@ namespace Espada.Infrastructure.Repositories
                     .Max() ?? 0
                 where artifact.WorkspaceId == search.WorkspaceId
                 where artifact.StatusId == activeArtifactStatus
-                where activeSourceRevisionIds.Contains(chunk.ArtifactRevisionId) ||
-                      (artifact.Kind == memoryKind && currentMemories.Any(metadata =>
-                          metadata.ArtifactId == chunk.ArtifactId &&
-                          metadata.ArtifactRevisionId == chunk.ArtifactRevisionId))
                 where revisionIds.Length == 0
                     ? artifact.CurrentRevisionId == chunk.ArtifactRevisionId
                     : revisionIds.Contains(chunk.ArtifactRevisionId)
                 where artifactIds.Length == 0 || artifactIds.Contains(chunk.ArtifactId)
                 where artifactTypeIds.Length == 0 || artifactTypeIds.Contains(artifact.TypeId)
                 where artifactKinds.Length == 0 || artifactKinds.Contains(artifact.Kind)
+                where artifact.Kind != memoryKind || currentMemories.Any(metadata =>
+                    metadata.ArtifactId == chunk.ArtifactId &&
+                    metadata.ArtifactRevisionId == chunk.ArtifactRevisionId)
                 where (sourceIds.Length == 0 && sourceTypeIds.Length == 0) ||
                       selectedSourceRevisionIds.Contains(chunk.ArtifactRevisionId)
                 where memoryCategories.Length == 0 || currentMemories.Any(metadata =>
@@ -113,6 +104,56 @@ namespace Espada.Infrastructure.Repositories
                             NpgsqlTsRankingNormalization.DivideByItselfPlusOne),
                     artifact.Priority,
                     sourcePriority);
+            IQueryable<SearchCandidate> revisionQuery =
+                from revision in dbContext.ArtifactRevisions.AsNoTracking()
+                join artifact in dbContext.Artifacts.AsNoTracking()
+                    on revision.ArtifactId equals artifact.ArtifactId
+                let sourcePriority = dbContext.ImportJobs
+                    .Where(importJob =>
+                        importJob.StatusId == succeededImportStatus &&
+                        importJob.ArtifactRevisionId == revision.ArtifactRevisionId)
+                    .Join(
+                        dbContext.Sources.Where(source => source.StatusId == activeSourceStatus),
+                        importJob => importJob.SourceId,
+                        source => source.SourceId,
+                        (_, source) => (int?)source.Priority)
+                    .Max() ?? 0
+                where artifact.WorkspaceId == search.WorkspaceId
+                where artifact.StatusId == activeArtifactStatus
+                where artifact.CurrentRevisionId == revision.ArtifactRevisionId
+                where !dbContext.Chunks.Any(chunk => chunk.ArtifactRevisionId == revision.ArtifactRevisionId)
+                where revisionIds.Length == 0 || revisionIds.Contains(revision.ArtifactRevisionId)
+                where artifactIds.Length == 0 || artifactIds.Contains(revision.ArtifactId)
+                where artifactTypeIds.Length == 0 || artifactTypeIds.Contains(artifact.TypeId)
+                where artifactKinds.Length == 0 || artifactKinds.Contains(artifact.Kind)
+                where artifact.Kind != memoryKind || currentMemories.Any(metadata =>
+                    metadata.ArtifactId == revision.ArtifactId &&
+                    metadata.ArtifactRevisionId == revision.ArtifactRevisionId)
+                where (sourceIds.Length == 0 && sourceTypeIds.Length == 0) ||
+                      selectedSourceRevisionIds.Contains(revision.ArtifactRevisionId)
+                where memoryCategories.Length == 0 || currentMemories.Any(metadata =>
+                    metadata.ArtifactId == revision.ArtifactId &&
+                    metadata.ArtifactRevisionId == revision.ArtifactRevisionId &&
+                    memoryCategories.Contains(metadata.Category))
+                where search.CreatedAfterUtc == null || revision.CreatedAtUtc >= search.CreatedAfterUtc
+                where search.MinimumArtifactPriority == null || artifact.Priority >= search.MinimumArtifactPriority
+                where search.MinimumSourcePriority == null || sourcePriority >= search.MinimumSourcePriority
+                select new SearchCandidate(
+                    revision.ArtifactRevisionId,
+                    revision.ArtifactId,
+                    revision.ArtifactRevisionId,
+                    revision.Content,
+                    null,
+                    null,
+                    revision.CreatedAtUtc,
+                    EF.Functions
+                        .ToTsVector(TextSearchConfiguration, revision.Content)
+                        .RankCoverDensity(
+                            EF.Functions.WebSearchToTsQuery(TextSearchConfiguration, search.QueryText),
+                            NpgsqlTsRankingNormalization.DivideByItselfPlusOne),
+                    artifact.Priority,
+                    sourcePriority);
+            query = query.Concat(revisionQuery);
 
             SearchCandidate[] candidates = await query.ToArrayAsync(cancellationToken);
             Dictionary<Guid, double> similaritiesByChunkId = [];

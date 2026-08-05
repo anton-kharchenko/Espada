@@ -36,5 +36,19 @@ namespace Espada.Db.Constants
         public const string UsageLedgerEntries = "UsageLedgerEntries";
         public const string UsageReconciliationOutbox = "UsageReconciliationOutbox";
         public const string OneTimeBootstrapCodes = "OneTimeBootstrapCodes";
+        public const string AgentVendorTypes = "AgentVendorTypes";
+        public const string AgentSessionStatusTypes = "AgentSessionStatusTypes";
+        public const string AgentSessionEventTypes = "AgentSessionEventTypes";
+        public const string AgentApprovalStatusTypes = "AgentApprovalStatusTypes";
+        public const string SyncConflictStatusTypes = "SyncConflictStatusTypes";
+        public const string AgentProfiles = "AgentProfiles";
+        public const string AgentInstallations = "AgentInstallations";
+        public const string Devices = "Devices";
+        public const string AgentSessions = "AgentSessions";
+        public const string AgentSessionEvents = "AgentSessionEvents";
+        public const string AgentApprovals = "AgentApprovals";
+        public const string SyncEvents = "SyncEvents";
+        public const string SyncCursors = "SyncCursors";
+        public const string SyncConflicts = "SyncConflicts";
     }
 }

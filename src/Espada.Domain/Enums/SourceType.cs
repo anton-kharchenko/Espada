@@ -13,6 +13,8 @@ namespace Espada.Domain.Enums
         public static readonly SourceType Conversation = new(4, nameof(Conversation));
 
         public static readonly SourceType Connector = new(5, nameof(Connector));
+
+        public static readonly SourceType Repository = new(6, nameof(Repository));
         public override bool Equals(object? obj)
         {
             return base.Equals(obj);
