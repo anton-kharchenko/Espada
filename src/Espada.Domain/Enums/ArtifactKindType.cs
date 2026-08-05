@@ -14,7 +14,7 @@ namespace Espada.Domain.Enums
         public static readonly ArtifactKindType Policy = new(3, "policy");
 
         public static readonly ArtifactKindType Memory = new(4, "memory");
-    
+
         public override bool Equals(object? obj)
         {
             return base.Equals(obj);
