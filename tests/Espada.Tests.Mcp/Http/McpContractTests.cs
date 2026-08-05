@@ -91,12 +91,13 @@ namespace Espada.Tests.Mcp.Http
         public async Task HttpEndpoint_WithoutBearer_ShouldReturnUnauthorized()
         {
             using HttpClient httpClient = CreateClient(factory);
+            using StringContent content = new(
+                "{}",
+                Encoding.UTF8,
+                "application/json");
             using HttpResponseMessage response = await httpClient.PostAsync(
                 "/mcp",
-                new StringContent(
-                    "{}",
-                    Encoding.UTF8,
-                    "application/json"),
+                content,
                 TestContext.Current.CancellationToken);
 
             Assert.Equal(

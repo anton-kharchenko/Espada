@@ -126,7 +126,13 @@ namespace Espada.Application.UseCases.Context.Queries.BuildContext
                             request.WorkspaceId));
                 }
 
-                if (!task.ProjectId.Equals(project!.Id))
+                if (project is null)
+                {
+                    return DomainResult.Failure<BuildContextResponse>(
+                        ContextApplicationErrors.ProjectRequired);
+                }
+
+                if (!task.ProjectId.Equals(project.Id))
                 {
                     return DomainResult.Failure<BuildContextResponse>(
                         ProjectTaskApplicationErrors.NotFoundInProject(

@@ -530,27 +530,30 @@ namespace Espada.Application.Services
             IEnumerable<ResolvedContextItem> eligible,
             ICollection<ResolvedContextItem> excluded)
         {
-            List<ResolvedContextItem> selected = [];
-            foreach (IGrouping<string, ResolvedContextItem> group in eligible
-                         .GroupBy(LogicalItemKey, StringComparer.Ordinal)
-                         .OrderBy(group => group.Key, StringComparer.Ordinal))
-            {
-                ResolvedContextItem[] ranked = group
-                    .OrderByDescending(item => item.Specificity)
-                    .ThenBy(item => item.Binding.Id.Value)
-                    .ToArray();
-                selected.Add(ranked[0]);
-
-                foreach (ResolvedContextItem redundant in ranked.Skip(1))
+            return eligible
+                .GroupBy(LogicalItemKey, StringComparer.Ordinal)
+                .OrderBy(group => group.Key, StringComparer.Ordinal)
+                .Select(group =>
                 {
-                    excluded.Add(WithDecision(
-                        redundant,
-                        ContextDecisionCodeConstants.RedundantBinding,
-                        $"Binding '{ranked[0].Binding.Id.Value:D}' is the most specific binding for this logical item."));
-                }
-            }
+                    ResolvedContextItem[] ranked = group
+                        .OrderByDescending(item => item.Specificity)
+                        .ThenBy(item => item.Binding.Id.Value)
+                        .ToArray();
+                    ResolvedContextItem winner = ranked[0];
 
-            return selected;
+                    foreach (ResolvedContextItem redundant in ranked
+                                 .Skip(1)
+                                 .Select(item => WithDecision(
+                                     item,
+                                     ContextDecisionCodeConstants.RedundantBinding,
+                                     $"Binding '{winner.Binding.Id.Value:D}' is the most specific binding for this logical item.")))
+                    {
+                        excluded.Add(redundant);
+                    }
+
+                    return winner;
+                })
+                .ToList();
         }
 
         private static string LogicalItemKey(ResolvedContextItem item)

@@ -134,11 +134,12 @@ namespace Espada.Tests.Mcp.Http
                     TestContext.Current.CancellationToken);
             Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
 
+            using FormUrlEncodedContent secondForm = new(
+                new Dictionary<string, string> { ["code"] = code });
             using HttpResponseMessage secondResponse =
                 await secondClient.PostAsync(
                     "/auth/bootstrap",
-                    new FormUrlEncodedContent(
-                        new Dictionary<string, string> { ["code"] = code }),
+                    secondForm,
                     TestContext.Current.CancellationToken);
             Assert.Equal(
                 HttpStatusCode.BadRequest,
@@ -322,19 +323,12 @@ namespace Espada.Tests.Mcp.Http
                 .ToArray();
             HttpResponseMessage[] responses =
                 await Task.WhenAll(requests);
-            try
+            using (new DisposableResponseBatch(responses))
             {
                 Assert.Contains(
                     responses,
                     response => response.StatusCode
                                 == HttpStatusCode.TooManyRequests);
-            }
-            finally
-            {
-                foreach (HttpResponseMessage response in responses)
-                {
-                    response.Dispose();
-                }
             }
         }
 
@@ -499,12 +493,12 @@ namespace Espada.Tests.Mcp.Http
                 false);
         }
 
-        private static Task<HttpResponseMessage> SendMcpRequestAsync(
+        private static async Task<HttpResponseMessage> SendMcpRequestAsync(
             HttpClient client,
             string? accessToken,
             string? origin)
         {
-            HttpRequestMessage request = new(HttpMethod.Post, "/mcp")
+            using HttpRequestMessage request = new(HttpMethod.Post, "/mcp")
             {
                 Content = new StringContent(
                     "{}",
@@ -524,9 +518,21 @@ namespace Espada.Tests.Mcp.Http
                 request.Headers.Add("Origin", origin);
             }
 
-            return client.SendAsync(
+            return await client.SendAsync(
                 request,
                 TestContext.Current.CancellationToken);
+        }
+
+        private sealed class DisposableResponseBatch(
+            IReadOnlyList<HttpResponseMessage> responses) : IDisposable
+        {
+            public void Dispose()
+            {
+                foreach (HttpResponseMessage response in responses)
+                {
+                    response.Dispose();
+                }
+            }
         }
     }
 }

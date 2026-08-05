@@ -27,17 +27,16 @@ namespace Espada.Application.UseCases.Artifacts.Queries.ListArtifacts
             }
 
             ArtifactKindType? kindType = null;
-            if (request.KindTypeId.HasValue)
+            if (request.KindTypeId is int kindTypeId)
             {
                 kindType = Enumeration
                     .GetAll<ArtifactKindType>()
-                    .SingleOrDefault(value =>
-                        value.Id == request.KindTypeId.Value);
+                    .SingleOrDefault(value => value.Id == kindTypeId);
                 if (kindType is null)
                 {
                     return DomainResult.Failure<ListArtifactsResponse>(
                         ArtifactApplicationErrors.UnsupportedKindType(
-                            request.KindTypeId.Value));
+                            kindTypeId));
                 }
             }
 

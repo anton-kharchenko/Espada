@@ -70,10 +70,11 @@ namespace Espada.Tests.Mcp.Http
             string code =
                 await factory.CreateAuthorityBootstrapCodeAsync(
                     cancellationToken);
+            using FormUrlEncodedContent content = new(
+                new Dictionary<string, string> { ["code"] = code });
             using HttpResponseMessage response = await client.PostAsync(
                 "/auth/bootstrap",
-                new FormUrlEncodedContent(
-                    new Dictionary<string, string> { ["code"] = code }),
+                content,
                 cancellationToken);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
@@ -122,15 +123,16 @@ namespace Espada.Tests.Mcp.Http
             string refreshToken,
             CancellationToken cancellationToken)
         {
+            using FormUrlEncodedContent content = new(
+                new Dictionary<string, string>
+                {
+                    ["grant_type"] = "refresh_token",
+                    ["client_id"] = clientId,
+                    ["refresh_token"] = refreshToken
+                });
             using HttpResponseMessage response = await client.PostAsync(
                 "/connect/token",
-                new FormUrlEncodedContent(
-                    new Dictionary<string, string>
-                    {
-                        ["grant_type"] = "refresh_token",
-                        ["client_id"] = clientId,
-                        ["refresh_token"] = refreshToken
-                    }),
+                content,
                 cancellationToken);
             response.EnsureSuccessStatusCode();
             return await ReadTokenResponseAsync(
@@ -138,32 +140,38 @@ namespace Espada.Tests.Mcp.Http
                 cancellationToken);
         }
 
-        public Task<HttpResponseMessage> ReuseRefreshTokenAsync(
+        public async Task<HttpResponseMessage> ReuseRefreshTokenAsync(
             string clientId,
             string refreshToken,
             CancellationToken cancellationToken)
         {
-            return client.PostAsync(
+            using FormUrlEncodedContent content = new(
+                new Dictionary<string, string>
+                {
+                    ["grant_type"] = "refresh_token",
+                    ["client_id"] = clientId,
+                    ["refresh_token"] = refreshToken
+                });
+            return await client.PostAsync(
                 "/connect/token",
-                new FormUrlEncodedContent(
-                    new Dictionary<string, string>
-                    {
-                        ["grant_type"] = "refresh_token",
-                        ["client_id"] = clientId,
-                        ["refresh_token"] = refreshToken
-                    }),
+                content,
                 cancellationToken);
         }
 
-        public Task<HttpResponseMessage> RevokeAsync(
+        public async Task<HttpResponseMessage> RevokeAsync(
             string clientId,
             string token,
             CancellationToken cancellationToken)
         {
-            return client.PostAsync(
+            using FormUrlEncodedContent content = new(
+                new Dictionary<string, string>
+                {
+                    ["client_id"] = clientId,
+                    ["token"] = token
+                });
+            return await client.PostAsync(
                 "/connect/revoke",
-                new FormUrlEncodedContent(
-                    new Dictionary<string, string> { ["client_id"] = clientId, ["token"] = token }),
+                content,
                 cancellationToken);
         }
 
@@ -233,11 +241,12 @@ namespace Espada.Tests.Mcp.Http
                     workspaceId.Value.ToString("D");
             }
 
+            using FormUrlEncodedContent authorizationContent = new(
+                authorizationForm);
             using HttpResponseMessage authorizationResponse =
                 await client.PostAsync(
                     authorizationUri,
-                    new FormUrlEncodedContent(
-                        authorizationForm),
+                    authorizationContent,
                     cancellationToken);
             if (authorizationResponse.StatusCode
                 != HttpStatusCode.Redirect)
@@ -261,18 +270,19 @@ namespace Espada.Tests.Mcp.Http
                 await authorizationCodeIssued(cancellationToken);
             }
 
+            using FormUrlEncodedContent tokenContent = new(
+                new Dictionary<string, string>
+                {
+                    ["grant_type"] = "authorization_code",
+                    ["client_id"] = clientId,
+                    ["code"] = authorizationCode,
+                    ["redirect_uri"] = RedirectUri,
+                    ["code_verifier"] = verifier
+                });
             using HttpResponseMessage tokenResponse =
                 await client.PostAsync(
                     "/connect/token",
-                    new FormUrlEncodedContent(
-                        new Dictionary<string, string>
-                        {
-                            ["grant_type"] = "authorization_code",
-                            ["client_id"] = clientId,
-                            ["code"] = authorizationCode,
-                            ["redirect_uri"] = RedirectUri,
-                            ["code_verifier"] = verifier
-                        }),
+                    tokenContent,
                     cancellationToken);
             tokenResponse.EnsureSuccessStatusCode();
             return await ReadTokenResponseAsync(
