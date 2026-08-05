@@ -1,0 +1,26 @@
+# Claude Project Context
+Source: Espada canonical context
+Agent: claude
+
+## Resolved context
+
+### 1. Secrets policy
+Kind: policy
+Rule: security.secrets
+Enforcement: [hard]
+Content:
+Never expose secrets.
+
+### 2. Repository style
+Kind: instruction
+Rule: repo.style
+Content:
+Follow repository style.
+
+### 3. Mapping preference
+Kind: memory
+Status: [unconfirmed]
+Confidence: 0.82
+Provenance: client=claude; session=session-1
+Content:
+Use AutoMapper for declarative DTO mapping.

@@ -4,57 +4,68 @@ using Espada.Domain.Rules;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Espada.Api.Controllers;
-
-[Authorize]
-[ApiController]
-[ApiVersion("1.0")]
-[ApiConventionType(typeof(DefaultApiConventions))]
-[ProducesErrorResponseType(typeof(ErrorResponse))]
-public abstract class BaseController : ControllerBase
+namespace Espada.Api.Controllers
 {
-    internal BadRequestObjectResult BadRequest(DomainError error)
+    [Authorize]
+    [ApiController]
+    [ApiVersion("1.0")]
+    [ApiConventionType(typeof(DefaultApiConventions))]
+    [ProducesErrorResponseType(typeof(ErrorResponse))]
+    public abstract class BaseController : ControllerBase
     {
-        return BadRequest(new ErrorResponse(error.Code, error.Description));
-    }
-
-    public IActionResult HandleError(DomainError error)
-    {
-        ArgumentNullException.ThrowIfNull(error);
-
-        ErrorResponse errorResponse = new(error.Code, error.Description);
-
-        return error.Code switch
+        internal BadRequestObjectResult BadRequest(DomainError error)
         {
-            var code when IsNotFound(code) => NotFound(errorResponse),
-            var code when IsUnauthorized(code) => Unauthorized(errorResponse),
-            var code when IsForbidden(code) =>
-                StatusCode(StatusCodes.Status403Forbidden, errorResponse),
-            var code when IsConflict(code) => Conflict(errorResponse),
-            var code when IsRateLimit(code) =>
-                StatusCode(StatusCodes.Status429TooManyRequests, errorResponse),
-            _ => BadRequest(errorResponse)
-        };
+            return BadRequest(new ErrorResponse(error.Code, error.Description));
+        }
+
+        public IActionResult HandleError(DomainError error)
+        {
+            ArgumentNullException.ThrowIfNull(error);
+
+            ErrorResponse errorResponse = new(error.Code, error.Description);
+
+            return error.Code switch
+            {
+                var code when IsNotFound(code) => NotFound(errorResponse),
+                var code when IsUnauthorized(code) => Unauthorized(errorResponse),
+                var code when IsForbidden(code) =>
+                    StatusCode(StatusCodes.Status403Forbidden, errorResponse),
+                var code when IsConflict(code) => Conflict(errorResponse),
+                var code when IsRateLimit(code) =>
+                    StatusCode(StatusCodes.Status429TooManyRequests, errorResponse),
+                _ => BadRequest(errorResponse)
+            };
+        }
+
+        private static bool IsNotFound(string code)
+        {
+            return code.EndsWith(".NotFound", StringComparison.OrdinalIgnoreCase)
+                   || code.Contains(".NotFoundIn", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsUnauthorized(string code)
+        {
+            return code.Contains("Unauthorized", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsForbidden(string code)
+        {
+            return code.Contains("Forbidden", StringComparison.OrdinalIgnoreCase)
+                   || code.Contains("AccessDenied", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsConflict(string code)
+        {
+            return code.Contains(".Already", StringComparison.OrdinalIgnoreCase)
+                   || code.Contains(".Conflict", StringComparison.OrdinalIgnoreCase)
+                   || code.Contains(".Cannot", StringComparison.OrdinalIgnoreCase)
+                   || code.Contains("ArchivedCannot", StringComparison.OrdinalIgnoreCase)
+                   || code.EndsWith(".Archived", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsRateLimit(string code)
+        {
+            return code.Contains("RateLimit", StringComparison.OrdinalIgnoreCase);
+        }
     }
-
-    private static bool IsNotFound(string code) =>
-        code.EndsWith(".NotFound", StringComparison.OrdinalIgnoreCase)
-        || code.Contains(".NotFoundIn", StringComparison.OrdinalIgnoreCase);
-
-    private static bool IsUnauthorized(string code) =>
-        code.Contains("Unauthorized", StringComparison.OrdinalIgnoreCase);
-
-    private static bool IsForbidden(string code) =>
-        code.Contains("Forbidden", StringComparison.OrdinalIgnoreCase)
-        || code.Contains("AccessDenied", StringComparison.OrdinalIgnoreCase);
-
-    private static bool IsConflict(string code) =>
-        code.Contains(".Already", StringComparison.OrdinalIgnoreCase)
-        || code.Contains(".Conflict", StringComparison.OrdinalIgnoreCase)
-        || code.Contains(".Cannot", StringComparison.OrdinalIgnoreCase)
-        || code.Contains("ArchivedCannot", StringComparison.OrdinalIgnoreCase)
-        || code.EndsWith(".Archived", StringComparison.OrdinalIgnoreCase);
-
-    private static bool IsRateLimit(string code) =>
-        code.Contains("RateLimit", StringComparison.OrdinalIgnoreCase);
 }

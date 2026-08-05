@@ -6,49 +6,55 @@ using Espada.Domain.Aggregates;
 using Espada.Domain.Rules;
 using Espada.Domain.ValueObjects;
 
-namespace Espada.Application.UseCases.Artifacts.Commands.SetArtifactPriority;
-
-internal sealed class SetArtifactPriorityCommandHandler(IArtifactRepository artifactRepository, IUnitOfWork unitOfWork, IClockService clockService) : ICommandHandler<SetArtifactPriorityCommand>
+namespace Espada.Application.UseCases.Artifacts.Commands.SetArtifactPriority
 {
-    public async Task<DomainResult> Handle(SetArtifactPriorityCommand request, CancellationToken cancellationToken)
+    internal sealed class SetArtifactPriorityCommandHandler(
+        IArtifactRepository artifactRepository,
+        IUnitOfWork unitOfWork,
+        IClockService clockService) : ICommandHandler<SetArtifactPriorityCommand>
     {
-        if (request.WorkspaceId == Guid.Empty)
+        public async Task<DomainResult> Handle(SetArtifactPriorityCommand request, CancellationToken cancellationToken)
         {
-            return DomainResult.Failure(WorkspaceApplicationErrors.InvalidId);
+            if (request.WorkspaceId == Guid.Empty)
+            {
+                return DomainResult.Failure(WorkspaceApplicationErrors.InvalidId);
+            }
+
+            if (request.ArtifactId == Guid.Empty)
+            {
+                return DomainResult.Failure(ArtifactApplicationErrors.InvalidId);
+            }
+
+            Artifact? artifact =
+                await artifactRepository.GetByIdAsync(ArtifactId.Create(request.ArtifactId), cancellationToken);
+
+            if (artifact is null)
+            {
+                return DomainResult.Failure(ArtifactApplicationErrors.NotFound(request.ArtifactId));
+            }
+
+            if (artifact.WorkspaceId.Value != request.WorkspaceId)
+            {
+                return DomainResult.Failure(
+                    ArtifactApplicationErrors.NotFoundInWorkspace(request.ArtifactId, request.WorkspaceId));
+            }
+
+            DomainResult<ContextPriority> priorityResult = ContextPriority.Create(request.Priority);
+
+            if (priorityResult.IsFailure)
+            {
+                return DomainResult.Failure(priorityResult.Error);
+            }
+
+            DomainResult result = artifact.SetPriority(priorityResult.Value, clockService.UtcNow);
+
+            if (result.IsFailure)
+            {
+                return result;
+            }
+
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+            return DomainResult.Success();
         }
-
-        if (request.ArtifactId == Guid.Empty)
-        {
-            return DomainResult.Failure(ArtifactApplicationErrors.InvalidId);
-        }
-
-        Artifact? artifact = await artifactRepository.GetByIdAsync(ArtifactId.Create(request.ArtifactId), cancellationToken);
-
-        if (artifact is null)
-        {
-            return DomainResult.Failure(ArtifactApplicationErrors.NotFound(request.ArtifactId));
-        }
-
-        if (artifact.WorkspaceId.Value != request.WorkspaceId)
-        {
-            return DomainResult.Failure(ArtifactApplicationErrors.NotFoundInWorkspace(request.ArtifactId, request.WorkspaceId));
-        }
-
-        DomainResult<ContextPriority> priorityResult = ContextPriority.Create(request.Priority);
-
-        if (priorityResult.IsFailure)
-        {
-            return DomainResult.Failure(priorityResult.Error);
-        }
-
-        DomainResult result = artifact.SetPriority(priorityResult.Value, clockService.UtcNow);
-
-        if (result.IsFailure)
-        {
-            return result;
-        }
-
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-        return DomainResult.Success();
     }
 }

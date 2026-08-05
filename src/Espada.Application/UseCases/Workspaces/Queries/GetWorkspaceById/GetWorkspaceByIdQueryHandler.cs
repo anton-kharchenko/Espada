@@ -9,9 +9,11 @@ using Espada.Domain.ValueObjects;
 
 namespace Espada.Application.UseCases.Workspaces.Queries.GetWorkspaceById
 {
-    internal sealed class GetWorkspaceByIdQueryHandler(IWorkspaceRepository workspaceRepository, IMapper mapper) : IQueryHandler<GetWorkspaceByIdQuery, WorkspaceResponse>
+    internal sealed class GetWorkspaceByIdQueryHandler(IWorkspaceRepository workspaceRepository, IMapper mapper)
+        : IQueryHandler<GetWorkspaceByIdQuery, WorkspaceResponse>
     {
-        public async Task<DomainResult<WorkspaceResponse>> Handle(GetWorkspaceByIdQuery request, CancellationToken cancellationToken)
+        public async Task<DomainResult<WorkspaceResponse>> Handle(GetWorkspaceByIdQuery request,
+            CancellationToken cancellationToken)
         {
             if (request.WorkspaceId == Guid.Empty)
             {
@@ -24,7 +26,8 @@ namespace Espada.Application.UseCases.Workspaces.Queries.GetWorkspaceById
 
             if (workspace is null)
             {
-                return DomainResult.Failure<WorkspaceResponse>(WorkspaceApplicationErrors.NotFound(request.WorkspaceId));
+                return DomainResult.Failure<WorkspaceResponse>(
+                    WorkspaceApplicationErrors.NotFound(request.WorkspaceId));
             }
 
             WorkspaceResponse response = mapper.Map<WorkspaceResponse>(workspace);

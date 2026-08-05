@@ -1,0 +1,40 @@
+export type { WorkspaceOutletContext } from './model/workspaceContext';
+export { workspaceQueryKeys } from './model/workspaceQueryKeys';
+export {
+  artifactQueryOptions,
+  artifactRevisionsQueryOptions,
+  artifactsQueryOptions,
+  bindingsQueryOptions,
+  importsQueryOptions,
+  memoriesQueryOptions,
+  projectsQueryOptions,
+  sourcesQueryOptions,
+  tasksQueryOptions,
+  useArtifact,
+  useArtifactRevisions,
+  useArtifacts,
+  useBindings,
+  useImports,
+  useMemories,
+  useProjects,
+  useSources,
+  useTasks,
+} from './model/workspaceQueries';
+export {
+  archiveTask,
+  buildContext,
+  cancelImport,
+  completeTask,
+  createArtifact,
+  createProject,
+  createTask,
+  createWorkspace,
+  logoutConsole,
+  registerSource,
+  rememberMemory,
+  removeBinding,
+  requestImport,
+  reviseArtifact,
+  setBinding,
+} from './api/workspaceApi';
+export type { ArtifactArea, RegisterSourceBody, RequestImportBody, SourceDefinitionRequest } from './api/workspaceApi';

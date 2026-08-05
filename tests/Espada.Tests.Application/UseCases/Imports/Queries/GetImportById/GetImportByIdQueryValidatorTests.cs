@@ -15,7 +15,8 @@ namespace Espada.Tests.Application.UseCases.Imports.Queries.GetImportById
             GetImportByIdQuery query = new GetImportByIdQueryBuilder().Build();
 
             // Act
-            TestValidationResult<GetImportByIdQuery> result = await _validator.TestValidateAsync(query, cancellationToken: TestContext.Current.CancellationToken);
+            TestValidationResult<GetImportByIdQuery> result =
+                await _validator.TestValidateAsync(query, cancellationToken: TestContext.Current.CancellationToken);
 
             // Assert
             result.ShouldNotHaveAnyValidationErrors();
@@ -30,7 +31,8 @@ namespace Espada.Tests.Application.UseCases.Imports.Queries.GetImportById
                 .Build();
 
             // Act
-            TestValidationResult<GetImportByIdQuery> result = await _validator.TestValidateAsync(query, cancellationToken: TestContext.Current.CancellationToken);
+            TestValidationResult<GetImportByIdQuery> result =
+                await _validator.TestValidateAsync(query, cancellationToken: TestContext.Current.CancellationToken);
 
             // Assert
             result.ShouldHaveValidationErrorFor(getImportByIdQuery => getImportByIdQuery.WorkspaceId);
@@ -45,7 +47,8 @@ namespace Espada.Tests.Application.UseCases.Imports.Queries.GetImportById
                 .Build();
 
             // Act
-            TestValidationResult<GetImportByIdQuery> result = await _validator.TestValidateAsync(query, cancellationToken: TestContext.Current.CancellationToken);
+            TestValidationResult<GetImportByIdQuery> result =
+                await _validator.TestValidateAsync(query, cancellationToken: TestContext.Current.CancellationToken);
 
             // Assert
             result.ShouldHaveValidationErrorFor(getImportByIdQuery => getImportByIdQuery.ImportJobId);

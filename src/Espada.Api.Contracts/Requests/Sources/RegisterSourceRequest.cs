@@ -3,28 +3,27 @@ using Espada.Domain.ValueObjects.SourceDefinitions;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace Espada.Api.Contracts.Requests.Sources;
-
-public sealed class RegisterSourceRequest : IValidatableObject
+namespace Espada.Api.Contracts.Requests.Sources
 {
-    [Required]
-    [MaxLength(200)]
-    public string Name { get; init; } = string.Empty;
-
-    [Required]
-    [JsonConverter(typeof(SourceDefinitionJsonConverter))]
-    public SourceDefinition? Definition { get; init; }
-
-    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    public sealed class RegisterSourceRequest : IValidatableObject
     {
-        if (string.IsNullOrWhiteSpace(Name))
-        {
-            yield return new ValidationResult("Name is required.", [nameof(Name)]);
-        }
+        [Required][MaxLength(200)] public string Name { get; init; } = string.Empty;
 
-        if (Definition is LegacySourceDefinition)
+        [Required]
+        [JsonConverter(typeof(SourceDefinitionJsonConverter))]
+        public SourceDefinition? Definition { get; init; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            yield return new ValidationResult("Legacy source definitions are not supported.", [nameof(Definition)]);
+            if (string.IsNullOrWhiteSpace(Name))
+            {
+                yield return new ValidationResult("Name is required.", [nameof(Name)]);
+            }
+
+            if (Definition is LegacySourceDefinition)
+            {
+                yield return new ValidationResult("Legacy source definitions are not supported.", [nameof(Definition)]);
+            }
         }
     }
 }

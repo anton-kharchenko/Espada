@@ -15,7 +15,8 @@ namespace Espada.Tests.Application.UseCases.Sources.Commands.ArchiveSource
             ArchiveSourceCommand command = new(TestIds.DefaultWorkspaceId.Value, TestIds.SourceId.Value);
 
             // Act
-            TestValidationResult<ArchiveSourceCommand> result = await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
+            TestValidationResult<ArchiveSourceCommand> result =
+                await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
 
             // Assert
             result.ShouldNotHaveAnyValidationErrors();
@@ -28,7 +29,8 @@ namespace Espada.Tests.Application.UseCases.Sources.Commands.ArchiveSource
             ArchiveSourceCommand command = new(Guid.Empty, TestIds.SourceId.Value);
 
             // Act
-            TestValidationResult<ArchiveSourceCommand> result = await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
+            TestValidationResult<ArchiveSourceCommand> result =
+                await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
 
             // Assert
             result.ShouldHaveValidationErrorFor(value => value.WorkspaceId);
@@ -41,7 +43,8 @@ namespace Espada.Tests.Application.UseCases.Sources.Commands.ArchiveSource
             ArchiveSourceCommand command = new(TestIds.DefaultWorkspaceId.Value, Guid.Empty);
 
             // Act
-            TestValidationResult<ArchiveSourceCommand> result = await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
+            TestValidationResult<ArchiveSourceCommand> result =
+                await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
 
             // Assert
             result.ShouldHaveValidationErrorFor(value => value.SourceId);

@@ -1,9 +1,10 @@
-namespace Espada.Application.Enums;
-
-public enum JobFailureCategoryType
+namespace Espada.Application.Enums
 {
-    Transient = 1,
-    Permanent = 2,
-    Cancelled = 3,
-    Poison = 4
+    public enum JobFailureCategoryType
+    {
+        Transient = 1,
+        Permanent = 2,
+        Cancelled = 3,
+        Poison = 4
+    }
 }

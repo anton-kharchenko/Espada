@@ -1,14 +1,15 @@
 using FluentValidation;
 
-namespace Espada.Application.UseCases.ChunkEmbeddings.Commands.GenerateChunkEmbedding;
-
-internal sealed class GenerateChunkEmbeddingCommandValidator : AbstractValidator<GenerateChunkEmbeddingCommand>
+namespace Espada.Application.UseCases.ChunkEmbeddings.Commands.GenerateChunkEmbedding
 {
-    public GenerateChunkEmbeddingCommandValidator()
+    internal sealed class GenerateChunkEmbeddingCommandValidator : AbstractValidator<GenerateChunkEmbeddingCommand>
     {
-        RuleFor(command => command.WorkspaceId).NotEmpty();
-        RuleFor(command => command.ChunkId).NotEmpty();
-        RuleFor(command => command.ModelIdentifier).NotEmpty();
-        RuleFor(command => command.ModelVersion).NotEmpty();
+        public GenerateChunkEmbeddingCommandValidator()
+        {
+            RuleFor(command => command.WorkspaceId).NotEmpty();
+            RuleFor(command => command.ChunkId).NotEmpty();
+            RuleFor(command => command.ModelIdentifier).NotEmpty();
+            RuleFor(command => command.ModelVersion).NotEmpty();
+        }
     }
 }

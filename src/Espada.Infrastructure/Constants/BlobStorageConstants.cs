@@ -1,6 +1,7 @@
-namespace Espada.Infrastructure.Constants;
-
-public static class BlobStorageConstants
+namespace Espada.Infrastructure.Constants
 {
-    public const string SectionName = "BlobStorage";
+    public static class BlobStorageConstants
+    {
+        public const string SectionName = "BlobStorage";
+    }
 }

@@ -3,37 +3,41 @@ using Espada.Domain.Rules;
 using Espada.Domain.SeedWork;
 using System.Text;
 
-namespace Espada.Domain.ValueObjects;
-
-public sealed class ArtifactContent : ValueObject
+namespace Espada.Domain.ValueObjects
 {
-    private ArtifactContent(string value)
+    public sealed class ArtifactContent : ValueObject
     {
-        Value = value;
-        SizeInBytes = Encoding.UTF8.GetByteCount(value);
-        Hash = ContentHash.FromUtf8(value);
-    }
-
-    public string Value { get; }
-
-    public int SizeInBytes { get; }
-
-    public ContentHash Hash { get; }
-
-    public static DomainResult<ArtifactContent> Create(string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
+        private ArtifactContent(string value)
         {
-            return DomainResult<ArtifactContent>.Failure(ArtifactRevisionErrors.ContentEmpty);
+            Value = value;
+            SizeInBytes = Encoding.UTF8.GetByteCount(value);
+            Hash = ContentHash.FromUtf8(value);
         }
 
-        return DomainResult<ArtifactContent>.Success(new ArtifactContent(value));
-    }
+        public string Value { get; }
 
-    protected override IEnumerable<object> GetEqualityComponents()
-    {
-        yield return Value;
-    }
+        public int SizeInBytes { get; }
 
-    public override string ToString() => Value;
+        public ContentHash Hash { get; }
+
+        public static DomainResult<ArtifactContent> Create(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return DomainResult<ArtifactContent>.Failure(ArtifactRevisionErrors.ContentEmpty);
+            }
+
+            return DomainResult<ArtifactContent>.Success(new ArtifactContent(value));
+        }
+
+        protected override IEnumerable<object> GetEqualityComponents()
+        {
+            yield return Value;
+        }
+
+        public override string ToString()
+        {
+            return Value;
+        }
+    }
 }

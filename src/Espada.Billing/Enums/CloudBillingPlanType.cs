@@ -1,7 +1,8 @@
-namespace Espada.Billing.Enums;
-
-public enum CloudBillingPlanType
+namespace Espada.Billing.Enums
 {
-    Solo = 1,
-    Team = 2
+    public enum CloudBillingPlanType
+    {
+        Solo = 1,
+        Team = 2
+    }
 }

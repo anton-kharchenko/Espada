@@ -2,38 +2,41 @@ using Espada.Domain.Errors;
 using Espada.Domain.Rules;
 using Espada.Domain.SeedWork;
 
-namespace Espada.Domain.ValueObjects;
-
-public sealed class SourceName : ValueObject
+namespace Espada.Domain.ValueObjects
 {
-    public const int MaxLength = 200;
-
-    private SourceName(string value)
+    public sealed class SourceName : ValueObject
     {
-        Value = value;
-    }
+        public const int MaxLength = 200;
 
-    public string Value { get; }
-
-    public static DomainResult<SourceName> Create(string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
+        private SourceName(string value)
         {
-            return DomainResult<SourceName>.Failure(SourceErrors.NameEmpty);
+            Value = value;
         }
 
-        string normalized = value.Trim();
+        public string Value { get; }
 
-        return normalized.Length > MaxLength ? DomainResult<SourceName>.Failure(SourceErrors.NameTooLong) : DomainResult<SourceName>.Success(new SourceName(normalized));
-    }
+        public static DomainResult<SourceName> Create(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return DomainResult<SourceName>.Failure(SourceErrors.NameEmpty);
+            }
 
-    protected override IEnumerable<object> GetEqualityComponents()
-    {
-        yield return Value;
-    }
+            string normalized = value.Trim();
 
-    public override string ToString()
-    {
-        return Value;
+            return normalized.Length > MaxLength
+                ? DomainResult<SourceName>.Failure(SourceErrors.NameTooLong)
+                : DomainResult<SourceName>.Success(new SourceName(normalized));
+        }
+
+        protected override IEnumerable<object> GetEqualityComponents()
+        {
+            yield return Value;
+        }
+
+        public override string ToString()
+        {
+            return Value;
+        }
     }
 }

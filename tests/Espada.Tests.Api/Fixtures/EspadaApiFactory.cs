@@ -7,68 +7,69 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Moq;
 
-namespace Espada.Tests.Api.Fixtures;
-
-public sealed class EspadaApiFactory : WebApplicationFactory<Program>
+namespace Espada.Tests.Api.Fixtures
 {
-    private const string ConnectionStringVariable = "ConnectionStrings__espada";
-
-    private readonly string? _originalConnectionString;
-
-    public EspadaApiFactory()
+    public sealed class EspadaApiFactory : WebApplicationFactory<Program>
     {
-        _originalConnectionString = Environment.GetEnvironmentVariable(ConnectionStringVariable);
-        Environment.SetEnvironmentVariable(ConnectionStringVariable, TestConnectionStrings.Espada);
-    }
+        private const string ConnectionStringVariable = "ConnectionStrings__espada";
 
-    public Mock<IMediator> Mediator { get; } = new(MockBehavior.Strict);
+        private readonly string? _originalConnectionString;
 
-    protected override void ConfigureWebHost(IWebHostBuilder builder)
-    {
-        builder.UseEnvironment("Testing");
-        builder.ConfigureAppConfiguration((_, config) =>
+        public EspadaApiFactory()
         {
-            config.AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                ["Authentication:ApiKey:HeaderName"] = TestValues.ApiKeyHeader,
-                ["Authentication:ApiKey:Value"] = TestValues.ApiKey
-            });
-        });
-        builder.ConfigureServices(services =>
-        {
-            services.RemoveAll<IMediator>();
-            services.AddSingleton(Mediator.Object);
-        });
-    }
-
-    protected override void Dispose(bool disposing)
-    {
-        try
-        {
-            base.Dispose(disposing);
+            _originalConnectionString = Environment.GetEnvironmentVariable(ConnectionStringVariable);
+            Environment.SetEnvironmentVariable(ConnectionStringVariable, TestConnectionStrings.Espada);
         }
-        finally
+
+        public Mock<IMediator> Mediator { get; } = new(MockBehavior.Strict);
+
+        protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            if (disposing)
+            builder.UseEnvironment("Testing");
+            builder.ConfigureAppConfiguration((_, config) =>
             {
-                Environment.SetEnvironmentVariable(ConnectionStringVariable, _originalConnectionString);
+                config.AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    ["Authentication:ApiKey:HeaderName"] = TestValues.ApiKeyHeader,
+                    ["Authentication:ApiKey:Value"] = TestValues.ApiKey
+                });
+            });
+            builder.ConfigureServices(services =>
+            {
+                services.RemoveAll<IMediator>();
+                services.AddSingleton(Mediator.Object);
+            });
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            try
+            {
+                base.Dispose(disposing);
+            }
+            finally
+            {
+                if (disposing)
+                {
+                    Environment.SetEnvironmentVariable(ConnectionStringVariable, _originalConnectionString);
+                }
             }
         }
-    }
 
-    public HttpClient CreateHttpsClient(bool authenticated = true)
-    {
-        HttpClient client = CreateClient(new WebApplicationFactoryClientOptions
+        public HttpClient CreateHttpsClient(bool authenticated = true)
         {
-            BaseAddress = new Uri("https://localhost"),
-            AllowAutoRedirect = false
-        });
+            HttpClient client = CreateClient(new WebApplicationFactoryClientOptions
+            {
+                BaseAddress = new Uri("https://localhost"),
+                AllowAutoRedirect = false
+            });
 
-        if (authenticated)
-        {
-            client.DefaultRequestHeaders.Add(TestValues.ApiKeyHeader, TestValues.ApiKey);
+            if (authenticated)
+            {
+                client.DefaultRequestHeaders.Add(TestValues.ApiKeyHeader, TestValues.ApiKey);
+            }
+
+            return client;
         }
-
-        return client;
     }
 }

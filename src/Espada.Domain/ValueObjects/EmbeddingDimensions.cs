@@ -13,14 +13,21 @@ namespace Espada.Domain.ValueObjects
 
         public int Value { get; }
 
-        public static DomainResult<EmbeddingDimensions> Create(int value) =>
-            value <= 0 ? DomainResult<EmbeddingDimensions>.Failure(ChunkEmbeddingErrors.DimensionsInvalid) : DomainResult<EmbeddingDimensions>.Success(new EmbeddingDimensions(value));
+        public static DomainResult<EmbeddingDimensions> Create(int value)
+        {
+            return value <= 0
+                ? DomainResult<EmbeddingDimensions>.Failure(ChunkEmbeddingErrors.DimensionsInvalid)
+                : DomainResult<EmbeddingDimensions>.Success(new EmbeddingDimensions(value));
+        }
 
         protected override IEnumerable<object> GetEqualityComponents()
         {
             yield return Value;
         }
 
-        public override string ToString() => Value.ToString();
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
     }
 }

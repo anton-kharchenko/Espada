@@ -1,8 +1,12 @@
 using Espada.Domain.SeedWork;
 
-namespace Espada.Api.Extensions;
-
-internal static class EnumerationExtensions
+namespace Espada.Api.Extensions
 {
-    public static T? ToEnumeration<T>(this int id) where T : Enumeration => Enumeration.GetAll<T>().SingleOrDefault(value => value.Id == id);
+    internal static class EnumerationExtensions
+    {
+        public static T? ToEnumeration<T>(this int id) where T : Enumeration
+        {
+            return Enumeration.GetAll<T>().SingleOrDefault(value => value.Id == id);
+        }
+    }
 }

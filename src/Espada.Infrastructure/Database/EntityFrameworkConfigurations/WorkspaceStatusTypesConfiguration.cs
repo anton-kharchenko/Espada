@@ -5,21 +5,17 @@ using Espada.Domain.SeedWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Espada.Infrastructure.Database.EntityFrameworkConfigurations;
-
-internal sealed class WorkspaceStatusTypesConfiguration : IEntityTypeConfiguration<WorkspaceStatusTypes>
+namespace Espada.Infrastructure.Database.EntityFrameworkConfigurations
 {
-    public void Configure(EntityTypeBuilder<WorkspaceStatusTypes> builder)
+    internal sealed class WorkspaceStatusTypesConfiguration : IEntityTypeConfiguration<WorkspaceStatusTypes>
     {
-        builder.Property(model => model.WorkspaceStatusTypeId).ValueGeneratedNever();
-        builder.HasIndex(model => model.Name).IsUnique().HasDatabaseName(DbIndexConstants.WorkspaceStatusTypeName);
-        builder.HasData(
-            Enumeration.GetAll<WorkspaceStatusType>()
-                .Select(
-                    value => new WorkspaceStatusTypes
-                    {
-                        WorkspaceStatusTypeId = value.Id,
-                        Name = value.Name
-                    }));
+        public void Configure(EntityTypeBuilder<WorkspaceStatusTypes> builder)
+        {
+            builder.Property(model => model.WorkspaceStatusTypeId).ValueGeneratedNever();
+            builder.HasIndex(model => model.Name).IsUnique().HasDatabaseName(DbIndexConstants.WorkspaceStatusTypeName);
+            builder.HasData(
+                Enumeration.GetAll<WorkspaceStatusType>()
+                    .Select(value => new WorkspaceStatusTypes { WorkspaceStatusTypeId = value.Id, Name = value.Name }));
+        }
     }
 }

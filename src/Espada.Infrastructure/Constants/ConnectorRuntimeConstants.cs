@@ -1,6 +1,7 @@
-namespace Espada.Infrastructure.Constants;
-
-public static class ConnectorRuntimeConstants
+namespace Espada.Infrastructure.Constants
 {
-    public const string SectionName = "ConnectorRuntime";
+    public static class ConnectorRuntimeConstants
+    {
+        public const string SectionName = "ConnectorRuntime";
+    }
 }

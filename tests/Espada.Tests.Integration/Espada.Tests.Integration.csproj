@@ -15,9 +15,9 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" />
-        <PackageReference Include="Testcontainers.PostgreSql" />
-        <PackageReference Include="xunit.v3" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+        <PackageReference Include="Testcontainers.PostgreSql"/>
+        <PackageReference Include="xunit.v3"/>
         <PackageReference Include="xunit.runner.visualstudio">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -25,11 +25,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Espada.Tests.Common\Espada.Tests.Common.csproj" />
-        <ProjectReference Include="..\..\src\Espada.Application\Espada.Application.csproj" />
-        <ProjectReference Include="..\..\src\Espada.Db\Espada.Db.csproj" />
-        <ProjectReference Include="..\..\src\Espada.Domain\Espada.Domain.csproj" />
-        <ProjectReference Include="..\..\src\Espada.Infrastructure\Espada.Infrastructure.csproj" />
+        <ProjectReference Include="..\Espada.Tests.Common\Espada.Tests.Common.csproj"/>
+        <ProjectReference Include="..\..\src\Espada.Application\Espada.Application.csproj"/>
+        <ProjectReference Include="..\..\src\Espada.Db\Espada.Db.csproj"/>
+        <ProjectReference Include="..\..\src\Espada.Domain\Espada.Domain.csproj"/>
+        <ProjectReference Include="..\..\src\Espada.Infrastructure\Espada.Infrastructure.csproj"/>
     </ItemGroup>
 
 </Project>

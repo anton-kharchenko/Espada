@@ -3,85 +3,86 @@ using Espada.Tests.Application.TestData;
 using Espada.Tests.Application.TestData.Builder;
 using FluentValidation.TestHelper;
 
-namespace Espada.Tests.Application.UseCases.Sources.Commands.RegisterSource;
-
-public sealed class RegisterSourceCommandValidatorTests
+namespace Espada.Tests.Application.UseCases.Sources.Commands.RegisterSource
 {
-    private readonly RegisterSourceCommandValidator _validator = new();
-
-    [Fact]
-    public async Task Validate_WithValidCommand_ShouldNotHaveErrors()
+    public sealed class RegisterSourceCommandValidatorTests
     {
-        // Arrange
-        RegisterSourceCommand command = new RegisterSourceCommandBuilder().Build();
+        private readonly RegisterSourceCommandValidator _validator = new();
 
-        // Act
-        TestValidationResult<RegisterSourceCommand> result = await _validator.TestValidateAsync(
-            command,
-            cancellationToken: TestContext.Current.CancellationToken);
+        [Fact]
+        public async Task Validate_WithValidCommand_ShouldNotHaveErrors()
+        {
+            // Arrange
+            RegisterSourceCommand command = new RegisterSourceCommandBuilder().Build();
 
-        // Assert
-        result.ShouldNotHaveAnyValidationErrors();
-    }
-
-    [Fact]
-    public async Task Validate_WithEmptyWorkspaceId_ShouldHaveError()
-    {
-        // Arrange
-        RegisterSourceCommand command = new RegisterSourceCommandBuilder().InWorkspace(Guid.Empty).Build();
-
-        // Act
-        TestValidationResult<RegisterSourceCommand> result = await _validator.TestValidateAsync(
-            command,
-            cancellationToken: TestContext.Current.CancellationToken);
-
-        // Assert
-        result.ShouldHaveValidationErrorFor(value => value.WorkspaceId);
-    }
-
-    [Theory]
-    [MemberData(nameof(StringTheoryData.NullOrWhiteSpaceValues), MemberType = typeof(StringTheoryData))]
-    public async Task Validate_WithEmptyName_ShouldHaveError(string? name)
-    {
-        // Arrange
-        RegisterSourceCommand command = new RegisterSourceCommandBuilder().WithName(name).Build();
-
-        // Act
-        TestValidationResult<RegisterSourceCommand> result = await _validator.TestValidateAsync(
-            command,
-            cancellationToken: TestContext.Current.CancellationToken);
-
-        // Assert
-        result.ShouldHaveValidationErrorFor(value => value.Name);
-    }
-
-    [Fact]
-    public async Task Validate_WithoutDefinition_ShouldHaveError()
-    {
-        // Arrange
-        RegisterSourceCommand command = new RegisterSourceCommandBuilder().WithoutType().Build();
-
-        // Act
-        TestValidationResult<RegisterSourceCommand> result = await _validator.TestValidateAsync(
-            command,
-            cancellationToken: TestContext.Current.CancellationToken);
-
-        // Assert
-        result.ShouldHaveValidationErrorFor(value => value.Definition);
-    }
-
-    [Fact]
-    public async Task Validate_WithLegacyDefinition_ShouldHaveError()
-    {
-        RegisterSourceCommand command = new RegisterSourceCommandBuilder()
-            .WithLocator(TestValues.SourceLocator)
-            .Build();
-
-        TestValidationResult<RegisterSourceCommand> result =
-            await _validator.TestValidateAsync(
+            // Act
+            TestValidationResult<RegisterSourceCommand> result = await _validator.TestValidateAsync(
                 command,
                 cancellationToken: TestContext.Current.CancellationToken);
 
-        result.ShouldHaveValidationErrorFor(value => value.Definition);
+            // Assert
+            result.ShouldNotHaveAnyValidationErrors();
+        }
+
+        [Fact]
+        public async Task Validate_WithEmptyWorkspaceId_ShouldHaveError()
+        {
+            // Arrange
+            RegisterSourceCommand command = new RegisterSourceCommandBuilder().InWorkspace(Guid.Empty).Build();
+
+            // Act
+            TestValidationResult<RegisterSourceCommand> result = await _validator.TestValidateAsync(
+                command,
+                cancellationToken: TestContext.Current.CancellationToken);
+
+            // Assert
+            result.ShouldHaveValidationErrorFor(value => value.WorkspaceId);
+        }
+
+        [Theory]
+        [MemberData(nameof(StringTheoryData.NullOrWhiteSpaceValues), MemberType = typeof(StringTheoryData))]
+        public async Task Validate_WithEmptyName_ShouldHaveError(string? name)
+        {
+            // Arrange
+            RegisterSourceCommand command = new RegisterSourceCommandBuilder().WithName(name).Build();
+
+            // Act
+            TestValidationResult<RegisterSourceCommand> result = await _validator.TestValidateAsync(
+                command,
+                cancellationToken: TestContext.Current.CancellationToken);
+
+            // Assert
+            result.ShouldHaveValidationErrorFor(value => value.Name);
+        }
+
+        [Fact]
+        public async Task Validate_WithoutDefinition_ShouldHaveError()
+        {
+            // Arrange
+            RegisterSourceCommand command = new RegisterSourceCommandBuilder().WithoutType().Build();
+
+            // Act
+            TestValidationResult<RegisterSourceCommand> result = await _validator.TestValidateAsync(
+                command,
+                cancellationToken: TestContext.Current.CancellationToken);
+
+            // Assert
+            result.ShouldHaveValidationErrorFor(value => value.Definition);
+        }
+
+        [Fact]
+        public async Task Validate_WithLegacyDefinition_ShouldHaveError()
+        {
+            RegisterSourceCommand command = new RegisterSourceCommandBuilder()
+                .WithLocator(TestValues.SourceLocator)
+                .Build();
+
+            TestValidationResult<RegisterSourceCommand> result =
+                await _validator.TestValidateAsync(
+                    command,
+                    cancellationToken: TestContext.Current.CancellationToken);
+
+            result.ShouldHaveValidationErrorFor(value => value.Definition);
+        }
     }
 }

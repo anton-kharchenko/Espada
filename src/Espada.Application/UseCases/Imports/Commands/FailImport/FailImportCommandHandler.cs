@@ -8,7 +8,10 @@ using Espada.Domain.ValueObjects;
 
 namespace Espada.Application.UseCases.Imports.Commands.FailImport
 {
-    internal sealed class FailImportCommandHandler(IImportJobRepository importJobRepository, IUnitOfWork unitOfWork, IClockService clockService) : ICommandHandler<FailImportCommand>
+    internal sealed class FailImportCommandHandler(
+        IImportJobRepository importJobRepository,
+        IUnitOfWork unitOfWork,
+        IClockService clockService) : ICommandHandler<FailImportCommand>
     {
         public async Task<DomainResult> Handle(FailImportCommand request, CancellationToken cancellationToken)
         {
@@ -22,7 +25,8 @@ namespace Espada.Application.UseCases.Imports.Commands.FailImport
                 return DomainResult.Failure(ImportJobApplicationErrors.InvalidId);
             }
 
-            DomainResult<ImportFailure> failureResult = ImportFailure.Create(request.FailureCode, request.FailureReason);
+            DomainResult<ImportFailure>
+                failureResult = ImportFailure.Create(request.FailureCode, request.FailureReason);
 
             if (failureResult.IsFailure)
             {
@@ -40,7 +44,8 @@ namespace Espada.Application.UseCases.Imports.Commands.FailImport
 
             if (importJob.WorkspaceId.Value != request.WorkspaceId)
             {
-                return DomainResult.Failure(ImportJobApplicationErrors.NotFoundInWorkspace(request.ImportJobId, request.WorkspaceId));
+                return DomainResult.Failure(
+                    ImportJobApplicationErrors.NotFoundInWorkspace(request.ImportJobId, request.WorkspaceId));
             }
 
             DomainResult failResult = importJob.Fail(failureResult.Value, clockService.UtcNow);

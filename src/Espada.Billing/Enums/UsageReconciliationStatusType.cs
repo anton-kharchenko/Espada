@@ -1,9 +1,10 @@
-namespace Espada.Billing.Enums;
-
-public enum UsageReconciliationStatusType
+namespace Espada.Billing.Enums
 {
-    Pending = 1,
-    Processing = 2,
-    Processed = 3,
-    Failed = 4
+    public enum UsageReconciliationStatusType
+    {
+        Pending = 1,
+        Processing = 2,
+        Processed = 3,
+        Failed = 4
+    }
 }

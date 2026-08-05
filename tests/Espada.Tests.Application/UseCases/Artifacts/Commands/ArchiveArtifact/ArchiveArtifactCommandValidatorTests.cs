@@ -18,7 +18,7 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Commands.ArchiveArtifact
                 await _validator.TestValidateAsync(
                     command,
                     cancellationToken:
-                        TestContext.Current.CancellationToken);
+                    TestContext.Current.CancellationToken);
 
             result.ShouldNotHaveAnyValidationErrors();
         }
@@ -35,10 +35,9 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Commands.ArchiveArtifact
                 await _validator.TestValidateAsync(
                     command,
                     cancellationToken:
-                        TestContext.Current.CancellationToken);
+                    TestContext.Current.CancellationToken);
 
-            result.ShouldHaveValidationErrorFor(
-                command => command.WorkspaceId);
+            result.ShouldHaveValidationErrorFor(command => command.WorkspaceId);
         }
 
         [Fact]
@@ -53,10 +52,9 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Commands.ArchiveArtifact
                 await _validator.TestValidateAsync(
                     command,
                     cancellationToken:
-                        TestContext.Current.CancellationToken);
+                    TestContext.Current.CancellationToken);
 
-            result.ShouldHaveValidationErrorFor(
-                command => command.ArtifactId);
+            result.ShouldHaveValidationErrorFor(command => command.ArtifactId);
         }
     }
 }

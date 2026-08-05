@@ -3,49 +3,50 @@ using Espada.Tests.Api.Contracts.TestData;
 using Espada.Tests.Api.Contracts.Validation;
 using System.ComponentModel.DataAnnotations;
 
-namespace Espada.Tests.Api.Contracts.Requests.Imports;
-
-public sealed class CompleteImportRequestTests
+namespace Espada.Tests.Api.Contracts.Requests.Imports
 {
-    [Fact]
-    public void Validate_WithValidRequest_ShouldNotReturnErrors()
+    public sealed class CompleteImportRequestTests
     {
-        CompleteImportRequest request = new()
+        [Fact]
+        public void Validate_WithValidRequest_ShouldNotReturnErrors()
         {
-            ArtifactId = TestIds.DefaultArtifactId,
-            ArtifactRevisionId = TestIds.DefaultArtifactRevisionId
-        };
+            CompleteImportRequest request = new()
+            {
+                ArtifactId = TestIds.DefaultArtifactId,
+                ArtifactRevisionId = TestIds.DefaultArtifactRevisionId
+            };
 
-        IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
+            IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
 
-        Assert.Empty(results);
-    }
+            Assert.Empty(results);
+        }
 
-    [Fact]
-    public void Validate_WithEmptyArtifactId_ShouldReturnArtifactIdError()
-    {
-        CompleteImportRequest request = new()
+        [Fact]
+        public void Validate_WithEmptyArtifactId_ShouldReturnArtifactIdError()
         {
-            ArtifactId = Guid.Empty,
-            ArtifactRevisionId = TestIds.DefaultArtifactRevisionId
-        };
+            CompleteImportRequest request = new()
+            {
+                ArtifactId = Guid.Empty,
+                ArtifactRevisionId = TestIds.DefaultArtifactRevisionId
+            };
 
-        IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
+            IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
 
-        Assert.True(results.HasErrorFor(nameof(CompleteImportRequest.ArtifactId)));
-    }
+            Assert.True(results.HasErrorFor(nameof(CompleteImportRequest.ArtifactId)));
+        }
 
-    [Fact]
-    public void Validate_WithEmptyArtifactRevisionId_ShouldReturnArtifactRevisionIdError()
-    {
-        CompleteImportRequest request = new()
+        [Fact]
+        public void Validate_WithEmptyArtifactRevisionId_ShouldReturnArtifactRevisionIdError()
         {
-            ArtifactId = TestIds.DefaultArtifactId,
-            ArtifactRevisionId = Guid.Empty
-        };
+            CompleteImportRequest request = new()
+            {
+                ArtifactId = TestIds.DefaultArtifactId,
+                ArtifactRevisionId = Guid.Empty
+            };
 
-        IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
+            IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
 
-        Assert.True(results.HasErrorFor(nameof(CompleteImportRequest.ArtifactRevisionId)));
+            Assert.True(results.HasErrorFor(nameof(CompleteImportRequest.ArtifactRevisionId)));
+        }
     }
 }

@@ -1,19 +1,20 @@
 using Espada.DeploymentKit.Enums;
 
-namespace Espada.DeploymentKit.Helpers;
-
-public static class DeploymentEnvironmentHelper
+namespace Espada.DeploymentKit.Helpers
 {
-    public static DeploymentEnvironmentType Parse(string value)
+    public static class DeploymentEnvironmentHelper
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(value);
-
-        return value.Trim().ToLowerInvariant() switch
+        public static DeploymentEnvironmentType Parse(string value)
         {
-            "dev" or "development" => DeploymentEnvironmentType.Development,
-            "staging" => DeploymentEnvironmentType.Staging,
-            "prod" or "production" => DeploymentEnvironmentType.Production,
-            _ => throw new ArgumentException("EnvironmentType must be dev, staging, or production.", nameof(value))
-        };
+            ArgumentException.ThrowIfNullOrWhiteSpace(value);
+
+            return value.Trim().ToLowerInvariant() switch
+            {
+                "dev" or "development" => DeploymentEnvironmentType.Development,
+                "staging" => DeploymentEnvironmentType.Staging,
+                "prod" or "production" => DeploymentEnvironmentType.Production,
+                _ => throw new ArgumentException("EnvironmentType must be dev, staging, or production.", nameof(value))
+            };
+        }
     }
 }

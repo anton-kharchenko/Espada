@@ -1,2 +1,4 @@
 # Match .editorconfig end_of_line = crlf so format checks pass on Linux CI
 * text=auto eol=crlf
+
+tests/Espada.Tests.AgentAdapters/Golden/** text eol=lf

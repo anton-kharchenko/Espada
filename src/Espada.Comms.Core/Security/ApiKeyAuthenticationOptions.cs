@@ -1,10 +1,12 @@
+using Espada.Comms.Core.Constants;
 using Microsoft.AspNetCore.Authentication;
 
-namespace Espada.Comms.Core.Security;
-
-public sealed class ApiKeyAuthenticationOptions : AuthenticationSchemeOptions
+namespace Espada.Comms.Core.Security
 {
-    public string HeaderName { get; set; } = ApiKeyAuthenticationDefaults.DefaultHeaderName;
+    public sealed class ApiKeyAuthenticationOptions : AuthenticationSchemeOptions
+    {
+        public string HeaderName { get; set; } = ApiKeyAuthenticationConstants.DefaultHeaderName;
 
-    public string ApiKey { get; set; } = string.Empty;
+        public string ApiKey { get; set; } = string.Empty;
+    }
 }

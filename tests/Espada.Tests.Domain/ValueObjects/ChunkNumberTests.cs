@@ -1,95 +1,96 @@
 using Espada.Domain.Errors;
 
-namespace Espada.Tests.Domain.ValueObjects;
-
-public sealed class ChunkNumberTests
+namespace Espada.Tests.Domain.ValueObjects
 {
-    public static TheoryData<int> PositiveValues => new() { 1, 2, 100 };
-
-    public static TheoryData<int> NonPositiveValues => new() { 0, -1, -100 };
-
-    [Fact]
-    public void First_ShouldReturnOne()
+    public sealed class ChunkNumberTests
     {
-        // Act
-        ChunkNumber number = ChunkNumber.First();
+        public static TheoryData<int> PositiveValues => new() { 1, 2, 100 };
 
-        // Assert
-        number.Value.Should().Be(1);
-    }
+        public static TheoryData<int> NonPositiveValues => new() { 0, -1, -100 };
 
-    [Theory]
-    [MemberData(nameof(PositiveValues))]
-    public void Create_WithPositiveValue_ShouldCreateNumber(int value)
-    {
-        // Act
-        ChunkNumber number = ChunkNumber.Create(value).ShouldSucceed();
+        [Fact]
+        public void First_ShouldReturnOne()
+        {
+            // Act
+            ChunkNumber number = ChunkNumber.First();
 
-        // Assert
-        number.Value.Should().Be(value);
-    }
+            // Assert
+            number.Value.Should().Be(1);
+        }
 
-    [Theory]
-    [MemberData(nameof(NonPositiveValues))]
-    public void Create_WithNonPositiveValue_ShouldReturnExpectedError(int value)
-    {
-        // Act
-        DomainResult<ChunkNumber> result = ChunkNumber.Create(value);
+        [Theory]
+        [MemberData(nameof(PositiveValues))]
+        public void Create_WithPositiveValue_ShouldCreateNumber(int value)
+        {
+            // Act
+            ChunkNumber number = ChunkNumber.Create(value).ShouldSucceed();
 
-        // Assert
-        result.ShouldFailWith(ChunkErrors.InvalidNumber);
-    }
+            // Assert
+            number.Value.Should().Be(value);
+        }
 
-    [Fact]
-    public void Next_ShouldReturnIncrementedNumber()
-    {
-        // Arrange
-        ChunkNumber current = ChunkNumber.Create(5).ShouldSucceed();
+        [Theory]
+        [MemberData(nameof(NonPositiveValues))]
+        public void Create_WithNonPositiveValue_ShouldReturnExpectedError(int value)
+        {
+            // Act
+            DomainResult<ChunkNumber> result = ChunkNumber.Create(value);
 
-        // Act
-        ChunkNumber next = current.Next();
+            // Assert
+            result.ShouldFailWith(ChunkErrors.InvalidNumber);
+        }
 
-        // Assert
-        current.Value.Should().Be(5);
-        next.Value.Should().Be(6);
-    }
+        [Fact]
+        public void Next_ShouldReturnIncrementedNumber()
+        {
+            // Arrange
+            ChunkNumber current = ChunkNumber.Create(5).ShouldSucceed();
 
-    [Fact]
-    public void Next_ShouldNotMutateOriginalNumber()
-    {
-        // Arrange
-        ChunkNumber current = ChunkNumber.Create(5).ShouldSucceed();
+            // Act
+            ChunkNumber next = current.Next();
 
-        // Act
-        _ = current.Next();
+            // Assert
+            current.Value.Should().Be(5);
+            next.Value.Should().Be(6);
+        }
 
-        // Assert
-        current.Value.Should().Be(5);
-    }
+        [Fact]
+        public void Next_ShouldNotMutateOriginalNumber()
+        {
+            // Arrange
+            ChunkNumber current = ChunkNumber.Create(5).ShouldSucceed();
 
-    [Fact]
-    public void NumbersWithSameValue_ShouldBeEqual()
-    {
-        // Arrange
-        ChunkNumber first = ChunkNumber.Create(3).ShouldSucceed();
+            // Act
+            _ = current.Next();
 
-        ChunkNumber second = ChunkNumber.Create(3).ShouldSucceed();
+            // Assert
+            current.Value.Should().Be(5);
+        }
 
-        // Assert
-        first.Should().Be(second);
+        [Fact]
+        public void NumbersWithSameValue_ShouldBeEqual()
+        {
+            // Arrange
+            ChunkNumber first = ChunkNumber.Create(3).ShouldSucceed();
 
-        first.GetHashCode().Should().Be(second.GetHashCode());
-    }
+            ChunkNumber second = ChunkNumber.Create(3).ShouldSucceed();
 
-    [Fact]
-    public void NumbersWithDifferentValues_ShouldNotBeEqual()
-    {
-        // Arrange
-        ChunkNumber first = ChunkNumber.Create(1).ShouldSucceed();
+            // Assert
+            first.Should().Be(second);
 
-        ChunkNumber second = ChunkNumber.Create(2).ShouldSucceed();
+            first.GetHashCode().Should().Be(second.GetHashCode());
+        }
 
-        // Assert
-        first.Should().NotBe(second);
+        [Fact]
+        public void NumbersWithDifferentValues_ShouldNotBeEqual()
+        {
+            // Arrange
+            ChunkNumber first = ChunkNumber.Create(1).ShouldSucceed();
+
+            ChunkNumber second = ChunkNumber.Create(2).ShouldSucceed();
+
+            // Assert
+            first.Should().NotBe(second);
+        }
     }
 }

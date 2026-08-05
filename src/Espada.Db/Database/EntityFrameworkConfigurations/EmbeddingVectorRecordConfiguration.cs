@@ -1,17 +1,19 @@
+using Espada.Db.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Espada.Db.Database.EntityFrameworkConfigurations;
-
-internal sealed class EmbeddingVectorRecordConfiguration : IEntityTypeConfiguration<Models.ChunkEmbeddingVectors>
+namespace Espada.Db.Database.EntityFrameworkConfigurations
 {
-    public void Configure(EntityTypeBuilder<Models.ChunkEmbeddingVectors> builder)
+    internal sealed class EmbeddingVectorRecordConfiguration : IEntityTypeConfiguration<ChunkEmbeddingVectors>
     {
-        builder.Property(model => model.ChunkEmbeddingId).ValueGeneratedNever();
-        builder
-            .HasOne<Models.ChunkEmbeddings>()
-            .WithOne()
-            .HasForeignKey<Models.ChunkEmbeddingVectors>(model => model.ChunkEmbeddingId)
-            .OnDelete(DeleteBehavior.Cascade);
+        public void Configure(EntityTypeBuilder<ChunkEmbeddingVectors> builder)
+        {
+            builder.Property(model => model.ChunkEmbeddingId).ValueGeneratedNever();
+            builder
+                .HasOne<ChunkEmbeddings>()
+                .WithOne()
+                .HasForeignKey<ChunkEmbeddingVectors>(model => model.ChunkEmbeddingId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
     }
 }

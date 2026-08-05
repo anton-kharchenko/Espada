@@ -1,9 +1,10 @@
-namespace Espada.Billing.Enums;
-
-public enum PaymentEventStatusType
+namespace Espada.Billing.Enums
 {
-    Pending = 1,
-    Processing = 2,
-    Processed = 3,
-    Failed = 4
+    public enum PaymentEventStatusType
+    {
+        Pending = 1,
+        Processing = 2,
+        Processed = 3,
+        Failed = 4
+    }
 }

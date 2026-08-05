@@ -1,9 +1,10 @@
-namespace Espada.Billing.Enums;
-
-public enum BillingAccessStateType
+namespace Espada.Billing.Enums
 {
-    Active = 1,
-    Grace = 2,
-    ReadOnly = 3,
-    SyncDisabled = 4
+    public enum BillingAccessStateType
+    {
+        Active = 1,
+        Grace = 2,
+        ReadOnly = 3,
+        SyncDisabled = 4
+    }
 }

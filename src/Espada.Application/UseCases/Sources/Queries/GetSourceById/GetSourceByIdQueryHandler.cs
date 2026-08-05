@@ -9,9 +9,11 @@ using Espada.Domain.ValueObjects;
 
 namespace Espada.Application.UseCases.Sources.Queries.GetSourceById
 {
-    internal sealed class GetSourceByIdQueryHandler(ISourceRepository sourceRepository, IMapper mapper) : IQueryHandler<GetSourceByIdQuery, SourceResponse>
+    internal sealed class GetSourceByIdQueryHandler(ISourceRepository sourceRepository, IMapper mapper)
+        : IQueryHandler<GetSourceByIdQuery, SourceResponse>
     {
-        public async Task<DomainResult<SourceResponse>> Handle(GetSourceByIdQuery request, CancellationToken cancellationToken)
+        public async Task<DomainResult<SourceResponse>> Handle(GetSourceByIdQuery request,
+            CancellationToken cancellationToken)
         {
             if (request.WorkspaceId == Guid.Empty)
             {
@@ -34,7 +36,8 @@ namespace Espada.Application.UseCases.Sources.Queries.GetSourceById
 
             if (source.WorkspaceId.Value != request.WorkspaceId)
             {
-                return DomainResult.Failure<SourceResponse>(SourceApplicationErrors.NotFoundInWorkspace(request.SourceId, request.WorkspaceId));
+                return DomainResult.Failure<SourceResponse>(
+                    SourceApplicationErrors.NotFoundInWorkspace(request.SourceId, request.WorkspaceId));
             }
 
             SourceResponse response = mapper.Map<SourceResponse>(source);

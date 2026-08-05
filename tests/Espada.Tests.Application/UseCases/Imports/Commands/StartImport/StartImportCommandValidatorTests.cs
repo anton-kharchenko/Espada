@@ -2,48 +2,52 @@ using Espada.Application.UseCases.Imports.Commands.StartImport;
 using Espada.Tests.Application.TestData;
 using FluentValidation.TestHelper;
 
-namespace Espada.Tests.Application.UseCases.Imports.Commands.StartImport;
-
-public sealed class StartImportCommandValidatorTests
+namespace Espada.Tests.Application.UseCases.Imports.Commands.StartImport
 {
-    private readonly StartImportCommandValidator _validator = new();
-
-    [Fact]
-    public async Task Validate_WithValidCommand_ShouldNotHaveErrors()
+    public sealed class StartImportCommandValidatorTests
     {
-        // Arrange
-        StartImportCommand command = new(TestIds.DefaultWorkspaceId.Value, TestIds.DefaultImportJobId.Value);
+        private readonly StartImportCommandValidator _validator = new();
 
-        // Act
-        TestValidationResult<StartImportCommand> result = await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
+        [Fact]
+        public async Task Validate_WithValidCommand_ShouldNotHaveErrors()
+        {
+            // Arrange
+            StartImportCommand command = new(TestIds.DefaultWorkspaceId.Value, TestIds.DefaultImportJobId.Value);
 
-        // Assert
-        result.ShouldNotHaveAnyValidationErrors();
-    }
+            // Act
+            TestValidationResult<StartImportCommand> result =
+                await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
 
-    [Fact]
-    public async Task Validate_WithEmptyWorkspaceId_ShouldHaveError()
-    {
-        // Arrange
-        StartImportCommand command = new(Guid.Empty, TestIds.DefaultImportJobId.Value);
+            // Assert
+            result.ShouldNotHaveAnyValidationErrors();
+        }
 
-        // Act
-        TestValidationResult<StartImportCommand> result = await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
+        [Fact]
+        public async Task Validate_WithEmptyWorkspaceId_ShouldHaveError()
+        {
+            // Arrange
+            StartImportCommand command = new(Guid.Empty, TestIds.DefaultImportJobId.Value);
 
-        // Assert
-        result.ShouldHaveValidationErrorFor(startImportCommand => startImportCommand.WorkspaceId);
-    }
+            // Act
+            TestValidationResult<StartImportCommand> result =
+                await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
 
-    [Fact]
-    public async Task Validate_WithEmptyImportJobId_ShouldHaveError()
-    {
-        // Arrange
-        StartImportCommand command = new(TestIds.DefaultWorkspaceId.Value, Guid.Empty);
+            // Assert
+            result.ShouldHaveValidationErrorFor(startImportCommand => startImportCommand.WorkspaceId);
+        }
 
-        // Act
-        TestValidationResult<StartImportCommand> result = await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
+        [Fact]
+        public async Task Validate_WithEmptyImportJobId_ShouldHaveError()
+        {
+            // Arrange
+            StartImportCommand command = new(TestIds.DefaultWorkspaceId.Value, Guid.Empty);
 
-        // Assert
-        result.ShouldHaveValidationErrorFor(startImportCommand => startImportCommand.ImportJobId);
+            // Act
+            TestValidationResult<StartImportCommand> result =
+                await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
+
+            // Assert
+            result.ShouldHaveValidationErrorFor(startImportCommand => startImportCommand.ImportJobId);
+        }
     }
 }

@@ -2,6 +2,7 @@ using Espada.Application.Contracts.Persistence;
 using Espada.Domain.Aggregates;
 using Espada.Domain.ValueObjects;
 using Espada.Infrastructure.Database;
+using Microsoft.EntityFrameworkCore;
 
 namespace Espada.Infrastructure.Repositories
 {
@@ -19,6 +20,20 @@ namespace Espada.Infrastructure.Repositories
             ArgumentNullException.ThrowIfNull(sourceId);
 
             return await dbContext.Sources.FindAsync([sourceId], cancellationToken);
+        }
+
+        public async Task<IReadOnlyList<Source>> ListByWorkspaceIdAsync(
+            WorkspaceId workspaceId,
+            CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(workspaceId);
+
+            return await dbContext.Sources
+                .AsNoTracking()
+                .Where(source => source.WorkspaceId == workspaceId)
+                .OrderBy(source => source.Name)
+                .ThenBy(source => source.Id)
+                .ToArrayAsync(cancellationToken);
         }
     }
 }

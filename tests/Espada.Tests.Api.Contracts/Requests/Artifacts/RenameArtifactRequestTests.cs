@@ -3,34 +3,29 @@ using Espada.Tests.Api.Contracts.TestData;
 using Espada.Tests.Api.Contracts.Validation;
 using System.ComponentModel.DataAnnotations;
 
-namespace Espada.Tests.Api.Contracts.Requests.Artifacts;
-
-public sealed class RenameArtifactRequestTests
+namespace Espada.Tests.Api.Contracts.Requests.Artifacts
 {
-    [Fact]
-    public void Validate_WithValidRequest_ShouldNotReturnErrors()
+    public sealed class RenameArtifactRequestTests
     {
-        RenameArtifactRequest request = new()
+        [Fact]
+        public void Validate_WithValidRequest_ShouldNotReturnErrors()
         {
-            Title = TestValues.RenamedArtifactTitle
-        };
+            RenameArtifactRequest request = new() { Title = TestValues.RenamedArtifactTitle };
 
-        IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
+            IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
 
-        Assert.Empty(results);
-    }
+            Assert.Empty(results);
+        }
 
-    [Theory]
-    [MemberData(nameof(StringTheoryData.NullOrWhiteSpaceValues), MemberType = typeof(StringTheoryData))]
-    public void Validate_WithEmptyTitle_ShouldReturnTitleError(string? title)
-    {
-        RenameArtifactRequest request = new()
+        [Theory]
+        [MemberData(nameof(StringTheoryData.NullOrWhiteSpaceValues), MemberType = typeof(StringTheoryData))]
+        public void Validate_WithEmptyTitle_ShouldReturnTitleError(string? title)
         {
-            Title = title!
-        };
+            RenameArtifactRequest request = new() { Title = title! };
 
-        IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
+            IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
 
-        Assert.True(results.HasErrorFor(nameof(RenameArtifactRequest.Title)));
+            Assert.True(results.HasErrorFor(nameof(RenameArtifactRequest.Title)));
+        }
     }
 }

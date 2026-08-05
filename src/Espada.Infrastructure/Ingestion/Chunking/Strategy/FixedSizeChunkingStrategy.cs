@@ -2,39 +2,42 @@ using Espada.Application.Contracts.Ingestion;
 using Espada.Application.Models;
 using Espada.Application.UseCases.Imports.Commands.RequestImport;
 
-namespace Espada.Infrastructure.Ingestion.Chunking.Strategy;
-
-internal sealed class FixedSizeChunkingStrategy : IChunkingStrategy
+namespace Espada.Infrastructure.Ingestion.Chunking.Strategy
 {
-    public string Name => "FixedSize";
-
-    public Task<IReadOnlyList<ChunkSegment>> ChunkAsync(string content, ImportOptions options, CancellationToken cancellationToken = default)
+    internal sealed class FixedSizeChunkingStrategy : IChunkingStrategy
     {
-        cancellationToken.ThrowIfCancellationRequested();
-        Validate(content, options);
-        List<ChunkSegment> chunks = [];
-        int step = options.MaxCharacters - options.OverlapCharacters;
+        public string Name => "FixedSize";
 
-        for (int start = 0, number = 1; start < content.Length; start += step, number++)
+        public Task<IReadOnlyList<ChunkSegment>> ChunkAsync(string content, ImportOptions options,
+            CancellationToken cancellationToken = default)
         {
-            int length = Math.Min(options.MaxCharacters, content.Length - start);
-            chunks.Add(new ChunkSegment(number, content.Substring(start, length), start, length));
-            if (start + length == content.Length)
+            cancellationToken.ThrowIfCancellationRequested();
+            Validate(content, options);
+            List<ChunkSegment> chunks = [];
+            int step = options.MaxCharacters - options.OverlapCharacters;
+
+            for (int start = 0, number = 1; start < content.Length; start += step, number++)
             {
-                break;
+                int length = Math.Min(options.MaxCharacters, content.Length - start);
+                chunks.Add(new ChunkSegment(number, content.Substring(start, length), start, length));
+                if (start + length == content.Length)
+                {
+                    break;
+                }
             }
+
+            return Task.FromResult<IReadOnlyList<ChunkSegment>>(chunks);
         }
 
-        return Task.FromResult<IReadOnlyList<ChunkSegment>>(chunks);
-    }
-
-    internal static void Validate(string content, ImportOptions options)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(content);
-        ArgumentNullException.ThrowIfNull(options);
-        if (options.MaxCharacters <= 0 || options.OverlapCharacters < 0 || options.OverlapCharacters >= options.MaxCharacters)
+        internal static void Validate(string content, ImportOptions options)
         {
-            throw new ArgumentOutOfRangeException(nameof(options));
+            ArgumentException.ThrowIfNullOrWhiteSpace(content);
+            ArgumentNullException.ThrowIfNull(options);
+            if (options.MaxCharacters <= 0 || options.OverlapCharacters < 0 ||
+                options.OverlapCharacters >= options.MaxCharacters)
+            {
+                throw new ArgumentOutOfRangeException(nameof(options));
+            }
         }
     }
 }

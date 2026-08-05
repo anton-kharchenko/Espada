@@ -39,7 +39,9 @@ namespace Espada.Domain.ValueObjects
                 return DomainResult<EmbeddingModel>.Failure(ChunkEmbeddingErrors.ModelIdentifierTooLong);
             }
 
-            return normalizedVersion.Length > VersionMaxLength ? DomainResult<EmbeddingModel>.Failure(ChunkEmbeddingErrors.ModelVersionTooLong) : DomainResult<EmbeddingModel>.Success(new EmbeddingModel(normalizedIdentifier, normalizedVersion));
+            return normalizedVersion.Length > VersionMaxLength
+                ? DomainResult<EmbeddingModel>.Failure(ChunkEmbeddingErrors.ModelVersionTooLong)
+                : DomainResult<EmbeddingModel>.Success(new EmbeddingModel(normalizedIdentifier, normalizedVersion));
         }
 
         protected override IEnumerable<object> GetEqualityComponents()
@@ -48,6 +50,9 @@ namespace Espada.Domain.ValueObjects
             yield return Version;
         }
 
-        public override string ToString() => $"{Identifier}@{Version}";
+        public override string ToString()
+        {
+            return $"{Identifier}@{Version}";
+        }
     }
 }

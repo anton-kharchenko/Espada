@@ -10,5 +10,5 @@
         <Exec Command="dotnet tool restore" WorkingDirectory="$(MSBuildThisFileDirectory)"/>
         <Touch Files="$(_ToolsRestoredSentinel)" AlwaysCreate="true"/>
     </Target>
-    
+
 </Project>

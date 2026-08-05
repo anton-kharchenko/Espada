@@ -8,7 +8,8 @@ namespace Espada.Infrastructure.Repositories
 {
     internal sealed class ChunkRepository(EspadaDbContext dbContext) : IChunkRepository
     {
-        public async Task AddRangeAsync(IReadOnlyCollection<Chunk> chunks, CancellationToken cancellationToken = default)
+        public async Task AddRangeAsync(IReadOnlyCollection<Chunk> chunks,
+            CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(chunks);
 
@@ -29,7 +30,8 @@ namespace Espada.Infrastructure.Repositories
                 .SingleOrDefaultAsync(chunk => chunk.Id == chunkId, cancellationToken);
         }
 
-        public async Task<IReadOnlyList<Chunk>> ListByArtifactRevisionIdAsync(ArtifactRevisionId artifactRevisionId, CancellationToken cancellationToken = default)
+        public async Task<IReadOnlyList<Chunk>> ListByArtifactRevisionIdAsync(ArtifactRevisionId artifactRevisionId,
+            CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(artifactRevisionId);
 

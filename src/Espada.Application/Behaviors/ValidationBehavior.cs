@@ -2,33 +2,38 @@ using FluentValidation;
 using FluentValidation.Results;
 using MediatR;
 
-namespace Espada.Application.Behaviors;
-
-internal sealed class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators) : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
+namespace Espada.Application.Behaviors
 {
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+    internal sealed class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators)
+        : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
     {
-        IValidator<TRequest>[] validatorArray = validators.ToArray();
-
-        if (validatorArray.Length == 0)
+        public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next,
+            CancellationToken cancellationToken)
         {
-            return await next(cancellationToken);
-        }
+            IValidator<TRequest>[] validatorArray = validators.ToArray();
 
-        ValidationContext<TRequest> context = new(request);
+            if (validatorArray.Length == 0)
+            {
+                return await next(cancellationToken);
+            }
 
-        ValidationResult[] validationResults = await Task.WhenAll(validatorArray.Select(validator => validator.ValidateAsync(context, cancellationToken)));
+            ValidationContext<TRequest> context = new(request);
 
-        ValidationFailure[] failures = validationResults
+            ValidationResult[] validationResults =
+                await Task.WhenAll(validatorArray.Select(validator =>
+                    validator.ValidateAsync(context, cancellationToken)));
+
+            ValidationFailure[] failures = validationResults
                 .SelectMany(result => result.Errors)
                 .Where(failure => failure is not null)
                 .ToArray();
 
-        if (failures.Length != 0)
-        {
-            throw new ValidationException(failures);
-        }
+            if (failures.Length != 0)
+            {
+                throw new ValidationException(failures);
+            }
 
-        return await next(cancellationToken);
+            return await next(cancellationToken);
+        }
     }
 }

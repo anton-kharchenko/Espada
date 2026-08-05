@@ -15,7 +15,8 @@ namespace Espada.Tests.Application.UseCases.Workspaces.Commands.ArchiveWorkspace
             ArchiveWorkspaceCommand command = new(TestIds.DefaultWorkspaceId.Value);
 
             // Act
-            TestValidationResult<ArchiveWorkspaceCommand> result = await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
+            TestValidationResult<ArchiveWorkspaceCommand> result =
+                await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
 
             // Assert
             result.ShouldNotHaveAnyValidationErrors();

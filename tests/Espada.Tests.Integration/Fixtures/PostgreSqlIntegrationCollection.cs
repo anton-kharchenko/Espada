@@ -1,7 +1,8 @@
-namespace Espada.Tests.Integration.Fixtures;
-
-[CollectionDefinition(Name)]
-public sealed class PostgreSqlIntegrationCollection : ICollectionFixture<PostgreSqlDatabaseFixture>
+namespace Espada.Tests.Integration.Fixtures
 {
-    public const string Name = "PostgreSQL integration";
+    [CollectionDefinition(Name)]
+    public sealed class PostgreSqlIntegrationCollection : ICollectionFixture<PostgreSqlDatabaseFixture>
+    {
+        public const string Name = "PostgreSQL integration";
+    }
 }

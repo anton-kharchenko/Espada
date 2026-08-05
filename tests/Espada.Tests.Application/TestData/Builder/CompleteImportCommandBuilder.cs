@@ -4,13 +4,12 @@ namespace Espada.Tests.Application.TestData.Builder
 {
     internal sealed class CompleteImportCommandBuilder
     {
-        private Guid _workspaceId = TestIds.DefaultWorkspaceId.Value;
-
-        private Guid _importJobId = TestIds.DefaultImportJobId.Value;
-
         private Guid _artifactId = TestIds.DefaultArtifactId.Value;
 
         private Guid _artifactRevisionId = TestIds.DefaultArtifactRevisionId.Value;
+
+        private Guid _importJobId = TestIds.DefaultImportJobId.Value;
+        private Guid _workspaceId = TestIds.DefaultWorkspaceId.Value;
 
         public CompleteImportCommandBuilder InWorkspace(Guid workspaceId)
         {
@@ -36,11 +35,13 @@ namespace Espada.Tests.Application.TestData.Builder
             return this;
         }
 
-        public CompleteImportCommand Build() =>
-            new(
+        public CompleteImportCommand Build()
+        {
+            return new CompleteImportCommand(
                 _workspaceId,
                 _importJobId,
                 _artifactId,
                 _artifactRevisionId);
+        }
     }
 }

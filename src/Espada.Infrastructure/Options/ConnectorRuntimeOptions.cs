@@ -1,6 +1,7 @@
-namespace Espada.Infrastructure.Options;
-
-public sealed class ConnectorRuntimeOptions
+namespace Espada.Infrastructure.Options
 {
-    public List<ApprovedConnectorOptions> Approved { get; set; } = [];
+    public sealed class ConnectorRuntimeOptions
+    {
+        public List<ApprovedConnectorOptions> Approved { get; set; } = [];
+    }
 }

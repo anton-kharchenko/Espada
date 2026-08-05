@@ -5,75 +5,76 @@ using Espada.Tests.Api.Contracts.TestData;
 using Espada.Tests.Api.Contracts.Validation;
 using System.ComponentModel.DataAnnotations;
 
-namespace Espada.Tests.Api.Contracts.Requests.Artifacts;
-
-public sealed class CreateArtifactRequestTests
+namespace Espada.Tests.Api.Contracts.Requests.Artifacts
 {
-    [Fact]
-    public void Validate_WithValidRequest_ShouldNotReturnErrors()
+    public sealed class CreateArtifactRequestTests
     {
-        ArtifactType artifactType = Enumeration.GetAll<ArtifactType>().First();
-
-        CreateArtifactRequest request = new()
+        [Fact]
+        public void Validate_WithValidRequest_ShouldNotReturnErrors()
         {
-            Title = TestValues.ArtifactTitle,
-            TypeId = artifactType.Id,
-            Content = TestValues.ArtifactContent
-        };
+            ArtifactType artifactType = Enumeration.GetAll<ArtifactType>().First();
 
-        IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
+            CreateArtifactRequest request = new()
+            {
+                Title = TestValues.ArtifactTitle,
+                TypeId = artifactType.Id,
+                Content = TestValues.ArtifactContent
+            };
 
-        Assert.Empty(results);
-    }
+            IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
 
-    [Theory]
-    [MemberData(nameof(StringTheoryData.NullOrWhiteSpaceValues), MemberType = typeof(StringTheoryData))]
-    public void Validate_WithEmptyTitle_ShouldReturnTitleError(string? title)
-    {
-        ArtifactType artifactType = Enumeration.GetAll<ArtifactType>().First();
+            Assert.Empty(results);
+        }
 
-        CreateArtifactRequest request = new()
+        [Theory]
+        [MemberData(nameof(StringTheoryData.NullOrWhiteSpaceValues), MemberType = typeof(StringTheoryData))]
+        public void Validate_WithEmptyTitle_ShouldReturnTitleError(string? title)
         {
-            Title = title!,
-            TypeId = artifactType.Id,
-            Content = TestValues.ArtifactContent
-        };
+            ArtifactType artifactType = Enumeration.GetAll<ArtifactType>().First();
 
-        IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
+            CreateArtifactRequest request = new()
+            {
+                Title = title!,
+                TypeId = artifactType.Id,
+                Content = TestValues.ArtifactContent
+            };
 
-        Assert.True(results.HasErrorFor(nameof(CreateArtifactRequest.Title)));
-    }
+            IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
 
-    [Fact]
-    public void Validate_WithUnsupportedTypeId_ShouldReturnTypeIdError()
-    {
-        CreateArtifactRequest request = new()
+            Assert.True(results.HasErrorFor(nameof(CreateArtifactRequest.Title)));
+        }
+
+        [Fact]
+        public void Validate_WithUnsupportedTypeId_ShouldReturnTypeIdError()
         {
-            Title = TestValues.ArtifactTitle,
-            TypeId = int.MaxValue,
-            Content = TestValues.ArtifactContent
-        };
+            CreateArtifactRequest request = new()
+            {
+                Title = TestValues.ArtifactTitle,
+                TypeId = int.MaxValue,
+                Content = TestValues.ArtifactContent
+            };
 
-        IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
+            IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
 
-        Assert.True(results.HasErrorFor(nameof(CreateArtifactRequest.TypeId)));
-    }
+            Assert.True(results.HasErrorFor(nameof(CreateArtifactRequest.TypeId)));
+        }
 
-    [Theory]
-    [MemberData(nameof(StringTheoryData.NullOrWhiteSpaceValues), MemberType = typeof(StringTheoryData))]
-    public void Validate_WithEmptyContent_ShouldReturnContentError(string? content)
-    {
-        ArtifactType artifactType = Enumeration.GetAll<ArtifactType>().First();
-
-        CreateArtifactRequest request = new()
+        [Theory]
+        [MemberData(nameof(StringTheoryData.NullOrWhiteSpaceValues), MemberType = typeof(StringTheoryData))]
+        public void Validate_WithEmptyContent_ShouldReturnContentError(string? content)
         {
-            Title = TestValues.ArtifactTitle,
-            TypeId = artifactType.Id,
-            Content = content!
-        };
+            ArtifactType artifactType = Enumeration.GetAll<ArtifactType>().First();
 
-        IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
+            CreateArtifactRequest request = new()
+            {
+                Title = TestValues.ArtifactTitle,
+                TypeId = artifactType.Id,
+                Content = content!
+            };
 
-        Assert.True(results.HasErrorFor(nameof(CreateArtifactRequest.Content)));
+            IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
+
+            Assert.True(results.HasErrorFor(nameof(CreateArtifactRequest.Content)));
+        }
     }
 }

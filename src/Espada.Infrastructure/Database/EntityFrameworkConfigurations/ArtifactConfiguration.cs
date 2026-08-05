@@ -1,4 +1,5 @@
 using Espada.Db.Constants;
+using Espada.Db.Models;
 using Espada.Domain.Aggregates;
 using Espada.Domain.Enums;
 using Espada.Domain.SeedWork;
@@ -7,132 +8,152 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace Espada.Infrastructure.Database.EntityFrameworkConfigurations;
-
-internal sealed class ArtifactConfiguration : IEntityTypeConfiguration<Artifact>, IEntityTypeConfiguration<Espada.Db.Models.Artifacts>
+namespace Espada.Infrastructure.Database.EntityFrameworkConfigurations
 {
-    public void Configure(EntityTypeBuilder<Artifact> builder)
+    internal sealed class ArtifactConfiguration : IEntityTypeConfiguration<Artifact>,
+        IEntityTypeConfiguration<Artifacts>
     {
-        ValueConverter<ArtifactRevisionId?, Guid?> revisionIdConverter = new(
-            id => id == null ? null : id.Value,
-            value => value == null ? null : ArtifactRevisionId.Create(value.Value));
+        public void Configure(EntityTypeBuilder<Artifact> builder)
+        {
+            ValueConverter<ArtifactRevisionId?, Guid?> revisionIdConverter = new(
+                id => id == null ? null : id.Value,
+                value => value == null ? null : ArtifactRevisionId.Create(value.Value));
 
-        ValueConverter<RevisionNumber?, int?> revisionNumberConverter = new(
-            number => number == null ? null : number.Value,
-            value => value == null ? null : RevisionNumber.Create(value.Value).Value!);
+            ValueConverter<RevisionNumber?, int?> revisionNumberConverter = new(
+                number => number == null ? null : number.Value,
+                value => value == null ? null : RevisionNumber.Create(value.Value).Value!);
 
-        builder.ToTable(DbTableConstants.Artifacts, DbConstants.SchemaName);
+            builder.ToTable(DbTableConstants.Artifacts, DbConstants.SchemaName);
 
-        builder.HasKey(e => e.Id);
+            builder.HasKey(e => e.Id);
 
-        builder.Property(e => e.Id)
-            .HasColumnName("ArtifactId")
-            .HasColumnType(DbIdentifierColumnTypeConstants.Uuid)
-            .HasConversion(id => id.Value, value => ArtifactId.Create(value))
-            .IsRequired()
-            .ValueGeneratedNever()
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
+            builder.Property(e => e.Id)
+                .HasColumnName("ArtifactId")
+                .HasColumnType(DbIdentifierColumnTypeConstants.Uuid)
+                .HasConversion(id => id.Value, value => ArtifactId.Create(value))
+                .IsRequired()
+                .ValueGeneratedNever()
+                .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-        builder.Property(e => e.WorkspaceId)
-            .HasColumnName("WorkspaceId")
-            .HasColumnType(DbIdentifierColumnTypeConstants.Uuid)
-            .HasConversion(id => id.Value, value => WorkspaceId.Create(value))
-            .IsRequired()
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
+            builder.Property(e => e.WorkspaceId)
+                .HasColumnName("WorkspaceId")
+                .HasColumnType(DbIdentifierColumnTypeConstants.Uuid)
+                .HasConversion(id => id.Value, value => WorkspaceId.Create(value))
+                .IsRequired()
+                .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-        builder.Property(e => e.Title)
-            .HasColumnName("Title")
-            .HasColumnType(DbTextColumnTypeConstants.Varchar200)
-            .HasConversion(title => title.Value, value => ArtifactTitle.Create(value).Value!)
-            .HasMaxLength(DbMaxLengthConstants.L200)
-            .IsRequired()
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
+            builder.Property(e => e.Title)
+                .HasColumnName("Title")
+                .HasColumnType(DbTextColumnTypeConstants.Varchar200)
+                .HasConversion(title => title.Value, value => ArtifactTitle.Create(value).Value!)
+                .HasMaxLength(DbMaxLengthConstants.L200)
+                .IsRequired()
+                .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-        builder.Property(e => e.Type)
-            .HasColumnName("TypeId")
-            .HasColumnType(DbNumericColumnTypeConstants.Integer)
-            .HasConversion(type => type.Id, value => Enumeration.GetAll<ArtifactType>().Single(type => type.Id == value))
-            .IsRequired()
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
+            builder.Property(e => e.KindType)
+                .HasColumnName("Kind")
+                .HasColumnType(DbTextColumnTypeConstants.Varchar32)
+                .HasMaxLength(DbMaxLengthConstants.L32)
+                .HasConversion(kind => kind.Name,
+                    value => Enumeration.GetAll<ArtifactKindType>().Single(kind => kind.Name == value))
+                .IsRequired()
+                .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-        builder.Property(e => e.Status)
-            .HasColumnName("StatusId")
-            .HasColumnType(DbNumericColumnTypeConstants.Integer)
-            .HasConversion(status => status.Id, value => Enumeration.GetAll<ArtifactStatusType>().Single(status => status.Id == value))
-            .IsRequired()
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
+            builder.Property(e => e.Type)
+                .HasColumnName("TypeId")
+                .HasColumnType(DbNumericColumnTypeConstants.Integer)
+                .HasConversion(type => type.Id,
+                    value => Enumeration.GetAll<ArtifactType>().Single(type => type.Id == value))
+                .IsRequired()
+                .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-        builder.Property(e => e.Priority)
-            .HasColumnName("Priority")
-            .HasColumnType(DbNumericColumnTypeConstants.Integer)
-            .HasConversion(priority => priority.Value, value => ContextPriority.Create(value).Value!)
-            .HasDefaultValue(ContextPriority.Neutral)
-            .IsRequired()
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
+            builder.Property(e => e.Status)
+                .HasColumnName("StatusId")
+                .HasColumnType(DbNumericColumnTypeConstants.Integer)
+                .HasConversion(status => status.Id,
+                    value => Enumeration.GetAll<ArtifactStatusType>().Single(status => status.Id == value))
+                .IsRequired()
+                .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-        builder.Property(e => e.CurrentRevisionId)
-            .HasColumnName("CurrentRevisionId")
-            .HasColumnType(DbIdentifierColumnTypeConstants.Uuid)
-            .HasConversion(revisionIdConverter)
-            .IsRequired(false)
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
+            builder.Property(e => e.Priority)
+                .HasColumnName("Priority")
+                .HasColumnType(DbNumericColumnTypeConstants.Integer)
+                .HasConversion(priority => priority.Value, value => ContextPriority.Create(value).Value!)
+                .HasDefaultValue(ContextPriority.Neutral)
+                .IsRequired()
+                .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-        builder.Property(e => e.CurrentRevisionNumber)
-            .HasColumnName("CurrentRevisionNumber")
-            .HasColumnType(DbNumericColumnTypeConstants.Integer)
-            .HasConversion(revisionNumberConverter)
-            .IsRequired(false)
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
+            builder.Property(e => e.CurrentRevisionId)
+                .HasColumnName("CurrentRevisionId")
+                .HasColumnType(DbIdentifierColumnTypeConstants.Uuid)
+                .HasConversion(revisionIdConverter)
+                .IsRequired(false)
+                .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-        builder.Property(e => e.CreatedAtUtc)
-            .HasColumnName("CreatedAtUtc")
-            .HasColumnType(DbDateTimeColumnTypeConstants.TimestampTz)
-            .IsRequired()
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
+            builder.Property(e => e.CurrentRevisionNumber)
+                .HasColumnName("CurrentRevisionNumber")
+                .HasColumnType(DbNumericColumnTypeConstants.Integer)
+                .HasConversion(revisionNumberConverter)
+                .IsRequired(false)
+                .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-        builder.Property(e => e.UpdatedAtUtc)
-            .HasColumnName("UpdatedAtUtc")
-            .HasColumnType(DbDateTimeColumnTypeConstants.TimestampTz)
-            .IsRequired()
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
+            builder.Property(e => e.CreatedAtUtc)
+                .HasColumnName("CreatedAtUtc")
+                .HasColumnType(DbDateTimeColumnTypeConstants.TimestampTz)
+                .IsRequired()
+                .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-        builder.Property(e => e.ArchivedAtUtc)
-            .HasColumnName("ArchivedAtUtc")
-            .HasColumnType(DbDateTimeColumnTypeConstants.TimestampTz)
-            .IsRequired(false)
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
+            builder.Property(e => e.UpdatedAtUtc)
+                .HasColumnName("UpdatedAtUtc")
+                .HasColumnType(DbDateTimeColumnTypeConstants.TimestampTz)
+                .IsRequired()
+                .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-        builder.Property(e => e.Version)
-            .IsRowVersion()
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
+            builder.Property(e => e.ArchivedAtUtc)
+                .HasColumnName("ArchivedAtUtc")
+                .HasColumnType(DbDateTimeColumnTypeConstants.TimestampTz)
+                .IsRequired(false)
+                .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-        builder.HasOne<Workspace>()
-            .WithMany()
-            .HasForeignKey(e => e.WorkspaceId)
-            .OnDelete(DeleteBehavior.Restrict);
+            builder.Property(e => e.Version)
+                .IsRowVersion()
+                .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-        builder.HasIndex(e => e.WorkspaceId)
-            .HasDatabaseName("IX_Artifacts_WorkspaceId");
+            builder.HasAlternateKey(e => new { e.Id, e.WorkspaceId });
 
-        builder.HasIndex(e => e.Status)
-            .HasDatabaseName("IX_Artifacts_StatusId");
+            builder.HasOne<Workspace>()
+                .WithMany()
+                .HasForeignKey(e => e.WorkspaceId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasIndex(e => new { e.WorkspaceId, e.Title })
-            .HasDatabaseName("IX_Artifacts_WorkspaceId_Title");
+            builder.HasIndex(e => e.WorkspaceId)
+                .HasDatabaseName("IX_Artifacts_WorkspaceId");
 
-        builder.Ignore(e => e.RevisionCount);
-    }
+            builder.HasIndex(e => e.Status)
+                .HasDatabaseName("IX_Artifacts_StatusId");
 
-    public void Configure(EntityTypeBuilder<Espada.Db.Models.Artifacts> builder)
-    {
-        builder.Property(model => model.ArtifactId).ValueGeneratedNever();
-        builder.Property(model => model.Priority).HasDefaultValue(ContextPriority.Neutral.Value);
-        builder.Property(model => model.Version).IsRowVersion();
-        builder.HasOne<Espada.Db.Models.Workspaces>().WithMany().HasForeignKey(model => model.WorkspaceId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasOne<Espada.Db.Models.ArtifactTypes>().WithMany().HasForeignKey(model => model.TypeId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasOne<Espada.Db.Models.ArtifactStatusTypes>().WithMany().HasForeignKey(model => model.StatusId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasIndex(model => model.WorkspaceId).HasDatabaseName("IX_Artifacts_WorkspaceId");
-        builder.HasIndex(model => model.StatusId).HasDatabaseName("IX_Artifacts_StatusId");
-        builder.HasIndex(model => new { model.WorkspaceId, model.Title }).HasDatabaseName("IX_Artifacts_WorkspaceId_Title");
+            builder.HasIndex(e => new { e.WorkspaceId, e.Title })
+                .HasDatabaseName("IX_Artifacts_WorkspaceId_Title");
+
+            builder.Ignore(e => e.RevisionCount);
+        }
+
+        public void Configure(EntityTypeBuilder<Artifacts> builder)
+        {
+            builder.Property(model => model.ArtifactId).ValueGeneratedNever();
+            builder.Property(model => model.Priority).HasDefaultValue(ContextPriority.Neutral.Value);
+            builder.Property(model => model.Version).IsRowVersion();
+            builder.HasAlternateKey(model => new { model.ArtifactId, model.WorkspaceId });
+            builder.HasOne<Workspaces>().WithMany().HasForeignKey(model => model.WorkspaceId)
+                .OnDelete(DeleteBehavior.Restrict);
+            builder.HasOne<ArtifactTypes>().WithMany().HasForeignKey(model => model.TypeId)
+                .OnDelete(DeleteBehavior.Restrict);
+            builder.HasOne<ArtifactStatusTypes>().WithMany().HasForeignKey(model => model.StatusId)
+                .OnDelete(DeleteBehavior.Restrict);
+            builder.HasIndex(model => model.WorkspaceId).HasDatabaseName("IX_Artifacts_WorkspaceId");
+            builder.HasIndex(model => model.StatusId).HasDatabaseName("IX_Artifacts_StatusId");
+            builder.HasIndex(model => new { model.WorkspaceId, model.Title })
+                .HasDatabaseName("IX_Artifacts_WorkspaceId_Title");
+        }
     }
 }

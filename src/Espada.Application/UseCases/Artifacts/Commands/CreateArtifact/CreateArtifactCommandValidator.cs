@@ -23,9 +23,11 @@ namespace Espada.Application.UseCases.Artifacts.Commands.CreateArtifact
                 .Must(content => !string.IsNullOrWhiteSpace(content));
         }
 
-        private static bool IsSupportedArtifactType(int typeId) =>
-            Enumeration
+        private static bool IsSupportedArtifactType(int typeId)
+        {
+            return Enumeration
                 .GetAll<ArtifactType>()
                 .Any(type => type.Id == typeId);
+        }
     }
 }

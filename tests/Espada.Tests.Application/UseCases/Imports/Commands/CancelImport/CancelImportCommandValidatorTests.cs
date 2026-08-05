@@ -15,7 +15,8 @@ namespace Espada.Tests.Application.UseCases.Imports.Commands.CancelImport
             CancelImportCommand command = new CancelImportCommandBuilder().Build();
 
             // Act
-            TestValidationResult<CancelImportCommand> result = await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
+            TestValidationResult<CancelImportCommand> result =
+                await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
 
             // Assert
             result.ShouldNotHaveAnyValidationErrors();
@@ -30,7 +31,8 @@ namespace Espada.Tests.Application.UseCases.Imports.Commands.CancelImport
                 .Build();
 
             // Act
-            TestValidationResult<CancelImportCommand> result = await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
+            TestValidationResult<CancelImportCommand> result =
+                await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
 
             // Assert
             result.ShouldHaveValidationErrorFor(cancelImportCommand => cancelImportCommand.WorkspaceId);
@@ -45,7 +47,8 @@ namespace Espada.Tests.Application.UseCases.Imports.Commands.CancelImport
                 .Build();
 
             // Act
-            TestValidationResult<CancelImportCommand> result = await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
+            TestValidationResult<CancelImportCommand> result =
+                await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
 
             // Assert
             result.ShouldHaveValidationErrorFor(cancelImportCommand => cancelImportCommand.ImportJobId);

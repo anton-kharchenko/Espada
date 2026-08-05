@@ -46,11 +46,7 @@ namespace Espada.Tests.Application.Fixtures
             ArtifactRepository.ArtifactToReturn = artifact;
 
             ArtifactRevisionRepository.RevisionsToReturn =
-                new[]
-                {
-                    firstRevision,
-                    secondRevision
-                };
+                new[] { firstRevision, secondRevision };
 
             return (
                 artifact,

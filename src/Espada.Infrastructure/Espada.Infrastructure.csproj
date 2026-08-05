@@ -6,33 +6,34 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Espada.Billing\Espada.Billing.csproj" />
-        <ProjectReference Include="..\Espada.Application\Espada.Application.csproj" />
-        <ProjectReference Include="..\Espada.Db\Espada.Db.csproj" />
-        <ProjectReference Include="..\Espada.Domain\Espada.Domain.csproj" />
+    <ItemGroup>
+        <ProjectReference Include="..\Espada.Billing\Espada.Billing.csproj"/>
+        <ProjectReference Include="..\Espada.Application\Espada.Application.csproj"/>
+        <ProjectReference Include="..\Espada.Db\Espada.Db.csproj"/>
+        <ProjectReference Include="..\Espada.Domain\Espada.Domain.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="AngleSharp" />
-        <PackageReference Include="Azure.Identity" />
-        <PackageReference Include="Azure.Storage.Blobs" />
-        <PackageReference Include="DocumentFormat.OpenXml" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" />
+        <PackageReference Include="AngleSharp"/>
+        <PackageReference Include="Azure.Identity"/>
+        <PackageReference Include="Azure.Storage.Blobs"/>
+        <PackageReference Include="DocumentFormat.OpenXml"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore"/>
 
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
 
-  <PackageReference Include="Npgsql" />
-  <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
-  <PackageReference Include="Pgvector" />
-  <PackageReference Include="Pgvector.EntityFrameworkCore" />
-    <PackageReference Include="Microsoft.Extensions.Http" />
-    <PackageReference Include="ModelContextProtocol" />
-  <PackageReference Include="Microsoft.Extensions.Options" />
-  <PackageReference Include="UglyToad.PdfPig" />
+        <PackageReference Include="Npgsql"/>
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL"/>
+        <PackageReference Include="OpenIddict.EntityFrameworkCore"/>
+        <PackageReference Include="Pgvector"/>
+        <PackageReference Include="Pgvector.EntityFrameworkCore"/>
+        <PackageReference Include="Microsoft.Extensions.Http"/>
+        <PackageReference Include="ModelContextProtocol"/>
+        <PackageReference Include="Microsoft.Extensions.Options"/>
+        <PackageReference Include="UglyToad.PdfPig"/>
     </ItemGroup>
 
 </Project>

@@ -1,12 +1,13 @@
 using Stripe;
 
-namespace Espada.Billing.Contracts;
-
-internal interface IStripeWebhookHandler
+namespace Espada.Billing.Contracts
 {
-    bool CanHandle(string eventType);
+    internal interface IStripeWebhookHandler
+    {
+        bool CanHandle(string eventType);
 
-    Task HandleAsync(
-        Event stripeEvent,
-        CancellationToken cancellationToken);
+        Task HandleAsync(
+            Event stripeEvent,
+            CancellationToken cancellationToken);
+    }
 }

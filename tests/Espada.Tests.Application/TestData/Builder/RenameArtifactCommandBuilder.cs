@@ -4,14 +4,14 @@ namespace Espada.Tests.Application.TestData.Builder
 {
     internal sealed class RenameArtifactCommandBuilder
     {
-        private Guid _workspaceId =
-            TestIds.DefaultWorkspaceId.Value;
-
         private Guid _artifactId =
             TestIds.DefaultArtifactId.Value;
 
         private string? _title =
             TestValues.RenamedArtifactTitle;
+
+        private Guid _workspaceId =
+            TestIds.DefaultWorkspaceId.Value;
 
         public RenameArtifactCommandBuilder InWorkspace(Guid workspaceId)
         {

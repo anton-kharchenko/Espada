@@ -7,365 +7,372 @@ using Espada.Tests.Application.Fixtures;
 using Espada.Tests.Application.TestData;
 using Espada.Tests.Application.TestData.Builder;
 
-namespace Espada.Tests.Application.UseCases.Imports.Commands.RequestImport;
-
-public sealed class RequestImportCommandHandlerTests
+namespace Espada.Tests.Application.UseCases.Imports.Commands.RequestImport
 {
-    [Fact]
-    public async Task Handle_WhenSourceExists_ShouldCreateImportJob()
+    public sealed class RequestImportCommandHandlerTests
     {
-        // Arrange
-        RequestImportHandlerFixture fixture = new();
+        [Fact]
+        public async Task Handle_WhenSourceExists_ShouldCreateImportJob()
+        {
+            // Arrange
+            RequestImportHandlerFixture fixture = new();
 
-        Source source = fixture.GivenSourceExists();
+            Source source = fixture.GivenSourceExists();
 
-        RequestImportCommandHandler handler = fixture.CreateHandler();
+            RequestImportCommandHandler handler = fixture.CreateHandler();
 
-        RequestImportCommand command = new RequestImportCommandBuilder()
-            .InWorkspace(source.WorkspaceId.Value)
+            RequestImportCommand command = new RequestImportCommandBuilder()
+                .InWorkspace(source.WorkspaceId.Value)
                 .ForSource(source.Id.Value)
                 .Build();
 
-        // Act
-        DomainResult<RequestImportResponse> result = await handler.Handle(command, TestContext.Current.CancellationToken);
+            // Act
+            DomainResult<RequestImportResponse> result =
+                await handler.Handle(command, TestContext.Current.CancellationToken);
 
-        // Assert
-        RequestImportResponse response = result.ShouldSucceed();
+            // Assert
+            RequestImportResponse response = result.ShouldSucceed();
 
-        ImportJob importJob = GetAddedImportJob(fixture);
+            ImportJob importJob = GetAddedImportJob(fixture);
 
-        response.ImportJobId.Should().Be(importJob.Id.Value);
-        importJob.WorkspaceId.Should().Be(source.WorkspaceId);
-        importJob.SourceId.Should().Be(source.Id);
-        importJob.Status.Should().Be(ImportStatusType.Requested);
-        importJob.IdempotencyKey.Should().Be(command.IdempotencyKey);
-        importJob.OptionsJson.Should().Contain("test-embedding-model");
-    }
+            response.ImportJobId.Should().Be(importJob.Id.Value);
+            importJob.WorkspaceId.Should().Be(source.WorkspaceId);
+            importJob.SourceId.Should().Be(source.Id);
+            importJob.Status.Should().Be(ImportStatusType.Requested);
+            importJob.IdempotencyKey.Should().Be(command.IdempotencyKey);
+            importJob.OptionsJson.Should().Contain("test-embedding-model");
+        }
 
-    [Fact]
-    public async Task Handle_WhenSameIdempotencyKeyAndPayloadExists_ShouldReturnExistingImport()
-    {
-        RequestImportHandlerFixture fixture = new();
-        Source source = fixture.GivenSourceExists();
-        RequestImportCommand command = new RequestImportCommandBuilder()
-            .InWorkspace(source.WorkspaceId.Value)
-            .ForSource(source.Id.Value)
-            .WithIdempotencyKey("same-request")
-            .Build();
-        ImportJob existing = fixture.GivenImportWithSameRequestExists(command);
-
-        DomainResult<RequestImportResponse> result = await fixture.CreateHandler()
-            .Handle(command, TestContext.Current.CancellationToken);
-
-        result.ShouldSucceed().ImportJobId.Should().Be(existing.Id.Value);
-        fixture.ImportJobRepository.AddCallCount.Should().Be(0);
-        fixture.UnitOfWork.SaveChangesCallCount.Should().Be(0);
-    }
-
-    [Fact]
-    public async Task Handle_WhenIdempotencyKeyHasDifferentPayload_ShouldReturnConflict()
-    {
-        RequestImportHandlerFixture fixture = new();
-        Source source = fixture.GivenSourceExists();
-        RequestImportCommand original = new RequestImportCommandBuilder()
-            .InWorkspace(source.WorkspaceId.Value)
-            .ForSource(source.Id.Value)
-            .WithIdempotencyKey("conflicting-request")
-            .Build();
-        fixture.GivenImportWithSameRequestExists(original);
-        RequestImportCommand conflicting = original with
+        [Fact]
+        public async Task Handle_WhenSameIdempotencyKeyAndPayloadExists_ShouldReturnExistingImport()
         {
-            Options = original.Options with { EmbeddingModel = "different-model" }
-        };
+            RequestImportHandlerFixture fixture = new();
+            Source source = fixture.GivenSourceExists();
+            RequestImportCommand command = new RequestImportCommandBuilder()
+                .InWorkspace(source.WorkspaceId.Value)
+                .ForSource(source.Id.Value)
+                .WithIdempotencyKey("same-request")
+                .Build();
+            ImportJob existing = fixture.GivenImportWithSameRequestExists(command);
 
-        DomainResult<RequestImportResponse> result = await fixture.CreateHandler()
-            .Handle(conflicting, TestContext.Current.CancellationToken);
+            DomainResult<RequestImportResponse> result = await fixture.CreateHandler()
+                .Handle(command, TestContext.Current.CancellationToken);
 
-        result.ShouldFailWith(ImportJobApplicationErrors.IdempotencyConflict);
-        fixture.ImportJobRepository.AddCallCount.Should().Be(0);
-        fixture.UnitOfWork.SaveChangesCallCount.Should().Be(0);
-    }
+            result.ShouldSucceed().ImportJobId.Should().Be(existing.Id.Value);
+            fixture.ImportJobRepository.AddCallCount.Should().Be(0);
+            fixture.UnitOfWork.SaveChangesCallCount.Should().Be(0);
+        }
 
-    [Fact]
-    public async Task Handle_WhenSourceExists_ShouldUseClockTime()
-    {
-        // Arrange
-        RequestImportHandlerFixture fixture = new();
+        [Fact]
+        public async Task Handle_WhenIdempotencyKeyHasDifferentPayload_ShouldReturnConflict()
+        {
+            RequestImportHandlerFixture fixture = new();
+            Source source = fixture.GivenSourceExists();
+            RequestImportCommand original = new RequestImportCommandBuilder()
+                .InWorkspace(source.WorkspaceId.Value)
+                .ForSource(source.Id.Value)
+                .WithIdempotencyKey("conflicting-request")
+                .Build();
+            fixture.GivenImportWithSameRequestExists(original);
+            RequestImportCommand conflicting = original with
+            {
+                Options = original.Options with { EmbeddingModel = "different-model" }
+            };
 
-        fixture.GivenSourceExists();
+            DomainResult<RequestImportResponse> result = await fixture.CreateHandler()
+                .Handle(conflicting, TestContext.Current.CancellationToken);
 
-        fixture.ClockService.UtcNow = TestDates.ImportRequestedAtUtc;
+            result.ShouldFailWith(ImportJobApplicationErrors.IdempotencyConflict);
+            fixture.ImportJobRepository.AddCallCount.Should().Be(0);
+            fixture.UnitOfWork.SaveChangesCallCount.Should().Be(0);
+        }
 
-        RequestImportCommandHandler handler = fixture.CreateHandler();
+        [Fact]
+        public async Task Handle_WhenSourceExists_ShouldUseClockTime()
+        {
+            // Arrange
+            RequestImportHandlerFixture fixture = new();
 
-        RequestImportCommand command = new RequestImportCommandBuilder().Build();
+            fixture.GivenSourceExists();
 
-        // Act
-        DomainResult<RequestImportResponse> result = await handler.Handle(command, TestContext.Current.CancellationToken);
+            fixture.ClockService.UtcNow = TestDates.ImportRequestedAtUtc;
 
-        // Assert
-        result.ShouldSucceed();
+            RequestImportCommandHandler handler = fixture.CreateHandler();
 
-        ImportJob importJob = GetAddedImportJob(fixture);
+            RequestImportCommand command = new RequestImportCommandBuilder().Build();
 
-        importJob.RequestedAtUtc.Should().Be(TestDates.ImportRequestedAtUtc);
-    }
+            // Act
+            DomainResult<RequestImportResponse> result =
+                await handler.Handle(command, TestContext.Current.CancellationToken);
 
-    [Fact]
-    public async Task Handle_WhenSourceExists_ShouldPersistAndSaveOnce()
-    {
-        // Arrange
-        RequestImportHandlerFixture fixture = new();
+            // Assert
+            result.ShouldSucceed();
 
-        fixture.GivenSourceExists();
+            ImportJob importJob = GetAddedImportJob(fixture);
 
-        RequestImportCommandHandler handler = fixture.CreateHandler();
+            importJob.RequestedAtUtc.Should().Be(TestDates.ImportRequestedAtUtc);
+        }
 
-        RequestImportCommand command = new RequestImportCommandBuilder().Build();
+        [Fact]
+        public async Task Handle_WhenSourceExists_ShouldPersistAndSaveOnce()
+        {
+            // Arrange
+            RequestImportHandlerFixture fixture = new();
 
-        // Act
-        DomainResult<RequestImportResponse> result = await handler.Handle(command, TestContext.Current.CancellationToken);
+            fixture.GivenSourceExists();
 
-        // Assert
-        result.ShouldSucceed();
+            RequestImportCommandHandler handler = fixture.CreateHandler();
 
-        fixture.SourceRepository
-            .GetByIdCallCount
-            .Should()
-            .Be(1);
+            RequestImportCommand command = new RequestImportCommandBuilder().Build();
 
-        fixture.ImportJobRepository
-            .AddCallCount
-            .Should()
-            .Be(1);
+            // Act
+            DomainResult<RequestImportResponse> result =
+                await handler.Handle(command, TestContext.Current.CancellationToken);
 
-        fixture.UnitOfWork
-            .SaveChangesCallCount
-            .Should()
-            .Be(1);
-    }
+            // Assert
+            result.ShouldSucceed();
 
-    [Fact]
-    public async Task Handle_ShouldForwardCancellationToken()
-    {
-        // Arrange
-        RequestImportHandlerFixture fixture = new();
+            fixture.SourceRepository
+                .GetByIdCallCount
+                .Should()
+                .Be(1);
 
-        fixture.GivenSourceExists();
+            fixture.ImportJobRepository
+                .AddCallCount
+                .Should()
+                .Be(1);
 
-        RequestImportCommandHandler handler = fixture.CreateHandler();
+            fixture.UnitOfWork
+                .SaveChangesCallCount
+                .Should()
+                .Be(1);
+        }
 
-        RequestImportCommand command = new RequestImportCommandBuilder().Build();
+        [Fact]
+        public async Task Handle_ShouldForwardCancellationToken()
+        {
+            // Arrange
+            RequestImportHandlerFixture fixture = new();
 
-        using CancellationTokenSource tokenSource = new();
+            fixture.GivenSourceExists();
 
-        CancellationToken cancellationToken = tokenSource.Token;
+            RequestImportCommandHandler handler = fixture.CreateHandler();
 
-        // Act
-        DomainResult<RequestImportResponse> result = await handler.Handle(command, cancellationToken);
+            RequestImportCommand command = new RequestImportCommandBuilder().Build();
 
-        // Assert
-        result.ShouldSucceed();
+            using CancellationTokenSource tokenSource = new();
 
-        fixture.SourceRepository
-            .GetByIdCancellationToken
-            .Should()
-            .Be(cancellationToken);
+            CancellationToken cancellationToken = tokenSource.Token;
 
-        fixture.ImportJobRepository
-            .AddCancellationToken
-            .Should()
-            .Be(cancellationToken);
+            // Act
+            DomainResult<RequestImportResponse> result = await handler.Handle(command, cancellationToken);
 
-        fixture.UnitOfWork
-            .ReceivedCancellationToken
-            .Should()
-            .Be(cancellationToken);
-    }
+            // Assert
+            result.ShouldSucceed();
 
-    [Fact]
-    public async Task Handle_WhenSourceDoesNotExist_ShouldReturnNotFound()
-    {
-        // Arrange
-        RequestImportHandlerFixture fixture = new();
+            fixture.SourceRepository
+                .GetByIdCancellationToken
+                .Should()
+                .Be(cancellationToken);
 
-        fixture.GivenSourceDoesNotExist();
+            fixture.ImportJobRepository
+                .AddCancellationToken
+                .Should()
+                .Be(cancellationToken);
 
-        RequestImportCommandHandler handler = fixture.CreateHandler();
+            fixture.UnitOfWork
+                .ReceivedCancellationToken
+                .Should()
+                .Be(cancellationToken);
+        }
 
-        Guid sourceId = TestIds.SourceId.Value;
+        [Fact]
+        public async Task Handle_WhenSourceDoesNotExist_ShouldReturnNotFound()
+        {
+            // Arrange
+            RequestImportHandlerFixture fixture = new();
 
-        RequestImportCommand command = new RequestImportCommandBuilder()
+            fixture.GivenSourceDoesNotExist();
+
+            RequestImportCommandHandler handler = fixture.CreateHandler();
+
+            Guid sourceId = TestIds.SourceId.Value;
+
+            RequestImportCommand command = new RequestImportCommandBuilder()
                 .ForSource(sourceId)
                 .Build();
 
-        // Act
-        DomainResult<RequestImportResponse> result =
-            await handler.Handle(
-                command,
-                TestContext.Current.CancellationToken);
+            // Act
+            DomainResult<RequestImportResponse> result =
+                await handler.Handle(
+                    command,
+                    TestContext.Current.CancellationToken);
 
-        // Assert
-        result.ShouldFailWith(SourceApplicationErrors.NotFound(sourceId));
+            // Assert
+            result.ShouldFailWith(SourceApplicationErrors.NotFound(sourceId));
 
-        fixture.ImportJobRepository
-            .AddCallCount
-            .Should()
-            .Be(0);
+            fixture.ImportJobRepository
+                .AddCallCount
+                .Should()
+                .Be(0);
 
-        fixture.UnitOfWork
-            .SaveChangesCallCount
-            .Should()
-            .Be(0);
-    }
+            fixture.UnitOfWork
+                .SaveChangesCallCount
+                .Should()
+                .Be(0);
+        }
 
-    [Fact]
-    public async Task Handle_WhenSourceBelongsToAnotherWorkspace_ShouldReturnNotFoundInWorkspace()
-    {
-        // Arrange
-        RequestImportHandlerFixture fixture = new();
+        [Fact]
+        public async Task Handle_WhenSourceBelongsToAnotherWorkspace_ShouldReturnNotFoundInWorkspace()
+        {
+            // Arrange
+            RequestImportHandlerFixture fixture = new();
 
-        Source source = fixture.GivenSourceExists(TestIds.AnotherWorkspaceId);
+            Source source = fixture.GivenSourceExists(TestIds.AnotherWorkspaceId);
 
-        RequestImportCommandHandler handler = fixture.CreateHandler();
+            RequestImportCommandHandler handler = fixture.CreateHandler();
 
-        Guid requestedWorkspaceId =
-            TestIds.DefaultWorkspaceId.Value;
+            Guid requestedWorkspaceId =
+                TestIds.DefaultWorkspaceId.Value;
 
-        RequestImportCommand command = new RequestImportCommandBuilder()
+            RequestImportCommand command = new RequestImportCommandBuilder()
                 .InWorkspace(requestedWorkspaceId)
                 .ForSource(source.Id.Value)
                 .Build();
 
-        // Act
-        DomainResult<RequestImportResponse> result = await handler.Handle(command, TestContext.Current.CancellationToken);
+            // Act
+            DomainResult<RequestImportResponse> result =
+                await handler.Handle(command, TestContext.Current.CancellationToken);
 
-        // Assert
-        result.ShouldFailWith(SourceApplicationErrors.NotFoundInWorkspace(source.Id.Value, requestedWorkspaceId));
+            // Assert
+            result.ShouldFailWith(SourceApplicationErrors.NotFoundInWorkspace(source.Id.Value, requestedWorkspaceId));
 
-        fixture.ImportJobRepository
-            .AddCallCount
-            .Should()
-            .Be(0);
+            fixture.ImportJobRepository
+                .AddCallCount
+                .Should()
+                .Be(0);
 
-        fixture.UnitOfWork
-            .SaveChangesCallCount
-            .Should()
-            .Be(0);
-    }
+            fixture.UnitOfWork
+                .SaveChangesCallCount
+                .Should()
+                .Be(0);
+        }
 
-    [Fact]
-    public async Task Handle_WithEmptyWorkspaceId_ShouldNotQueryOrPersist()
-    {
-        // Arrange
-        RequestImportHandlerFixture fixture = new();
+        [Fact]
+        public async Task Handle_WithEmptyWorkspaceId_ShouldNotQueryOrPersist()
+        {
+            // Arrange
+            RequestImportHandlerFixture fixture = new();
 
-        RequestImportCommandHandler handler = fixture.CreateHandler();
+            RequestImportCommandHandler handler = fixture.CreateHandler();
 
-        RequestImportCommand command = new RequestImportCommandBuilder()
+            RequestImportCommand command = new RequestImportCommandBuilder()
                 .InWorkspace(Guid.Empty)
                 .Build();
 
-        // Act
-        DomainResult<RequestImportResponse> result = await handler.Handle(command, TestContext.Current.CancellationToken);
+            // Act
+            DomainResult<RequestImportResponse> result =
+                await handler.Handle(command, TestContext.Current.CancellationToken);
 
-        // Assert
-        result.ShouldFailWith(WorkspaceApplicationErrors.InvalidId);
+            // Assert
+            result.ShouldFailWith(WorkspaceApplicationErrors.InvalidId);
 
-        fixture.SourceRepository
-            .GetByIdCallCount
-            .Should()
-            .Be(0);
+            fixture.SourceRepository
+                .GetByIdCallCount
+                .Should()
+                .Be(0);
 
-        fixture.ImportJobRepository
-            .AddCallCount
-            .Should()
-            .Be(0);
+            fixture.ImportJobRepository
+                .AddCallCount
+                .Should()
+                .Be(0);
 
-        fixture.UnitOfWork
-            .SaveChangesCallCount
-            .Should()
-            .Be(0);
-    }
+            fixture.UnitOfWork
+                .SaveChangesCallCount
+                .Should()
+                .Be(0);
+        }
 
-    [Fact]
-    public async Task Handle_WithEmptySourceId_ShouldNotQueryOrPersist()
-    {
-        // Arrange
-        RequestImportHandlerFixture fixture = new();
+        [Fact]
+        public async Task Handle_WithEmptySourceId_ShouldNotQueryOrPersist()
+        {
+            // Arrange
+            RequestImportHandlerFixture fixture = new();
 
-        RequestImportCommandHandler handler = fixture.CreateHandler();
+            RequestImportCommandHandler handler = fixture.CreateHandler();
 
-        RequestImportCommand command = new RequestImportCommandBuilder()
-            .ForSource(Guid.Empty)
-            .Build();
+            RequestImportCommand command = new RequestImportCommandBuilder()
+                .ForSource(Guid.Empty)
+                .Build();
 
-        // Act
-        DomainResult<RequestImportResponse> result = await handler.Handle(command, TestContext.Current.CancellationToken);
+            // Act
+            DomainResult<RequestImportResponse> result =
+                await handler.Handle(command, TestContext.Current.CancellationToken);
 
-        // Assert
-        result.ShouldFailWith(SourceApplicationErrors.InvalidId);
+            // Assert
+            result.ShouldFailWith(SourceApplicationErrors.InvalidId);
 
-        fixture.SourceRepository
-            .GetByIdCallCount
-            .Should()
-            .Be(0);
+            fixture.SourceRepository
+                .GetByIdCallCount
+                .Should()
+                .Be(0);
 
-        fixture.ImportJobRepository
-            .AddCallCount
-            .Should()
-            .Be(0);
+            fixture.ImportJobRepository
+                .AddCallCount
+                .Should()
+                .Be(0);
 
-        fixture.UnitOfWork
-            .SaveChangesCallCount
-            .Should()
-            .Be(0);
-    }
+            fixture.UnitOfWork
+                .SaveChangesCallCount
+                .Should()
+                .Be(0);
+        }
 
-    private static ImportJob GetAddedImportJob(RequestImportHandlerFixture fixture)
-    {
-        fixture.ImportJobRepository
-            .AddedImportJob
-            .Should()
-            .NotBeNull();
+        private static ImportJob GetAddedImportJob(RequestImportHandlerFixture fixture)
+        {
+            fixture.ImportJobRepository
+                .AddedImportJob
+                .Should()
+                .NotBeNull();
 
-        return fixture.ImportJobRepository.AddedImportJob!;
-    }
+            return fixture.ImportJobRepository.AddedImportJob!;
+        }
 
-    [Fact]
-    public async Task Handle_WithoutRequestedModel_ShouldUseConfiguredDefault()
-    {
-        RequestImportHandlerFixture fixture = new();
-        fixture.GivenSourceExists();
-        fixture.EmbeddingModelDefaults.DefaultModel = "configured-model@v1";
-        RequestImportCommand command = new RequestImportCommandBuilder()
-            .WithEmbeddingModel(null)
-            .Build();
+        [Fact]
+        public async Task Handle_WithoutRequestedModel_ShouldUseConfiguredDefault()
+        {
+            RequestImportHandlerFixture fixture = new();
+            fixture.GivenSourceExists();
+            fixture.EmbeddingModelDefaults.DefaultModel = "configured-model@v1";
+            RequestImportCommand command = new RequestImportCommandBuilder()
+                .WithEmbeddingModel(null)
+                .Build();
 
-        DomainResult<RequestImportResponse> result = await fixture.CreateHandler()
-            .Handle(command, TestContext.Current.CancellationToken);
+            DomainResult<RequestImportResponse> result = await fixture.CreateHandler()
+                .Handle(command, TestContext.Current.CancellationToken);
 
-        result.ShouldSucceed();
-        fixture.ImportJobRepository.AddedImportJob.Should().NotBeNull();
-        fixture.ImportJobRepository.AddedImportJob!.OptionsJson
-            .Should()
-            .Contain("configured-model@v1");
-    }
+            result.ShouldSucceed();
+            fixture.ImportJobRepository.AddedImportJob.Should().NotBeNull();
+            fixture.ImportJobRepository.AddedImportJob!.OptionsJson
+                .Should()
+                .Contain("configured-model@v1");
+        }
 
-    [Fact]
-    public async Task Handle_WithoutAnyEmbeddingModel_ShouldRejectBeforeEnqueue()
-    {
-        RequestImportHandlerFixture fixture = new();
-        fixture.GivenSourceExists();
-        RequestImportCommand command = new RequestImportCommandBuilder()
-            .WithEmbeddingModel(null)
-            .Build();
+        [Fact]
+        public async Task Handle_WithoutAnyEmbeddingModel_ShouldRejectBeforeEnqueue()
+        {
+            RequestImportHandlerFixture fixture = new();
+            fixture.GivenSourceExists();
+            RequestImportCommand command = new RequestImportCommandBuilder()
+                .WithEmbeddingModel(null)
+                .Build();
 
-        DomainResult<RequestImportResponse> result = await fixture.CreateHandler()
-            .Handle(command, TestContext.Current.CancellationToken);
+            DomainResult<RequestImportResponse> result = await fixture.CreateHandler()
+                .Handle(command, TestContext.Current.CancellationToken);
 
-        result.ShouldFailWith(ImportJobApplicationErrors.EmbeddingModelRequired);
-        fixture.ImportJobRepository.AddCallCount.Should().Be(0);
-        fixture.UnitOfWork.SaveChangesCallCount.Should().Be(0);
+            result.ShouldFailWith(ImportJobApplicationErrors.EmbeddingModelRequired);
+            fixture.ImportJobRepository.AddCallCount.Should().Be(0);
+            fixture.UnitOfWork.SaveChangesCallCount.Should().Be(0);
+        }
     }
 }

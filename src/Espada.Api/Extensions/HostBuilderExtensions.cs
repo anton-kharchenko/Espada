@@ -1,18 +1,19 @@
-namespace Espada.Api.Extensions;
-
-internal static class HostBuilderExtensions
+namespace Espada.Api.Extensions
 {
-    public static void ConfigureHostBuilder(this IHostBuilder host, IConfiguration configuration,
-        IHostEnvironment environment)
+    internal static class HostBuilderExtensions
     {
-        ArgumentNullException.ThrowIfNull(host);
-        ArgumentNullException.ThrowIfNull(configuration);
-        ArgumentNullException.ThrowIfNull(environment);
-
-        host.UseDefaultServiceProvider(options =>
+        public static void ConfigureHostBuilder(this IHostBuilder host, IConfiguration configuration,
+            IHostEnvironment environment)
         {
-            options.ValidateScopes = environment.IsDevelopment();
-            options.ValidateOnBuild = environment.IsDevelopment();
-        });
+            ArgumentNullException.ThrowIfNull(host);
+            ArgumentNullException.ThrowIfNull(configuration);
+            ArgumentNullException.ThrowIfNull(environment);
+
+            host.UseDefaultServiceProvider(options =>
+            {
+                options.ValidateScopes = environment.IsDevelopment();
+                options.ValidateOnBuild = environment.IsDevelopment();
+            });
+        }
     }
 }

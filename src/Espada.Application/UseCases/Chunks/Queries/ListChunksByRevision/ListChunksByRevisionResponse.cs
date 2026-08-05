@@ -1,3 +1,4 @@
-namespace Espada.Application.UseCases.Chunks.Queries.ListChunksByRevision;
-
-public sealed record ListChunksByRevisionResponse(IReadOnlyList<ChunkListItemResponse> Items);
+namespace Espada.Application.UseCases.Chunks.Queries.ListChunksByRevision
+{
+    public sealed record ListChunksByRevisionResponse(IReadOnlyList<ChunkListItemResponse> Items);
+}

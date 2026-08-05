@@ -1,27 +1,31 @@
-using Espada.Comms.Core.Security;
+using Espada.Comms.Core.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 
-namespace Espada.Api.OpenApi;
-
-internal sealed class ApiKeySecurityRequirementTransformer : IOpenApiOperationTransformer
+namespace Espada.Api.OpenApi
 {
-    public Task TransformAsync(OpenApiOperation operation, OpenApiOperationTransformerContext context, CancellationToken cancellationToken)
+    internal sealed class ApiKeySecurityRequirementTransformer : IOpenApiOperationTransformer
     {
-        bool allowsAnonymous = context.Description.ActionDescriptor.EndpointMetadata.OfType<AllowAnonymousAttribute>().Any();
-
-        if (allowsAnonymous)
+        public Task TransformAsync(OpenApiOperation operation, OpenApiOperationTransformerContext context,
+            CancellationToken cancellationToken)
         {
+            bool allowsAnonymous = context.Description.ActionDescriptor.EndpointMetadata
+                .OfType<AllowAnonymousAttribute>().Any();
+
+            if (allowsAnonymous)
+            {
+                return Task.CompletedTask;
+            }
+
+            operation.Security ??= [];
+            operation.Security.Add(new OpenApiSecurityRequirement
+            {
+                [new OpenApiSecuritySchemeReference(ApiKeyAuthenticationConstants.AuthenticationScheme, context.Document)] =
+                    []
+            });
+
             return Task.CompletedTask;
         }
-
-        operation.Security ??= [];
-        operation.Security.Add(new OpenApiSecurityRequirement
-        {
-            [new OpenApiSecuritySchemeReference(ApiKeyAuthenticationDefaults.AuthenticationScheme, context.Document)] = []
-        });
-
-        return Task.CompletedTask;
     }
 }

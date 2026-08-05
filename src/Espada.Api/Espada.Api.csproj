@@ -1,30 +1,32 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <RootNamespace>Espada.Api</RootNamespace>
-  </PropertyGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Espada.Billing\Espada.Billing.csproj" />
-    <ProjectReference Include="..\Espada.Application\Espada.Application.csproj" />
-    <ProjectReference Include="..\Espada.Comms.Core\Espada.Comms.Core.csproj" />
-    <ProjectReference Include="..\Espada.Domain\Espada.Domain.csproj" />
-    <ProjectReference Include="..\Espada.Infrastructure\Espada.Infrastructure.csproj" />
-    <ProjectReference Include="..\Espada.ServiceDefaults\Espada.ServiceDefaults.csproj" />
-    <ProjectReference Include="..\Espada.Api.Contracts\Espada.Api.Contracts.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="AutoMapper" />
-    <PackageReference Include="Asp.Versioning.Mvc" />
-    <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
-    <PackageReference Include="Scalar.AspNetCore" />
-    <PackageReference Include="Microsoft.OpenApi" />
-  </ItemGroup>
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>Espada.Api</RootNamespace>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Espada.AgentAdapters\Espada.AgentAdapters.csproj"/>
+        <ProjectReference Include="..\Espada.Billing\Espada.Billing.csproj"/>
+        <ProjectReference Include="..\Espada.Application\Espada.Application.csproj"/>
+        <ProjectReference Include="..\Espada.Comms.Core\Espada.Comms.Core.csproj"/>
+        <ProjectReference Include="..\Espada.Domain\Espada.Domain.csproj"/>
+        <ProjectReference Include="..\Espada.Infrastructure\Espada.Infrastructure.csproj"/>
+        <ProjectReference Include="..\Espada.ServiceDefaults\Espada.ServiceDefaults.csproj"/>
+        <ProjectReference Include="..\Espada.Api.Contracts\Espada.Api.Contracts.csproj"/>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="AutoMapper"/>
+        <PackageReference Include="Asp.Versioning.Mvc"/>
+        <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect"/>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi"/>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer"/>
+        <PackageReference Include="Scalar.AspNetCore"/>
+        <PackageReference Include="Microsoft.OpenApi"/>
+    </ItemGroup>
 </Project>

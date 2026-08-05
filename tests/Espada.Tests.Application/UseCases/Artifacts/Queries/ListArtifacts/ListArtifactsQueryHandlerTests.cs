@@ -22,10 +22,11 @@ namespace Espada.Tests.Application.UseCases.Artifacts.Queries.ListArtifacts
             ListArtifactsQueryHandler handler = fixture.CreateHandler();
 
             ListArtifactsQuery query = new ListArtifactsQueryBuilder()
-                    .InWorkspace(workspace.Id.Value)
-                    .Build();
+                .InWorkspace(workspace.Id.Value)
+                .Build();
 
-            DomainResult<ListArtifactsResponse> result = await handler.Handle(query, TestContext.Current.CancellationToken);
+            DomainResult<ListArtifactsResponse> result =
+                await handler.Handle(query, TestContext.Current.CancellationToken);
 
             ListArtifactsResponse response = result.ShouldSucceed();
 

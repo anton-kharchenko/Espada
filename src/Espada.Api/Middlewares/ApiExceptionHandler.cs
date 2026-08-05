@@ -1,29 +1,31 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Espada.Api.Middlewares;
-
-internal sealed class ApiExceptionHandler(ILogger<ApiExceptionHandler> logger) : IExceptionHandler
+namespace Espada.Api.Middlewares
 {
-    public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
+    internal sealed class ApiExceptionHandler(ILogger<ApiExceptionHandler> logger) : IExceptionHandler
     {
-        logger.LogError(exception, "Unhandled exception while processing request.");
-
-        ProblemDetails problemDetails = new()
+        public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception,
+            CancellationToken cancellationToken)
         {
-            Status = StatusCodes.Status500InternalServerError,
-            Title = "Unexpected server error.",
-            Detail = "An unexpected error occurred while processing the request.",
-            Type = "https://httpstatuses.com/500",
-            Instance = httpContext.Request.Path
-        };
+            logger.LogError(exception, "Unhandled exception while processing request.");
 
-        httpContext.Response.StatusCode = problemDetails.Status.Value;
+            ProblemDetails problemDetails = new()
+            {
+                Status = StatusCodes.Status500InternalServerError,
+                Title = "Unexpected server error.",
+                Detail = "An unexpected error occurred while processing the request.",
+                Type = "https://httpstatuses.com/500",
+                Instance = httpContext.Request.Path
+            };
 
-        await httpContext.Response.WriteAsJsonAsync(
-            problemDetails,
-            cancellationToken);
+            httpContext.Response.StatusCode = problemDetails.Status.Value;
 
-        return true;
+            await httpContext.Response.WriteAsJsonAsync(
+                problemDetails,
+                cancellationToken);
+
+            return true;
+        }
     }
 }

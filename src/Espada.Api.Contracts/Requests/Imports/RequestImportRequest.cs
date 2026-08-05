@@ -1,18 +1,19 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Espada.Api.Contracts.Requests.Imports;
-
-public sealed class RequestImportRequest : IValidatableObject
+namespace Espada.Api.Contracts.Requests.Imports
 {
-    public Guid SourceId { get; init; }
-
-    public ImportOptionsRequest? Options { get; init; }
-
-    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    public sealed class RequestImportRequest : IValidatableObject
     {
-        if (SourceId == Guid.Empty)
+        public Guid SourceId { get; init; }
+
+        public ImportOptionsRequest? Options { get; init; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            yield return new ValidationResult("SourceId is required.", [nameof(SourceId)]);
+            if (SourceId == Guid.Empty)
+            {
+                yield return new ValidationResult("SourceId is required.", [nameof(SourceId)]);
+            }
         }
     }
 }

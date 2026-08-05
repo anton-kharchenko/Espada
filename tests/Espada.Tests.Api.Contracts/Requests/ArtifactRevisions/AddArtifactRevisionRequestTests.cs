@@ -3,34 +3,29 @@ using Espada.Tests.Api.Contracts.TestData;
 using Espada.Tests.Api.Contracts.Validation;
 using System.ComponentModel.DataAnnotations;
 
-namespace Espada.Tests.Api.Contracts.Requests.ArtifactRevisions;
-
-public sealed class AddArtifactRevisionRequestTests
+namespace Espada.Tests.Api.Contracts.Requests.ArtifactRevisions
 {
-    [Fact]
-    public void Validate_WithValidRequest_ShouldNotReturnErrors()
+    public sealed class AddArtifactRevisionRequestTests
     {
-        AddArtifactRevisionRequest request = new()
+        [Fact]
+        public void Validate_WithValidRequest_ShouldNotReturnErrors()
         {
-            Content = TestValues.ArtifactRevisionContent
-        };
+            AddArtifactRevisionRequest request = new() { Content = TestValues.ArtifactRevisionContent };
 
-        IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
+            IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
 
-        Assert.Empty(results);
-    }
+            Assert.Empty(results);
+        }
 
-    [Theory]
-    [MemberData(nameof(StringTheoryData.NullOrWhiteSpaceValues), MemberType = typeof(StringTheoryData))]
-    public void Validate_WithEmptyContent_ShouldReturnContentError(string? content)
-    {
-        AddArtifactRevisionRequest request = new()
+        [Theory]
+        [MemberData(nameof(StringTheoryData.NullOrWhiteSpaceValues), MemberType = typeof(StringTheoryData))]
+        public void Validate_WithEmptyContent_ShouldReturnContentError(string? content)
         {
-            Content = content!
-        };
+            AddArtifactRevisionRequest request = new() { Content = content! };
 
-        IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
+            IReadOnlyList<ValidationResult> results = ValidationTestHelper.Validate(request);
 
-        Assert.True(results.HasErrorFor(nameof(AddArtifactRevisionRequest.Content)));
+            Assert.True(results.HasErrorFor(nameof(AddArtifactRevisionRequest.Content)));
+        }
     }
 }

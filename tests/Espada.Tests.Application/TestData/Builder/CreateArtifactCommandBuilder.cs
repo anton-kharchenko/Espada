@@ -5,13 +5,12 @@ namespace Espada.Tests.Application.TestData.Builder
 {
     internal sealed class CreateArtifactCommandBuilder
     {
-        private Guid _workspaceId = TestIds.DefaultWorkspaceId.Value;
+        private string? _content = TestValues.ArtifactContent;
 
         private string? _title = TestValues.ArtifactTitle;
 
         private int _typeId = ArtifactType.Markdown.Id;
-
-        private string? _content = TestValues.ArtifactContent;
+        private Guid _workspaceId = TestIds.DefaultWorkspaceId.Value;
 
         public CreateArtifactCommandBuilder InWorkspace(Guid workspaceId)
         {
@@ -37,6 +36,9 @@ namespace Espada.Tests.Application.TestData.Builder
             return this;
         }
 
-        public CreateArtifactCommand Build() => new(_workspaceId, _title!, _typeId, _content!);
+        public CreateArtifactCommand Build()
+        {
+            return new CreateArtifactCommand(_workspaceId, _title!, _typeId, _content!);
+        }
     }
 }

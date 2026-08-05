@@ -6,26 +6,25 @@ using Espada.Tests.Api.TestData.Routes;
 using System.Net;
 using System.Net.Http.Json;
 
-namespace Espada.Tests.Api.Controllers;
-
-public sealed class ArtifactRevisionsControllerValidationTests(EspadaApiFactory factory) : IClassFixture<EspadaApiFactory>
+namespace Espada.Tests.Api.Controllers
 {
-    [Fact]
-    public async Task Add_WithEmptyContent_ShouldReturnBadRequest()
+    public sealed class ArtifactRevisionsControllerValidationTests(EspadaApiFactory factory)
+        : IClassFixture<EspadaApiFactory>
     {
-        using HttpClient client = factory.CreateHttpsClient();
-
-        AddArtifactRevisionRequest request = new()
+        [Fact]
+        public async Task Add_WithEmptyContent_ShouldReturnBadRequest()
         {
-            Content = " "
-        };
+            using HttpClient client = factory.CreateHttpsClient();
 
-        HttpResponseMessage response = await client.PostAsJsonAsync(
-            ArtifactRevisionApiRoutes.Add(TestIds.WorkspaceId, TestIds.ArtifactId),
-            request,
-            cancellationToken: TestContext.Current.CancellationToken);
+            AddArtifactRevisionRequest request = new() { Content = " " };
 
-        await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
-        await response.ShouldContainValidationErrorAsync(nameof(AddArtifactRevisionRequest.Content));
+            HttpResponseMessage response = await client.PostAsJsonAsync(
+                ArtifactRevisionApiRoutes.Add(TestIds.WorkspaceId, TestIds.ArtifactId),
+                request,
+                TestContext.Current.CancellationToken);
+
+            await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
+            await response.ShouldContainValidationErrorAsync(nameof(AddArtifactRevisionRequest.Content));
+        }
     }
 }

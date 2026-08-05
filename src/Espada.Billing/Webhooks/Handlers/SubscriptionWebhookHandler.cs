@@ -4,21 +4,37 @@ using Espada.Billing.Enums;
 using Espada.Billing.Models;
 using Stripe;
 
-namespace Espada.Billing.Webhooks.Handlers;
-
-internal sealed class SubscriptionWebhookHandler(IBillingStoreService storeService) : IStripeWebhookHandler
+namespace Espada.Billing.Webhooks.Handlers
 {
-    public bool CanHandle(string eventType) => eventType is EventTypes.CustomerSubscriptionCreated or EventTypes.CustomerSubscriptionUpdated or EventTypes.CustomerSubscriptionDeleted;
-
-    public async Task HandleAsync(Event stripeEvent, CancellationToken cancellationToken)
+    internal sealed class SubscriptionWebhookHandler(IBillingStoreService storeService) : IStripeWebhookHandler
     {
-        if (stripeEvent.Data.Object is not Subscription subscription || string.IsNullOrWhiteSpace(subscription.CustomerId))
+        public bool CanHandle(string eventType)
         {
-            throw new InvalidOperationException("Subscription event is missing its customer.");
+            return eventType is EventTypes.CustomerSubscriptionCreated or EventTypes.CustomerSubscriptionUpdated
+                or EventTypes.CustomerSubscriptionDeleted;
         }
 
-        Guid? workspaceId = subscription.Metadata.TryGetValue(StripeMetadataKeyContants.WorkspaceId, out string? workspaceValue) && Guid.TryParse(workspaceValue, out Guid parsedWorkspaceId) ? parsedWorkspaceId : null;
-        CloudBillingPlanType? plan = subscription.Metadata.TryGetValue(StripeMetadataKeyContants.Plan, out string? planValue) && Enum.TryParse(planValue, ignoreCase: true, out CloudBillingPlanType parsedPlan) ? parsedPlan : null;
-        await storeService.ApplyCustomerUpdateAsync(new BillingCustomerUpdate(workspaceId, subscription.CustomerId, subscription.Id, plan, subscription.Status, null, stripeEvent.Created), cancellationToken);
+        public async Task HandleAsync(Event stripeEvent, CancellationToken cancellationToken)
+        {
+            if (stripeEvent.Data.Object is not Subscription subscription ||
+                string.IsNullOrWhiteSpace(subscription.CustomerId))
+            {
+                throw new InvalidOperationException("Subscription event is missing its customer.");
+            }
+
+            Guid? workspaceId =
+                subscription.Metadata.TryGetValue(StripeMetadataKeyConstants.WorkspaceId, out string? workspaceValue) &&
+                Guid.TryParse(workspaceValue, out Guid parsedWorkspaceId)
+                    ? parsedWorkspaceId
+                    : null;
+            CloudBillingPlanType? plan =
+                subscription.Metadata.TryGetValue(StripeMetadataKeyConstants.Plan, out string? planValue) &&
+                Enum.TryParse(planValue, true, out CloudBillingPlanType parsedPlan)
+                    ? parsedPlan
+                    : null;
+            await storeService.ApplyCustomerUpdateAsync(
+                new BillingCustomerUpdate(workspaceId, subscription.CustomerId, subscription.Id, plan,
+                    subscription.Status, null, stripeEvent.Created), cancellationToken);
+        }
     }
 }

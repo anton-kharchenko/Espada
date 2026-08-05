@@ -1,12 +1,13 @@
 using Espada.Application.Models;
 
-namespace Espada.Application.Contracts.Embedding;
-
-public interface IEmbeddingGeneratorService
+namespace Espada.Application.Contracts.Embedding
 {
-    Task<GeneratedEmbedding> GenerateAsync(
-        string modelIdentifier,
-        string modelVersion,
-        string input,
-        CancellationToken cancellationToken = default);
+    public interface IEmbeddingGeneratorService
+    {
+        Task<GeneratedEmbedding> GenerateAsync(
+            string modelIdentifier,
+            string modelVersion,
+            string input,
+            CancellationToken cancellationToken = default);
+    }
 }

@@ -1,28 +1,46 @@
 using Espada.Domain.SeedWork;
 
-namespace Espada.Domain.ValueObjects;
-
-public sealed class ArtifactId : ValueObject
+namespace Espada.Domain.ValueObjects
 {
-    private ArtifactId(Guid value)
+    public sealed class ArtifactId : ValueObject
     {
-        Value = value;
+        private ArtifactId(Guid value)
+        {
+            Value = value;
+        }
+
+        public Guid Value { get; }
+
+        public static ArtifactId New()
+        {
+            return new ArtifactId(Guid.NewGuid());
+        }
+
+        public static ArtifactId Create(Guid value)
+        {
+            return value == Guid.Empty
+                ? throw new ArgumentException("Artifact ID cannot be empty.", nameof(value))
+                : new ArtifactId(value);
+        }
+
+        public override string ToString()
+        {
+            return Value.ToString("D");
+        }
+
+        protected override IEnumerable<object> GetEqualityComponents()
+        {
+            yield return Value;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
-
-    public Guid Value { get; }
-
-    public static ArtifactId New() => new(Guid.NewGuid());
-
-    public static ArtifactId Create(Guid value) => value == Guid.Empty ? throw new ArgumentException("Artifact ID cannot be empty.", nameof(value)) : new ArtifactId(value);
-
-    public override string ToString() => Value.ToString("D");
-
-    protected override IEnumerable<object> GetEqualityComponents()
-    {
-        yield return Value;
-    }
-
-    public override bool Equals(object? obj) => base.Equals(obj);
-
-    public override int GetHashCode() => base.GetHashCode();
 }

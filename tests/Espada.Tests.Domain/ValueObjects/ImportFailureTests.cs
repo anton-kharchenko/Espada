@@ -1,98 +1,96 @@
 using Espada.Domain.Errors;
 
-namespace Espada.Tests.Domain.ValueObjects;
-
-public sealed class ImportFailureTests
+namespace Espada.Tests.Domain.ValueObjects
 {
-    public static TheoryData<string?> EmptyValues =>
-        new()
+    public sealed class ImportFailureTests
+    {
+        public static TheoryData<string?> EmptyValues =>
+            new() { null!, string.Empty, " " };
+
+        [Fact]
+        public void Create_WithValidValues_ShouldCreateFailure()
         {
-            null!,
-            string.Empty,
-            " "
-        };
+            // Act
+            ImportFailure failure = ImportFailure.Create("source.read_failed", "The source could not be read.")
+                .ShouldSucceed();
 
-    [Fact]
-    public void Create_WithValidValues_ShouldCreateFailure()
-    {
-        // Act
-        ImportFailure failure = ImportFailure.Create("source.read_failed", "The source could not be read.").ShouldSucceed();
+            // Assert
+            failure.Code.Should().Be("source.read_failed");
 
-        // Assert
-        failure.Code.Should().Be("source.read_failed");
+            failure.Reason.Should().Be("The source could not be read.");
+        }
 
-        failure.Reason.Should().Be("The source could not be read.");
-    }
+        [Fact]
+        public void Create_ShouldTrimCodeAndReason()
+        {
+            // Act
+            ImportFailure failure = ImportFailure.Create("  source.read_failed  ", "  The source could not be read.  ")
+                .ShouldSucceed();
 
-    [Fact]
-    public void Create_ShouldTrimCodeAndReason()
-    {
-        // Act
-        ImportFailure failure = ImportFailure.Create("  source.read_failed  ", "  The source could not be read.  ").ShouldSucceed();
+            // Assert
+            failure.Code.Should().Be("source.read_failed");
+            failure.Reason.Should().Be("The source could not be read.");
+        }
 
-        // Assert
-        failure.Code.Should().Be("source.read_failed");
-        failure.Reason.Should().Be("The source could not be read.");
-    }
+        [Theory]
+        [MemberData(nameof(EmptyValues))]
+        public void Create_WithEmptyCode_ShouldReturnExpectedError(string? code)
+        {
+            // Act
+            DomainResult<ImportFailure> result = ImportFailure.Create(code, "Failure reason.");
 
-    [Theory]
-    [MemberData(nameof(EmptyValues))]
-    public void Create_WithEmptyCode_ShouldReturnExpectedError(string? code)
-    {
-        // Act
-        DomainResult<ImportFailure> result = ImportFailure.Create(code, "Failure reason.");
+            // Assert
+            result.ShouldFailWith(ImportJobErrors.FailureCodeEmpty);
+        }
 
-        // Assert
-        result.ShouldFailWith(ImportJobErrors.FailureCodeEmpty);
-    }
+        [Theory]
+        [MemberData(nameof(EmptyValues))]
+        public void Create_WithEmptyReason_ShouldReturnExpectedError(string? reason)
+        {
+            // Act
+            DomainResult<ImportFailure> result = ImportFailure.Create("source.read_failed", reason);
 
-    [Theory]
-    [MemberData(nameof(EmptyValues))]
-    public void Create_WithEmptyReason_ShouldReturnExpectedError(string? reason)
-    {
-        // Act
-        DomainResult<ImportFailure> result = ImportFailure.Create("source.read_failed", reason);
+            // Assert
+            result.ShouldFailWith(ImportJobErrors.FailureReasonEmpty);
+        }
 
-        // Assert
-        result.ShouldFailWith(ImportJobErrors.FailureReasonEmpty);
-    }
+        [Fact]
+        public void Create_WithCodeAboveMaximumLength_ShouldReturnFailure()
+        {
+            // Arrange
+            string code = new('a', ImportFailure.CodeMaxLength + 1);
 
-    [Fact]
-    public void Create_WithCodeAboveMaximumLength_ShouldReturnFailure()
-    {
-        // Arrange
-        string code = new('a', ImportFailure.CodeMaxLength + 1);
+            // Act
+            DomainResult<ImportFailure> result = ImportFailure.Create(code, "Failure reason.");
 
-        // Act
-        DomainResult<ImportFailure> result = ImportFailure.Create(code, "Failure reason.");
+            // Assert
+            result.ShouldFailWith(ImportJobErrors.FailureCodeTooLong);
+        }
 
-        // Assert
-        result.ShouldFailWith(ImportJobErrors.FailureCodeTooLong);
-    }
+        [Fact]
+        public void Create_WithReasonAboveMaximumLength_ShouldReturnFailure()
+        {
+            // Arrange
+            string reason = new('a', ImportFailure.ReasonMaxLength + 1);
 
-    [Fact]
-    public void Create_WithReasonAboveMaximumLength_ShouldReturnFailure()
-    {
-        // Arrange
-        string reason = new('a', ImportFailure.ReasonMaxLength + 1);
+            // Act
+            DomainResult<ImportFailure> result = ImportFailure.Create("source.read_failed", reason);
 
-        // Act
-        DomainResult<ImportFailure> result = ImportFailure.Create("source.read_failed", reason);
+            // Assert
+            result.ShouldFailWith(ImportJobErrors.FailureReasonTooLong);
+        }
 
-        // Assert
-        result.ShouldFailWith(ImportJobErrors.FailureReasonTooLong);
-    }
+        [Fact]
+        public void FailuresWithSameValues_ShouldBeEqual()
+        {
+            // Arrange
+            ImportFailure first = ImportFailure.Create("source.read_failed", "Failure reason.").ShouldSucceed();
 
-    [Fact]
-    public void FailuresWithSameValues_ShouldBeEqual()
-    {
-        // Arrange
-        ImportFailure first = ImportFailure.Create("source.read_failed", "Failure reason.").ShouldSucceed();
+            ImportFailure second = ImportFailure.Create("source.read_failed", "Failure reason.").ShouldSucceed();
 
-        ImportFailure second = ImportFailure.Create("source.read_failed", "Failure reason.").ShouldSucceed();
-
-        // Assert
-        first.Should().Be(second);
-        first.GetHashCode().Should().Be(second.GetHashCode());
+            // Assert
+            first.Should().Be(second);
+            first.GetHashCode().Should().Be(second.GetHashCode());
+        }
     }
 }

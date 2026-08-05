@@ -1,6 +1,7 @@
-namespace Espada.Application.Contracts.Billing;
-
-public interface IImportAdmissionPolicy
+namespace Espada.Application.Contracts.Billing
 {
-    Task<string?> GetDenialReasonAsync(Guid workspaceId, CancellationToken cancellationToken = default);
+    public interface IImportAdmissionPolicy
+    {
+        Task<string?> GetDenialReasonAsync(Guid workspaceId, CancellationToken cancellationToken = default);
+    }
 }

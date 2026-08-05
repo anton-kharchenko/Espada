@@ -3,42 +3,51 @@ using Espada.Billing.Constants;
 using Espada.Billing.Contracts;
 using Espada.Billing.Helpers;
 using Espada.Billing.Models;
-using Espada.Billing.Services;
 using Stripe;
 
-namespace Espada.Billing.Webhooks;
-
-internal sealed class StripeWebhookProcessor(IBillingStoreService storeService, IEnumerable<IStripeWebhookHandler> handlers, IClockService clock) : IStripeWebhookProcessor
+namespace Espada.Billing.Webhooks
 {
-    public async Task<bool> ProcessNextAsync(string workerId, CancellationToken cancellationToken = default)
+    internal sealed class StripeWebhookProcessor(
+        IBillingStoreService storeService,
+        IEnumerable<IStripeWebhookHandler> handlers,
+        IClockService clock) : IStripeWebhookProcessor
     {
-        ClaimedPaymentEvent? claimed = await storeService.ClaimPaymentEventAsync(workerId, BillingProcessingConstnts.LeaseDuration, cancellationToken);
-        if (claimed is null)
+        public async Task<bool> ProcessNextAsync(string workerId, CancellationToken cancellationToken = default)
         {
-            return false;
-        }
-
-        try
-        {
-            Event stripeEvent = EventUtility.ParseEvent(claimed.PayloadJson, throwOnApiVersionMismatch: true);
-            IStripeWebhookHandler? handler = handlers.SingleOrDefault(candidate => candidate.CanHandle(claimed.EventType));
-            if (handler is not null)
+            ClaimedPaymentEvent? claimed = await storeService.ClaimPaymentEventAsync(workerId,
+                BillingProcessingConstants.LeaseDuration, cancellationToken);
+            if (claimed is null)
             {
-                await handler.HandleAsync(stripeEvent, cancellationToken);
+                return false;
             }
 
-            await storeService.MarkPaymentEventProcessedAsync(claimed.ProviderEventId, workerId, cancellationToken);
-        }
-        catch (Exception exception) when (exception is not OperationCanceledException)
-        {
-            bool retryable = exception is StripeException or HttpRequestException or IOException or TimeoutException;
-            int retryIndex = claimed.Attempt - 1;
-            retryable &= retryIndex < BillingProcessingConstnts.WebhookRetryDelays.Count;
-            DateTimeOffset availableAtUtc = retryable ? clock.UtcNow + BillingProcessingConstnts.WebhookRetryDelays[retryIndex] : clock.UtcNow;
+            try
+            {
+                Event stripeEvent = EventUtility.ParseEvent(claimed.PayloadJson);
+                IStripeWebhookHandler? handler =
+                    handlers.SingleOrDefault(candidate => candidate.CanHandle(claimed.EventType));
+                if (handler is not null)
+                {
+                    await handler.HandleAsync(stripeEvent, cancellationToken);
+                }
 
-            await storeService.MarkPaymentEventFailedAsync(claimed.ProviderEventId, workerId, retryable, availableAtUtc, BillingErrorSanitizerHelper.Sanitize(exception.Message), cancellationToken);
-        }
+                await storeService.MarkPaymentEventProcessedAsync(claimed.ProviderEventId, workerId, cancellationToken);
+            }
+            catch (Exception exception) when (exception is not OperationCanceledException)
+            {
+                bool retryable =
+                    exception is StripeException or HttpRequestException or IOException or TimeoutException;
+                int retryIndex = claimed.Attempt - 1;
+                retryable &= retryIndex < BillingProcessingConstants.WebhookRetryDelays.Count;
+                DateTimeOffset availableAtUtc = retryable
+                    ? clock.UtcNow + BillingProcessingConstants.WebhookRetryDelays[retryIndex]
+                    : clock.UtcNow;
 
-        return true;
+                await storeService.MarkPaymentEventFailedAsync(claimed.ProviderEventId, workerId, retryable,
+                    availableAtUtc, BillingErrorSanitizerHelper.Sanitize(exception.Message), cancellationToken);
+            }
+
+            return true;
+        }
     }
 }

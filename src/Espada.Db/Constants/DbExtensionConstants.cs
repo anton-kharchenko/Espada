@@ -1,6 +1,7 @@
-namespace Espada.Db.Constants;
-
-public static class DbExtensionConstants
+namespace Espada.Db.Constants
 {
-    public const string Vector = "vector";
+    public static class DbExtensionConstants
+    {
+        public const string Vector = "vector";
+    }
 }

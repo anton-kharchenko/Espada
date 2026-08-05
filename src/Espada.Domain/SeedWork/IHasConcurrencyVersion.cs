@@ -1,6 +1,7 @@
-namespace Espada.Domain.SeedWork;
-
-public interface IHasConcurrencyVersion
+namespace Espada.Domain.SeedWork
 {
-    uint Version { get; }
+    public interface IHasConcurrencyVersion
+    {
+        uint Version { get; }
+    }
 }

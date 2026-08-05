@@ -1,18 +1,19 @@
 using Espada.Billing.Constants;
 using FluentValidation;
 
-namespace Espada.Billing.UseCases.Portal;
-
-internal sealed class CreateCustomerPortalCommandValidator
-    : AbstractValidator<CreateCustomerPortalCommand>
+namespace Espada.Billing.UseCases.Portal
 {
-    public CreateCustomerPortalCommandValidator()
+    internal sealed class CreateCustomerPortalCommandValidator
+        : AbstractValidator<CreateCustomerPortalCommand>
     {
-        RuleFor(command => command.WorkspaceId)
-            .NotEmpty();
+        public CreateCustomerPortalCommandValidator()
+        {
+            RuleFor(command => command.WorkspaceId)
+                .NotEmpty();
 
-        RuleFor(command => command.IdempotencyKey)
-            .NotEmpty()
-            .MaximumLength(BillingRequestLimitConstnts.MaximumIdempotencyKeyLength);
+            RuleFor(command => command.IdempotencyKey)
+                .NotEmpty()
+                .MaximumLength(BillingRequestLimitConstants.MaximumIdempotencyKeyLength);
+        }
     }
 }

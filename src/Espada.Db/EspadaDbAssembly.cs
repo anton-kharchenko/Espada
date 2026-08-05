@@ -1,3 +1,4 @@
-namespace Espada.Db;
-
-public static class EspadaDbAssembly;
+namespace Espada.Db
+{
+    public static class EspadaDbAssembly;
+}

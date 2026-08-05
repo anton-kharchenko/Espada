@@ -1,14 +1,20 @@
 using Espada.Domain.SeedWork;
 
-namespace Espada.Domain.Enums;
-
-public class WorkspaceStatusType(int id, string name) : Enumeration(id, name)
+namespace Espada.Domain.Enums
 {
-    public static readonly WorkspaceStatusType Active = new(1, nameof(Active));
+    public class WorkspaceStatusType(int id, string name) : Enumeration(id, name)
+    {
+        public static readonly WorkspaceStatusType Active = new(1, nameof(Active));
 
-    public static readonly WorkspaceStatusType Archived = new(2, nameof(Archived));
+        public static readonly WorkspaceStatusType Archived = new(2, nameof(Archived));
+        public override bool Equals(object? obj)
+        {
+            return base.Equals(obj);
+        }
 
-    public override bool Equals(object? obj) => base.Equals(obj);
-
-    public override int GetHashCode() => base.GetHashCode();
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+    }
 }

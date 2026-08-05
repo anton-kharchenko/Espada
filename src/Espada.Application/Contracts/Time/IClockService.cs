@@ -1,6 +1,7 @@
-namespace Espada.Application.Contracts.Time;
-
-public interface IClockService
+namespace Espada.Application.Contracts.Time
 {
-    DateTimeOffset UtcNow { get; }
+    public interface IClockService
+    {
+        DateTimeOffset UtcNow { get; }
+    }
 }

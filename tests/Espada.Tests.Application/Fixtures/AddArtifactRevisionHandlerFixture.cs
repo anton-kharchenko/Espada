@@ -1,18 +1,25 @@
+using AutoMapper;
+using Espada.Application.Mappings;
 using Espada.Application.UseCases.Artifacts.Commands.AddArtifactRevision;
 using Espada.Domain.Aggregates;
 using Espada.Domain.ValueObjects;
 using Espada.Tests.Application.Fakes;
 using Espada.Tests.Application.TestData;
 using Espada.Tests.Application.TestData.Builder;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Espada.Tests.Application.Fixtures
 {
     internal sealed class AddArtifactRevisionHandlerFixture
     {
+        private readonly IMapper _mapper = new MapperConfiguration(
+            options => options.AddProfile<ApplicationMappingProfile>(),
+            NullLoggerFactory.Instance).CreateMapper();
+
         public ArtifactRepositorySpy ArtifactRepository { get; } = new();
-
         public ArtifactRevisionRepositorySpy ArtifactRevisionRepository { get; } = new();
-
+        public InstructionRuleRepositorySpy InstructionRuleRepository { get; } = new();
+        public PolicyRuleRepositorySpy PolicyRuleRepository { get; } = new();
         public UnitOfWorkSpy UnitOfWork { get; } = new();
 
         public TestClockService ClockService { get; } =
@@ -23,29 +30,26 @@ namespace Espada.Tests.Application.Fixtures
             return new AddArtifactRevisionCommandHandler(
                 ArtifactRepository,
                 ArtifactRevisionRepository,
+                InstructionRuleRepository,
+                PolicyRuleRepository,
                 UnitOfWork,
-                ClockService);
+                ClockService,
+                _mapper);
         }
 
-        public Artifact GivenArtifactExists(
-            WorkspaceId? workspaceId = null)
+        public Artifact GivenArtifactExists(WorkspaceId? workspaceId = null)
         {
             Artifact artifact = new ArtifactBuilder()
                 .InWorkspace(workspaceId ?? TestIds.DefaultWorkspaceId)
                 .BuildWithFirstRevisionWithoutPendingEvents();
-
             ArtifactRepository.ArtifactToReturn = artifact;
-
             return artifact;
         }
 
         public Artifact GivenArchivedArtifactExists()
         {
-            Artifact artifact = new ArtifactBuilder()
-                .BuildArchivedWithoutPendingEvents();
-
+            Artifact artifact = new ArtifactBuilder().BuildArchivedWithoutPendingEvents();
             ArtifactRepository.ArtifactToReturn = artifact;
-
             return artifact;
         }
 

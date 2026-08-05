@@ -1,31 +1,31 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <IsPackable>false</IsPackable>
-    <IsTestProject>true</IsTestProject>
-    <RootNamespace>Espada.Tests.Architecture</RootNamespace>
-    <AssemblyName>Espada.Tests.Architecture</AssemblyName>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="coverlet.collector">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" />
-    <PackageReference Include="xunit.v3" />
-    <PackageReference Include="xunit.runner.visualstudio">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+        <RootNamespace>Espada.Tests.Architecture</RootNamespace>
+        <AssemblyName>Espada.Tests.Architecture</AssemblyName>
+    </PropertyGroup>
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Espada.Comms.Core\Espada.Comms.Core.csproj" />
-        <ProjectReference Include="..\..\src\Espada.Domain\Espada.Domain.csproj" />
-    <ProjectReference Include="..\..\src\Espada.Application\Espada.Application.csproj" />
-    <ProjectReference Include="..\..\src\Espada.Infrastructure\Espada.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\src\Espada.Api.Contracts\Espada.Api.Contracts.csproj" />
-    <ProjectReference Include="..\..\src\Espada.Api\Espada.Api.csproj" />
-  </ItemGroup>
+        <PackageReference Include="coverlet.collector">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+        <PackageReference Include="xunit.v3"/>
+        <PackageReference Include="xunit.runner.visualstudio">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\Espada.Comms.Core\Espada.Comms.Core.csproj"/>
+        <ProjectReference Include="..\..\src\Espada.Domain\Espada.Domain.csproj"/>
+        <ProjectReference Include="..\..\src\Espada.Application\Espada.Application.csproj"/>
+        <ProjectReference Include="..\..\src\Espada.Infrastructure\Espada.Infrastructure.csproj"/>
+        <ProjectReference Include="..\..\src\Espada.Api.Contracts\Espada.Api.Contracts.csproj"/>
+        <ProjectReference Include="..\..\src\Espada.Api\Espada.Api.csproj"/>
+    </ItemGroup>
 </Project>

@@ -15,7 +15,8 @@ namespace Espada.Infrastructure.Repositories
             await dbContext.ArtifactRevisions.AddAsync(artifactRevision, cancellationToken);
         }
 
-        public async Task<ArtifactRevision?> GetByIdAsync(ArtifactRevisionId artifactRevisionId, CancellationToken cancellationToken = default)
+        public async Task<ArtifactRevision?> GetByIdAsync(ArtifactRevisionId artifactRevisionId,
+            CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(artifactRevisionId);
 
@@ -24,7 +25,8 @@ namespace Espada.Infrastructure.Repositories
                 .SingleOrDefaultAsync(revision => revision.Id == artifactRevisionId, cancellationToken);
         }
 
-        public async Task<IReadOnlyList<ArtifactRevision>> ListByArtifactIdAsync(ArtifactId artifactId, CancellationToken cancellationToken = default)
+        public async Task<IReadOnlyList<ArtifactRevision>> ListByArtifactIdAsync(ArtifactId artifactId,
+            CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(artifactId);
 

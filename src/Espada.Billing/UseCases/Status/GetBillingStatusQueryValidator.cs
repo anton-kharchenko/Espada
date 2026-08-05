@@ -1,12 +1,13 @@
 using FluentValidation;
 
-namespace Espada.Billing.UseCases.Status;
-
-internal sealed class GetBillingStatusQueryValidator : AbstractValidator<GetBillingStatusQuery>
+namespace Espada.Billing.UseCases.Status
 {
-    public GetBillingStatusQueryValidator()
+    internal sealed class GetBillingStatusQueryValidator : AbstractValidator<GetBillingStatusQuery>
     {
-        RuleFor(query => query.WorkspaceId)
-            .NotEmpty();
+        public GetBillingStatusQueryValidator()
+        {
+            RuleFor(query => query.WorkspaceId)
+                .NotEmpty();
+        }
     }
 }

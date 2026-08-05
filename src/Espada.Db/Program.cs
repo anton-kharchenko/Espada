@@ -6,147 +6,151 @@ using Espada.Db.Seeding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
-namespace Espada.Db;
-
-public static class Program
+namespace Espada.Db
 {
-    public static async Task<int> Main(string[] args)
+    public static class Program
     {
-        IConfiguration configuration = new ConfigurationBuilder()
-            .SetBasePath(AppContext.BaseDirectory)
-            .AddJsonFile("appsettings.json", optional: false)
-            .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Development"}.json", optional: true)
-            .AddEnvironmentVariables()
-            .Build();
-
-        await using DatabaseRuntime databaseRuntime = SetupDbContext.CreateRuntime(configuration);
-        SetupDbContext dbContext = databaseRuntime.DbContext;
-        string? commandValue = args.FirstOrDefault();
-
-        if (!DatabaseCommandParser.TryParse(commandValue, out DatabaseCommandType command))
+        public static async Task<int> Main(string[] args)
         {
-            return PrintUnknownCommand(commandValue ?? string.Empty);
-        }
+            IConfiguration configuration = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json", false)
+                .AddJsonFile(
+                    $"appsettings.{Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Development"}.json",
+                    true)
+                .AddEnvironmentVariables()
+                .Build();
 
-        bool forceRequested = args.Any(argument => argument.Equals("--force", StringComparison.OrdinalIgnoreCase));
+            await using DatabaseRuntime databaseRuntime = SetupDbContext.CreateRuntime(configuration);
+            SetupDbContext dbContext = databaseRuntime.DbContext;
+            string? commandValue = args.FirstOrDefault();
 
-        if (!command.RequiresForce() || forceRequested)
-        {
-            return command switch
+            if (!DatabaseCommandParser.TryParse(commandValue, out DatabaseCommandType command))
             {
-                DatabaseCommandType.Migrate => await MigrateAsync(dbContext),
-                DatabaseCommandType.Seed => await SeedAsync(dbContext),
-                DatabaseCommandType.Reset => await ResetAsync(dbContext),
-                DatabaseCommandType.Status => await PrintStatusAsync(dbContext),
-                DatabaseCommandType.Help => PrintHelp(),
-                _ => throw new ArgumentOutOfRangeException(nameof(command), command, null)
-            };
+                return PrintUnknownCommand(commandValue ?? string.Empty);
+            }
+
+            bool forceRequested = args.Any(argument => argument.Equals("--force", StringComparison.OrdinalIgnoreCase));
+
+            if (!command.RequiresForce() || forceRequested)
+            {
+                return command switch
+                {
+                    DatabaseCommandType.Migrate => await MigrateAsync(dbContext),
+                    DatabaseCommandType.Seed => await SeedAsync(dbContext),
+                    DatabaseCommandType.Reset => await ResetAsync(dbContext),
+                    DatabaseCommandType.Status => await PrintStatusAsync(dbContext),
+                    DatabaseCommandType.Help => PrintHelp(),
+                    _ => throw new ArgumentOutOfRangeException(nameof(command), command, null)
+                };
+            }
+
+            await Console.Error.WriteLineAsync(
+                $"The '{command.ToString().ToLowerInvariant()}' command requires --force.");
+
+            return 2;
         }
 
-        await Console.Error.WriteLineAsync($"The '{command.ToString().ToLowerInvariant()}' command requires --force.");
-
-        return 2;
-    }
-
-    private static async Task<int> MigrateAsync(SetupDbContext dbContext)
-    {
-        Console.WriteLine("Applying database migrations...");
-
-        await dbContext.Database.MigrateAsync();
-        await DbSeeder.SeedAsync(dbContext);
-
-        Console.WriteLine("Database migrations and reference data seeding completed.");
-
-        return 0;
-    }
-
-
-    private static async Task<int> SeedAsync(SetupDbContext dbContext)
-    {
-        Console.WriteLine("Applying database migrations...");
-
-        await dbContext.Database.MigrateAsync();
-
-        Console.WriteLine("Seeding database...");
-
-        await DbSeeder.SeedAsync(dbContext);
-
-        Console.WriteLine("Database seeding completed.");
-
-        return 0;
-    }
-
-    private static async Task<int> ResetAsync(SetupDbContext dbContext)
-    {
-        Console.WriteLine("Deleting database...");
-
-        await dbContext.Database.EnsureDeletedAsync();
-
-        Console.WriteLine("Applying migrations...");
-
-        await dbContext.Database.MigrateAsync();
-
-        Console.WriteLine("Seeding database...");
-
-        await DbSeeder.SeedAsync(dbContext);
-
-        Console.WriteLine("Database reset completed.");
-
-        return 0;
-    }
-
-    private static async Task<int> PrintStatusAsync(SetupDbContext dbContext)
-    {
-        bool canConnect = await dbContext.Database.CanConnectAsync();
-
-        Console.WriteLine($"Can connect: {canConnect}");
-
-        IEnumerable<string> applied = await dbContext.Database.GetAppliedMigrationsAsync();
-
-        IEnumerable<string> pending = await dbContext.Database.GetPendingMigrationsAsync();
-
-        Console.WriteLine();
-        Console.WriteLine("Applied migrations:");
-
-        foreach (string migration in applied)
+        private static async Task<int> MigrateAsync(SetupDbContext dbContext)
         {
-            Console.WriteLine($"  {migration}");
+            Console.WriteLine("Applying database migrations...");
+
+            await dbContext.Database.MigrateAsync();
+            await DbSeeder.SeedAsync(dbContext);
+
+            Console.WriteLine("Database migrations and reference data seeding completed.");
+
+            return 0;
         }
 
-        Console.WriteLine();
-        Console.WriteLine("Pending migrations:");
 
-        foreach (string migration in pending)
+        private static async Task<int> SeedAsync(SetupDbContext dbContext)
         {
-            Console.WriteLine($"  {migration}");
+            Console.WriteLine("Applying database migrations...");
+
+            await dbContext.Database.MigrateAsync();
+
+            Console.WriteLine("Seeding database...");
+
+            await DbSeeder.SeedAsync(dbContext);
+
+            Console.WriteLine("Database seeding completed.");
+
+            return 0;
         }
 
-        return canConnect ? 0 : 1;
-    }
+        private static async Task<int> ResetAsync(SetupDbContext dbContext)
+        {
+            Console.WriteLine("Deleting database...");
 
-    private static int PrintHelp()
-    {
-        Console.WriteLine(
-            """
-            Espada database utility
+            await dbContext.Database.EnsureDeletedAsync();
 
-            Commands:
-              migrate          Apply pending migrations
-              seed             Apply migrations and seed data
-              status           Show database and migration status
-              reset --force    Delete, recreate and seed the database
-              help             Show this help
-            """);
+            Console.WriteLine("Applying migrations...");
 
-        return 0;
-    }
+            await dbContext.Database.MigrateAsync();
 
-    private static int PrintUnknownCommand(string command)
-    {
-        Console.Error.WriteLine($"Unknown database command: {command}");
+            Console.WriteLine("Seeding database...");
 
-        PrintHelp();
+            await DbSeeder.SeedAsync(dbContext);
 
-        return 2;
+            Console.WriteLine("Database reset completed.");
+
+            return 0;
+        }
+
+        private static async Task<int> PrintStatusAsync(SetupDbContext dbContext)
+        {
+            bool canConnect = await dbContext.Database.CanConnectAsync();
+
+            Console.WriteLine($"Can connect: {canConnect}");
+
+            IEnumerable<string> applied = await dbContext.Database.GetAppliedMigrationsAsync();
+
+            IEnumerable<string> pending = await dbContext.Database.GetPendingMigrationsAsync();
+
+            Console.WriteLine();
+            Console.WriteLine("Applied migrations:");
+
+            foreach (string migration in applied)
+            {
+                Console.WriteLine($"  {migration}");
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("Pending migrations:");
+
+            foreach (string migration in pending)
+            {
+                Console.WriteLine($"  {migration}");
+            }
+
+            return canConnect ? 0 : 1;
+        }
+
+        private static int PrintHelp()
+        {
+            Console.WriteLine(
+                """
+                Espada database utility
+
+                Commands:
+                  migrate          Apply pending migrations
+                  seed             Apply migrations and seed data
+                  status           Show database and migration status
+                  reset --force    Delete, recreate and seed the database
+                  help             Show this help
+                """);
+
+            return 0;
+        }
+
+        private static int PrintUnknownCommand(string command)
+        {
+            Console.Error.WriteLine($"Unknown database command: {command}");
+
+            PrintHelp();
+
+            return 2;
+        }
     }
 }

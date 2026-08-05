@@ -5,14 +5,16 @@ using Espada.Domain.SeedWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Espada.Db.Database.EntityFrameworkConfigurations;
-
-internal sealed class ImportStatusTypesConfiguration : IEntityTypeConfiguration<ImportStatusTypes>
+namespace Espada.Db.Database.EntityFrameworkConfigurations
 {
-    public void Configure(EntityTypeBuilder<ImportStatusTypes> builder)
+    internal sealed class ImportStatusTypesConfiguration : IEntityTypeConfiguration<ImportStatusTypes>
     {
-        builder.Property(model => model.ImportStatusTypeId).ValueGeneratedNever();
-        builder.HasIndex(model => model.Name).IsUnique().HasDatabaseName(DbIndexConstants.ImportStatusTypeName);
-        builder.HasData(Enumeration.GetAll<ImportStatusType>().Select(value => new ImportStatusTypes { ImportStatusTypeId = value.Id, Name = value.Name }));
+        public void Configure(EntityTypeBuilder<ImportStatusTypes> builder)
+        {
+            builder.Property(model => model.ImportStatusTypeId).ValueGeneratedNever();
+            builder.HasIndex(model => model.Name).IsUnique().HasDatabaseName(DbIndexConstants.ImportStatusTypeName);
+            builder.HasData(Enumeration.GetAll<ImportStatusType>().Select(value =>
+                new ImportStatusTypes { ImportStatusTypeId = value.Id, Name = value.Name }));
+        }
     }
 }

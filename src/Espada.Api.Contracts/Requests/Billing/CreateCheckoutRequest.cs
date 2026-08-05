@@ -1,15 +1,17 @@
 using Espada.Api.Contracts.Constants;
 using System.ComponentModel.DataAnnotations;
 
-namespace Espada.Api.Contracts.Requests.Billing;
-
-public sealed record CreateCheckoutRequest(string Plan) : IValidatableObject
+namespace Espada.Api.Contracts.Requests.Billing
 {
-    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    public sealed record CreateCheckoutRequest(string Plan) : IValidatableObject
     {
-        if (!BillingPlanConstants.IsSupported(Plan))
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            yield return new ValidationResult($"Plan must be {BillingPlanConstants.Solo} or {BillingPlanConstants.Team}.", [nameof(Plan)]);
+            if (!BillingPlanConstants.IsSupported(Plan))
+            {
+                yield return new ValidationResult(
+                    $"Plan must be {BillingPlanConstants.Solo} or {BillingPlanConstants.Team}.", [nameof(Plan)]);
+            }
         }
     }
 }

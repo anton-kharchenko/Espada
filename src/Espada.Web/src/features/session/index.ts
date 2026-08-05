@@ -1,0 +1,1 @@
+export { ProtectedConsoleRoute } from './ProtectedConsoleRoute';

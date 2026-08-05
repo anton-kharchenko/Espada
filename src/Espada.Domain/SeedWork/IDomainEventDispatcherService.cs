@@ -1,6 +1,7 @@
-namespace Espada.Domain.SeedWork;
-
-public interface IDomainEventDispatcherService
+namespace Espada.Domain.SeedWork
 {
-    Task PublishAsync(IDomainEvent domainEvent, CancellationToken cancellationToken = default);
+    public interface IDomainEventDispatcherService
+    {
+        Task PublishAsync(IDomainEvent domainEvent, CancellationToken cancellationToken = default);
+    }
 }

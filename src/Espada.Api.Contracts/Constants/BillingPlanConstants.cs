@@ -1,9 +1,14 @@
-namespace Espada.Api.Contracts.Constants;
-
-public static class BillingPlanConstants
+namespace Espada.Api.Contracts.Constants
 {
-    public const string Solo = "Solo";
-    public const string Team = "Team";
+    public static class BillingPlanConstants
+    {
+        public const string Solo = "Solo";
+        public const string Team = "Team";
 
-    public static bool IsSupported(string? value) => value is not null && (value.Equals(Solo, StringComparison.OrdinalIgnoreCase) || value.Equals(Team, StringComparison.OrdinalIgnoreCase));
+        public static bool IsSupported(string? value)
+        {
+            return value is not null && (value.Equals(Solo, StringComparison.OrdinalIgnoreCase) ||
+                                         value.Equals(Team, StringComparison.OrdinalIgnoreCase));
+        }
+    }
 }

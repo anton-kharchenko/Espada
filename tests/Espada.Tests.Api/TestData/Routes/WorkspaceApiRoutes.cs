@@ -1,7 +1,10 @@
-namespace Espada.Tests.Api.TestData.Routes;
-
-internal static class WorkspaceApiRoutes
+namespace Espada.Tests.Api.TestData.Routes
 {
-    public static string GetById(Guid workspaceId) =>
-       $"{ApiRouteConstants.ApiV1}/workspaces/{workspaceId}";
+    internal static class WorkspaceApiRoutes
+    {
+        public static string GetById(Guid workspaceId)
+        {
+            return $"{ApiRouteConstants.ApiV1}/workspaces/{workspaceId}";
+        }
+    }
 }

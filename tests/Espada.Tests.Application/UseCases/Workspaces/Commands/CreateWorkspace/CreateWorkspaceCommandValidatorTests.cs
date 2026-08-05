@@ -4,80 +4,85 @@ using Espada.Tests.Application.TestData;
 using Espada.Tests.Application.TestData.Builder;
 using FluentValidation.TestHelper;
 
-namespace Espada.Tests.Application.UseCases.Workspaces.Commands.CreateWorkspace;
-
-public sealed class CreateWorkspaceCommandValidatorTests
+namespace Espada.Tests.Application.UseCases.Workspaces.Commands.CreateWorkspace
 {
-    private readonly CreateWorkspaceCommandValidator _validator = new();
-
-    [Fact]
-    public async Task Validate_WithValidCommand_ShouldNotHaveErrors()
+    public sealed class CreateWorkspaceCommandValidatorTests
     {
-        // Arrange
-        CreateWorkspaceCommand command = new CreateWorkspaceCommandBuilder().Build();
+        private readonly CreateWorkspaceCommandValidator _validator = new();
 
-        // Act
-        TestValidationResult<CreateWorkspaceCommand> result = await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
+        [Fact]
+        public async Task Validate_WithValidCommand_ShouldNotHaveErrors()
+        {
+            // Arrange
+            CreateWorkspaceCommand command = new CreateWorkspaceCommandBuilder().Build();
 
-        // Assert
-        result.ShouldNotHaveAnyValidationErrors();
-    }
+            // Act
+            TestValidationResult<CreateWorkspaceCommand> result =
+                await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
 
-    [Theory]
-    [MemberData(nameof(StringTheoryData.NullOrWhiteSpaceValues), MemberType = typeof(StringTheoryData))]
-    public async Task Validate_WithEmptyName_ShouldHaveNameError(string? name)
-    {
-        // Arrange
-        CreateWorkspaceCommand command = new CreateWorkspaceCommandBuilder().WithName(name).Build();
+            // Assert
+            result.ShouldNotHaveAnyValidationErrors();
+        }
 
-        // Act
-        TestValidationResult<CreateWorkspaceCommand> result = await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
+        [Theory]
+        [MemberData(nameof(StringTheoryData.NullOrWhiteSpaceValues), MemberType = typeof(StringTheoryData))]
+        public async Task Validate_WithEmptyName_ShouldHaveNameError(string? name)
+        {
+            // Arrange
+            CreateWorkspaceCommand command = new CreateWorkspaceCommandBuilder().WithName(name).Build();
 
-        // Assert
-        result.ShouldHaveValidationErrorFor(value => value.Name);
-    }
+            // Act
+            TestValidationResult<CreateWorkspaceCommand> result =
+                await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
 
-    [Fact]
-    public async Task Validate_WithNameAtMaximumLength_ShouldNotHaveNameError()
-    {
-        // Arrange
-        string name = new('a', WorkspaceName.MaxLength);
+            // Assert
+            result.ShouldHaveValidationErrorFor(value => value.Name);
+        }
 
-        CreateWorkspaceCommand command = new CreateWorkspaceCommandBuilder().WithName(name).Build();
+        [Fact]
+        public async Task Validate_WithNameAtMaximumLength_ShouldNotHaveNameError()
+        {
+            // Arrange
+            string name = new('a', WorkspaceName.MaxLength);
 
-        // Act
-        TestValidationResult<CreateWorkspaceCommand> result = await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
+            CreateWorkspaceCommand command = new CreateWorkspaceCommandBuilder().WithName(name).Build();
 
-        // Assert
-        result.ShouldNotHaveValidationErrorFor(value => value.Name);
-    }
+            // Act
+            TestValidationResult<CreateWorkspaceCommand> result =
+                await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
 
-    [Fact]
-    public async Task Validate_WithNameAboveMaximumLength_ShouldHaveNameError()
-    {
-        // Arrange
-        string name = new('a', WorkspaceName.MaxLength + 1);
+            // Assert
+            result.ShouldNotHaveValidationErrorFor(value => value.Name);
+        }
 
-        CreateWorkspaceCommand command = new CreateWorkspaceCommandBuilder().WithName(name).Build();
+        [Fact]
+        public async Task Validate_WithNameAboveMaximumLength_ShouldHaveNameError()
+        {
+            // Arrange
+            string name = new('a', WorkspaceName.MaxLength + 1);
 
-        // Act
-        TestValidationResult<CreateWorkspaceCommand> result =
-            await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
+            CreateWorkspaceCommand command = new CreateWorkspaceCommandBuilder().WithName(name).Build();
 
-        // Assert
-        result.ShouldHaveValidationErrorFor(value => value.Name);
-    }
+            // Act
+            TestValidationResult<CreateWorkspaceCommand> result =
+                await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
 
-    [Fact]
-    public async Task Validate_WithoutWorkspaceType_ShouldHaveTypeError()
-    {
-        // Arrange
-        CreateWorkspaceCommand command = new CreateWorkspaceCommandBuilder().WithoutType().Build();
+            // Assert
+            result.ShouldHaveValidationErrorFor(value => value.Name);
+        }
 
-        // Act
-        TestValidationResult<CreateWorkspaceCommand> result = await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
+        [Fact]
+        public async Task Validate_WithoutWorkspaceType_ShouldHaveTypeError()
+        {
+            // Arrange
+            CreateWorkspaceCommand command = new CreateWorkspaceCommandBuilder().WithoutType().Build();
 
-        // Assert
-        result.ShouldHaveValidationErrorFor(value => value.Type);
+            // Act
+            TestValidationResult<CreateWorkspaceCommand> result =
+                await _validator.TestValidateAsync(command, cancellationToken: TestContext.Current.CancellationToken);
+
+            // Assert
+            result.ShouldHaveValidationErrorFor(value => value.Type);
+        }
     }
 }

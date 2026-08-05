@@ -8,87 +8,88 @@ using Espada.Tests.Api.TestData.Routes;
 using System.Net;
 using System.Net.Http.Json;
 
-namespace Espada.Tests.Api.Controllers;
-
-public sealed class ChunkApiValidationTests(EspadaApiFactory factory) : IClassFixture<EspadaApiFactory>
+namespace Espada.Tests.Api.Controllers
 {
-    [Fact]
-    public async Task CreateBatch_WithUnsupportedStrategy_ShouldReturnBadRequest()
+    public sealed class ChunkApiValidationTests(EspadaApiFactory factory) : IClassFixture<EspadaApiFactory>
     {
-        using HttpClient client = factory.CreateHttpsClient();
-
-        CreateChunkBatchRequest request = new()
+        [Fact]
+        public async Task CreateBatch_WithUnsupportedStrategy_ShouldReturnBadRequest()
         {
-            StrategyId = int.MaxValue,
-            StrategyVersion = TestValues.ChunkingStrategyVersion
-        };
+            using HttpClient client = factory.CreateHttpsClient();
 
-        HttpResponseMessage response = await client.PostAsJsonAsync(
-            ChunkBatchApiRoutes.Create(
-                TestIds.WorkspaceId,
-                TestIds.ArtifactId,
-                TestIds.ArtifactRevisionId),
-            request,
-            TestContext.Current.CancellationToken);
+            CreateChunkBatchRequest request = new()
+            {
+                StrategyId = int.MaxValue,
+                StrategyVersion = TestValues.ChunkingStrategyVersion
+            };
 
-        await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
-        await response.ShouldContainValidationErrorAsync(nameof(CreateChunkBatchRequest.StrategyId));
-    }
+            HttpResponseMessage response = await client.PostAsJsonAsync(
+                ChunkBatchApiRoutes.Create(
+                    TestIds.WorkspaceId,
+                    TestIds.ArtifactId,
+                    TestIds.ArtifactRevisionId),
+                request,
+                TestContext.Current.CancellationToken);
 
-    [Fact]
-    public async Task CreateChunks_WithEmptyItems_ShouldReturnBadRequest()
-    {
-        using HttpClient client = factory.CreateHttpsClient();
+            await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
+            await response.ShouldContainValidationErrorAsync(nameof(CreateChunkBatchRequest.StrategyId));
+        }
 
-        HttpResponseMessage response = await client.PostAsJsonAsync(
-            ChunkApiRoutes.Create(TestIds.WorkspaceId, TestIds.ChunkBatchId),
-            new CreateChunksRequest(),
-            TestContext.Current.CancellationToken);
-
-        await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
-        await response.ShouldContainValidationErrorAsync(nameof(CreateChunksRequest.Items));
-    }
-
-    [Fact]
-    public async Task CreateChunks_WithDuplicateNumbers_ShouldReturnBadRequest()
-    {
-        using HttpClient client = factory.CreateHttpsClient();
-
-        CreateChunksRequest request = new()
+        [Fact]
+        public async Task CreateChunks_WithEmptyItems_ShouldReturnBadRequest()
         {
-            Items =
-            [
-                new CreateChunkItemRequest { Number = 1, Content = "first" },
-                new CreateChunkItemRequest { Number = 1, Content = "second" }
-            ]
-        };
+            using HttpClient client = factory.CreateHttpsClient();
 
-        HttpResponseMessage response = await client.PostAsJsonAsync(
-            ChunkApiRoutes.Create(TestIds.WorkspaceId, TestIds.ChunkBatchId),
-            request,
-            TestContext.Current.CancellationToken);
+            HttpResponseMessage response = await client.PostAsJsonAsync(
+                ChunkApiRoutes.Create(TestIds.WorkspaceId, TestIds.ChunkBatchId),
+                new CreateChunksRequest(),
+                TestContext.Current.CancellationToken);
 
-        await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
-        await response.ShouldContainValidationErrorAsync(nameof(CreateChunksRequest.Items));
-    }
+            await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
+            await response.ShouldContainValidationErrorAsync(nameof(CreateChunksRequest.Items));
+        }
 
-    [Fact]
-    public async Task CreateEmbedding_WithEmptyVector_ShouldReturnBadRequest()
-    {
-        using HttpClient client = factory.CreateHttpsClient();
-
-        CreateChunkEmbeddingRequest request = new()
+        [Fact]
+        public async Task CreateChunks_WithDuplicateNumbers_ShouldReturnBadRequest()
         {
-            ModelIdentifier = TestValues.EmbeddingModelIdentifier,
-            ModelVersion = TestValues.EmbeddingModelVersion
-        };
+            using HttpClient client = factory.CreateHttpsClient();
 
-        HttpResponseMessage response = await client.PostAsJsonAsync(
-            ChunkEmbeddingApiRoutes.Create(TestIds.WorkspaceId, TestIds.ChunkId),
-            request,
-            TestContext.Current.CancellationToken);
+            CreateChunksRequest request = new()
+            {
+                Items =
+                [
+                    new CreateChunkItemRequest { Number = 1, Content = "first" },
+                    new CreateChunkItemRequest { Number = 1, Content = "second" }
+                ]
+            };
 
-        await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
-        await response.ShouldContainValidationErrorAsync(nameof(CreateChunkEmbeddingRequest.Vector));
+            HttpResponseMessage response = await client.PostAsJsonAsync(
+                ChunkApiRoutes.Create(TestIds.WorkspaceId, TestIds.ChunkBatchId),
+                request,
+                TestContext.Current.CancellationToken);
+
+            await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
+            await response.ShouldContainValidationErrorAsync(nameof(CreateChunksRequest.Items));
+        }
+
+        [Fact]
+        public async Task CreateEmbedding_WithEmptyVector_ShouldReturnBadRequest()
+        {
+            using HttpClient client = factory.CreateHttpsClient();
+
+            CreateChunkEmbeddingRequest request = new()
+            {
+                ModelIdentifier = TestValues.EmbeddingModelIdentifier,
+                ModelVersion = TestValues.EmbeddingModelVersion
+            };
+
+            HttpResponseMessage response = await client.PostAsJsonAsync(
+                ChunkEmbeddingApiRoutes.Create(TestIds.WorkspaceId, TestIds.ChunkId),
+                request,
+                TestContext.Current.CancellationToken);
+
+            await response.ShouldHaveStatusCodeAsync(HttpStatusCode.BadRequest);
+            await response.ShouldContainValidationErrorAsync(nameof(CreateChunkEmbeddingRequest.Vector));
+        }
     }
 }

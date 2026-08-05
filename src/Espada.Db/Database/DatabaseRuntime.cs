@@ -1,14 +1,15 @@
 using Npgsql;
 
-namespace Espada.Db.Database;
-
-internal sealed class DatabaseRuntime(SetupDbContext dbContext, NpgsqlDataSource dataSource) : IAsyncDisposable
+namespace Espada.Db.Database
 {
-    public SetupDbContext DbContext { get; } = dbContext;
-
-    public async ValueTask DisposeAsync()
+    internal sealed class DatabaseRuntime(SetupDbContext dbContext, NpgsqlDataSource dataSource) : IAsyncDisposable
     {
-        await DbContext.DisposeAsync();
-        await dataSource.DisposeAsync();
+        public SetupDbContext DbContext { get; } = dbContext;
+
+        public async ValueTask DisposeAsync()
+        {
+            await DbContext.DisposeAsync();
+            await dataSource.DisposeAsync();
+        }
     }
 }

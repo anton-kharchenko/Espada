@@ -4,28 +4,35 @@ using Espada.Tests.Application.Fakes;
 using Espada.Tests.Application.TestData;
 using Espada.Tests.Application.TestData.Builder;
 
-namespace Espada.Tests.Application.Fixtures;
-
-internal sealed class RegisterSourceHandlerFixture
+namespace Espada.Tests.Application.Fixtures
 {
-    public WorkspaceRepositorySpy WorkspaceRepository { get; } = new();
-
-    public SourceRepositorySpy SourceRepository { get; } = new();
-
-    public UnitOfWorkSpy UnitOfWork { get; } = new();
-
-    public TestClockService ClockService { get; } = new(TestDates.UtcNow);
-
-    public RegisterSourceCommandHandler CreateHandler() => new(WorkspaceRepository, SourceRepository, UnitOfWork, ClockService);
-
-    public Workspace GivenWorkspaceExists()
+    internal sealed class RegisterSourceHandlerFixture
     {
-        Workspace workspace = new WorkspaceBuilder().BuildWithoutPendingEvents();
+        public WorkspaceRepositorySpy WorkspaceRepository { get; } = new();
 
-        WorkspaceRepository.WorkspaceToReturn = workspace;
+        public SourceRepositorySpy SourceRepository { get; } = new();
 
-        return workspace;
+        public UnitOfWorkSpy UnitOfWork { get; } = new();
+
+        public TestClockService ClockService { get; } = new(TestDates.UtcNow);
+
+        public RegisterSourceCommandHandler CreateHandler()
+        {
+            return new RegisterSourceCommandHandler(WorkspaceRepository, SourceRepository, UnitOfWork, ClockService);
+        }
+
+        public Workspace GivenWorkspaceExists()
+        {
+            Workspace workspace = new WorkspaceBuilder().BuildWithoutPendingEvents();
+
+            WorkspaceRepository.WorkspaceToReturn = workspace;
+
+            return workspace;
+        }
+
+        public void GivenWorkspaceDoesNotExist()
+        {
+            WorkspaceRepository.WorkspaceToReturn = null;
+        }
     }
-
-    public void GivenWorkspaceDoesNotExist() => WorkspaceRepository.WorkspaceToReturn = null;
 }

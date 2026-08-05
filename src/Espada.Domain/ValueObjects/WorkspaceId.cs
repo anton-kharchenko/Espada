@@ -1,24 +1,46 @@
 using Espada.Domain.SeedWork;
 
-namespace Espada.Domain.ValueObjects;
-
-public sealed class WorkspaceId : ValueObject
+namespace Espada.Domain.ValueObjects
 {
-    private WorkspaceId(Guid value)
+    public sealed class WorkspaceId : ValueObject
     {
-        Value = value;
-    }
+        private WorkspaceId(Guid value)
+        {
+            Value = value;
+        }
 
-    public Guid Value { get; }
+        public Guid Value { get; }
 
-    public static WorkspaceId New() => new(Guid.NewGuid());
+        public static WorkspaceId New()
+        {
+            return new WorkspaceId(Guid.NewGuid());
+        }
 
-    public static WorkspaceId Create(Guid value) => value == Guid.Empty ? throw new ArgumentException("Workspace ID cannot be empty.", nameof(value)) : new WorkspaceId(value);
+        public static WorkspaceId Create(Guid value)
+        {
+            return value == Guid.Empty
+                ? throw new ArgumentException("Workspace ID cannot be empty.", nameof(value))
+                : new WorkspaceId(value);
+        }
 
-    public override string ToString() => Value.ToString("D");
+        public override string ToString()
+        {
+            return Value.ToString("D");
+        }
 
-    protected override IEnumerable<object> GetEqualityComponents()
-    {
-        yield return Value;
+        protected override IEnumerable<object> GetEqualityComponents()
+        {
+            yield return Value;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }

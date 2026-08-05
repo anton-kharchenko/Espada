@@ -10,48 +10,53 @@ using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Espada.Api.Controllers;
-
-[Route("api/v{version:apiVersion}/workspaces")]
-public sealed class WorkspacesController(IMediator mediator, IMapper mapper) : BaseController
+namespace Espada.Api.Controllers
 {
-    [HttpPost]
-    [ProducesResponseType(typeof(CreateWorkspaceResponse), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Create([FromBody] CreateWorkspaceRequest request, CancellationToken cancellationToken)
+    [Route("api/v{version:apiVersion}/workspaces")]
+    public sealed class WorkspacesController(IMediator mediator, IMapper mapper) : BaseController
     {
-        bool externalIdentity = User.Identity?.AuthenticationType == JwtBearerDefaults.AuthenticationScheme;
+        [HttpPost]
+        [ProducesResponseType(typeof(CreateWorkspaceResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Create([FromBody] CreateWorkspaceRequest request,
+            CancellationToken cancellationToken)
+        {
+            bool externalIdentity = User.Identity?.AuthenticationType == JwtBearerDefaults.AuthenticationScheme;
 
-        CreateWorkspaceCommand command = mapper.Map<CreateWorkspaceCommand>(
-            new CreateWorkspaceMappingSource(
-                request,
-                externalIdentity ? User.FindFirst("iss")?.Value : null,
-                externalIdentity ? User.FindFirst("sub")?.Value : null));
+            CreateWorkspaceCommand command = mapper.Map<CreateWorkspaceCommand>(
+                new CreateWorkspaceMappingSource(
+                    request,
+                    externalIdentity ? User.FindFirst("iss")?.Value : null,
+                    externalIdentity ? User.FindFirst("sub")?.Value : null));
 
-        DomainResult<CreateWorkspaceResponse> result = await mediator.Send(command, cancellationToken);
+            DomainResult<CreateWorkspaceResponse> result = await mediator.Send(command, cancellationToken);
 
-        return result.IsFailure ? HandleError(result.Error) : StatusCode(StatusCodes.Status201Created, result.Value);
-    }
+            return result.IsFailure
+                ? HandleError(result.Error)
+                : StatusCode(StatusCodes.Status201Created, result.Value);
+        }
 
-    [HttpGet("{workspaceId:guid}")]
-    [ProducesResponseType(typeof(WorkspaceResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetById([FromRoute] Guid workspaceId, CancellationToken cancellationToken)
-    {
-        DomainResult<WorkspaceResponse> result = await mediator.Send(new GetWorkspaceByIdQuery(WorkspaceId: workspaceId), cancellationToken);
+        [HttpGet("{workspaceId:guid}")]
+        [ProducesResponseType(typeof(WorkspaceResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetById([FromRoute] Guid workspaceId, CancellationToken cancellationToken)
+        {
+            DomainResult<WorkspaceResponse> result =
+                await mediator.Send(new GetWorkspaceByIdQuery(workspaceId), cancellationToken);
 
-        return result.IsFailure ? HandleError(result.Error) : Ok(result.Value);
-    }
+            return result.IsFailure ? HandleError(result.Error) : Ok(result.Value);
+        }
 
-    [HttpPost("{workspaceId:guid}/archive")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Archive([FromRoute] Guid workspaceId, CancellationToken cancellationToken)
-    {
-        DomainResult result = await mediator.Send(new ArchiveWorkspaceCommand(WorkspaceId: workspaceId), cancellationToken);
+        [HttpPost("{workspaceId:guid}/archive")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> Archive([FromRoute] Guid workspaceId, CancellationToken cancellationToken)
+        {
+            DomainResult result = await mediator.Send(new ArchiveWorkspaceCommand(workspaceId), cancellationToken);
 
-        return result.IsFailure ? HandleError(result.Error) : NoContent();
+            return result.IsFailure ? HandleError(result.Error) : NoContent();
+        }
     }
 }

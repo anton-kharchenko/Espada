@@ -1,21 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
 
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>Espada.Worker</UserSecretsId>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>Espada.Worker</UserSecretsId>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Espada.Billing\Espada.Billing.csproj" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Espada.Billing\Espada.Billing.csproj"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting"/>
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Espada.Application\Espada.Application.csproj" />
-    <ProjectReference Include="..\Espada.Domain\Espada.Domain.csproj" />
-    <ProjectReference Include="..\Espada.Infrastructure\Espada.Infrastructure.csproj" />
-    <ProjectReference Include="..\Espada.ServiceDefaults\Espada.ServiceDefaults.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Espada.Application\Espada.Application.csproj"/>
+        <ProjectReference Include="..\Espada.Domain\Espada.Domain.csproj"/>
+        <ProjectReference Include="..\Espada.Infrastructure\Espada.Infrastructure.csproj"/>
+        <ProjectReference Include="..\Espada.ServiceDefaults\Espada.ServiceDefaults.csproj"/>
+    </ItemGroup>
 </Project>

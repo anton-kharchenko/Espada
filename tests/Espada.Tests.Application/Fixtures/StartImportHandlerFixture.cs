@@ -5,39 +5,46 @@ using Espada.Tests.Application.Fakes;
 using Espada.Tests.Application.TestData;
 using Espada.Tests.Application.TestData.Builder;
 
-namespace Espada.Tests.Application.Fixtures;
-
-internal sealed class StartImportHandlerFixture
+namespace Espada.Tests.Application.Fixtures
 {
-    public ImportJobRepositorySpy ImportJobRepository { get; } = new();
-
-    public UnitOfWorkSpy UnitOfWork { get; } = new();
-
-    public TestClockService ClockService { get; } = new(TestDates.ImportStartedAtUtc);
-
-    public StartImportCommandHandler CreateHandler() => new(ImportJobRepository, UnitOfWork, ClockService);
-
-    public ImportJob GivenRequestedImportExists(WorkspaceId? workspaceId = null)
+    internal sealed class StartImportHandlerFixture
     {
-        ImportJob importJob = new ImportJobBuilder()
+        public ImportJobRepositorySpy ImportJobRepository { get; } = new();
+
+        public UnitOfWorkSpy UnitOfWork { get; } = new();
+
+        public TestClockService ClockService { get; } = new(TestDates.ImportStartedAtUtc);
+
+        public StartImportCommandHandler CreateHandler()
+        {
+            return new StartImportCommandHandler(ImportJobRepository, UnitOfWork, ClockService);
+        }
+
+        public ImportJob GivenRequestedImportExists(WorkspaceId? workspaceId = null)
+        {
+            ImportJob importJob = new ImportJobBuilder()
                 .InWorkspace(workspaceId ?? TestIds.DefaultWorkspaceId)
                 .BuildWithoutPendingEvents();
 
-        ImportJobRepository.ImportJobToReturn = importJob;
+            ImportJobRepository.ImportJobToReturn = importJob;
 
-        return importJob;
-    }
+            return importJob;
+        }
 
-    public ImportJob GivenRunningImportExists(WorkspaceId? workspaceId = null)
-    {
-        ImportJob importJob = new ImportJobBuilder()
+        public ImportJob GivenRunningImportExists(WorkspaceId? workspaceId = null)
+        {
+            ImportJob importJob = new ImportJobBuilder()
                 .InWorkspace(workspaceId ?? TestIds.DefaultWorkspaceId)
                 .BuildRunningWithoutPendingEvents();
 
-        ImportJobRepository.ImportJobToReturn = importJob;
+            ImportJobRepository.ImportJobToReturn = importJob;
 
-        return importJob;
+            return importJob;
+        }
+
+        public void GivenImportDoesNotExist()
+        {
+            ImportJobRepository.ImportJobToReturn = null;
+        }
     }
-
-    public void GivenImportDoesNotExist() => ImportJobRepository.ImportJobToReturn = null;
 }

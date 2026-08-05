@@ -1,6 +1,8 @@
+using AutoMapper;
 using Espada.Application.ApplicationErrors;
 using Espada.Application.Contracts.Messaging;
 using Espada.Application.Contracts.Persistence;
+using Espada.Application.Models;
 using Espada.Domain.Aggregates;
 using Espada.Domain.Rules;
 using Espada.Domain.ValueObjects;
@@ -8,7 +10,11 @@ using Espada.Domain.ValueObjects;
 namespace Espada.Application.UseCases.Artifacts.Queries.GetArtifactById
 {
     internal sealed class GetArtifactByIdQueryHandler(
-        IArtifactRepository artifactRepository)
+        IArtifactRepository artifactRepository,
+        IArtifactRevisionRepository artifactRevisionRepository,
+        IInstructionRuleRepository instructionRuleRepository,
+        IPolicyRuleRepository policyRuleRepository,
+        IMapper mapper)
         : IQueryHandler<GetArtifactByIdQuery, GetArtifactByIdResponse>
     {
         public async Task<DomainResult<GetArtifactByIdResponse>> Handle(
@@ -17,53 +23,56 @@ namespace Espada.Application.UseCases.Artifacts.Queries.GetArtifactById
         {
             if (request.WorkspaceId == Guid.Empty)
             {
-                return DomainResult<GetArtifactByIdResponse>.Failure(
+                return DomainResult.Failure<GetArtifactByIdResponse>(
                     WorkspaceApplicationErrors.InvalidId);
             }
 
             if (request.ArtifactId == Guid.Empty)
             {
-                return DomainResult<GetArtifactByIdResponse>.Failure(
+                return DomainResult.Failure<GetArtifactByIdResponse>(
                     ArtifactApplicationErrors.InvalidId);
             }
 
-            ArtifactId artifactId = ArtifactId.Create(request.ArtifactId);
-
             Artifact? artifact = await artifactRepository.GetByIdAsync(
-                artifactId,
+                ArtifactId.Create(request.ArtifactId),
                 cancellationToken);
-
             if (artifact is null)
             {
-                return DomainResult<GetArtifactByIdResponse>.Failure(
+                return DomainResult.Failure<GetArtifactByIdResponse>(
                     ArtifactApplicationErrors.NotFound(request.ArtifactId));
             }
 
             if (artifact.WorkspaceId.Value != request.WorkspaceId)
             {
-                return DomainResult<GetArtifactByIdResponse>.Failure(
+                return DomainResult.Failure<GetArtifactByIdResponse>(
                     ArtifactApplicationErrors.NotFoundInWorkspace(
                         request.ArtifactId,
                         request.WorkspaceId));
             }
 
-            GetArtifactByIdResponse response = new(
-                artifact.Id.Value,
-                artifact.WorkspaceId.Value,
-                artifact.Title.Value,
-                artifact.Type.Id,
-                artifact.Type.Name,
-                artifact.Status.Id,
-                artifact.Status.Name,
-                artifact.Priority.Value,
-                artifact.CurrentRevisionId?.Value,
-                artifact.CurrentRevisionNumber?.Value,
-                artifact.RevisionCount,
-                artifact.CreatedAtUtc,
-                artifact.UpdatedAtUtc,
-                artifact.ArchivedAtUtc);
+            ArtifactRevision? revision = artifact.CurrentRevisionId is null
+                ? null
+                : await artifactRevisionRepository.GetByIdAsync(
+                    artifact.CurrentRevisionId,
+                    cancellationToken);
+            IReadOnlyList<InstructionRule> instructionRules = revision is null
+                ? []
+                : await instructionRuleRepository.ListByRevisionIdAsync(
+                    revision.Id,
+                    cancellationToken);
+            IReadOnlyList<PolicyRule> policyRules = revision is null
+                ? []
+                : await policyRuleRepository.ListByRevisionIdAsync(
+                    revision.Id,
+                    cancellationToken);
+            GetArtifactByIdMappingSource mappingSource = new(
+                artifact,
+                revision,
+                instructionRules,
+                policyRules);
+            GetArtifactByIdResponse response = mapper.Map<GetArtifactByIdResponse>(mappingSource);
 
-            return DomainResult<GetArtifactByIdResponse>.Success(response);
+            return DomainResult.Success(response);
         }
     }
 }

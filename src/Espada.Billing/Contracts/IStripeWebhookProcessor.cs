@@ -1,8 +1,9 @@
-namespace Espada.Billing.Contracts;
-
-public interface IStripeWebhookProcessor
+namespace Espada.Billing.Contracts
 {
-    Task<bool> ProcessNextAsync(
-        string workerId,
-        CancellationToken cancellationToken = default);
+    public interface IStripeWebhookProcessor
+    {
+        Task<bool> ProcessNextAsync(
+            string workerId,
+            CancellationToken cancellationToken = default);
+    }
 }

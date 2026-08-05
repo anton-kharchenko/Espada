@@ -14,7 +14,8 @@ namespace Espada.Infrastructure.Repositories
             await dbContext.Workspaces.AddAsync(workspace, cancellationToken);
         }
 
-        public async Task<Workspace?> GetByIdAsync(WorkspaceId workspaceId, CancellationToken cancellationToken = default)
+        public async Task<Workspace?> GetByIdAsync(WorkspaceId workspaceId,
+            CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(workspaceId);
 

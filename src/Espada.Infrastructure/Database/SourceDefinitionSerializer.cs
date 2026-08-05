@@ -3,48 +3,56 @@ using Espada.Domain.ValueObjects.SourceDefinitions;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
-namespace Espada.Infrastructure.Database;
-
-internal static class SourceDefinitionSerializer
+namespace Espada.Infrastructure.Database
 {
-    private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
-
-    public static string Serialize(SourceDefinition definition)
+    internal static class SourceDefinitionSerializer
     {
-        string type = definition switch
-        {
-            FileSourceDefinition => SourceDefinitionDiscriminatorConstants.File,
-            WebPageSourceDefinition => SourceDefinitionDiscriminatorConstants.WebPage,
-            PlainTextSourceDefinition => SourceDefinitionDiscriminatorConstants.PlainText,
-            ConversationSourceDefinition => SourceDefinitionDiscriminatorConstants.Conversation,
-            ConnectorSourceDefinition => SourceDefinitionDiscriminatorConstants.Connector,
-            LegacySourceDefinition => SourceDefinitionDiscriminatorConstants.Legacy,
-            _ => throw new JsonException("Source definition type is not supported.")
-        };
-        JsonObject payload = JsonSerializer.SerializeToNode(definition, definition.GetType(), SerializerOptions)?.AsObject() ?? throw new JsonException("Source definition payload was empty.");
-        payload.Insert(0, SourceDefinitionDiscriminatorConstants.Property, type);
-        return payload.ToJsonString(SerializerOptions);
-    }
+        private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
 
-    public static SourceDefinition Deserialize(string json)
-    {
-        using JsonDocument document = JsonDocument.Parse(json);
-        if (!document.RootElement.TryGetProperty(SourceDefinitionDiscriminatorConstants.Property, out JsonElement type))
+        public static string Serialize(SourceDefinition definition)
         {
-            throw new JsonException("Source definition type is required.");
+            string type = definition switch
+            {
+                FileSourceDefinition => SourceDefinitionDiscriminatorConstants.File,
+                WebPageSourceDefinition => SourceDefinitionDiscriminatorConstants.WebPage,
+                PlainTextSourceDefinition => SourceDefinitionDiscriminatorConstants.PlainText,
+                ConversationSourceDefinition => SourceDefinitionDiscriminatorConstants.Conversation,
+                ConnectorSourceDefinition => SourceDefinitionDiscriminatorConstants.Connector,
+                LegacySourceDefinition => SourceDefinitionDiscriminatorConstants.Legacy,
+                _ => throw new JsonException("Source definition type is not supported.")
+            };
+            JsonObject payload =
+                JsonSerializer.SerializeToNode(definition, definition.GetType(), SerializerOptions)?.AsObject() ??
+                throw new JsonException("Source definition payload was empty.");
+            payload.Insert(0, SourceDefinitionDiscriminatorConstants.Property, type);
+            return payload.ToJsonString(SerializerOptions);
         }
 
-        return type.GetString() switch
+        public static SourceDefinition Deserialize(string json)
         {
-            SourceDefinitionDiscriminatorConstants.File => Deserialize<FileSourceDefinition>(json),
-            SourceDefinitionDiscriminatorConstants.WebPage => Deserialize<WebPageSourceDefinition>(json),
-            SourceDefinitionDiscriminatorConstants.PlainText => Deserialize<PlainTextSourceDefinition>(json),
-            SourceDefinitionDiscriminatorConstants.Conversation => Deserialize<ConversationSourceDefinition>(json),
-            SourceDefinitionDiscriminatorConstants.Connector => Deserialize<ConnectorSourceDefinition>(json),
-            SourceDefinitionDiscriminatorConstants.Legacy => Deserialize<LegacySourceDefinition>(json),
-            _ => throw new JsonException("Source definition type is not supported.")
-        };
-    }
+            using JsonDocument document = JsonDocument.Parse(json);
+            if (!document.RootElement.TryGetProperty(SourceDefinitionDiscriminatorConstants.Property,
+                    out JsonElement type))
+            {
+                throw new JsonException("Source definition type is required.");
+            }
 
-    private static T Deserialize<T>(string json) where T : SourceDefinition => JsonSerializer.Deserialize<T>(json, SerializerOptions) ?? throw new JsonException("Source definition payload was empty.");
+            return type.GetString() switch
+            {
+                SourceDefinitionDiscriminatorConstants.File => Deserialize<FileSourceDefinition>(json),
+                SourceDefinitionDiscriminatorConstants.WebPage => Deserialize<WebPageSourceDefinition>(json),
+                SourceDefinitionDiscriminatorConstants.PlainText => Deserialize<PlainTextSourceDefinition>(json),
+                SourceDefinitionDiscriminatorConstants.Conversation => Deserialize<ConversationSourceDefinition>(json),
+                SourceDefinitionDiscriminatorConstants.Connector => Deserialize<ConnectorSourceDefinition>(json),
+                SourceDefinitionDiscriminatorConstants.Legacy => Deserialize<LegacySourceDefinition>(json),
+                _ => throw new JsonException("Source definition type is not supported.")
+            };
+        }
+
+        private static T Deserialize<T>(string json) where T : SourceDefinition
+        {
+            return JsonSerializer.Deserialize<T>(json, SerializerOptions) ??
+                   throw new JsonException("Source definition payload was empty.");
+        }
+    }
 }

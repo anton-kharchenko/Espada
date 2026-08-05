@@ -1,21 +1,23 @@
 using Espada.Domain.Enums;
 using System.Reflection;
 
-namespace Espada.Tests.Application.TestData;
-
-internal static class WorkspaceTypeTestData
+namespace Espada.Tests.Application.TestData
 {
-    public static WorkspaceType Any { get; } = ResolveAnyWorkspaceType();
-
-    private static WorkspaceType ResolveAnyWorkspaceType()
+    internal static class WorkspaceTypeTestData
     {
-        WorkspaceType? workspaceType = typeof(WorkspaceType)
+        public static WorkspaceType Any { get; } = ResolveAnyWorkspaceType();
+
+        private static WorkspaceType ResolveAnyWorkspaceType()
+        {
+            WorkspaceType? workspaceType = typeof(WorkspaceType)
                 .GetFields(BindingFlags.Public | BindingFlags.Static)
                 .Where(field => field.FieldType == typeof(WorkspaceType))
                 .Select(field => field.GetValue(null))
                 .OfType<WorkspaceType>()
                 .FirstOrDefault();
 
-        return workspaceType ?? throw new InvalidOperationException("WorkspaceType must declare at least one public static value.");
+            return workspaceType ??
+                   throw new InvalidOperationException("WorkspaceType must declare at least one public static value.");
+        }
     }
 }

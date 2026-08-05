@@ -1,7 +1,8 @@
-namespace Espada.Db.Constants;
-
-public static class DbIdentifierColumnTypeConstants
+namespace Espada.Db.Constants
 {
-    public const string Uuid = "uuid";
-    public const string Xid = "xid";
+    public static class DbIdentifierColumnTypeConstants
+    {
+        public const string Uuid = "uuid";
+        public const string Xid = "xid";
+    }
 }
